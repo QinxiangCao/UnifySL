@@ -1,9 +1,5 @@
 Require Import Coq.Logic.FunctionalExtensionality.
 
-Lemma foo: forall P, toy_fixpoint P = forall n, P n.
-Proof.
-  
-
 Class Var_env : Type := {
   Var : Type;
   var_eq: forall v1 v2: Var, {v1 = v2} + {v1 <> v2}
