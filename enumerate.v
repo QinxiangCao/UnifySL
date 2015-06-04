@@ -2,12 +2,21 @@ Require Import IntuitionisticLogic.base.
 Require Import IntuitionisticLogic.Wf.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
+Require Import Coq.Relations.Relation_Operators.
 Require Import Coq.Arith.Compare_dec.
 Local Open Scope IPC_scope.
 
 Section RelationLib.
 
 Variable A: Type.
+
+Section Intersection.
+
+Variables R1 R2: relation A.
+
+Definition intersection x y := R1 x y /\ R2 x y.
+
+End Intersection.
 
 Section RelationDef.
 
@@ -58,6 +67,7 @@ Class StrictTotalOrder: Prop := {
 }.
 
 Class StrictTotalOrderViaEquiv: Prop := {
+  StrictTotalOrderViaEquiv_EqIsEquiv: Equivalence eqA;
   StrictTotalOrderViaEquiv_IrreflViaEquiv: IrreflViaEquiv;
   StrictTotalOrderViaEquiv_Asymmetric: Asymmetric R;
   StrictTotalOrderViaEquiv_Transitive: Transitive R;
@@ -71,7 +81,58 @@ Class StrictWellOrder: Prop := {
 
 End RelationDef.
 
-Definition StrictBiKey x y := R1 x y \/ (~ R1 x y /\ ~ R1 y x /\ R2 x y).
+Variable R1 R2 eqA1 eqA2: relation A.
+
+Lemma intersection_Reflexive: Reflexive R1 -> Reflexive R2 -> Reflexive (intersection R1 R2).
+Proof.
+  intros ? ? x.
+  split; apply reflexivity.
+Qed.
+
+Lemma intersection_Symmetric: Symmetric R1 -> Symmetric R2 -> Symmetric (intersection R1 R2).
+Proof.
+  intros ? ? x y [? ?].
+  split; apply symmetry; auto.
+Qed.
+
+Lemma intersection_Transitive: Transitive R1 -> Transitive R2 -> Transitive (intersection R1 R2).
+Proof.
+  intros ? ? x y z [? ?] [? ?].
+  split; eapply transitivity; eauto.
+Qed.
+
+Definition StrictBiKey x y := R1 x y \/ (eqA1 x y /\ R2 x y).
+
+Lemma BiKey_StrictTotalOrderViaEquiv:
+  StrictTotalOrderViaEquiv R1 eqA1 ->
+  StrictTotalOrderViaEquiv R2 eqA2 ->
+  StrictTotalOrderViaEquiv StrictBiKey (fun x y => eqA1 x y /\ eqA2 x y).
+Proof.
+  intros; unfold StrictBiKey.
+  constructor.
+SearchAbout Equivalence.
+  + constructor; intros.
+    destruct H2 as [? | [? ?]].
+    - apply StrictTotalOrderViaEquiv_IrreflViaEquiv in H.
+      pose proof (irreflexivity_via_equiv R1 eqA1 x y).
+      tauto.
+    - apply StrictTotalOrderViaEquiv_IrreflViaEquiv in H0.
+      pose proof (irreflexivity_via_equiv R2 eqA2 x y).
+      tauto.
+  + intros x y [? | [? ?]] [? | [? ?]].
+    - pose proof StrictTotalOrderViaEquiv_Asymmetric R1 eqA1 x y.
+      tauto.
+    - apply StrictTotalOrderViaEquiv_IrreflViaEquiv in H.
+      pose proof (irreflexivity_via_equiv R1 eqA1 x y).
+      
+Admitted.
+
+Lemma BiKey_StrictTotalOrder:
+  StrictTotalOrderViaEquiv R1 eqA1 ->
+  StrictTotalOrder R2 ->
+  StrictTotalOrder StrictBiKey.
+Proof.
+Admitted.
 
 Section enumerate.
 
