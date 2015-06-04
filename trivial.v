@@ -1,4 +1,8 @@
-Section TrivialSemantics.
+Require Import IntuitionisticLogic.base.
+Import LogicNotation.
+Local Open Scope IPC_scope.
+
+Section TrivialSemantic.
 
 Context {venv: Var_env}.
 
@@ -13,7 +17,11 @@ Fixpoint denote (f: Var -> Prop) (t: Term) : Prop :=
 
 Definition Trivial_sem: Semantic := mk_sem (Var -> Prop) denote.
 
-Lemma sound_Trivial_IPC: sound Trivial_sem IPC.
+End TrivialSemantic.
+
+Require Import IntuitionisticLogic.IPC.
+
+Lemma sound_Trivial_IPC: forall {venv: Var_env}, sound Trivial_sem IPC.
 Proof.
   unfold sound.
   intros.
@@ -76,4 +84,3 @@ Proof.
     tauto.
 Qed.
 
-End TrivialSemantic.

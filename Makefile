@@ -4,4 +4,4 @@ COQC = coqc
 	@echo COQC $*.v
 	@$(COQC) -q -R "." -as IntuitionisticLogic $*.v
 
-all: Wf.vo base.vo IPC.vo
+all: Wf.vo base.vo IPC.vo trivial.vo Kripke.vo enumerate.vo

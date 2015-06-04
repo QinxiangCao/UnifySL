@@ -1,3 +1,7 @@
+Require Import IntuitionisticLogic.base.
+Import LogicNotation.
+Local Open Scope IPC_scope.
+
 Section KripkeSemantic.
 
 Context {venv: Var_env}.
