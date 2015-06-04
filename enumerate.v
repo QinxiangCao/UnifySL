@@ -1,14 +1,17 @@
 Require Import IntuitionisticLogic.base.
 Require Import IntuitionisticLogic.Wf.
 Require Import Coq.Classes.RelationClasses.
+Require Import Coq.Classes.Morphisms.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Coq.Relations.Relation_Operators.
 Require Import Coq.Arith.Compare_dec.
+Require Import Coq.Setoids.Setoid.
 Local Open Scope IPC_scope.
 
-Section RelationLib.
+Module RelationDef.
+Section RelationDef.
 
-Variable A: Type.
+Context {A: Type}.
 
 Section Intersection.
 
@@ -18,33 +21,28 @@ Definition intersection x y := R1 x y /\ R2 x y.
 
 End Intersection.
 
-Section RelationDef.
+Arguments union {A} R1 R2 x y /.
+Arguments intersection R1 R2 x y /.
 
 Variables R eqA: relation A.
 
-Class Total: Prop := {
-  totality: forall x y, R x y \/ R y x
-}.
+Class Total: Prop :=
+  totality: forall x y, R x y \/ R y x.
 
-Class StrictTotal: Prop := {
-  strict_totality: forall x y, R x y \/ x = y \/ R y x
-}.
+Class StrictTotal: Prop :=
+  strict_totality: forall x y, R x y \/ x = y \/ R y x.
 
-Class StrictTotalViaEquiv: Prop := {
-  strict_totality_via_equiv: forall x y, R x y \/ eqA x y \/ R y x
-}.
+Class StrictTotalViaEquiv: Prop :=
+  strict_totality_via_equiv: forall x y, R x y \/ eqA x y \/ R y x.
 
-Class Antisymmetric: Prop := {
-  antisymmetry: forall x y, R x y -> R y x -> x = y
-}.
+Class Antisymmetric: Prop :=
+  antisymmetry: forall x y, R x y -> R y x -> x = y.
 
-Class AntisymViaEquiv: Prop := {
-  antisymmetry_via_equiv: forall x y, R x y -> R y x -> eqA x y
-}.
+Class AntisymViaEquiv: Prop :=
+  antisymmetry_via_equiv: forall x y, R x y -> R y x -> eqA x y.
 
-Class IrreflViaEquiv: Prop := {
-  irreflexivity_via_equiv: forall x y, eqA x y -> R x y -> False
-}.
+Class IrreflViaEquiv: Prop :=
+  irreflexivity_via_equiv: forall x y, eqA x y -> R x y -> False.
 
 Class WeakTotalOrder: Prop := {
   WeakTotalOrder_Reflexive: Reflexive R;
@@ -61,7 +59,6 @@ Class TotalOrder: Prop := {
 
 Class StrictTotalOrder: Prop := {
   StrictTotalOrder_Irreflexive: Irreflexive R;
-  StrictTotalOrder_Asymmetric: Asymmetric R;
   StrictTotalOrder_Transitive: Transitive R;
   StrictTotalOrder_StrictTotal: StrictTotal
 }.
@@ -69,7 +66,6 @@ Class StrictTotalOrder: Prop := {
 Class StrictTotalOrderViaEquiv: Prop := {
   StrictTotalOrderViaEquiv_EqIsEquiv: Equivalence eqA;
   StrictTotalOrderViaEquiv_IrreflViaEquiv: IrreflViaEquiv;
-  StrictTotalOrderViaEquiv_Asymmetric: Asymmetric R;
   StrictTotalOrderViaEquiv_Transitive: Transitive R;
   StrictTotalOrderViaEquiv_StrictTotal: StrictTotalViaEquiv
 }.
@@ -80,8 +76,76 @@ Class StrictWellOrder: Prop := {
 }.
 
 End RelationDef.
+End RelationDef.
 
-Variable R1 R2 eqA1 eqA2: relation A.
+Module StrictTotalOrderViaEquiv.
+Section StrictTotalOrderViaEquiv.
+
+Import RelationDef.
+
+Variable A: Type.
+Variables R eqA: relation A.
+Variable Order: StrictTotalOrderViaEquiv R eqA.
+
+Lemma disjointed_3cases: forall x y,
+  (R x y /\ ~ eqA x y /\ ~ R y x) \/
+  (~ R x y /\ eqA x y /\ ~ R y x) \/
+  (~ R x y /\ ~ eqA x y /\ R y x).
+Proof.
+  intros.
+  pose proof StrictTotalOrderViaEquiv_StrictTotal _ _ x y.
+  pose proof StrictTotalOrderViaEquiv_IrreflViaEquiv _ _ x y.
+  pose proof StrictTotalOrderViaEquiv_IrreflViaEquiv _ _ y x.
+  pose proof StrictTotalOrderViaEquiv_IrreflViaEquiv _ _ x x.
+  pose proof StrictTotalOrderViaEquiv_Transitive _ _ x y x.
+  inversion Order.
+  pose proof Equivalence_Reflexive x.
+  pose proof Equivalence_Symmetric x y.
+  pose proof Equivalence_Symmetric y x.
+  tauto.
+Qed.
+  
+Lemma LeftProperViaEquiv: forall x x0 y, eqA x x0 -> R x y -> R x0 y.
+Proof.
+  intros.
+  pose proof disjointed_3cases x0 y.
+  pose proof disjointed_3cases x x0.
+  pose proof disjointed_3cases x y.
+  pose proof @Equivalence_Transitive _ eqA (StrictTotalOrderViaEquiv_EqIsEquiv _ _) x x0 y.
+  pose proof StrictTotalOrderViaEquiv_Transitive _ _ x y x0.
+  tauto.
+Qed.  
+
+Lemma RightProperViaEquiv: forall x y y0, eqA y0 y -> R x y -> R x y0.
+Proof.
+  intros.
+  pose proof disjointed_3cases x y.
+  pose proof disjointed_3cases y0 y.
+  pose proof disjointed_3cases x y0.
+  pose proof @Equivalence_Transitive _ eqA (StrictTotalOrderViaEquiv_EqIsEquiv _ _) x y0 y.
+  pose proof StrictTotalOrderViaEquiv_Transitive _ _ y0 x y.
+  tauto.
+Qed.
+
+Instance ProperViaEquiv: Proper (eqA ==> eqA ==> iff) R.
+Proof.
+  intro; intros; intro; intros.
+  inversion Order.
+  pose proof Equivalence_Symmetric _ _  H.
+  pose proof Equivalence_Symmetric _ _  H0.
+  pose proof LeftProperViaEquiv x y x0 H.
+  pose proof LeftProperViaEquiv y x x0 H1.
+  pose proof RightProperViaEquiv y x0 y0 H2.
+  pose proof RightProperViaEquiv y y0 x0 H0.
+  tauto.
+Qed.
+
+End StrictTotalOrderViaEquiv.
+End StrictTotalOrderViaEquiv.
+
+Section Operators.
+
+Variable R1 R2 eqA: relation A.
 
 Lemma intersection_Reflexive: Reflexive R1 -> Reflexive R2 -> Reflexive (intersection R1 R2).
 Proof.
@@ -101,30 +165,49 @@ Proof.
   split; eapply transitivity; eauto.
 Qed.
 
-Definition StrictBiKey x y := R1 x y \/ (eqA1 x y /\ R2 x y).
+Lemma union_IrreflViaEquiv: IrreflViaEquiv R1 eqA -> IrreflViaEquiv R2 eqA -> IrreflViaEquiv (union R1 R2) eqA.
+Proof.
+  intros ? ? x y ? [? | ?].
+  + exact (H x y H1 H2).
+  + exact (H0 x y H1 H2).
+Qed.
 
-Lemma BiKey_StrictTotalOrderViaEquiv:
+Theorem intersection_Equivalence: Equivalence R1 -> Equivalence R2 -> Equivalence (intersection R1 R2).
+Proof.
+  intros.
+  constructor.
+  + apply intersection_Reflexive; apply Equivalence_Reflexive.
+  + apply intersection_Symmetric; apply Equivalence_Symmetric.
+  + apply intersection_Transitive; apply Equivalence_Transitive.
+Qed.
+
+End Operators.
+
+
+Variable R1 R2 eqA1 eqA2: relation A.
+
+Definition StrictBiKey := union R1 (intersection eqA1 R2).
+
+Theorem BiKey_StrictTotalOrderViaEquiv:
   StrictTotalOrderViaEquiv R1 eqA1 ->
   StrictTotalOrderViaEquiv R2 eqA2 ->
-  StrictTotalOrderViaEquiv StrictBiKey (fun x y => eqA1 x y /\ eqA2 x y).
+  StrictTotalOrderViaEquiv StrictBiKey (intersection eqA1 eqA2).
 Proof.
   intros; unfold StrictBiKey.
+(* Build General Purpose tactic to solve it *)
+  inversion H; clear H.
+  inversion H0; clear H0.
   constructor.
-SearchAbout Equivalence.
-  + constructor; intros.
-    destruct H2 as [? | [? ?]].
-    - apply StrictTotalOrderViaEquiv_IrreflViaEquiv in H.
-      pose proof (irreflexivity_via_equiv R1 eqA1 x y).
-      tauto.
-    - apply StrictTotalOrderViaEquiv_IrreflViaEquiv in H0.
-      pose proof (irreflexivity_via_equiv R2 eqA2 x y).
-      tauto.
-  + intros x y [? | [? ?]] [? | [? ?]].
-    - pose proof StrictTotalOrderViaEquiv_Asymmetric R1 eqA1 x y.
-      tauto.
-    - apply StrictTotalOrderViaEquiv_IrreflViaEquiv in H.
-      pose proof (irreflexivity_via_equiv R1 eqA1 x y).
-      
+  + apply intersection_Equivalence; auto.
+  + intros x y; simpl.
+    specialize (StrictTotalOrderViaEquiv_IrreflViaEquiv0 x y).
+    specialize (StrictTotalOrderViaEquiv_IrreflViaEquiv1 x y).
+    tauto.
+  + intros x y z [? | [? ?]] [? | [? ?]]; simpl.
+    - left. eapply StrictTotalOrderViaEquiv_Transitive0; eauto.
+    - rewrite <- H0.
+    specialize (StrictTotalOrderViaEquiv_StrictTotal0 x z).
+Eval compute in (Equivalence eqA1).
 Admitted.
 
 Lemma BiKey_StrictTotalOrder:
