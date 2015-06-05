@@ -76,12 +76,26 @@ Class StrictWellOrder: Prop := {
 }.
 
 End RelationDef.
+
+Lemma Irreflexive_is_IrreflViaEquiv:
+  forall {A} (R: relation A),
+  Irreflexive R <-> IrreflViaEquiv R eq.
+Proof.
+  intros; split; intros; hnf in *; intros.
+  + subst.
+    apply H in H1; auto.
+  + specialize (H x x eq_refl).
+    exact H.
+Qed.
+
 End RelationDef.
+
+Import RelationDef.
+Arguments union {A} R1 R2 x y /.
+Arguments intersection {A} R1 R2 x y /.
 
 Module StrictTotalOrderViaEquiv.
 Section StrictTotalOrderViaEquiv.
-
-Import RelationDef.
 
 Variable A: Type.
 Variables R eqA: relation A.
@@ -141,10 +155,21 @@ Proof.
 Qed.
 
 End StrictTotalOrderViaEquiv.
+
+Theorem StrictTotalOrder_is_StrictTotalOrderViaEquiv:
+  forall {A} (R: relation A), StrictTotalOrder R <-> StrictTotalOrderViaEquiv R eq.
+Proof.
+  intros; split; intros; inversion H; constructor; auto.
+  + apply eq_equivalence.
+  + apply Irreflexive_is_IrreflViaEquiv; auto.
+  + apply Irreflexive_is_IrreflViaEquiv; auto.
+Qed.
+  
 End StrictTotalOrderViaEquiv.
 
 Section Operators.
 
+Variable A: Type.
 Variable R1 R2 eqA: relation A.
 
 Lemma intersection_Reflexive: Reflexive R1 -> Reflexive R2 -> Reflexive (intersection R1 R2).
@@ -183,20 +208,21 @@ Qed.
 
 End Operators.
 
+Section BiKeyOrder.
 
+Variable A: Type.
 Variable R1 R2 eqA1 eqA2: relation A.
 
-Definition StrictBiKey := union R1 (intersection eqA1 R2).
+Definition BiKey := union R1 (intersection eqA1 R2).
 
 Theorem BiKey_StrictTotalOrderViaEquiv:
   StrictTotalOrderViaEquiv R1 eqA1 ->
   StrictTotalOrderViaEquiv R2 eqA2 ->
-  StrictTotalOrderViaEquiv StrictBiKey (intersection eqA1 eqA2).
+  StrictTotalOrderViaEquiv BiKey (intersection eqA1 eqA2).
 Proof.
-  intros; unfold StrictBiKey.
-(* Build General Purpose tactic to solve it *)
-  inversion H; clear H.
-  inversion H0; clear H0.
+  intros; unfold BiKey.
+  inversion H.
+  inversion H0.
   constructor.
   + apply intersection_Equivalence; auto.
   + intros x y; simpl.
@@ -205,15 +231,25 @@ Proof.
     tauto.
   + intros x y z [? | [? ?]] [? | [? ?]]; simpl.
     - left. eapply StrictTotalOrderViaEquiv_Transitive0; eauto.
-    - rewrite <- H0.
-    specialize (StrictTotalOrderViaEquiv_StrictTotal0 x z).
-Eval compute in (Equivalence eqA1).
-Admitted.
+    - left. eapply StrictTotalOrderViaEquiv.RightProperViaEquiv with (eqA := eqA1); eauto.
+      symmetry; auto.
+    - left. eapply StrictTotalOrderViaEquiv.LeftProperViaEquiv with (eqA := eqA1); eauto.
+      symmetry; auto.
+    - right; split.
+      * eapply transitivity; eauto.
+      * eapply transitivity; eauto.
+  + intros x y; simpl.
+    pose proof StrictTotalOrderViaEquiv.disjointed_3cases _ R1 _ _ x y.
+    pose proof StrictTotalOrderViaEquiv.disjointed_3cases _ R2 _ _ x y.
+    pose proof @symmetry _ eqA1 _ x y.
+    pose proof @symmetry _ eqA1 _ y x.
+    tauto.
+Qed.
 
 Lemma BiKey_StrictTotalOrder:
   StrictTotalOrderViaEquiv R1 eqA1 ->
   StrictTotalOrder R2 ->
-  StrictTotalOrder StrictBiKey.
+  StrictTotalOrder BiKey.
 Proof.
 Admitted.
 
