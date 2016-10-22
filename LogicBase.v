@@ -1,5 +1,5 @@
-Require Import Coq.Sets.Ensembles.
-Require Import Coq.Lists.List.
+Require Export Coq.Sets.Ensembles.
+Require Export Coq.Lists.List.
 
 Class Language: Type := {
   expr: Type
