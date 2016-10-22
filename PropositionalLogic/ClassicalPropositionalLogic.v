@@ -60,6 +60,7 @@ Inductive provable: @expr (PropositionalLanguage.L Var) -> Prop :=
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
 | axiom3: forall x y, provable ((~~ y --> x) --> (~~ y --> ~~ x) --> y).
+(* Elliott Mendelson, Introduction to Mathematical Logic, Second Edition (New York: D. Van Nostrand, 1979) *)
 
 Instance AG: AxiomaticProofTheory.AxiomaticProofTheory (PropositionalLanguage.L Var) :=
   AxiomaticProofTheory.Build_AxiomaticProofTheory (PropositionalLanguage.L Var) provable.

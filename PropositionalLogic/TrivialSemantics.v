@@ -1,5 +1,6 @@
 Require Import Logic.LogicBase.
 Require Import Logic.PropositionalLogic.Syntax.
+Require Import Coq.Logic.Classical_Prop.
 
 Module TrivialSemantics.
 
@@ -14,10 +15,10 @@ Definition sem_neg {Var: Type} (X: Ensemble (model Var)): Ensemble (model Var) :
   fun m => ~ X m.
 
 Definition sem_and {Var: Type} (X: Ensemble (model Var)) (Y: Ensemble (model Var)): Ensemble (model Var) :=
-  sem_neg (sem_imp (sem_neg X) Y).
+  sem_neg (sem_imp X (sem_neg Y)).
 
 Definition sem_or {Var: Type} (X: Ensemble (model Var)) (Y: Ensemble (model Var)): Ensemble (model Var) :=
-  sem_neg (sem_imp (sem_neg X) Y).
+  sem_imp (sem_neg X) Y.
 
 Definition sem_iff {Var: Type} (X: Ensemble (model Var)) (Y: Ensemble (model Var)): Ensemble (model Var) :=
   sem_and (sem_imp X Y) (sem_imp Y X).
@@ -34,5 +35,7 @@ Fixpoint denotation {Var: Type} (x: expr Var): Ensemble (model Var) :=
   | varp p => fun m => m p
   end.
 
-Instance TrivialModel (Var: Type): Semantics (PropositionalLanguage.L Var) :=
+Instance SM (Var: Type): Semantics (PropositionalLanguage.L Var) :=
   Build_Semantics (PropositionalLanguage.L Var) (model Var) (fun m x => denotation x m).
+
+End TrivialSemantics.
