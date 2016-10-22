@@ -6,7 +6,7 @@ Class Language: Type := {
 }.
 
 Class NormalLanguage (L: Language): Type := {
-  FF: expr;
+  falsep: expr;
   imp: expr -> expr -> expr
 }.
 
@@ -16,12 +16,24 @@ Definition empty_context {L: Language}: context := Empty_set _.
 
 Class ProofTheory (L: Language): Type := {
   provable: expr -> Prop;
-  derivable: context -> expr -> Prop;
-  provable_derivable: forall x, provable x <-> derivable empty_context x
+  derivable: context -> expr -> Prop
+}.
+
+Definition multi_imp {L: Language} {nL: NormalLanguage L}: list expr -> expr -> expr :=
+  fix f (xs: list expr) (y: expr): expr :=
+    match xs with
+    | nil => y
+    | x0 :: xs' => imp x0 (f xs' y)
+    end.
+
+Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L): Type := {
+  provable_derivable: forall x, provable x <-> derivable empty_context x;
+  derivable_provable: forall Phi y, derivable Phi y <->
+                        exists xs, Included expr (fun x => In x xs) Phi /\ provable (multi_imp xs y)
 }.
 
 Definition consistent {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
-  fun Phi => ~ derivable Phi FF.
+  fun Phi => ~ derivable Phi falsep.
 
 Class Semantics (L: Language): Type := {
   model: Type;
@@ -49,25 +61,17 @@ Definition weakly_complete {L: Language} (Gamma: ProofTheory L) (SM: Semantics L
 Definition strongly_complete {L: Language} (Gamma: ProofTheory L) (SM: Semantics L): Prop :=
   forall (Phi: context) (x: expr), consequence Phi x -> derivable Phi x.
 
-
 Module AxiomaticProofTheory.
 
-Class ProofTheory (L: Language): Type := {
+Class AxiomaticProofTheory (L: Language): Type := {
   provable: expr -> Prop
 }.
 
-Definition multi_imp {L: Language} {nL: NormalLanguage L}: list expr -> expr -> expr :=
-  fix f (xs: list expr) (y: expr): expr :=
-    match xs with
-    | nil => y
-    | x0 :: xs' => imp x0 (f xs' y)
-    end.
-
-Definition derivable {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> expr -> Prop :=
+Definition derivable {L: Language} {nL: NormalLanguage L} {Gamma: AxiomaticProofTheory L}: context -> expr -> Prop :=
   fun Phi y =>
     exists xs, Included expr (fun x => In x xs) Phi /\ provable (multi_imp xs y).
 
-Lemma provable_derivable {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: forall x, provable x <-> derivable empty_context x.
+Lemma provable_derivable {L: Language} {nL: NormalLanguage L} {Gamma: AxiomaticProofTheory L}: forall x, provable x <-> derivable empty_context x.
 Proof.
   intros.
   split; intros.
@@ -80,10 +84,13 @@ Proof.
     inversion H.
 Qed.
 
-End AxiomaticProofTheory.
+Instance G {L: Language} {nL: NormalLanguage L} (Gamma: AxiomaticProofTheory L): ProofTheory L :=
+  Build_ProofTheory L provable derivable.
 
-Instance AxiomaticProofTheory_ProofTheory {L: Language} {nL: NormalLanguage L} (Gamma: AxiomaticProofTheory.ProofTheory L): ProofTheory L :=
-  Build_ProofTheory L AxiomaticProofTheory.provable AxiomaticProofTheory.derivable AxiomaticProofTheory.provable_derivable.
+Instance nG {L: Language} {nL: NormalLanguage L} (Gamma: AxiomaticProofTheory L): NormalProofTheory L (G Gamma) :=
+  Build_NormalProofTheory L nL (G Gamma) provable_derivable (fun _ _ => iff_refl _).
+
+End AxiomaticProofTheory.
 
 Module SequentCalculus.
 
@@ -94,10 +101,12 @@ Class ProofTheory (L: Language): Type := {
 Definition provable {L: Language} {Gamma: ProofTheory L}: expr -> Prop :=
   fun x => derivable (Empty_set _) x.
 
-End SequentCalculus.
-
+(*
 Instance SequentCalculus {L: Language} (Gamma: SequentCalculus.ProofTheory L): ProofTheory L :=
   Build_ProofTheory L SequentCalculus.provable SequentCalculus.derivable (fun x => iff_refl _).
+*)
+
+End SequentCalculus.
 
 Notation "m  |=  x" := (satisfies m x) (at level 60, no associativity) : logic_base.
 Notation "|==  x" := (valid x) (at level 61, no associativity) : logic_base.

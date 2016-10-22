@@ -1,13 +1,10 @@
 Require Import Logic.LogicBase.
 Require Import Logic.PropositionalLogic.Syntax.
 
+Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Section ClassicalPropositionalLogicSection.
-
-Context {L: PropositionalLanguage}.
-
-Definition reduce: relation expr:=
+Definition reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: relation expr:=
   clos_refl_trans _
    (prop_congr
      (relation_disjunction
@@ -16,29 +13,15 @@ Definition reduce: relation expr:=
           ReduceIff.atomic_reduce
           ReduceTrueFalse.atomic_reduce))).
 
-Class ClassicalPropositionalLogic := {
-  provable: expr -> Prop;
-  syntactic_reduction_rule: forall x y, reduce x y -> provable x -> provable y;
-  modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y;
-  axiom1: forall x y, provable (x --> (y --> x));
-  axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z));
-  axiom3: forall x y, provable ((~~ y --> x) --> (~~ y --> ~~ x) --> y)
+Class ClassicalPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) := {
+  syntactic_reduction_rule: forall x y, reduce x y -> |-- x -> |-- y;
+  modus_ponens: forall x y, |-- (x --> y) -> |-- x -> |-- y;
+  axiom1: forall x y, |-- (x --> (y --> x));
+  axiom2: forall x y z, |-- ((x --> y --> z) --> (x --> y) --> (x --> z));
+  axiom3: forall x y, |-- ((~~ y --> x) --> (~~ y --> ~~ x) --> y)
 }.
 
-Instance ClassicalPropositionalLogic_ProofTheory (Gamma: ClassicalPropositionalLogic):
-  ProofTheory (PropositionalLanguage_Language L) :=
-  AxiomaticProofTheory_ProofTheory
-   (AxiomaticProofTheory.Build_ProofTheory (PropositionalLanguage_Language L) provable).
-
-End ClassicalPropositionalLogicSection.
-
-Implicit Arguments ClassicalPropositionalLogic.
-
-Local Open Scope logic_base.
-
-Existing Instance ClassicalPropositionalLogic_ProofTheory.
-
-Lemma imp_refl: forall {L: PropositionalLanguage} {Gamma: ClassicalPropositionalLogic L} (x: expr), |-- (x --> x).
+Lemma imp_refl: forall (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {cpGamma: ClassicalPropositionalLogic L Gamma} (x: expr), |-- x --> x.
 Proof.
   intros.
   pose proof axiom2 x (x --> x) x.
@@ -49,22 +32,49 @@ Proof.
   auto.
 Qed.
 
+Lemma add_imp_left: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {cpGamma: ClassicalPropositionalLogic L Gamma} (x y: expr), |-- x -> |-- y --> x.
+Proof.
+  intros.
+  pose proof axiom1 x y.
+  eapply modus_ponens; eauto.
+Qed.
+
+Lemma imp_trans: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {cpGamma: ClassicalPropositionalLogic L Gamma} (x y z: expr), |-- x --> y -> |-- y --> z -> |-- x --> z.
+Proof.
+  intros.
+  pose proof add_imp_left _ x H0.
+  pose proof axiom2 x y z.
+  pose proof modus_ponens _ _ H2 H1.
+  pose proof modus_ponens _ _ H3 H.
+  auto.
+Qed.
+
 Module ClassicalPropositionalLogic.
 Section ClassicalPropositionalLogic.
+
 Context (Var: Type).
 
-Definition CPL := PropositionalLanguage.PropositionalLanguage Var.
-Existing Instance CPL.
-
-Inductive provable: PropositionalLanguage.expr Var -> Prop :=
-| syntactic_reduction_rule: forall x y: PropositionalLanguage.expr Var, reduce x y -> provable x -> provable y
+Inductive provable: @expr (PropositionalLanguage.L Var) -> Prop :=
+| syntactic_reduction_rule: forall x y, reduce x y -> provable x -> provable y
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
 | axiom3: forall x y, provable ((~~ y --> x) --> (~~ y --> ~~ x) --> y).
 
-Instance ClassicalPropositionLogic: ClassicalPropositionalLogic _ :=
-  Build_ClassicalPropositionalLogic provable syntactic_reduction_rule modus_ponens axiom1 axiom2 axiom3.
+Instance AG: AxiomaticProofTheory.AxiomaticProofTheory (PropositionalLanguage.L Var) :=
+  AxiomaticProofTheory.Build_AxiomaticProofTheory (PropositionalLanguage.L Var) provable.
+
+Instance G: ProofTheory (PropositionalLanguage.L Var) := AxiomaticProofTheory.G AG.
+
+Instance cpG: ClassicalPropositionalLogic (PropositionalLanguage.L Var) G.
+Proof.
+  constructor.
+  + apply syntactic_reduction_rule.
+  + apply modus_ponens.
+  + apply axiom1.
+  + apply axiom2.
+  + apply axiom3.
+Qed.
 
 End ClassicalPropositionalLogic.
 End ClassicalPropositionalLogic.
