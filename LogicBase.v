@@ -2,12 +2,24 @@ Require Export Coq.Sets.Ensembles.
 Require Export Coq.Lists.List.
 
 Class Language: Type := {
-  expr: Type
+  expr: Type;
+  single_propagation: Type;
+  single_propagation_denote: single_propagation -> expr -> expr
 }.
+
+Fixpoint propagation_denote {L: Language} (p: list single_propagation) (x: expr): expr :=
+  match p with
+  | nil => x
+  | sp :: p0 => single_propagation_denote sp (propagation_denote p0 x)
+  end.
 
 Class NormalLanguage (L: Language): Type := {
   falsep: expr;
-  imp: expr -> expr -> expr
+  impp: expr -> expr -> expr;
+  imp1_propag: expr -> single_propagation;
+  imp2_propag: expr -> single_propagation;
+  imp1_propag_denote: forall x y, single_propagation_denote (imp1_propag x) y = impp y x;
+  imp2_propag_denote: forall x y, single_propagation_denote (imp2_propag x) y = impp x y
 }.
 
 Definition context {L: Language}: Type := Ensemble expr.
@@ -23,7 +35,7 @@ Definition multi_imp {L: Language} {nL: NormalLanguage L}: list expr -> expr -> 
   fix f (xs: list expr) (y: expr): expr :=
     match xs with
     | nil => y
-    | x0 :: xs' => imp x0 (f xs' y)
+    | x0 :: xs' => impp x0 (f xs' y)
     end.
 
 Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L): Type := {
@@ -32,8 +44,11 @@ Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory
                         exists xs, Included expr (fun x => In x xs) Phi /\ provable (multi_imp xs y)
 }.
 
-Definition consistent {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
+Definition consistent {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): context -> Prop :=
   fun Phi => ~ derivable Phi falsep.
+
+Definition maximal_consistent {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): context -> Prop :=
+  fun Phi => consistent Gamma Phi /\ forall Psi, consistent Gamma Psi -> Included _ Phi Psi -> Included _ Psi Phi.
 
 Class Semantics (L: Language): Type := {
   model: Type;

@@ -27,7 +27,7 @@ Fixpoint denotation {Var: Type} (x: expr Var): Ensemble (model Var) :=
   match x with
   | andp y z => sem_and (denotation y) (denotation z)
   | orp y z => sem_or (denotation y) (denotation z)
-  | imp y z => sem_imp (denotation y) (denotation z)
+  | impp y z => sem_imp (denotation y) (denotation z)
   | iffp y z => sem_iff (denotation y) (denotation z)
   | negp y => sem_neg (denotation y)
   | truep => fun _ => True

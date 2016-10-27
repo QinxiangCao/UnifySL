@@ -1,4 +1,5 @@
 Require Import Logic.LogicBase.
+Require Import Logic.SyntacticReduction.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.TrivialSemantics.
@@ -22,18 +23,16 @@ Proof.
   intros; split; intros; destruct H; auto.
 Qed.
 
-Lemma sound_ReduceTrueFalse {Var: Type}:
+Lemma sound_ReduceFalse {Var: Type}:
   forall x y: @expr (PropositionalLanguage.L Var),
-    ReduceTrueFalse.atomic_reduce x y ->
+    ReduceFalse.atomic_reduce x y ->
     forall m: @model _ (TrivialSemantics.SM Var), m |= x <-> m |= y.
 Proof.
   intros; split; intros; destruct H.
   + simpl in H0.
     inversion H0.
-  + simpl; intro; auto.
   + specialize (H0 I).
     inversion H0.
-  + exact I.
 Qed.
 
 Lemma sound_disjunction {Var: Type}:
@@ -48,14 +47,18 @@ Proof.
   + apply H0; auto.
 Qed.
 
-Lemma sound_prop_congr {Var: Type}:
+Lemma sound_propag_reduce {Var: Type}:
   forall reduce: relation (@expr (PropositionalLanguage.L Var)),
     (forall x y, reduce x y -> forall m: @model _ (TrivialSemantics.SM Var), m |= x <-> m |= y) ->
-    (forall x y, prop_congr reduce x y -> forall m: @model _ (TrivialSemantics.SM Var), m |= x <-> m |= y).
+    (forall x y, propag_reduce reduce x y -> forall m: @model _ (TrivialSemantics.SM Var), m |= x <-> m |= y).
 Proof.
   intros.
-  induction H0.
-  + apply H; auto.
+  destruct H0.
+  induction p as [| [| | | | | | | |]].
+  + simpl; apply H; auto.
+  + simpl in *.
+    unfold TrivialSemantics.sem_and, TrivialSemantics.sem_neg, TrivialSemantics.sem_imp; simpl.
+    tauto.
   + simpl in *.
     unfold TrivialSemantics.sem_and, TrivialSemantics.sem_neg, TrivialSemantics.sem_imp; simpl.
     tauto.
@@ -63,7 +66,16 @@ Proof.
     unfold TrivialSemantics.sem_or, TrivialSemantics.sem_neg, TrivialSemantics.sem_imp; simpl.
     tauto.
   + simpl in *.
+    unfold TrivialSemantics.sem_or, TrivialSemantics.sem_neg, TrivialSemantics.sem_imp; simpl.
+    tauto.
+  + simpl in *.
     unfold TrivialSemantics.sem_imp; simpl.
+    tauto.
+  + simpl in *.
+    unfold TrivialSemantics.sem_imp; simpl.
+    tauto.
+  + simpl in *.
+    unfold TrivialSemantics.sem_iff, TrivialSemantics.sem_and, TrivialSemantics.sem_neg, TrivialSemantics.sem_imp; simpl.
     tauto.
   + simpl in *.
     unfold TrivialSemantics.sem_iff, TrivialSemantics.sem_and, TrivialSemantics.sem_neg, TrivialSemantics.sem_imp; simpl.
@@ -90,11 +102,11 @@ Lemma sound_reduce {Var: Type}:
     forall m: @model _ (TrivialSemantics.SM Var), m |= x <-> m |= y.
 Proof.
   apply sound_clos_refl_trans.
-  apply sound_prop_congr.
+  apply sound_propag_reduce.
   repeat apply sound_disjunction.
   + apply sound_ImpNegAsPrime.
   + apply sound_ReduceIff.
-  + apply sound_ReduceTrueFalse.
+  + apply sound_ReduceFalse.
 Qed.
 
 Lemma sound_modus_ponens {Var: Type}:
@@ -147,9 +159,12 @@ Proof.
   induction H.
   + pose proof sound_reduce x y H.
     exact (proj1 (H1 m) IHprovable).
+  + pose proof sound_reduce x y H.
+    exact (proj2 (H1 m) IHprovable).
   + pose proof sound_modus_ponens x y.
     exact (H1 m IHprovable1 IHprovable2).
   + apply sound_axiom1.
   + apply sound_axiom2.
   + apply sound_axiom3.
+  + apply I.
 Qed.
