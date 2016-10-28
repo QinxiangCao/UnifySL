@@ -41,7 +41,7 @@ Definition multi_imp {L: Language} {nL: NormalLanguage L}: list expr -> expr -> 
 Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L): Type := {
   provable_derivable: forall x, provable x <-> derivable empty_context x;
   derivable_provable: forall Phi y, derivable Phi y <->
-                        exists xs, Included expr (fun x => In x xs) Phi /\ provable (multi_imp xs y)
+                        exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y)
 }.
 
 Definition consistent {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): context -> Prop :=
@@ -84,19 +84,17 @@ Class AxiomaticProofTheory (L: Language): Type := {
 
 Definition derivable {L: Language} {nL: NormalLanguage L} {Gamma: AxiomaticProofTheory L}: context -> expr -> Prop :=
   fun Phi y =>
-    exists xs, Included expr (fun x => In x xs) Phi /\ provable (multi_imp xs y).
+    exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y).
 
 Lemma provable_derivable {L: Language} {nL: NormalLanguage L} {Gamma: AxiomaticProofTheory L}: forall x, provable x <-> derivable empty_context x.
 Proof.
   intros.
   split; intros.
   + exists nil; split; auto.
-    hnf; intros.
-    inversion H0.
   + destruct H as [xs [? ?]].
     destruct xs; [auto |].
-    specialize (H e (or_introl eq_refl)).
-    inversion H.
+    inversion H; subst.
+    inversion H3.
 Qed.
 
 Instance G {L: Language} {nL: NormalLanguage L} (Gamma: AxiomaticProofTheory L): ProofTheory L :=

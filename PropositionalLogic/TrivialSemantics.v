@@ -8,19 +8,19 @@ Import PropositionalLanguage.
 
 Definition model (Var: Type): Type := Var -> Prop.
 
-Definition sem_imp {Var: Type} (X: Ensemble (model Var)) (Y: Ensemble (model Var)): Ensemble (model Var) :=
+Definition sem_imp {model: Type} (X: Ensemble model) (Y: Ensemble model): Ensemble model :=
   fun m => X m -> Y m.
 
-Definition sem_neg {Var: Type} (X: Ensemble (model Var)): Ensemble (model Var) :=
+Definition sem_neg {model: Type} (X: Ensemble model): Ensemble model :=
   fun m => ~ X m.
 
-Definition sem_and {Var: Type} (X: Ensemble (model Var)) (Y: Ensemble (model Var)): Ensemble (model Var) :=
+Definition sem_and {model: Type} (X: Ensemble model) (Y: Ensemble model): Ensemble model :=
   sem_neg (sem_imp X (sem_neg Y)).
 
-Definition sem_or {Var: Type} (X: Ensemble (model Var)) (Y: Ensemble (model Var)): Ensemble (model Var) :=
+Definition sem_or {model: Type} (X: Ensemble model) (Y: Ensemble model): Ensemble model :=
   sem_imp (sem_neg X) Y.
 
-Definition sem_iff {Var: Type} (X: Ensemble (model Var)) (Y: Ensemble (model Var)): Ensemble (model Var) :=
+Definition sem_iff {model: Type} (X: Ensemble model) (Y: Ensemble model): Ensemble model :=
   sem_and (sem_imp X Y) (sem_imp Y X).
 
 Fixpoint denotation {Var: Type} (x: expr Var): Ensemble (model Var) :=
