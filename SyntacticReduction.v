@@ -85,6 +85,36 @@ Lemma reduce_trans {L: Language} {R: SyntacticReduction L}:
   forall x y z, reduce x y -> reduce y z -> reduce x z.
 Proof. intros. eapply rt_trans; eauto. Qed.
 
+Lemma context_reduce_refl {L: Language} {R: SyntacticReduction L}:
+  forall Phi, context_reduce Phi Phi.
+Proof.
+  intros.
+  hnf; split.
+  + intros; exists x.
+    split; auto.
+    apply reduce_refl.
+  + intros; exists y.
+    split; auto.
+    apply reduce_refl.
+Qed.
+
+Lemma context_reduce_trans {L: Language} {R: SyntacticReduction L}:
+  forall Phi Phi' Phi'', context_reduce Phi Phi' -> context_reduce Phi' Phi'' -> context_reduce Phi Phi''.
+Proof.
+  intros.
+  hnf; split.
+  + intros.
+    destruct (proj1 H x H1) as [y [? ?]].
+    destruct (proj1 H0 y H3) as [z [? ?]].
+    exists z; split; auto.
+    eapply reduce_trans; eauto.
+  + intros z ?.
+    destruct (proj2 H0 z H1) as [y [? ?]].
+    destruct (proj2 H y H3) as [x [? ?]].
+    exists x; split; auto.
+    eapply reduce_trans; eauto.
+Qed.
+
 Lemma imp_reduce {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L}:
   forall x1 x2 y1 y2,
     reduce x1 x2 ->
@@ -115,6 +145,18 @@ Proof.
     apply imp_reduce; auto.
 Qed.
 
+Lemma reduction_consistent_semantics_spec {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (SM: Semantics L):
+  (forall x y, single_step_reduce x y -> forall m: model, m |= x <-> m |= y) ->
+  reduction_consistent_semantics R SM.
+Proof.
+  intros.
+  hnf; intros.
+  induction H0.
+  + apply H; auto.
+  + tauto.
+  + tauto.
+Qed.
+ 
 Lemma reduction_consistent_prooftheory_from_axiomization {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (Gamma: AxiomaticProofTheory.AxiomaticProofTheory L):
   reduction_consistent_axiomization R Gamma ->
   reduction_consistent_prooftheory R (AxiomaticProofTheory.G Gamma).

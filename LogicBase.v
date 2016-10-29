@@ -1,5 +1,6 @@
 Require Export Coq.Sets.Ensembles.
 Require Export Coq.Lists.List.
+Require Import Logic.lib.Coqlib.
 
 Class Language: Type := {
   expr: Type;
@@ -31,12 +32,8 @@ Class ProofTheory (L: Language): Type := {
   derivable: context -> expr -> Prop
 }.
 
-Definition multi_imp {L: Language} {nL: NormalLanguage L}: list expr -> expr -> expr :=
-  fix f (xs: list expr) (y: expr): expr :=
-    match xs with
-    | nil => y
-    | x0 :: xs' => impp x0 (f xs' y)
-    end.
+Definition multi_imp {L: Language} {nL: NormalLanguage L} (xs: list expr) (y: expr): expr :=
+  fold_right impp y xs.
 
 Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L): Type := {
   provable_derivable: forall x, provable x <-> derivable empty_context x;
@@ -75,6 +72,50 @@ Definition weakly_complete {L: Language} (Gamma: ProofTheory L) (SM: Semantics L
 
 Definition strongly_complete {L: Language} (Gamma: ProofTheory L) (SM: Semantics L): Prop :=
   forall (Phi: context) (x: expr), consequence Phi x -> derivable Phi x.
+
+Notation "m  |=  x" := (satisfies m x) (at level 60, no associativity) : logic_base.
+Notation "|==  x" := (valid x) (at level 61, no associativity) : logic_base.
+Notation "Phi  |==  x" := (consequence Phi x) (at level 60, no associativity) : logic_base.
+Notation "|--  x" := (provable x) (at level 61, no associativity) : logic_base.
+Notation "Phi  |--  x" := (derivable Phi x) (at level 60, no associativity) : logic_base.
+
+(* Properties *)
+
+Local Open Scope logic_base.
+
+Lemma derive_weaken {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi Psi x,
+  Included _ Phi Psi ->
+  Phi |-- x ->
+  Psi |-- x.
+Proof.
+  intros.
+  rewrite derivable_provable in H0 |- *.
+  destruct H0 as [xs [? ?]].
+  exists xs; split; auto.
+  revert H0; apply Forall_impl.
+  auto.
+Qed.
+
+Lemma impp_intros {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi x y,
+  Phi |-- impp x y ->
+  Union _ Phi (Singleton _ x) |-- y.
+Proof.
+  intros.
+  rewrite derivable_provable in H |- *.
+  destruct H as [xs [? ?]].
+  exists (xs ++ (x :: nil)).
+  split.
+  + rewrite Forall_app_iff; split.
+    - revert H; apply Forall_impl.
+      intros.
+      left; auto.
+    - constructor; auto.
+      right. constructor.
+  + replace (multi_imp (xs ++ x :: nil) y) with (multi_imp xs (impp x y)); auto.
+    clear.
+    induction xs; auto.
+    simpl; f_equal; auto.
+Qed.
 
 Module AxiomaticProofTheory.
 
@@ -120,10 +161,4 @@ Instance SequentCalculus {L: Language} (Gamma: SequentCalculus.ProofTheory L): P
 *)
 
 End SequentCalculus.
-
-Notation "m  |=  x" := (satisfies m x) (at level 60, no associativity) : logic_base.
-Notation "|==  x" := (valid x) (at level 61, no associativity) : logic_base.
-Notation "Phi  |==  x" := (consequence Phi x) (at level 60, no associativity) : logic_base.
-Notation "|--  x" := (provable x) (at level 61, no associativity) : logic_base.
-Notation "Phi  |--  x" := (derivable Phi x) (at level 60, no associativity) : logic_base.
 
