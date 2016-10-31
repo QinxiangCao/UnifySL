@@ -7,18 +7,8 @@ Require Import Logic.PropositionalLogic.Syntax.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Definition reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: relation expr:=
-  clos_refl_trans _
-   (propag_reduce
-     (relation_disjunction
-        ImpNegAsPrime.atomic_reduce
-        (relation_disjunction
-          ReduceIff.atomic_reduce
-          ReduceFalse.atomic_reduce))).
-
 Class ClassicalPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) := {
-  syntactic_reduction_rule1: forall x y, reduce x y -> |-- x -> |-- y;
-  syntactic_reduction_rule2: forall x y, reduce x y -> |-- y -> |-- x;
+  syntactic_reduction_rule: forall x y, @reduce _ MendelsonReduction x y -> (|-- x <-> |-- y);
   modus_ponens: forall x y, |-- (x --> y) -> |-- x -> |-- y;
   axiom1: forall x y, |-- (x --> (y --> x));
   axiom2: forall x y z, |-- ((x --> y --> z) --> (x --> y) --> (x --> z));
@@ -199,6 +189,16 @@ Proof.
     eapply modus_ponens; eauto.
 Qed.
 
+Theorem deduction_theorem {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma}:
+  forall (Phi: context) (x y: expr),
+    Union _ Phi (Singleton _ x) |-- y <->
+    Phi |-- x --> y.
+Proof.
+  intros; split.
+  + apply impp_elim; auto.
+  + apply impp_intros; auto.
+Qed.
+
 Lemma add_multi_imp_left_head: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {cpGamma: ClassicalPropositionalLogic L Gamma} xs1 xs2 y, |-- multi_imp xs2 y --> multi_imp (xs1 ++ xs2) y.
 Proof.
   intros.
@@ -248,6 +248,141 @@ Proof.
     auto.
 Qed.
 
+Lemma axiom1_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+  Phi |-- x --> y --> x.
+Proof.
+  intros.
+  rewrite derivable_provable.
+  exists nil.
+  split; [constructor | apply axiom1].
+Qed.
+
+Lemma axiom2_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y z: expr),
+  Phi |-- (x --> y --> z) --> (x --> y) --> (x --> z).
+Proof.
+  intros.
+  rewrite derivable_provable.
+  exists nil.
+  split; [constructor | apply axiom2].
+Qed.
+
+Lemma axiom3_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+  Phi |-- (~~ x --> y) --> (~~ x --> ~~ y) --> x.
+Proof.
+  intros.
+  rewrite derivable_provable.
+  exists nil.
+  split; [constructor | apply axiom3].
+Qed.
+
+Lemma contradiction_rule: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+  Phi |-- ~~ x ->
+  Phi |-- x ->
+  Phi |-- y.
+Proof.
+  intros.
+  pose proof axiom3_derivable Phi y x.
+  eapply derive_weaken with (Psi := Union _ Phi (Singleton _ (~~ y))) in H; [| intros ? ?; left; auto].
+  apply deduction_theorem in H.
+  eapply derive_weaken with (Psi := Union _ Phi (Singleton _ (~~ y))) in H0; [| intros ? ?; left; auto].
+  apply deduction_theorem in H0.
+  pose proof derivable_modus_ponens _ _ _ H0 H1.
+  pose proof derivable_modus_ponens _ _ _ H H2.
+  auto.
+Qed.
+
+Lemma double_negp_add: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+  Phi |-- ~~ (~~ x) --> x.
+Proof.
+  intros.
+  apply deduction_theorem.
+  pose proof axiom3_derivable (Union expr Phi (Singleton expr (~~ (~~ x)))) x (~~ x).
+  pose proof imp_refl (~~ x).
+  rewrite provable_derivable in H0.
+  eapply derive_weaken with (Psi := Union _ Phi (Singleton _ (~~ (~~ x)))) in H0; [| intros ? []].
+  pose proof derivable_modus_ponens _ _ _ H0 H.
+  pose proof derive_assum (Union expr (Union expr Phi (Singleton expr (~~ ~~ x))) (Singleton _ (~~ x))) (~~ ~~ x).
+  apply deduction_theorem in H2; [| left; right; constructor].
+  pose proof derivable_modus_ponens _ _ _ H2 H1.
+  auto.
+Qed.
+
+Lemma double_negp_elim: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+  Phi |-- x --> ~~ ~~ x.
+Proof.
+  intros.
+  apply deduction_theorem.
+  pose proof axiom3_derivable (Union expr Phi (Singleton expr x)) (~~ ~~ x) x.
+  apply derivable_modus_ponens in H; [| apply deduction_theorem; apply axiom1_derivable].
+  apply derivable_modus_ponens in H; [| apply double_negp_add].
+  auto.
+Qed.
+
+Lemma contrapositivePP: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
+  Phi |-- ~~ y --> ~~ x ->
+  Phi |-- x --> y.
+Proof.
+  intros.
+  apply deduction_theorem.
+  eapply derive_weaken with (Psi := Union _ Phi (Singleton _ x)) in H; [| intros ? ?; left; auto].
+  pose proof derive_assum (Union expr (Union expr Phi (Singleton expr x)) (Singleton _ (~~ y))) x.
+  apply deduction_theorem in H0; [| left; right; constructor].
+  pose proof axiom3_derivable (Union expr Phi (Singleton expr x)) y x.
+  pose proof derivable_modus_ponens _ _ _ H0 H1.
+  pose proof derivable_modus_ponens _ _ _ H H2.
+  auto.
+Qed.
+
+Lemma contrapositiveNN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
+  Phi |-- y --> x ->
+  Phi |-- ~~ x --> ~~ y.
+Proof.
+  intros.
+  apply contrapositivePP.
+  apply deduction_theorem.
+  eapply derivable_modus_ponens; [| apply double_negp_elim].
+  apply derivable_modus_ponens with y; [apply deduction_theorem, double_negp_add |].
+  eapply derive_weaken; eauto.
+  intros ? ?; left; auto.
+Qed.
+
+Lemma contrapositiveNP: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
+  Phi |-- ~~ y --> x ->
+  Phi |-- ~~ x --> y.
+Proof.
+  intros.
+  apply contrapositivePP.
+  apply deduction_theorem.
+  eapply derivable_modus_ponens; [| apply double_negp_elim].
+  apply deduction_theorem; auto.
+Qed.
+
+Lemma contrapositivePN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
+  Phi |-- y --> ~~ x ->
+  Phi |-- x --> ~~ y.
+Proof.
+  intros.
+  apply contrapositivePP.
+  apply deduction_theorem.
+  apply derivable_modus_ponens with y; [apply deduction_theorem, double_negp_add |].
+  eapply derive_weaken; eauto.
+  intros ? ?; left; auto.
+Qed.
+
+Lemma assum_exclude_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+  Phi |-- ~~ x --> y ->
+  Phi |-- x --> y ->
+  Phi |-- y.
+Proof.
+  intros.
+  apply contrapositiveNN in H0.
+  apply contrapositiveNP in H.
+  pose proof axiom3_derivable Phi y x.
+  pose proof derivable_modus_ponens _ _ _ H H1.
+  pose proof derivable_modus_ponens _ _ _ H0 H2.
+  auto.
+Qed.
+
 Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Gamma Phi ->
   (forall x: expr, Phi x <-> Phi |-- x).
@@ -268,14 +403,94 @@ Proof.
   right; constructor.
 Qed.
 
+Lemma MCS_nonelement_inconsistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
+  maximal_consistent Gamma Phi ->
+  (forall x: expr, ~ Phi x <-> Phi |-- x --> FF).
+Proof.
+  intros.
+  split; intros.
+  + destruct H.
+    specialize (H1 (Union _ Phi (Singleton _ x))).
+    unfold consistent in H1.
+    rewrite deduction_theorem in H1.
+    assert (Included expr Phi (Union expr Phi (Singleton expr x))) by (intros ? ?; left; auto).
+    assert (~ Included expr (Union expr Phi (Singleton expr x)) Phi) by (intros HH; specialize (HH x); apply H0, HH; right; constructor).
+    tauto.
+  + intro.
+    pose proof derive_assum Phi x H1.
+    pose proof derivable_modus_ponens _ _ _ H2 H0.
+    destruct H; auto.
+Qed.
+
+Lemma MCS_negp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
+  maximal_consistent Gamma Phi ->
+  (forall x: expr, Phi (~~ x) <-> ~ Phi x).
+Proof.
+  intros.
+  rewrite MCS_nonelement_inconsistent by auto.
+  rewrite MCS_element_derivable by auto.
+  split; intros.
+  + apply deduction_theorem.
+    apply (contradiction_rule _ x).
+    - eapply derive_weaken; eauto.
+      intros ? ?; left; auto.
+    - apply derive_assum; right; constructor.
+  + eapply derivable_modus_ponens with TT.
+    - rewrite derivable_provable; exists nil.
+      split; [auto |].
+      apply true_provable.
+    - apply contrapositivePN.
+      eapply derivable_modus_ponens; eauto.
+      rewrite derivable_provable; exists nil.
+      split; [auto | simpl].
+      eapply syntactic_reduction_rule.
+      * apply imp_reduce; [| apply reduce_refl].
+        apply imp_reduce; [apply reduce_refl |].
+        apply reduce_step.
+        eapply (propag_reduce_spec _ _ _ nil).
+        right; right; constructor.
+      * simpl.
+        apply imp_refl.
+Qed.
+
+Lemma MCS_impp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
+  maximal_consistent Gamma Phi ->
+  (forall x y: expr, Phi (x --> y) <-> (Phi x -> Phi y)).
+Proof.
+  intros.
+  split; intros.
+  + rewrite MCS_element_derivable in H0, H1 |- * by auto.
+    apply (derivable_modus_ponens _ x y); auto.
+  + assert (~ Phi x \/ Phi y) by tauto.
+    clear H0; destruct H1.
+    - rewrite <- MCS_negp_iff in H0 by auto.
+      rewrite MCS_element_derivable in H0 |- * by auto.
+      apply deduction_theorem.
+      apply (contradiction_rule _ x).
+      * eapply derive_weaken; eauto.
+        intros ? ?; left; auto.
+      * apply derive_assum; right; constructor.
+    - rewrite MCS_element_derivable in H0 |- * by auto.
+      pose proof axiom1_derivable Phi y x.
+      apply (derivable_modus_ponens _ y); auto.
+Qed.
+
+Lemma classic_mendelson_consistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma}, reduction_consistent_prooftheory MendelsonReduction Gamma.
+Proof.
+  intros.
+  apply reduction_consistent_prooftheory_from_provable; auto.
+  hnf; intros.
+  apply syntactic_reduction_rule; auto.
+Qed.
+
 Module ClassicalPropositionalLogic.
 Section ClassicalPropositionalLogic.
 
 Context (Var: Type).
 
 Inductive provable: @expr (PropositionalLanguage.L Var) -> Prop :=
-| syntactic_reduction_rule1: forall x y, reduce x y -> provable x -> provable y
-| syntactic_reduction_rule2: forall x y, reduce x y -> provable y -> provable x
+| syntactic_reduction_rule1: forall x y, @reduce _ MendelsonReduction x y -> provable x -> provable y
+| syntactic_reduction_rule2: forall x y, @reduce _ MendelsonReduction x y -> provable y -> provable x
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
@@ -291,8 +506,9 @@ Instance G: ProofTheory (PropositionalLanguage.L Var) := AxiomaticProofTheory.G 
 Instance cpG: ClassicalPropositionalLogic (PropositionalLanguage.L Var) G.
 Proof.
   constructor.
-  + apply syntactic_reduction_rule1.
-  + apply syntactic_reduction_rule2.
+  + split.
+    - apply syntactic_reduction_rule1; auto. 
+    - apply syntactic_reduction_rule2; auto. 
   + apply modus_ponens.
   + apply axiom1.
   + apply axiom2.

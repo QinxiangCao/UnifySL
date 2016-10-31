@@ -156,15 +156,14 @@ Proof.
   + tauto.
   + tauto.
 Qed.
- 
-Lemma reduction_consistent_prooftheory_from_axiomization {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (Gamma: AxiomaticProofTheory.AxiomaticProofTheory L):
-  reduction_consistent_axiomization R Gamma ->
-  reduction_consistent_prooftheory R (AxiomaticProofTheory.G Gamma).
+
+Lemma reduction_consistent_prooftheory_from_provable {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma}:
+  (forall x y, reduce x y -> (provable x <-> provable y)) ->
+  reduction_consistent_prooftheory R Gamma.
 Proof.
   intros.
-  hnf in H |- *.
   split; auto.
-  intros; simpl; split; intros; hnf in H2 |- *.
+  intros; simpl; split; intros; rewrite derivable_provable in H2 |- *.
   + destruct H2 as [xs [? ?]].
     destruct H0.
     pose proof fin_subset_match Phi Psi H0 xs H2.
@@ -182,6 +181,15 @@ Proof.
     apply Forall2_lr_rev; auto.
 Qed.
 
+Lemma reduction_consistent_prooftheory_from_axiomization {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (Gamma: AxiomaticProofTheory.AxiomaticProofTheory L):
+  reduction_consistent_axiomization R Gamma ->
+  reduction_consistent_prooftheory R (AxiomaticProofTheory.G Gamma).
+Proof.
+  intros.
+  apply reduction_consistent_prooftheory_from_provable; auto.
+  apply AxiomaticProofTheory.nG.
+Qed.
+
 Theorem weak_completeness_reduce {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) {nR: NormalSyntacticReduction L R} (Gamma: ProofTheory L) (SM: Semantics L):
   reduction_consistent_prooftheory R Gamma ->
   reduction_consistent_semantics R SM ->
@@ -197,5 +205,4 @@ Proof.
   rewrite (H0 x y m H3) in H2.
   auto.
 Qed.
-  
-  
+

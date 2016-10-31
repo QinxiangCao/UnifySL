@@ -124,6 +124,20 @@ Inductive atomic_reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalL
 
 End ReduceFalse.
 
+Definition MendelsonReduction {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: SyntacticReduction L :=
+  Build_SyntacticReduction _
+    (relation_disjunction
+       ImpNegAsPrime.atomic_reduce
+       (relation_disjunction
+         ReduceIff.atomic_reduce
+         ReduceFalse.atomic_reduce)).
+
+Definition IntuitionisticReduction {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: SyntacticReduction L :=
+  Build_SyntacticReduction _
+    (relation_disjunction
+       ImpAndOrAsPrime.atomic_reduce
+       ReduceIff.atomic_reduce).
+
 Module PropositionalLanguage.
 
 Inductive expr {Var: Type}: Type :=
@@ -207,35 +221,27 @@ Fixpoint mendelson_normal_form {Var: Type} (x: expr Var): Prop :=
   | varp p => True
   end.
 
-Definition MendelsonReduction (Var: Type): SyntacticReduction (L Var) :=
-  Build_SyntacticReduction _
-    (relation_disjunction
-       ImpNegAsPrime.atomic_reduce
-       (relation_disjunction
-         ReduceIff.atomic_reduce
-         ReduceFalse.atomic_reduce)).
-
-Definition nMendelsonReduction {Var: Type}: NormalSyntacticReduction (L Var) (MendelsonReduction Var).
+Definition nMendelsonReduction {Var: Type}: NormalSyntacticReduction (L Var) MendelsonReduction.
   refine (Build_NormalSyntacticReduction (L Var) _ mendelson_normal_form _).
   intros; exists (mendelson_reduce x); split.
   + induction x.
     - simpl; unfold mendelson_andp.
       eapply reduce_trans.
-      * apply (@and_reduce (L Var) (nL Var) (pL Var) (MendelsonReduction Var) _ _ _ _ IHx1 IHx2).
+      * apply (@and_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
       * apply reduce_step.
         apply (@propag_reduce_spec (L Var) _ _ _ nil).
         left; apply @ImpNegAsPrime.andp_reduce.
     - simpl; unfold mendelson_orp.
       eapply reduce_trans.
-      * apply (@or_reduce (L Var) (nL Var) (pL Var) (MendelsonReduction Var) _ _ _ _ IHx1 IHx2).
+      * apply (@or_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
       * apply reduce_step.
         apply (@propag_reduce_spec (L Var) _ _ _ nil).
         left; apply @ImpNegAsPrime.orp_reduce.
     - simpl.
-      apply (@imp_reduce (L Var) (nL Var) (MendelsonReduction Var) _ _ _ _ IHx1 IHx2).
+      apply (@imp_reduce (L Var) (nL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
     - simpl; unfold mendelson_iffp, mendelson_andp.
       eapply reduce_trans; [| eapply reduce_trans].
-      * apply (@iff_reduce (L Var) (nL Var) (pL Var) (MendelsonReduction Var) _ _ _ _ IHx1 IHx2).
+      * apply (@iff_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
       * apply reduce_step.
         eapply (@propag_reduce_spec (L Var) _ _ _ nil).
         right; left; apply @ReduceIff.iff_reduce.
@@ -244,7 +250,7 @@ Definition nMendelsonReduction {Var: Type}: NormalSyntacticReduction (L Var) (Me
         eapply (@propag_reduce_spec (L Var) _ _ _ nil).
         left; apply @ImpNegAsPrime.andp_reduce.
     - simpl.
-      apply (@neg_reduce (L Var) (nL Var) (pL Var) (MendelsonReduction Var) _ _ IHx).
+      apply (@neg_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ IHx).
     - apply reduce_refl.
     - apply reduce_step.
       eapply (@propag_reduce_spec (L Var) _ _ _ nil).

@@ -19,5 +19,12 @@ Proof.
   revert x.
   pose proof @MCS_element_derivable _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi).
   pose proof @TrivialSemantics.mendelson_consistent Var.
-  apply (@truth_lemma_from_syntactic_reduction _ (PropositionalLanguage.MendelsonReduction Var) (PropositionalLanguage.nMendelsonReduction) _ (ClassicalPropositionalLogic.G Var)).
+  pose proof @classic_mendelson_consistent _ _ _ _  _ (ClassicalPropositionalLogic.cpG Var).
+  apply (@truth_lemma_from_syntactic_reduction  _ _ (PropositionalLanguage.nMendelsonReduction) _ _ H1 H0 _ _ H).
+  intros.
+  clear H0 H1.
+  induction x; try solve [inversion H2].
+  + destruct H2.
+    specialize (IHx1 H0).
+    specialize (IHx2 H1).
 Abort.

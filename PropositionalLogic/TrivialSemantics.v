@@ -121,7 +121,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma mendelson_consistent {Var: Type}: reduction_consistent_semantics (MendelsonReduction Var) (SM Var).
+Lemma mendelson_consistent {Var: Type}: reduction_consistent_semantics MendelsonReduction (SM Var).
 Proof.
   apply reduction_consistent_semantics_spec.
   apply propag_reduce_consistent.
