@@ -27,4 +27,57 @@ Proof.
   + destruct H2.
     specialize (IHx1 H0).
     specialize (IHx2 H1).
-Abort.
+    pose proof @MCS_impp_iff _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x1 x2.
+    simpl in *.
+    unfold TrivialSemantics.sem_imp.
+    tauto.
+  + specialize (IHx H2).
+    pose proof @MCS_negp_iff _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x.
+    simpl in *.
+    unfold TrivialSemantics.sem_neg.
+    tauto.
+  + simpl.
+    rewrite H.
+    split; auto; intros _.
+    rewrite derivable_provable; exists nil.
+    split; auto.
+    apply (ClassicalPropositionalLogic.true_provable).
+  + simpl.
+    unfold canonical_model.
+    tauto.
+Qed.
+
+Theorem complete_classical_trivial (Var: Type): strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).
+Proof.
+  assert (forall Phi, consistent (ClassicalPropositionalLogic.G Var) Phi -> satisfiable Phi).
+  + intros.
+    assert (exists Psi, Included _ Phi Psi /\ maximal_consistent (ClassicalPropositionalLogic.G Var) Psi).
+    admit. (* Use linderbum to construct MCS *)
+    destruct H0 as [Psi [? ?]].
+    exists (canonical_model (exist _ Psi H1)).
+    intros.
+    apply truth_lemma.
+    simpl.
+    apply H0; auto.
+  + hnf; intros.
+    specialize (H (Union _ Phi (Singleton _ (~~ x)))).
+    unfold consistent in H.
+    apply Classical_Prop.NNPP.
+    intro.
+    assert (satisfiable (Union expr Phi (Singleton expr (~~ x)))).
+    Focus 1. {
+      apply H.
+      intro; apply H1.
+      rewrite (@deduction_theorem _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var)) in H2.
+      clear - H2.
+      apply (@aux_classic_theorem05 _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var)); auto.
+    } Unfocus.
+    destruct H2 as [m ?].
+    specialize (H0 m).
+    pose proof (H2 (~~ x) (Union_intror _ _ _ _ (In_singleton _ _))).
+    pose proof (fun x H => H2 x (Union_introl _ _ _ _ H)).
+    specialize (H0 H4).
+    clear - H0 H3.
+    simpl in *; auto.
+Qed.
+

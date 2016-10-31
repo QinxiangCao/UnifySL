@@ -383,6 +383,30 @@ Proof.
   auto.
 Qed.
 
+Lemma aux_classic_theorem05: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+  Phi |-- ~~ x --> FF ->
+  Phi |-- x.
+Proof.
+  intros.
+  apply contrapositiveNP in H.
+  apply (derivable_modus_ponens _ TT x).
+  1: rewrite derivable_provable; exists nil; split; [auto | apply true_provable].
+  eapply derivable_modus_ponens; eauto.
+  rewrite derivable_provable; exists nil; split; [auto |].
+  simpl; eapply syntactic_reduction_rule.
+  + apply imp_reduce; [| apply reduce_refl].
+    apply imp_reduce; [| apply reduce_refl].
+    apply neg_reduce.
+    apply reduce_step.
+    eapply (propag_reduce_spec _ _ _ nil).
+    right; right; constructor.
+  + simpl; clear H.
+    pose proof imp_trans_strong TT (~~ ~~ TT) x.
+    eapply modus_ponens; eauto.
+    rewrite provable_derivable.
+    apply double_negp_elim.
+Qed.
+
 Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Gamma Phi ->
   (forall x: expr, Phi x <-> Phi |-- x).
