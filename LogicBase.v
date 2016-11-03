@@ -36,7 +36,6 @@ Definition multi_imp {L: Language} {nL: NormalLanguage L} (xs: list expr) (y: ex
   fold_right impp y xs.
 
 Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L): Type := {
-  provable_derivable: forall x, provable x <-> derivable empty_context x;
   derivable_provable: forall Phi y, derivable Phi y <->
                         exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y)
 }.
@@ -83,7 +82,19 @@ Notation "Phi  |--  x" := (derivable Phi x) (at level 60, no associativity) : lo
 
 Local Open Scope logic_base.
 
-Lemma derive_weaken {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi Psi x,
+Lemma provable_derivable {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall x, provable x <-> derivable empty_context x.
+Proof.
+  intros.
+  rewrite derivable_provable.
+  split; intros.
+  + exists nil; split; auto.
+  + destruct H as [xs [? ?]].
+    destruct xs; [auto |].
+    inversion H; subst.
+    inversion H3.
+Qed.  
+
+Lemma derivable_weaken {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi Psi x,
   Included _ Phi Psi ->
   Phi |-- x ->
   Psi |-- x.
@@ -94,6 +105,15 @@ Proof.
   exists xs; split; auto.
   revert H0; apply Forall_impl.
   auto.
+Qed.
+
+Lemma derivable_weaken1 {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi x y,
+  Phi |-- y ->
+  Union _ Phi (Singleton _ x) |-- y.
+Proof.
+  intros.
+  eapply derivable_weaken; eauto.
+  intros ? ?; left; auto.
 Qed.
 
 Lemma impp_intros {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi x y,
@@ -127,22 +147,11 @@ Definition derivable {L: Language} {nL: NormalLanguage L} {Gamma: AxiomaticProof
   fun Phi y =>
     exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y).
 
-Lemma provable_derivable {L: Language} {nL: NormalLanguage L} {Gamma: AxiomaticProofTheory L}: forall x, provable x <-> derivable empty_context x.
-Proof.
-  intros.
-  split; intros.
-  + exists nil; split; auto.
-  + destruct H as [xs [? ?]].
-    destruct xs; [auto |].
-    inversion H; subst.
-    inversion H3.
-Qed.
-
 Instance G {L: Language} {nL: NormalLanguage L} (Gamma: AxiomaticProofTheory L): ProofTheory L :=
   Build_ProofTheory L provable derivable.
 
 Instance nG {L: Language} {nL: NormalLanguage L} (Gamma: AxiomaticProofTheory L): NormalProofTheory L (G Gamma) :=
-  Build_NormalProofTheory L nL (G Gamma) provable_derivable (fun _ _ => iff_refl _).
+  Build_NormalProofTheory L nL (G Gamma) (fun _ _ => iff_refl _).
 
 End AxiomaticProofTheory.
 

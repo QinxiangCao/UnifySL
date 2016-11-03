@@ -1,3 +1,4 @@
+Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.LogicBase.
 Require Import Logic.SyntacticReduction.
 
@@ -22,3 +23,12 @@ Proof.
   tauto.
 Qed.
 
+Lemma contrapositive_strongly_complete {L: Language} (R: SyntacticReduction L) {sR: NormalSyntacticReduction L R} (SM: Semantics L) (Gamma: ProofTheory L):
+  (forall Phi x, ~ Phi |-- x -> ~ Phi |== x) ->
+  strongly_complete Gamma SM.
+Proof.
+  intros.
+  hnf; intros.
+  specialize (H Phi x).
+  tauto.
+Qed.

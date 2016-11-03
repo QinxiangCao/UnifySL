@@ -2,6 +2,7 @@ Require Import Logic.LogicBase.
 Require Import Logic.SyntacticReduction.
 Require Import Logic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
+Require Import Logic.PropositionalLogic.MinimunPropositionalLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.TrivialSemantics.
 
@@ -17,9 +18,9 @@ Lemma truth_lemma {Var: Type}: forall (Phi: MCS Var) x, canonical_model Phi |= x
 Proof.
   intros.
   revert x.
-  pose proof @MCS_element_derivable _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi).
+  pose proof @MCS_element_derivable _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi).
   pose proof @TrivialSemantics.mendelson_consistent Var.
-  pose proof @classic_mendelson_consistent _ _ _ _  _ (ClassicalPropositionalLogic.cpG Var).
+  pose proof @classic_mendelson_consistent _ _ _ _  _ _ (ClassicalPropositionalLogic.cpG Var).
   apply (@truth_lemma_from_syntactic_reduction  _ _ (PropositionalLanguage.nMendelsonReduction) _ _ H1 H0 _ _ H).
   intros.
   clear H0 H1.
@@ -27,12 +28,12 @@ Proof.
   + destruct H2.
     specialize (IHx1 H0).
     specialize (IHx2 H1).
-    pose proof @MCS_impp_iff _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x1 x2.
+    pose proof @MCS_impp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x1 x2.
     simpl in *.
     unfold TrivialSemantics.sem_imp.
     tauto.
   + specialize (IHx H2).
-    pose proof @MCS_negp_iff _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x.
+    pose proof @MCS_negp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x.
     simpl in *.
     unfold TrivialSemantics.sem_neg.
     tauto.
@@ -68,9 +69,9 @@ Proof.
     Focus 1. {
       apply H.
       intro; apply H1.
-      rewrite (@deduction_theorem _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var)) in H2.
+      rewrite (@deduction_theorem _ _ _ _ _ (ClassicalPropositionalLogic.mpG Var)) in H2.
       clear - H2.
-      apply (@aux_classic_theorem05 _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var)); auto.
+      apply (@aux_classic_theorem05 _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var)); auto.
     } Unfocus.
     destruct H2 as [m ?].
     specialize (H0 m).
