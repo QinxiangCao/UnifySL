@@ -124,6 +124,13 @@ Inductive atomic_reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalL
 
 End ReduceFalse.
 
+Module ReduceTrue.
+
+Inductive atomic_reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: expr -> expr -> Prop :=
+| truep_reduce: atomic_reduce TT (FF --> FF).
+
+End ReduceTrue.
+
 Definition MendelsonReduction {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: SyntacticReduction L :=
   Build_SyntacticReduction _
     (relation_disjunction
@@ -136,7 +143,9 @@ Definition IntuitionisticReduction {L: Language} {nL: NormalLanguage L} {pL: Pro
   Build_SyntacticReduction _
     (relation_disjunction
        ImpAndOrAsPrime.atomic_reduce
-       ReduceIff.atomic_reduce).
+       (relation_disjunction
+         ReduceIff.atomic_reduce
+         ReduceTrue.atomic_reduce)).
 
 Module PropositionalLanguage.
 
@@ -255,6 +264,63 @@ Definition nMendelsonReduction {Var: Type}: NormalSyntacticReduction (L Var) Men
     - apply reduce_step.
       eapply (@propag_reduce_spec (L Var) _ _ _ nil).
       right; right; apply @ReduceFalse.falsep_reduce.
+    - apply reduce_refl.
+  + induction x; simpl; auto.
+Defined.
+
+Definition intuitionistic_iffp {Var: Type} (x y: expr Var): expr Var := andp (impp x y) (impp y x).
+
+Definition intuitionistic_negp {Var: Type} (x: expr Var): expr Var := impp x falsep.
+
+Fixpoint intuitionistic_reduce {Var: Type} (x: expr Var): expr Var :=
+  match x with
+  | andp y z => andp (intuitionistic_reduce y) (intuitionistic_reduce z)
+  | orp y z => orp (intuitionistic_reduce y) (intuitionistic_reduce z)
+  | impp y z => impp (intuitionistic_reduce y) (intuitionistic_reduce z)
+  | iffp y z => intuitionistic_iffp (intuitionistic_reduce y) (intuitionistic_reduce z)
+  | negp y => intuitionistic_negp (intuitionistic_reduce y)
+  | truep => impp falsep falsep
+  | falsep => falsep
+  | varp p => varp p
+  end.
+
+Fixpoint intuitionistic_normal_form {Var: Type} (x: expr Var): Prop :=
+  match x with
+  | andp y z => intuitionistic_normal_form y /\ intuitionistic_normal_form z
+  | orp y z => intuitionistic_normal_form y /\ intuitionistic_normal_form z
+  | impp y z => intuitionistic_normal_form y /\ intuitionistic_normal_form z
+  | iffp y z => False
+  | negp y => False
+  | truep => False
+  | falsep => True
+  | varp p => True
+  end.
+
+Definition nIntuitionisticReduction {Var: Type}: NormalSyntacticReduction (L Var) IntuitionisticReduction.
+  refine (Build_NormalSyntacticReduction (L Var) _ intuitionistic_normal_form _).
+  intros; exists (intuitionistic_reduce x); split.
+  + induction x.
+    - simpl.
+      apply (@and_reduce (L Var) (nL Var) (pL Var) IntuitionisticReduction _ _ _ _ IHx1 IHx2).
+    - apply (@or_reduce (L Var) (nL Var) (pL Var) IntuitionisticReduction _ _ _ _ IHx1 IHx2).
+    - simpl.
+      apply (@imp_reduce (L Var) (nL Var) IntuitionisticReduction _ _ _ _ IHx1 IHx2).
+    - simpl; unfold intuitionistic_iffp.
+      eapply reduce_trans.
+      * apply (@iff_reduce (L Var) (nL Var) (pL Var) IntuitionisticReduction _ _ _ _ IHx1 IHx2).
+      * apply reduce_step.
+        eapply (@propag_reduce_spec (L Var) _ _ _ nil).
+        right. left. apply @ReduceIff.iff_reduce.
+    - simpl; unfold intuitionistic_negp.
+      eapply reduce_trans.
+      * apply (@neg_reduce (L Var) (nL Var) (pL Var) IntuitionisticReduction _ _ IHx).
+      * apply reduce_step.
+        eapply (@propag_reduce_spec (L Var) _ _ _ nil).
+        left. apply @ImpAndOrAsPrime.negp_reduce.
+    - apply reduce_step.
+      eapply (@propag_reduce_spec (L Var) _ _ _ nil).
+      right. right. apply @ReduceTrue.truep_reduce.
+    - apply reduce_refl.
     - apply reduce_refl.
   + induction x; simpl; auto.
 Defined.
