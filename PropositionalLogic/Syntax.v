@@ -1,3 +1,5 @@
+Require Import Coq.Logic.ProofIrrelevance.
+Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
 Require Import Logic.SyntacticReduction.
@@ -326,23 +328,96 @@ Definition nIntuitionisticReduction {Var: Type}: NormalSyntacticReduction (L Var
   + induction x; simpl; auto.
 Defined.
 
+Definition rank {Var: Type}: expr Var -> nat :=
+  fix rank (x: expr Var): nat :=
+    match x with
+    | andp y z => 1 + rank y + rank z
+    | orp y z => 1 + rank y + rank z
+    | impp y z => 1 + rank y + rank z
+    | iffp y z => 1 + rank y + rank z
+    | negp y => 1 + rank y
+    | truep => 0
+    | falsep => 0
+    | varp p => 0
+    end.
+
 Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
   intros.
-  pose (rank := fix rank (x: expr Var): nat :=
-                  match x with
-                  | andp y z => 1 + max (rank y) (rank z)
-                  | orp y z => 1 + max (rank y) (rank z)
-                  | impp y z => 1 + max (rank y) (rank z)
-                  | iffp y z => 1 + max (rank y) (rank z)
-                  | negp y => 1 + rank y
-                  | truep => 0
-                  | falsep => 0
-                  | varp p => 0
-                  end).
-  assert (forall n, Countable (sig (fun x: expr Var => rank x = n))).
+  assert (forall n, Countable (sig (fun x: expr Var => rank x <= n))).
   + induction n.
-    - admit.
-Abort.
+    - apply (@bijection_Countable _ (Var + unit + unit)%type); [| solve_Countable].
+      apply bijection_sym.
+      apply (FBuild_bijection _ _ (fun x =>
+               match x with
+               | inl (inl p) => exist (fun x: expr Var => rank x <= 0) (varp p) (le_n 0)
+               | inl (inr _) => exist (fun x: expr Var => rank x <= 0) truep (le_n 0)
+               | inr _ => exist (fun x: expr Var => rank x <= 0) falsep (le_n 0)
+               end)).
+      * hnf; intros.
+        destruct a1 as [[? | []] | []], a2 as [[? | []] | []]; inversion H; auto.
+      * hnf; intros.
+        destruct b as [[] HH]; try solve [inversion HH].
+        1: exists (inl (inr tt)); eauto; f_equal; apply proof_irrelevance.
+        1: exists (inr tt); eauto; f_equal; apply proof_irrelevance.
+        1: exists (inl (inl v)); eauto; f_equal; apply proof_irrelevance.
+    - set (s := sig (fun x: expr Var => rank x <= n)).
+      apply (@injection_Countable _ (s * s + s * s + s * s + s * s + s + unit + unit + Var)%type); [| solve_Countable].
+      apply (Build_injection _ _ (fun x y =>
+        match y with
+        | inl (inl (inl (inl (inl (inl (inl (exist y _, exist z _))))))) => proj1_sig x = andp y z
+        | inl (inl (inl (inl (inl (inl (inr (exist y _, exist z _))))))) => proj1_sig x = orp y z
+        | inl (inl (inl (inl (inl (inr (exist y _, exist z _)))))) => proj1_sig x = impp y z
+        | inl (inl (inl (inl (inr (exist y _, exist z _))))) => proj1_sig x = iffp y z
+        | inl (inl (inl (inr (exist y _)))) => proj1_sig x = negp y
+        | inl (inl (inr _)) => proj1_sig x = truep
+        | inl (inr _) => proj1_sig x = falsep
+        | inr p => proj1_sig x = varp p
+        end)).
+      * hnf; intros.
+        destruct a as [[y z | y z | y z | y z | y | | | p] ?H].
+        (* 1 *) simpl in H. assert (rank y <= n) by omega. assert (rank z <= n) by omega.
+                exists (inl (inl (inl (inl (inl (inl (inl (exist _ y H0, exist _ z H1)))))))); auto.
+        (* 2 *) simpl in H. assert (rank y <= n) by omega. assert (rank z <= n) by omega.
+                exists (inl (inl (inl (inl (inl (inl (inr (exist _ y H0, exist _ z H1)))))))); auto.
+        (* 3 *) simpl in H. assert (rank y <= n) by omega. assert (rank z <= n) by omega.
+                exists (inl (inl (inl (inl (inl (inr (exist _ y H0, exist _ z H1))))))); auto.
+        (* 4 *) simpl in H. assert (rank y <= n) by omega. assert (rank z <= n) by omega.
+                exists (inl (inl (inl (inl (inr (exist _ y H0, exist _ z H1)))))); auto.
+        (* 5 *) simpl in H. assert (rank y <= n) by omega.
+                exists (inl (inl (inl (inr (exist _ y H0))))); auto.
+        (* 6 *) exists (inl (inl (inr tt))); auto.
+        (* 7 *) exists (inl (inr tt)); auto.
+        (* 8 *) exists (inr p); auto.
+      * hnf; intros.
+        destruct a as [[y z | y z | y z | y z | y | | | p] ?H];
+        destruct b1 as [[[[[[[[[y1 ?H] [z1 ?H]] | [[y1 ?H] [z1 ?H]]] | [[y1 ?H] [z1 ?H]]] | [[y1 ?H] [z1 ?H]]]| [y1 ?]]| ] |] | p1]; try solve [inversion H];
+        destruct b2 as [[[[[[[[[y2 ?H] [z2 ?H]] | [[y2 ?H] [z2 ?H]]] | [[y2 ?H] [z2 ?H]]] | [[y2 ?H] [z2 ?H]]]| [y2 ?]]| ] |] | p2]; try solve [inversion H0].
+        (* 1 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 2 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 3 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 4 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 5 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 6 *) destruct u, u0; auto.
+        (* 7 *) destruct u, u0; auto.
+        (* 8 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+      * hnf; intros.
+        destruct b as [[[[[[[[[y ?H] [z ?H]] | [[y ?H] [z ?H]]] | [[y ?H] [z ?H]]] | [[y ?H] [z ?H]]]| [y ?]]| ] |] | p];
+        destruct a1 as [[y1 z1 | y1 z1 | y1 z1 | y1 z1 | y1 | | | p1] ?H]; try solve [inversion H];
+        destruct a2 as [[y2 z2 | y2 z2 | y2 z2 | y2 z2 | y2 | | | p2] ?H]; try solve [inversion H0].
+        (* 1 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 2 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 3 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 4 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 5 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+        (* 6 *) f_equal; apply proof_irrelevance.
+        (* 7 *) f_equal; apply proof_irrelevance.
+        (* 8 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
+  + apply (@injection_Countable _ (sigT (fun n => sig (fun x: expr Var => rank x <= n)))); [| solve_Countable; auto].
+    apply (FBuild_injection _ _ (fun x => existT _ (rank x) (exist _ x (le_n _)))).
+    hnf; intros.
+    simpl in H.
+    inversion H; auto.
+Qed. (* 20 seconds *)
 
 End PropositionalLanguage.
 
