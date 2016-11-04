@@ -137,6 +137,26 @@ Proof.
     simpl; f_equal; auto.
 Qed.
 
+Lemma maximal_consistent_spec {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}:
+  forall Phi, maximal_consistent Gamma Phi <-> consistent Gamma Phi /\ forall x, consistent Gamma (Union _ Phi (Singleton _ x)) -> Phi x.
+Proof.
+  intros.
+  split; intros [? ?]; split; auto.
+  + intros.
+    specialize (H0 _ H1).
+    specialize (H0 (fun x H => Union_introl _ _ _ _ H)).
+    specialize (H0 x).
+    apply H0; right; constructor.
+  + intros.
+    hnf; intros.
+    apply H0.
+    unfold consistent in*.
+    intro; apply H1.
+    eapply derivable_weaken; [| exact H4].
+    intros ? [? | ?]; auto.
+    intros []; auto.
+Qed.
+
 Module AxiomaticProofTheory.
 
 Class AxiomaticProofTheory (L: Language): Type := {

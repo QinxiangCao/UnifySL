@@ -1,3 +1,5 @@
+Require Import Logic.lib.Bijection.
+Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
 Require Import Logic.SyntacticReduction.
 Require Import Logic.HenkinCompleteness.
@@ -48,12 +50,62 @@ Proof.
     tauto.
 Qed.
 
-Theorem complete_classical_trivial (Var: Type): strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).
+Lemma Lindenbaum_lemma {Var: Type}: Countable Var ->
+  forall Phi,
+    consistent (ClassicalPropositionalLogic.G Var) Phi ->
+    exists Psi,
+      Included _ Phi Psi /\ maximal_consistent (ClassicalPropositionalLogic.G Var) Psi.
+Proof.
+  intros.
+  apply PropositionalLanguage.formula_countable in X.
+  set (step :=
+          fun n Phi x =>
+             Phi x \/
+            (inj_R _ _ X x n /\ consistent (ClassicalPropositionalLogic.G Var) (Union _ Phi (Singleton _ x)))).
+  exists (LindenbaumConstruction step Phi).
+  split; [| rewrite maximal_consistent_spec; split].
+  + apply (Lindenbaum_spec_included _ _ 0).
+  + unfold consistent.
+    apply (Lindenbaum_spec_pos _ _
+            (fun xs => @provable _ (ClassicalPropositionalLogic.G Var) (multi_imp xs FF))
+            (fun Phi => @derivable _ (ClassicalPropositionalLogic.G Var) Phi FF)).
+    - intros; apply derivable_provable.
+    - intros ? ? ? ?; left; auto.
+    - apply H.
+    - intros.
+      destruct (Classical_Prop.classic (exists x, inj_R _ _ X x n /\ consistent (ClassicalPropositionalLogic.G Var) (Union _ S (Singleton _ x)))) as [[x [? ?]] |].
+      * intro; apply H2; clear H2.
+        eapply derivable_weaken; [| exact H3].
+        hnf; intros ? [? | [? ?]]; [left; auto |].
+        pose proof in_inj _ _ X _ _ _ H1 H2.
+        subst; right; constructor.
+      * intro; apply H0; clear H0.
+        eapply derivable_weaken; [| exact H2].
+        hnf; intros ? [? | [? ?]]; [auto |].
+        exfalso; apply H1; clear H1.
+        exists x; auto.
+  + intros.
+    apply Classical_Prop.NNPP; intro; apply H0; clear H0.
+    destruct (im_inj _ _ X x) as [n ?].
+    pose proof Lindenbaum_spec_neg _ _ _ (S n) H1.
+    simpl in H2.
+    unfold step at 1 in H2.
+    unfold consistent in H2.
+    assert (@derivable _ (ClassicalPropositionalLogic.G Var)
+              (Union (PropositionalLanguage.expr Var) (LindenbaumChain step Phi n)
+                 (Singleton (PropositionalLanguage.expr Var) x))
+              FF) by tauto.
+    eapply derivable_weaken; [| exact H3].
+    intros ? [? | ?]; [left | right; auto].
+    apply (Lindenbaum_spec_included _ _ n); auto.
+Qed.
+
+Theorem complete_classical_trivial (Var: Type) (CV: Countable Var): strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).
 Proof.
   assert (forall Phi, consistent (ClassicalPropositionalLogic.G Var) Phi -> satisfiable Phi).
   + intros.
-    assert (exists Psi, Included _ Phi Psi /\ maximal_consistent (ClassicalPropositionalLogic.G Var) Psi).
-    admit. (* Use linderbum to construct MCS *)
+    assert (exists Psi, Included _ Phi Psi /\ maximal_consistent (ClassicalPropositionalLogic.G Var) Psi)
+      by (apply Lindenbaum_lemma; auto).
     destruct H0 as [Psi [? ?]].
     exists (canonical_model (exist _ Psi H1)).
     intros.
