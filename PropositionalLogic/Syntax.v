@@ -1,3 +1,4 @@
+Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
 Require Import Logic.SyntacticReduction.
 
@@ -324,6 +325,24 @@ Definition nIntuitionisticReduction {Var: Type}: NormalSyntacticReduction (L Var
     - apply reduce_refl.
   + induction x; simpl; auto.
 Defined.
+
+Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
+  intros.
+  pose (rank := fix rank (x: expr Var): nat :=
+                  match x with
+                  | andp y z => 1 + max (rank y) (rank z)
+                  | orp y z => 1 + max (rank y) (rank z)
+                  | impp y z => 1 + max (rank y) (rank z)
+                  | iffp y z => 1 + max (rank y) (rank z)
+                  | negp y => 1 + rank y
+                  | truep => 0
+                  | falsep => 0
+                  | varp p => 0
+                  end).
+  assert (forall n, Countable (sig (fun x: expr Var => rank x = n))).
+  + induction n.
+    - admit.
+Abort.
 
 End PropositionalLanguage.
 
