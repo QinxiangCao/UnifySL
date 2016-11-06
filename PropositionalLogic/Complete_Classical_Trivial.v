@@ -16,40 +16,6 @@ Definition MCS (Var: Type): Type := sig (maximal_consistent (ClassicalPropositio
 Definition canonical_model {Var: Type} (Phi: MCS Var): @model _ (TrivialSemantics.SM Var) :=
   fun p => (proj1_sig Phi (PropositionalLanguage.varp p)).
 
-Lemma truth_lemma {Var: Type}: forall (Phi: MCS Var) x, canonical_model Phi |= x <-> proj1_sig Phi x.
-Proof.
-  intros.
-  revert x.
-  pose proof @MCS_element_derivable _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi).
-  pose proof @TrivialSemantics.mendelson_consistent Var.
-  pose proof @classic_mendelson_consistent _ _ _ _  _ _ (ClassicalPropositionalLogic.cpG Var).
-  apply (@truth_lemma_from_syntactic_reduction  _ _ (PropositionalLanguage.nMendelsonReduction) _ _ H1 H0 _ _ H).
-  intros.
-  clear H0 H1.
-  induction x; try solve [inversion H2].
-  + destruct H2.
-    specialize (IHx1 H0).
-    specialize (IHx2 H1).
-    pose proof @MCS_impp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x1 x2.
-    simpl in *.
-    unfold TrivialSemantics.sem_imp.
-    tauto.
-  + specialize (IHx H2).
-    pose proof @MCS_negp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x.
-    simpl in *.
-    unfold TrivialSemantics.sem_neg.
-    tauto.
-  + simpl.
-    rewrite H.
-    split; auto; intros _.
-    rewrite derivable_provable; exists nil.
-    split; auto.
-    apply (ClassicalPropositionalLogic.true_provable).
-  + simpl.
-    unfold canonical_model.
-    tauto.
-Qed.
-
 Lemma Lindenbaum_lemma {Var: Type}: Countable Var ->
   forall Phi,
     consistent (ClassicalPropositionalLogic.G Var) Phi ->
@@ -85,19 +51,50 @@ Proof.
         exfalso; apply H1; clear H1.
         exists x; auto.
   + intros.
-    apply Classical_Prop.NNPP; intro; apply H0; clear H0.
     destruct (im_inj _ _ X x) as [n ?].
-    pose proof Lindenbaum_spec_neg _ _ _ (S n) H1.
-    simpl in H2.
-    unfold step at 1 in H2.
-    unfold consistent in H2.
-    assert (@derivable _ (ClassicalPropositionalLogic.G Var)
-              (Union (PropositionalLanguage.expr Var) (LindenbaumChain step Phi n)
-                 (Singleton (PropositionalLanguage.expr Var) x))
-              FF) by tauto.
-    eapply derivable_weaken; [| exact H3].
-    intros ? [? | ?]; [left | right; auto].
+    apply (Lindenbaum_spec_neg _ _ _ (S n)).
+    simpl.
+    unfold step at 1.
+    unfold consistent.
+    right; split; auto.
+    intro; apply H0; clear H0.
+    rewrite (@deduction_theorem _ _ _ _ _ (ClassicalPropositionalLogic.mpG Var)) in H2 |- *.
+    eapply derivable_weaken; [| exact H2].
     apply (Lindenbaum_spec_included _ _ n); auto.
+Qed.
+
+Lemma truth_lemma {Var: Type}: forall (Phi: MCS Var) x, canonical_model Phi |= x <-> proj1_sig Phi x.
+Proof.
+  intros.
+  revert x.
+  pose proof @MCS_element_derivable _ _ _ _ _ (ClassicalPropositionalLogic.mpG Var) (proj1_sig Phi) (proj2_sig Phi).
+  pose proof @TrivialSemantics.mendelson_consistent Var.
+  pose proof @classic_mendelson_consistent _ _ _ _  _ _ (ClassicalPropositionalLogic.cpG Var).
+  apply (@truth_lemma_from_syntactic_reduction  _ _ (PropositionalLanguage.nMendelsonReduction) _ _ H1 H0 _ _ H).
+  intros.
+  clear H0 H1.
+  induction x; try solve [inversion H2].
+  + destruct H2.
+    specialize (IHx1 H0).
+    specialize (IHx2 H1).
+    pose proof @MCS_impp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x1 x2.
+    simpl in *.
+    unfold TrivialSemantics.sem_imp.
+    tauto.
+  + specialize (IHx H2).
+    pose proof @MCS_negp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x.
+    simpl in *.
+    unfold TrivialSemantics.sem_neg.
+    tauto.
+  + simpl.
+    rewrite H.
+    split; auto; intros _.
+    rewrite derivable_provable; exists nil.
+    split; auto.
+    apply (ClassicalPropositionalLogic.true_provable).
+  + simpl.
+    unfold canonical_model.
+    tauto.
 Qed.
 
 Theorem complete_classical_trivial (Var: Type) (CV: Countable Var): strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).

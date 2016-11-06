@@ -286,3 +286,40 @@ Proof.
   split; [constructor | apply axiom2].
 Qed.
 
+Lemma derivable_closed_element_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
+  derivable_closed Phi ->
+  (forall x: expr, Phi x <-> Phi |-- x).
+Proof.
+  intros.
+  split; intros; auto.
+  apply derivable_assum; auto.
+Qed.
+
+Lemma maximal_consistent_derivable_closed: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
+  maximal_consistent Gamma Phi ->
+  derivable_closed Phi.
+Proof.
+  intros.
+  hnf; intros.
+  assert (consistent Gamma (Union _ Phi (Singleton _ x))).
+  Focus 1. {
+    intro.
+    pose proof impp_elim _ _ _ H1.
+    pose proof derivable_modus_ponens _ _ _ H0 H2.
+    destruct H; auto.
+  } Unfocus.
+  destruct H.
+  specialize (H2 _ H1).
+  specialize (H2 (fun x H => Union_introl _ _ _ x H)).
+  apply H2.
+  right; constructor.
+Qed.
+
+Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
+  maximal_consistent Gamma Phi ->
+  (forall x: expr, Phi x <-> Phi |-- x).
+Proof.
+  intros.
+  apply derivable_closed_element_derivable, maximal_consistent_derivable_closed.
+  auto.
+Qed.

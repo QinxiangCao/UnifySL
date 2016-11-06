@@ -11,8 +11,7 @@ Import PropositionalLanguage.
 Record frame: Type := {
   frame_type: Type;
   frame_order: relation frame_type; (* <= *)
-  frame_preorder: PreOrder frame_order;
-  frame_partialorder: PartialOrder eq frame_order
+  frame_preorder: PreOrder frame_order
 }.
 
 Infix "<=" := (frame_order _): KripkeSemantics.

@@ -46,6 +46,9 @@ Definition consistent {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L
 Definition maximal_consistent {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): context -> Prop :=
   fun Phi => consistent Gamma Phi /\ forall Psi, consistent Gamma Psi -> Included _ Phi Psi -> Included _ Psi Phi.
 
+Definition derivable_closed {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
+  fun Phi => forall x, derivable Phi x -> Phi x.
+
 Class Semantics (L: Language): Type := {
   model: Type;
   satisfies: model -> expr -> Prop

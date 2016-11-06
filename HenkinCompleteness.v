@@ -107,10 +107,9 @@ Proof.
 Qed.
 
 Definition Lindenbaum_spec_neg {A: Type}: forall (step: nat -> Ensemble A -> Ensemble A) (init: Ensemble A) a n,
-  ~ LindenbaumConstruction step init a ->
-  ~ LindenbaumChain step init n a.
+  LindenbaumChain step init n a ->
+  LindenbaumConstruction step init a.
 Proof.
   intros.
-  intro; apply H.
   exists n; auto.
 Qed.

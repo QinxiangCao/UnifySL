@@ -34,6 +34,7 @@ Notation "~~ x" := (negp x) (at level 35) : PropositionalLogic.
 Notation "'FF'" := falsep : PropositionalLogic.
 Notation "'TT'" := truep : PropositionalLogic.
 
+Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
 Lemma and_reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {R: SyntacticReduction L}:
@@ -149,6 +150,9 @@ Definition IntuitionisticReduction {L: Language} {nL: NormalLanguage L} {pL: Pro
        (relation_disjunction
          ReduceIff.atomic_reduce
          ReduceTrue.atomic_reduce)).
+
+Definition orp_witnessed {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
+  fun Phi => forall x y, Phi (x || y) -> Phi x \/ Phi y.
 
 Module PropositionalLanguage.
 
