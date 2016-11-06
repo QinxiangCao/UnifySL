@@ -204,41 +204,28 @@ Proof.
 Qed.
 
 Theorem complete_intuitionistic_kripke: strongly_complete (IntuitionisticPropositionalLogic.G Var) (KripkeSemantics.SM Var).
-Abort.
-(*
 Proof.
-  assert (forall Phi x, consistent (ClassicalPropositionalLogic.G Var) Phi -> satisfiable Phi).
+  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
   + intros.
-    assert (exists Psi, Included _ Phi Psi /\ maximal_consistent (ClassicalPropositionalLogic.G Var) Psi)
-      by (apply Lindenbaum_lemma; auto).
+    assert (exists Psi: DCS, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
+    Focus 1. {
+      apply Lindenbaum_lemma in H.
+      destruct H as [Psi [? [? ?]]].
+      exists (exist _ Psi H1).
+      simpl; auto.
+    } Unfocus.
     destruct H0 as [Psi [? ?]].
-    exists (canonical_model (exist _ Psi H1)).
-    intros.
+    intro.
+    specialize (H2 (canonical_model Psi)).
+    apply H1.
+    rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     apply truth_lemma.
-    simpl.
+    apply H2; intros.
+    apply truth_lemma.
     apply H0; auto.
   + hnf; intros.
-    specialize (H (Union _ Phi (Singleton _ (~~ x)))).
-    unfold consistent in H.
-    apply Classical_Prop.NNPP.
-    intro.
-    assert (satisfiable (Union expr Phi (Singleton expr (~~ x)))).
-    Focus 1. {
-      apply H.
-      intro; apply H1.
-      rewrite (@deduction_theorem _ _ _ _ _ (ClassicalPropositionalLogic.mpG Var)) in H2.
-      clear - H2.
-      apply (@aux_classic_theorem05 _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var)); auto.
-    } Unfocus.
-    destruct H2 as [m ?].
-    specialize (H0 m).
-    pose proof (H2 (~~ x) (Union_intror _ _ _ _ (In_singleton _ _))).
-    pose proof (fun x H => H2 x (Union_introl _ _ _ _ H)).
-    specialize (H0 H4).
-    clear - H0 H3.
-    simpl in *; auto.
+    apply Classical_Prop.NNPP; intro; revert H0.
+    apply H; auto.
 Qed.
-
-*)
 
 End Completeness.
