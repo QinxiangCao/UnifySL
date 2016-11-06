@@ -148,7 +148,7 @@ Proof.
 Qed.
 
 Lemma MCS_nonelement_inconsistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Gamma Phi ->
+  maximal_consistent Phi ->
   (forall x: expr, ~ Phi x <-> Phi |-- x --> FF).
 Proof.
   intros.
@@ -167,7 +167,7 @@ Proof.
 Qed.
 
 Lemma MCS_negp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Gamma Phi ->
+  maximal_consistent Phi ->
   (forall x: expr, Phi (~~ x) <-> ~ Phi x).
 Proof.
   intros.
@@ -198,7 +198,7 @@ Proof.
 Qed.
 
 Lemma MCS_impp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Gamma Phi ->
+  maximal_consistent Phi ->
   (forall x y: expr, Phi (x --> y) <-> (Phi x -> Phi y)).
 Proof.
   intros.
@@ -232,9 +232,14 @@ Section ClassicalPropositionalLogic.
 
 Context (Var: Type).
 
-Inductive provable: @expr (PropositionalLanguage.L Var) -> Prop :=
-| syntactic_reduction_rule1: forall x y, @reduce _ MendelsonReduction x y -> provable x -> provable y
-| syntactic_reduction_rule2: forall x y, @reduce _ MendelsonReduction x y -> provable y -> provable x
+Instance L: Language := PropositionalLanguage.L Var.
+Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
+Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Instance R: SyntacticReduction L := MendelsonReduction.
+
+Inductive provable: expr -> Prop :=
+| syntactic_reduction_rule1: forall x y, reduce x y -> provable x -> provable y
+| syntactic_reduction_rule2: forall x y, reduce x y -> provable y -> provable x
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
@@ -242,12 +247,12 @@ Inductive provable: @expr (PropositionalLanguage.L Var) -> Prop :=
 | true_provable: provable TT.
 (* Elliott Mendelson, Introduction to Mathematical Logic, Second Edition (New York: D. Van Nostrand, 1979) *)
 
-Instance AG: AxiomaticProofTheory.AxiomaticProofTheory (PropositionalLanguage.L Var) :=
-  AxiomaticProofTheory.Build_AxiomaticProofTheory (PropositionalLanguage.L Var) provable.
+Instance AG: AxiomaticProofTheory.AxiomaticProofTheory L :=
+  AxiomaticProofTheory.Build_AxiomaticProofTheory L provable.
 
-Instance G: ProofTheory (PropositionalLanguage.L Var) := AxiomaticProofTheory.G AG.
+Instance G: ProofTheory L := AxiomaticProofTheory.G AG.
 
-Instance mpG: MinimunPropositionalLogic (PropositionalLanguage.L Var) G.
+Instance mpG: MinimunPropositionalLogic L G.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -255,7 +260,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance cpG: ClassicalPropositionalLogic (PropositionalLanguage.L Var) G.
+Instance cpG: ClassicalPropositionalLogic L G.
 Proof.
   constructor.
   + split.

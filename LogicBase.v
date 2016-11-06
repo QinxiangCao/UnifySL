@@ -40,11 +40,11 @@ Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory
                         exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y)
 }.
 
-Definition consistent {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): context -> Prop :=
+Definition consistent {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => ~ derivable Phi falsep.
 
-Definition maximal_consistent {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): context -> Prop :=
-  fun Phi => consistent Gamma Phi /\ forall Psi, consistent Gamma Psi -> Included _ Phi Psi -> Included _ Psi Phi.
+Definition maximal_consistent {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
+  fun Phi => consistent Phi /\ forall Psi, consistent Psi -> Included _ Phi Psi -> Included _ Psi Phi.
 
 Definition derivable_closed {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => forall x, derivable Phi x -> Phi x.
@@ -141,7 +141,7 @@ Proof.
 Qed.
 
 Lemma maximal_consistent_spec {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}:
-  forall Phi, maximal_consistent Gamma Phi <-> consistent Gamma Phi /\ forall x, consistent Gamma (Union _ Phi (Singleton _ x)) -> Phi x.
+  forall Phi, maximal_consistent Phi <-> consistent Phi /\ forall x, consistent (Union _ Phi (Singleton _ x)) -> Phi x.
 Proof.
   intros.
   split; intros [? ?]; split; auto.

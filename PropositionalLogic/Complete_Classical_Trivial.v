@@ -11,35 +11,49 @@ Require Import Logic.PropositionalLogic.TrivialSemantics.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Definition MCS (Var: Type): Type := sig (maximal_consistent (ClassicalPropositionalLogic.G Var)).
+Section Completeness.
 
-Definition canonical_model {Var: Type} (Phi: MCS Var): @model _ (TrivialSemantics.SM Var) :=
+Context (Var: Type).
+Context (CV: Countable Var).
+
+Instance L: Language := PropositionalLanguage.L Var.
+Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
+Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Instance R: SyntacticReduction L := MendelsonReduction.
+Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nMendelsonReduction.
+Instance G: ProofTheory L := ClassicalPropositionalLogic.G Var.
+Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
+Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
+
+Definition MCS: Type := sig maximal_consistent.
+
+Definition canonical_model (Phi: MCS): @model _ (TrivialSemantics.SM Var) :=
   fun p => (proj1_sig Phi (PropositionalLanguage.varp p)).
 
-Lemma Lindenbaum_lemma {Var: Type}: Countable Var ->
+Lemma Lindenbaum_lemma:
   forall Phi,
-    consistent (ClassicalPropositionalLogic.G Var) Phi ->
+    consistent Phi ->
     exists Psi,
-      Included _ Phi Psi /\ maximal_consistent (ClassicalPropositionalLogic.G Var) Psi.
+      Included _ Phi Psi /\ maximal_consistent Psi.
 Proof.
   intros.
-  apply PropositionalLanguage.formula_countable in X.
+  assert (Countable expr) by (apply PropositionalLanguage.formula_countable; auto).
   set (step :=
           fun n Phi x =>
              Phi x \/
-            (inj_R _ _ X x n /\ consistent (ClassicalPropositionalLogic.G Var) (Union _ Phi (Singleton _ x)))).
+            (inj_R _ _ X x n /\ consistent (Union _ Phi (Singleton _ x)))).
   exists (LindenbaumConstruction step Phi).
   split; [| rewrite maximal_consistent_spec; split].
   + apply (Lindenbaum_spec_included _ _ 0).
   + unfold consistent.
     apply (Lindenbaum_spec_pos _ _
-            (fun xs => @provable _ (ClassicalPropositionalLogic.G Var) (multi_imp xs FF))
-            (fun Phi => @derivable _ (ClassicalPropositionalLogic.G Var) Phi FF)).
+            (fun xs => |-- multi_imp xs FF)
+            (fun Phi => Phi |-- FF)).
     - intros; apply derivable_provable.
     - intros ? ? ? ?; left; auto.
     - apply H.
     - intros.
-      destruct (Classical_Prop.classic (exists x, inj_R _ _ X x n /\ consistent (ClassicalPropositionalLogic.G Var) (Union _ S (Singleton _ x)))) as [[x [? ?]] |].
+      destruct (Classical_Prop.classic (exists x, inj_R _ _ X x n /\ consistent (Union _ S (Singleton _ x)))) as [[x [? ?]] |].
       * intro; apply H2; clear H2.
         eapply derivable_weaken; [| exact H3].
         hnf; intros ? [? | [? ?]]; [left; auto |].
@@ -58,31 +72,31 @@ Proof.
     unfold consistent.
     right; split; auto.
     intro; apply H0; clear H0.
-    rewrite (@deduction_theorem _ _ _ _ _ (ClassicalPropositionalLogic.mpG Var)) in H2 |- *.
+    rewrite deduction_theorem in H2 |- *.
     eapply derivable_weaken; [| exact H2].
     apply (Lindenbaum_spec_included _ _ n); auto.
 Qed.
 
-Lemma truth_lemma {Var: Type}: forall (Phi: MCS Var) x, canonical_model Phi |= x <-> proj1_sig Phi x.
+Lemma truth_lemma: forall (Phi: MCS) x, canonical_model Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
   revert x.
-  pose proof @MCS_element_derivable _ _ _ _ _ (ClassicalPropositionalLogic.mpG Var) (proj1_sig Phi) (proj2_sig Phi).
+  pose proof MCS_element_derivable (proj1_sig Phi) (proj2_sig Phi).
   pose proof @TrivialSemantics.mendelson_consistent Var.
-  pose proof @classic_mendelson_consistent _ _ _ _  _ _ (ClassicalPropositionalLogic.cpG Var).
-  apply (@truth_lemma_from_syntactic_reduction  _ _ (PropositionalLanguage.nMendelsonReduction) _ _ H1 H0 _ _ H).
+  pose proof classic_mendelson_consistent.
+  apply (truth_lemma_from_syntactic_reduction _ _ _ H1 H0 _ _ H).
   intros.
   clear H0 H1.
   induction x; try solve [inversion H2].
   + destruct H2.
     specialize (IHx1 H0).
     specialize (IHx2 H1).
-    pose proof @MCS_impp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x1 x2.
+    pose proof MCS_impp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
     simpl in *.
     unfold TrivialSemantics.sem_imp.
     tauto.
   + specialize (IHx H2).
-    pose proof @MCS_negp_iff _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var) (proj1_sig Phi) (proj2_sig Phi) x.
+    pose proof MCS_negp_iff (proj1_sig Phi) (proj2_sig Phi) x.
     simpl in *.
     unfold TrivialSemantics.sem_neg.
     tauto.
@@ -97,11 +111,11 @@ Proof.
     tauto.
 Qed.
 
-Theorem complete_classical_trivial (Var: Type) (CV: Countable Var): strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).
+Theorem complete_classical_trivial: strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).
 Proof.
-  assert (forall Phi, consistent (ClassicalPropositionalLogic.G Var) Phi -> satisfiable Phi).
+  assert (forall Phi, consistent Phi -> satisfiable Phi).
   + intros.
-    assert (exists Psi, Included _ Phi Psi /\ maximal_consistent (ClassicalPropositionalLogic.G Var) Psi)
+    assert (exists Psi, Included _ Phi Psi /\ maximal_consistent Psi)
       by (apply Lindenbaum_lemma; auto).
     destruct H0 as [Psi [? ?]].
     exists (canonical_model (exist _ Psi H1)).
@@ -118,9 +132,9 @@ Proof.
     Focus 1. {
       apply H.
       intro; apply H1.
-      rewrite (@deduction_theorem _ _ _ _ _ (ClassicalPropositionalLogic.mpG Var)) in H2.
+      rewrite deduction_theorem in H2.
       clear - H2.
-      apply (@aux_classic_theorem05 _ _ _ _ _ _ (ClassicalPropositionalLogic.cpG Var)); auto.
+      apply aux_classic_theorem05; auto.
     } Unfocus.
     destruct H2 as [m ?].
     specialize (H0 m).
@@ -131,3 +145,4 @@ Proof.
     simpl in *; auto.
 Qed.
 
+End Completeness.

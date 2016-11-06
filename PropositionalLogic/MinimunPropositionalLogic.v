@@ -296,12 +296,12 @@ Proof.
 Qed.
 
 Lemma maximal_consistent_derivable_closed: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Gamma Phi ->
+  maximal_consistent Phi ->
   derivable_closed Phi.
 Proof.
   intros.
   hnf; intros.
-  assert (consistent Gamma (Union _ Phi (Singleton _ x))).
+  assert (consistent (Union _ Phi (Singleton _ x))).
   Focus 1. {
     intro.
     pose proof impp_elim _ _ _ H1.
@@ -316,7 +316,7 @@ Proof.
 Qed.
 
 Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Gamma Phi ->
+  maximal_consistent Phi ->
   (forall x: expr, Phi x <-> Phi |-- x).
 Proof.
   intros.
