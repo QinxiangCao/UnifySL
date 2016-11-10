@@ -23,7 +23,10 @@ Instance R: SyntacticReduction L := IntuitionisticReduction.
 Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nIntuitionisticReduction.
 Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
 Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
+Instance rcG: ReductionConsistentProofTheory IntuitionisticReduction G := IntuitionisticPropositionalLogic.rcG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
+Instance SM: Semantics L := KripkeSemantics.SM Var.
+Instance rcSM: ReductionConsistentSemantics IntuitionisticReduction SM := KripkeSemantics.rcSM Var.
 
 Definition DCS: Type := sig (fun Phi =>
   derivable_closed Phi /\
@@ -137,28 +140,25 @@ Proof.
   intros.
   revert x.
   pose proof (fun Phi: DCS => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))).
-  pose proof @KripkeSemantics.intuitionistic_consistent Var.
-  pose proof intuitionistic_reduction_consistent.
-  apply (truth_lemma_from_syntactic_reduction _ _ _ H1 H0 _ _ (H Phi)).
+  apply (truth_lemma_from_syntactic_reduction _ _ _ _ _ (H Phi)).
   intros.
-  clear H0 H1.
   revert Phi.
-  induction x; try solve [inversion H2]; intros.
-  + destruct H2.
+  induction x; try solve [inversion H0]; intros.
+  + destruct H0.
     specialize (IHx1 H0 Phi).
     specialize (IHx2 H1 Phi).
     pose proof DCS_andp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) x1 x2.
     simpl in *.
     unfold KripkeSemantics.sem_and.
     tauto.
-  + destruct H2.
+  + destruct H0.
     specialize (IHx1 H0 Phi).
     specialize (IHx2 H1 Phi).
     pose proof DCS_orp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) (proj1 (proj2 (proj2_sig Phi))) x1 x2.
     simpl in *.
     unfold KripkeSemantics.sem_or.
     tauto.
-  + destruct H2.
+  + destruct H0.
     specialize (IHx1 H0).
     specialize (IHx2 H1).
     split.
@@ -194,10 +194,10 @@ Proof.
       eapply derivable_modus_ponens; [exact H4 | exact H2].
   + simpl.
     split; [intros [] | intros].
-    rewrite H in H0.
+    rewrite H in H1.
     pose proof proj2_sig Phi.
-    destruct H1 as [_ [_ ?]].
-    apply H1; auto.
+    destruct H2 as [_ [_ ?]].
+    apply H2; auto.
   + simpl.
     unfold canonical_model.
     tauto.

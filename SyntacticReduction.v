@@ -26,15 +26,19 @@ Definition context_reduce {L: Language} {R: SyntacticReduction L} (Phi Psi: cont
 
 Local Open Scope logic_base.
 
-Definition reduction_consistent_semantics {L: Language} (R: SyntacticReduction L) (SM: Semantics L): Prop :=
-  forall x y m, reduce x y -> (m |= x <-> m |= y).
+Definition AtomicReductionConsistent {L: Language} (atomic_reduce: expr -> expr -> Prop) (SM: Semantics L): Prop :=
+  forall x y m, atomic_reduce x y -> (m |= x <-> m |= y).
 
-Definition reduction_consistent_prooftheory {L: Language} (R: SyntacticReduction L) (Gamma: ProofTheory L): Prop :=
-  (forall x y, reduce x y -> (|-- x <-> |-- y)) /\
-  (forall Phi Psi x y, context_reduce Phi Psi -> reduce x y -> (Phi |-- x <-> Psi |-- y)).
+Definition ReductionPropagationConsistent {L: Language} (SM: Semantics L): Prop :=
+  forall x y sp,
+   (forall m, m |= x <-> m |= y) ->
+   (forall m, m |= single_propagation_denote sp x <-> m |= single_propagation_denote sp y).
 
-Definition reduction_consistent_axiomization {L: Language} (R: SyntacticReduction L) (Gamma: AxiomaticProofTheory.AxiomaticProofTheory L): Prop :=
-  forall x y, reduce x y -> (AxiomaticProofTheory.provable x <-> AxiomaticProofTheory.provable y).
+Class ReductionConsistentSemantics {L: Language} (R: SyntacticReduction L) (SM: Semantics L): Prop :=
+  sat_reduce: forall x y m, reduce x y -> (m |= x <-> m |= y).
+
+Class ReductionConsistentProofTheory {L: Language} (R: SyntacticReduction L) (Gamma: ProofTheory L): Prop :=
+  provable_reduce: forall x y, reduce x y -> (|-- x <-> |-- y).
 
 (* Properties *)
 
@@ -74,8 +78,12 @@ Proof.
 Qed.
 
 Lemma reduce_step {L: Language} {R: SyntacticReduction L}:
-  forall x y, single_step_reduce x y -> reduce x y.
-Proof. intros. apply rt_step; auto. Qed.
+  forall x y, atomic_reduce x y -> reduce x y.
+Proof.
+  intros.
+  apply rt_step.
+  apply (propag_reduce_spec _ _ _ nil); auto.
+Qed.
 
 Lemma reduce_refl {L: Language} {R: SyntacticReduction L}:
   forall x, reduce x x.
@@ -145,64 +153,66 @@ Proof.
     apply imp_reduce; auto.
 Qed.
 
-Lemma reduction_consistent_semantics_spec {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (SM: Semantics L):
-  (forall x y, single_step_reduce x y -> forall m: model, m |= x <-> m |= y) ->
-  reduction_consistent_semantics R SM.
+Lemma disjunction_reduce_consistent {L: Language} (SM: Semantics L):
+  forall reduce1 reduce2: relation expr,
+    (forall x y, reduce1 x y -> forall m, m |= x <-> m |= y) ->
+    (forall x y, reduce2 x y -> forall m, m |= x <-> m |= y) ->
+    forall x y, relation_disjunction reduce1 reduce2 x y ->
+    forall m, m |= x <-> m |= y.
+Proof.
+  intros.
+  destruct H1.
+  + apply H; auto.
+  + apply H0; auto.
+Qed.
+
+Lemma Build_ReductionConsistentSemantics {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (SM: Semantics L):
+  AtomicReductionConsistent atomic_reduce SM ->
+  ReductionPropagationConsistent SM ->
+  ReductionConsistentSemantics R SM.
 Proof.
   intros.
   hnf; intros.
-  induction H0.
-  + apply H; auto.
-  + tauto.
-  + tauto.
+  induction H1; [| tauto | tauto].
+  destruct H1.
+  revert m; induction p.
+  + intros; apply H; auto.
+  + apply H0; auto.
 Qed.
 
-Lemma reduction_consistent_prooftheory_from_provable {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma}:
-  (forall x y, reduce x y -> (provable x <-> provable y)) ->
-  reduction_consistent_prooftheory R Gamma.
+Lemma derivable_reduce {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {rGamma: ReductionConsistentProofTheory R Gamma}:
+  forall Phi Psi x y, context_reduce Phi Psi -> reduce x y -> (Phi |-- x <-> Psi |-- y).
 Proof.
   intros.
-  split; auto.
-  intros; simpl; split; intros; rewrite derivable_provable in H2 |- *.
-  + destruct H2 as [xs [? ?]].
-    destruct H0.
-    pose proof fin_subset_match Phi Psi H0 xs H2.
-    destruct H5 as [ys [? ?]].
+  split; intros; rewrite derivable_provable in H1 |- *.
+  + destruct H1 as [xs [? ?]].
+    destruct H.
+    pose proof fin_subset_match Phi Psi H xs H1.
+    destruct H4 as [ys [? ?]].
     exists ys; split; auto.
-    erewrite <- H; eauto.
+    erewrite <- provable_reduce; eauto.
     apply multi_imp_reduce; auto.
-  + destruct H2 as [ys [? ?]].
-    destruct H0.
-    pose proof fin_subset_match Psi Phi H4 ys H2.
-    destruct H5 as [xs [? ?]].
+  + destruct H1 as [ys [? ?]].
+    destruct H.
+    pose proof fin_subset_match Psi Phi H3 ys H1.
+    destruct H4 as [xs [? ?]].
     exists xs; split; auto.
-    erewrite H; eauto.
+    erewrite provable_reduce; eauto.
     apply multi_imp_reduce; auto.
     apply Forall2_lr_rev; auto.
 Qed.
 
-Lemma reduction_consistent_prooftheory_from_axiomization {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) (Gamma: AxiomaticProofTheory.AxiomaticProofTheory L):
-  reduction_consistent_axiomization R Gamma ->
-  reduction_consistent_prooftheory R (AxiomaticProofTheory.G Gamma).
-Proof.
-  intros.
-  apply reduction_consistent_prooftheory_from_provable; auto.
-  apply AxiomaticProofTheory.nG.
-Qed.
-
-Theorem weak_completeness_reduce {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) {nR: NormalSyntacticReduction L R} (Gamma: ProofTheory L) (SM: Semantics L):
-  reduction_consistent_prooftheory R Gamma ->
-  reduction_consistent_semantics R SM ->
+Theorem weak_completeness_reduce {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) {nR: NormalSyntacticReduction L R} (Gamma: ProofTheory L) (SM: Semantics L) {rcGamma: ReductionConsistentProofTheory R Gamma} {rcSM: ReductionConsistentSemantics R SM}:
   (forall x, normal_form x -> |== x -> |-- x) ->
   weakly_complete Gamma SM.
 Proof.
   intros; hnf; intros.
   destruct (reduce_to_norm x) as [y [? ?]].
-  specialize (H1 y H4).
-  rewrite (proj1 H x y H3).
-  apply H1.
-  intro m; specialize (H2 m).
-  rewrite (H0 x y m H3) in H2.
+  specialize (H y H2).
+  rewrite (provable_reduce x y H1).
+  apply H.
+  intro m; specialize (H0 m).
+  rewrite (sat_reduce x y m H1) in H0.
   auto.
 Qed.
 

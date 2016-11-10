@@ -100,7 +100,7 @@ Qed.
 Module ImpNegAsPrime.
 
 Inductive atomic_reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: expr -> expr -> Prop :=
-| andp_reduce: forall x y, atomic_reduce (x && y ) (~~ (x --> ~~ y))
+| andp_reduce: forall x y, atomic_reduce (x && y) (~~ (x --> ~~ y))
 | orp_reduce: forall x y, atomic_reduce (x || y) (~~ x --> y)
 .
 
@@ -245,13 +245,11 @@ Definition nMendelsonReduction {Var: Type}: NormalSyntacticReduction (L Var) Men
       eapply reduce_trans.
       * apply (@and_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
       * apply reduce_step.
-        apply (@propag_reduce_spec (L Var) _ _ _ nil).
         left; apply @ImpNegAsPrime.andp_reduce.
     - simpl; unfold mendelson_orp.
       eapply reduce_trans.
       * apply (@or_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
       * apply reduce_step.
-        apply (@propag_reduce_spec (L Var) _ _ _ nil).
         left; apply @ImpNegAsPrime.orp_reduce.
     - simpl.
       apply (@imp_reduce (L Var) (nL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
@@ -259,17 +257,14 @@ Definition nMendelsonReduction {Var: Type}: NormalSyntacticReduction (L Var) Men
       eapply reduce_trans; [| eapply reduce_trans].
       * apply (@iff_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ _ _ IHx1 IHx2).
       * apply reduce_step.
-        eapply (@propag_reduce_spec (L Var) _ _ _ nil).
         right; left; apply @ReduceIff.iff_reduce.
       * simpl.
         apply reduce_step.
-        eapply (@propag_reduce_spec (L Var) _ _ _ nil).
         left; apply @ImpNegAsPrime.andp_reduce.
     - simpl.
       apply (@neg_reduce (L Var) (nL Var) (pL Var) MendelsonReduction _ _ IHx).
     - apply reduce_refl.
     - apply reduce_step.
-      eapply (@propag_reduce_spec (L Var) _ _ _ nil).
       right; right; apply @ReduceFalse.falsep_reduce.
     - apply reduce_refl.
   + induction x; simpl; auto.
@@ -316,16 +311,13 @@ Definition nIntuitionisticReduction {Var: Type}: NormalSyntacticReduction (L Var
       eapply reduce_trans.
       * apply (@iff_reduce (L Var) (nL Var) (pL Var) IntuitionisticReduction _ _ _ _ IHx1 IHx2).
       * apply reduce_step.
-        eapply (@propag_reduce_spec (L Var) _ _ _ nil).
         right. left. apply @ReduceIff.iff_reduce.
     - simpl; unfold intuitionistic_negp.
       eapply reduce_trans.
       * apply (@neg_reduce (L Var) (nL Var) (pL Var) IntuitionisticReduction _ _ IHx).
       * apply reduce_step.
-        eapply (@propag_reduce_spec (L Var) _ _ _ nil).
         left. apply @ImpAndOrAsPrime.negp_reduce.
     - apply reduce_step.
-      eapply (@propag_reduce_spec (L Var) _ _ _ nil).
       right. right. apply @ReduceTrue.truep_reduce.
     - apply reduce_refl.
     - apply reduce_refl.

@@ -1,9 +1,23 @@
 Require Import Logic.LogicBase.
 Require Import Logic.SyntacticReduction.
+Require Import Logic.KripkeModel.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.
 
+Local Open Scope logic_base.
+Local Open Scope PropositionalLogic.
+(*
+Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {rcSM: ReductionConsistentSemantics IntuitionisticReduction SM}: Type := {
+  Kripke_model: Type;
+  frame_worlds: Kripke_model -> Type;
+  frame_relation: forall {m: Kripe_model}, frame_type m -> frame_type m -> Prop;
+  build_model: forall m: Kripke_model, frame_type m -> model;
+  sem_impp: forall m x y, m |= x --> y <-> (m |= x -> m |= y);
+  sem_negp: forall m x, m |= ~~ x <-> ~ m |= x;
+  sem_truep: forall m, m |= TT
+}.
+*)
 Module KripkeSemantics.
 
 Import PropositionalLanguage.
@@ -110,71 +124,55 @@ Proof.
   + hnf; auto.
 Qed.
 
-Lemma disjunction_reduce_consistent {Var: Type}:
-  forall reduce1 reduce2: relation (expr Var),
-    (forall x y, reduce1 x y -> forall f eval v, proj1_sig (denotation f eval x) v <-> proj1_sig (denotation f eval y) v) ->
-    (forall x y, reduce2 x y -> forall f eval v, proj1_sig (denotation f eval x) v <-> proj1_sig (denotation f eval y) v) ->
-    forall x y, relation_disjunction reduce1 reduce2 x y ->
-    forall f eval v, proj1_sig (denotation f eval x) v <-> proj1_sig (denotation f eval y) v.
+Lemma RPC {Var: Type}: ReductionPropagationConsistent (SM Var).
 Proof.
-  intros.
-  destruct H1.
-  + apply H; auto.
-  + apply H0; auto.
-Qed.
-
-Lemma propag_reduce_consistent {Var: Type}:
-  forall reduce: relation (expr Var),
-    (forall x y, reduce x y -> forall f eval v, proj1_sig (denotation f eval x) v <-> proj1_sig (denotation f eval y) v) ->
-    (forall x y, @propag_reduce (L Var) reduce x y -> forall f eval v, proj1_sig (denotation f eval x) v <-> proj1_sig (denotation f eval y) v).
-Proof.
-  intros.
-  destruct H0.
-  revert v; induction p as [| [| | | | | | | |]]; intros.
-  + simpl; apply H; auto.
-  + specialize (IHp v).
+  hnf; intros; simpl in *.
+  destruct m as [F eval v].
+  pose proof (fun v => H (Build_model _ F eval v)).
+  revert v; simpl in H0; clear H.
+  destruct sp; intros.
+  + specialize (H0 v).
     simpl in *.
     tauto.
-  + specialize (IHp v).
+  + specialize (H0 v).
     simpl in *.
     tauto.
-  + specialize (IHp v).
+  + specialize (H0 v).
     simpl in *.
     tauto.
-  + specialize (IHp v).
+  + specialize (H0 v).
     simpl in *.
     tauto.
   + simpl in *.
-    split; intros HH u Hu; specialize (HH u Hu); specialize (IHp u); tauto.
+    split; intros HH u Hu; specialize (HH u Hu); specialize (H0 u); tauto.
   + simpl in *.
-    split; intros HH u Hu; specialize (HH u Hu); specialize (IHp u); tauto.
+    split; intros HH u Hu; specialize (HH u Hu); specialize (H0 u); tauto.
   + simpl in *.
     apply Morphisms_Prop.and_iff_morphism.
     - simpl in *.
-      split; intros HH u Hu; specialize (HH u Hu); specialize (IHp u); tauto.
+      split; intros HH u Hu; specialize (HH u Hu); specialize (H0 u); tauto.
     - simpl in *.
-      split; intros HH u Hu; specialize (HH u Hu); specialize (IHp u); tauto.
+      split; intros HH u Hu; specialize (HH u Hu); specialize (H0 u); tauto.
   + simpl in *.
     apply Morphisms_Prop.and_iff_morphism.
     - simpl in *.
-      split; intros HH u Hu; specialize (HH u Hu); specialize (IHp u); tauto.
+      split; intros HH u Hu; specialize (HH u Hu); specialize (H0 u); tauto.
     - simpl in *.
-      split; intros HH u Hu; specialize (HH u Hu); specialize (IHp u); tauto.
+      split; intros HH u Hu; specialize (HH u Hu); specialize (H0 u); tauto.
   + simpl in *.
-    split; intros HH u Hu; specialize (HH u Hu); specialize (IHp u); tauto.
+    split; intros HH u Hu; specialize (HH u Hu); specialize (H0 u); tauto.
 Qed.
 
-Lemma intuitionistic_consistent {Var: Type}: reduction_consistent_semantics IntuitionisticReduction (SM Var).
+Instance rcSM (Var: Type): ReductionConsistentSemantics IntuitionisticReduction (SM Var).
 Proof.
-  apply reduction_consistent_semantics_spec.
-  simpl.
-  intros.
-  destruct m as [f eval v]; simpl.
-  revert x y H f eval v; apply propag_reduce_consistent.
-  repeat apply disjunction_reduce_consistent.
-  + apply ImpAndOrAsPrime_consistent.
-  + apply ReduceIff_consistent.
-  + apply ReduceTrue_consistent.
+  apply Build_ReductionConsistentSemantics.
+  + hnf; intros.
+    revert x y H m.
+    repeat apply disjunction_reduce_consistent; intros.
+    - apply ImpAndOrAsPrime_consistent; auto.
+    - apply ReduceIff_consistent; auto.
+    - apply ReduceTrue_consistent; auto.
+  + apply RPC.
 Qed.
 
 End KripkeSemantics.

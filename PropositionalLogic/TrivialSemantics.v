@@ -3,6 +3,22 @@ Require Import Logic.SyntacticReduction.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Coq.Logic.Classical_Prop.
 
+Local Open Scope logic_base.
+Local Open Scope PropositionalLogic.
+
+Class TrivialPropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {rcSM: ReductionConsistentSemantics MendelsonReduction SM}: Type := {
+  sem_impp: forall m x y, m |= x --> y <-> (m |= x -> m |= y);
+  sem_negp: forall m x, m |= ~~ x <-> ~ m |= x;
+  sem_truep: forall m, m |= TT
+}.
+
+(*
+  sem_falsep: forall m, ~ m |= FF;
+  sem_andp: forall m x y, m |= x && y <-> m |= ~~ (x --> ~~ y);
+  sem_orp: forall m x y, m |= x || y <-> m |= ~~ x --> y;
+  sem_iffp: forall m x y, m |= (x <--> y) <-> m |= (x --> y) && (y --> x)
+*)
+
 Module TrivialSemantics.
 
 Import PropositionalLanguage.
@@ -39,9 +55,6 @@ Fixpoint denotation {Var: Type} (x: expr Var): Ensemble (model Var) :=
 Instance SM (Var: Type): Semantics (PropositionalLanguage.L Var) :=
   Build_Semantics (PropositionalLanguage.L Var) (model Var) (fun m x => denotation x m).
 
-Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-
 Lemma ImpNegAsPrime_consistent {Var: Type}:
   forall x y: expr Var,
     @ImpNegAsPrime.atomic_reduce (L Var) (nL Var) (pL Var) x y ->
@@ -70,28 +83,11 @@ Proof.
     inversion H0.
 Qed.
 
-Lemma disjunction_reduce_consistent {Var: Type}:
-  forall reduce1 reduce2: relation (expr Var),
-    (forall x y, reduce1 x y -> forall m: model Var, denotation x m <-> denotation y m) ->
-    (forall x y, reduce2 x y -> forall m: model Var, denotation x m <-> denotation y m) ->
-    forall x y, relation_disjunction reduce1 reduce2 x y ->
-    forall m: model Var, denotation x m <-> denotation y m.
+Lemma RPC {Var: Type}: ReductionPropagationConsistent (SM Var).
 Proof.
-  intros.
-  destruct H1.
-  + apply H; auto.
-  + apply H0; auto.
-Qed.
-
-Lemma propag_reduce_consistent {Var: Type}:
-  forall reduce: relation (expr Var),
-    (forall x y, reduce x y -> forall m: model Var, denotation x m <-> denotation y m) ->
-    (forall x y, @propag_reduce (L Var) reduce x y -> forall m: model Var, denotation x m <-> denotation y m).
-Proof.
-  intros.
-  destruct H0.
-  induction p as [| [| | | | | | | |]].
-  + simpl; apply H; auto.
+  hnf; intros; simpl in *.
+  specialize (H m).
+  destruct sp.
   + simpl in *.
     unfold TrivialSemantics.sem_and, TrivialSemantics.sem_neg, TrivialSemantics.sem_imp; simpl.
     tauto.
@@ -121,14 +117,26 @@ Proof.
     tauto.
 Qed.
 
-Lemma mendelson_consistent {Var: Type}: reduction_consistent_semantics MendelsonReduction (SM Var).
+Instance rcSM (Var: Type): ReductionConsistentSemantics MendelsonReduction (SM Var).
 Proof.
-  apply reduction_consistent_semantics_spec.
-  apply propag_reduce_consistent.
-  repeat apply disjunction_reduce_consistent.
-  + apply ImpNegAsPrime_consistent.
-  + apply ReduceIff_consistent.
-  + apply ReduceFalse_consistent.
+  apply Build_ReductionConsistentSemantics.
+  + hnf; intros.
+    revert x y H m.
+    repeat apply disjunction_reduce_consistent.
+    - apply ImpNegAsPrime_consistent.
+    - apply ReduceIff_consistent.
+    - apply ReduceFalse_consistent.
+  + apply RPC.
+Qed.
+
+Instance tpSM (Var: Type): TrivialPropositionalSemantics (L Var) (SM Var).
+Proof.
+  constructor.
+  + simpl; intros.
+    unfold sem_imp; tauto.
+  + simpl; intros.
+    unfold sem_neg; tauto.
+  + simpl; intros; auto.
 Qed.
 
 End TrivialSemantics.

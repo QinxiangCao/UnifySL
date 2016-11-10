@@ -55,8 +55,8 @@ Proof.
   hnf; intros.
   intro m.
   induction H.
-  + rewrite <- (TrivialSemantics.mendelson_consistent x y m H); auto.
-  + rewrite -> (TrivialSemantics.mendelson_consistent x y m H); auto.
+  + rewrite <- (sat_reduce x y m H); auto.
+  + rewrite -> (sat_reduce x y m H); auto.
   + pose proof sound_modus_ponens x y.
     exact (H1 m IHprovable1 IHprovable2).
   + apply sound_axiom1.

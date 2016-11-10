@@ -8,8 +8,7 @@ Require Import Logic.PropositionalLogic.MinimunPropositionalLogic.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class IntuitionisticPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {mpGamma: MinimunPropositionalLogic L Gamma} := {
-  syntactic_reduction_rule: forall x y, @reduce _ IntuitionisticReduction x y -> (|-- x <-> |-- y);
+Class IntuitionisticPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} := {
   andp_intros: forall x y, |-- x --> y --> x && y;
   andp_elim1: forall x y, |-- x && y --> x;
   andp_elim2: forall x y, |-- x && y --> y;
@@ -19,7 +18,7 @@ Class IntuitionisticPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL:
   falsep_elim: forall x, |-- FF --> x
 }.
 
-Lemma andp_intros_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma andp_intros_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x --> y --> x && y.
 Proof.
   intros.
@@ -29,7 +28,7 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma andp_elim1_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma andp_elim1_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x && y --> x.
 Proof.
   intros.
@@ -39,7 +38,7 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma andp_elim2_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma andp_elim2_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x && y --> y.
 Proof.
   intros.
@@ -49,7 +48,7 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma orp_intros1_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma orp_intros1_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x --> x || y.
 Proof.
   intros.
@@ -59,7 +58,7 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma orp_intros2_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma orp_intros2_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- y --> x || y.
 Proof.
   intros.
@@ -69,7 +68,7 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma orp_elim_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y z: expr),
+Lemma orp_elim_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x y z: expr),
   Phi |-- (x --> z) --> (y --> z) --> (x || y --> z).
 Proof.
   intros.
@@ -79,7 +78,7 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma falsep_elim_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x: expr),
+Lemma falsep_elim_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- FF --> x.
 Proof.
   intros.
@@ -89,7 +88,7 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
+Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).
 Proof.
@@ -105,7 +104,7 @@ Proof.
     apply derivable_modus_ponens with x; auto.
 Qed.
 
-Lemma DCS_orp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
+Lemma DCS_orp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   orp_witnessed Phi ->
   (forall x y: expr, Phi (x || y) <-> (Phi x \/ Phi y)).
@@ -120,14 +119,6 @@ Proof.
       apply derivable_modus_ponens with x; auto.
     - pose proof orp_intros2_derivable Phi x y.
       apply derivable_modus_ponens with y; auto.
-Qed.
-
-Lemma intuitionistic_reduction_consistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}, reduction_consistent_prooftheory IntuitionisticReduction Gamma.
-Proof.
-  intros.
-  apply reduction_consistent_prooftheory_from_provable; auto.
-  hnf; intros.
-  apply syntactic_reduction_rule; auto.
 Qed.
 
 Module IntuitionisticPropositionalLogic.
@@ -167,12 +158,16 @@ Proof.
   + apply axiom2.
 Qed.
 
+Instance rcG: ReductionConsistentProofTheory IntuitionisticReduction G.
+Proof.
+  constructor.
+  + apply syntactic_reduction_rule1; auto.
+  + apply syntactic_reduction_rule2; auto.
+Qed.
+
 Instance ipG: IntuitionisticPropositionalLogic L G.
 Proof.
   constructor.
-  + split.
-    - apply syntactic_reduction_rule1; auto. 
-    - apply syntactic_reduction_rule2; auto. 
   + apply andp_intros.
   + apply andp_elim1.
   + apply andp_elim2.

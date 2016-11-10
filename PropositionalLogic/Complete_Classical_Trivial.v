@@ -23,11 +23,14 @@ Instance R: SyntacticReduction L := MendelsonReduction.
 Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nMendelsonReduction.
 Instance G: ProofTheory L := ClassicalPropositionalLogic.G Var.
 Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
+Instance rcG: ReductionConsistentProofTheory MendelsonReduction G := ClassicalPropositionalLogic.rcG Var.
 Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
+Instance SM: Semantics L := TrivialSemantics.SM Var.
+Instance rcSM: ReductionConsistentSemantics MendelsonReduction SM := TrivialSemantics.rcSM Var.
 
 Definition MCS: Type := sig maximal_consistent.
 
-Definition canonical_model (Phi: MCS): @model _ (TrivialSemantics.SM Var) :=
+Definition canonical_model (Phi: MCS): model :=
   fun p => (proj1_sig Phi (PropositionalLanguage.varp p)).
 
 Lemma Lindenbaum_lemma:
@@ -82,20 +85,17 @@ Proof.
   intros.
   revert x.
   pose proof MCS_element_derivable (proj1_sig Phi) (proj2_sig Phi).
-  pose proof @TrivialSemantics.mendelson_consistent Var.
-  pose proof classic_mendelson_consistent.
-  apply (truth_lemma_from_syntactic_reduction _ _ _ H1 H0 _ _ H).
+  apply (truth_lemma_from_syntactic_reduction _ _ _ _ _ H).
   intros.
-  clear H0 H1.
-  induction x; try solve [inversion H2].
-  + destruct H2.
+  induction x; try solve [inversion H0].
+  + destruct H0.
     specialize (IHx1 H0).
     specialize (IHx2 H1).
     pose proof MCS_impp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
     simpl in *.
     unfold TrivialSemantics.sem_imp.
     tauto.
-  + specialize (IHx H2).
+  + specialize (IHx H0).
     pose proof MCS_negp_iff (proj1_sig Phi) (proj2_sig Phi) x.
     simpl in *.
     unfold TrivialSemantics.sem_neg.
