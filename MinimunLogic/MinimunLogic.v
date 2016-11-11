@@ -1,11 +1,94 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.LogicBase.
-Require Import Logic.SyntacticReduction.
-Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
+
+Class NormalLanguage (L: Language): Type := {
+  falsep: expr;
+  impp: expr -> expr -> expr;
+  imp1_propag: expr -> single_propagation;
+  imp2_propag: expr -> single_propagation;
+  imp1_propag_denote: forall x y, single_propagation_denote (imp1_propag x) y = impp y x;
+  imp2_propag_denote: forall x y, single_propagation_denote (imp2_propag x) y = impp x y
+}.
+
+Notation "x --> y" := (impp x y) (at level 55, right associativity) : logic_base.
+Notation "'FF'" := falsep : logic_base.
+
+Definition multi_imp {L: Language} {nL: NormalLanguage L} (xs: list expr) (y: expr): expr :=
+  fold_right impp y xs.
+
+Class NormalProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L): Type := {
+  derivable_provable: forall Phi y, derivable Phi y <->
+                        exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y)
+}.
+
+Lemma provable_derivable {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall x, provable x <-> derivable empty_context x.
+Proof.
+  intros.
+  rewrite derivable_provable.
+  split; intros.
+  + exists nil; split; auto.
+  + destruct H as [xs [? ?]].
+    destruct xs; [auto |].
+    inversion H; subst.
+    inversion H3.
+Qed.
+
+Lemma derivable_weaken {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi Psi x,
+  Included _ Phi Psi ->
+  Phi |-- x ->
+  Psi |-- x.
+Proof.
+  intros.
+  rewrite derivable_provable in H0 |- *.
+  destruct H0 as [xs [? ?]].
+  exists xs; split; auto.
+  revert H0; apply Forall_impl.
+  auto.
+Qed.
+
+Lemma derivable_weaken1 {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi x y,
+  Phi |-- y ->
+  Union _ Phi (Singleton _ x) |-- y.
+Proof.
+  intros.
+  eapply derivable_weaken; eauto.
+  intros ? ?; left; auto.
+Qed.
+
+(* TODO: Merge with deduction theorem *)
+Lemma impp_intros {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi x y,
+  Phi |-- impp x y ->
+  Union _ Phi (Singleton _ x) |-- y.
+Proof.
+  intros.
+  rewrite derivable_provable in H |- *.
+  destruct H as [xs [? ?]].
+  exists (xs ++ (x :: nil)).
+  split.
+  + rewrite Forall_app_iff; split.
+    - revert H; apply Forall_impl.
+      intros.
+      left; auto.
+    - constructor; auto.
+      right. constructor.
+  + replace (multi_imp (xs ++ x :: nil) y) with (multi_imp xs (impp x y)); auto.
+    clear.
+    induction xs; auto.
+    simpl; f_equal; auto.
+Qed.
+
+Definition Build_AxiomaticProofTheory {L: Language} {nL: NormalLanguage L} (Provable: expr -> Prop): ProofTheory L :=
+  Build_ProofTheory L Provable
+   (fun Phi y => exists xs, Forall (fun x => Phi x) xs /\ Provable (multi_imp xs y)).
+
+Definition Build_nAxiomaticProofTheory {L: Language} {nL: NormalLanguage L} (Provable: expr -> Prop): NormalProofTheory L (Build_AxiomaticProofTheory Provable) :=
+  Build_NormalProofTheory L nL (Build_AxiomaticProofTheory Provable) (fun _ _ => iff_refl _).
+
+Definition Build_SequentCalculus {L: Language} {nL: NormalLanguage L} (Derivable: context -> expr -> Prop): ProofTheory L :=
+  Build_ProofTheory L (fun x => Derivable (Empty_set _) x) Derivable.
 
 Class MinimunPropositionalLogic (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L) := {
   modus_ponens: forall x y, |-- (x --> y) -> |-- x -> |-- y;
@@ -285,96 +368,21 @@ Proof.
   exists nil.
   split; [constructor | apply axiom2].
 Qed.
+(*
 
-Lemma derivable_closed_element_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
-  derivable_closed Phi ->
-  (forall x: expr, Phi x <-> Phi |-- x).
+Theorem weak_completeness_reduce {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) {nR: NormalSyntacticReduction L R} (Gamma: ProofTheory L) (SM: Semantics L) {rcGamma: ReductionConsistentProofTheory R Gamma} {rcSM: ReductionConsistentSemantics R SM}:
+  (forall x, normal_form x -> |== x -> |-- x) ->
+  weakly_complete Gamma SM.
 Proof.
-  intros.
-  split; intros; auto.
-  apply derivable_assum; auto.
-Qed.
-
-Lemma maximal_consistent_derivable_closed: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Phi ->
-  derivable_closed Phi.
-Proof.
-  intros.
-  hnf; intros.
-  assert (consistent (Union _ Phi (Singleton _ x))).
-  Focus 1. {
-    intro.
-    pose proof impp_elim _ _ _ H1.
-    pose proof derivable_modus_ponens _ _ _ H0 H2.
-    destruct H; auto.
-  } Unfocus.
-  destruct H.
-  specialize (H2 _ H1).
-  specialize (H2 (fun x H => Union_introl _ _ _ x H)).
-  apply H2.
-  right; constructor.
-Qed.
-
-Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Phi ->
-  (forall x: expr, Phi x <-> Phi |-- x).
-Proof.
-  intros.
-  apply derivable_closed_element_derivable, maximal_consistent_derivable_closed.
+  intros; hnf; intros.
+  destruct (reduce_to_norm x) as [y [? ?]].
+  specialize (H y H2).
+  rewrite (provable_reduce x y H1).
+  apply H.
+  intro m; specialize (H0 m).
+  rewrite (sat_reduce x y m H1) in H0.
   auto.
 Qed.
 
-Definition AtomicReductionConsistentProvable {L: Language} {nL: NormalLanguage L} (atomic_reduce: expr -> expr -> Prop) (Gamma: ProofTheory L): Prop :=
-  forall x y, atomic_reduce x y -> (|-- x --> y /\ |-- y --> x).
 
-Definition ReductionPropagationConsistentProvable {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): Prop :=
-  forall x y sp,
-   (|-- x --> y /\ |-- y --> x) ->
-   (|-- single_propagation_denote sp x --> single_propagation_denote sp y /\
-    |-- single_propagation_denote sp y --> single_propagation_denote sp x).
-
-Lemma disjunction_reduce_consistent_provable {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L):
-  forall reduce1 reduce2: relation expr,
-    AtomicReductionConsistentProvable reduce1 Gamma ->
-    AtomicReductionConsistentProvable reduce2 Gamma ->
-    AtomicReductionConsistentProvable (relation_disjunction reduce1 reduce2) Gamma.
-Proof.
-  intros.
-  hnf; intros.
-  destruct H1.
-  + apply H; auto.
-  + apply H0; auto.
-Qed.
-
-Lemma Build2_ReductionConsistentProofTheory {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
-  AtomicReductionConsistentProvable reduce Gamma ->
-  ReductionConsistentProofTheory R Gamma.
-Proof.
-  intros.
-  apply Build1_ReductionConsistentProofTheory.
-  hnf; intros.
-  specialize (H _ _ H0).
-  clear H0; destruct H.
-  split; intros.
-  + eapply modus_ponens; eauto.
-  + eapply modus_ponens; eauto.
-Qed.
-
-Lemma Build3_ReductionConsistentProofTheory {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
-  AtomicReductionConsistentProvable atomic_reduce Gamma ->
-  ReductionPropagationConsistentProvable Gamma ->
-  ReductionConsistentProofTheory R Gamma.
-Proof.
-  intros.
-  apply Build2_ReductionConsistentProofTheory.
-  hnf; intros.
-  induction H1.
-  + destruct H1.
-    induction p.
-    - intros; apply H; auto.
-    - apply H0; auto.
-  + split; apply imp_refl.
-  + destruct IHclos_refl_trans1, IHclos_refl_trans2.
-    split; eapply imp_trans; eauto.
-Qed.
-
+*)

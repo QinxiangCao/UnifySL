@@ -1,7 +1,8 @@
-Require Import Logic.LogicBase.
-Require Import Logic.SyntacticReduction.
-Require Import Logic.PropositionalLogic.Syntax.
 Require Import Coq.Logic.Classical_Prop.
+Require Import Logic.LogicBase.
+Require Import Logic.MinimunLogic.MinimunLogic.
+Require Import Logic.MinimunLogic.SyntacticReduction.
+Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.

@@ -12,15 +12,65 @@ Definition ClassicalImpAndOrAsPrimeReduction {L: Language} {nL: NormalLanguage L
   AtomicReductionConsistentProvable ImpAndOrAsPrime.atomic_reduce Gamma.
 Proof.
   hnf; intros.
+  destruct H; split.
+  + rewrite provable_derivable.
+    rewrite <- !deduction_theorem.
+    apply (contradiction_rule _ x); apply derivable_assum.
+    - left; right; constructor.
+    - right; constructor.
+  + pose proof axiom3 TT (~~ x).
+    pose proof true_provable.
+    pose proof add_imp_left _ (~~ ~~ x) H0.
+    pose proof modus_ponens _ _ H H1.
+    eapply provable_reduce with ((x --> ~~ TT) --> ~~ x).
+    Focus 1. {
+      apply imp_reduce; [| apply reduce_refl].
+      apply imp_reduce; [apply reduce_refl |].
+      apply reduce_step.
+      right; right; constructor.
+    } Unfocus.
+    eapply imp_trans; [| exact H2].
+    pose proof imp_trans_strong (~~ ~~ x) x (~~ TT).
+    eapply modus_ponens; [exact H3 |].
+    rewrite provable_derivable.
+    apply double_negp_add.
+Qed.
+
+Definition ClassicalIffReduction {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma}:
+  AtomicReductionConsistentProvable ReduceIff.atomic_reduce Gamma.
+Proof.
+  hnf; intros.
+  split; apply (fun H => proj2 (provable_reduce _ (y --> y) H)).
+  + apply imp_reduce; [| apply reduce_refl].
+    apply reduce_step; right; left; auto.
+  + apply imp_refl.
+  + apply imp_reduce; [apply reduce_refl |].
+    apply reduce_step; right; left; auto.
+  + apply imp_refl.
+Qed.
+
+Definition ClassicalTrueReduction {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma}:
+  AtomicReductionConsistentProvable ReduceTrue.atomic_reduce Gamma.
+Proof.
+  hnf; intros.
   destruct H.
-  +
-Abort.
+  split.
+  + apply add_imp_left.
+    apply imp_refl.
+  + apply add_imp_left.
+    apply true_provable.
+Qed.
 
 Definition ClassicalIntuitionisticReduction {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma}:
   ReductionConsistentProofTheory IntuitionisticReduction Gamma.
 Proof.
-  apply Build2_ReductionConsistentProofTheory.
+  apply Build3_ReductionConsistentProofTheory.
   + simpl.
     repeat apply disjunction_reduce_consistent_provable.
+    - apply ClassicalImpAndOrAsPrimeReduction.
+    - apply ClassicalIffReduction.
+    - apply ClassicalTrueReduction.
+  + hnf; intros.
+    destruct sp; simpl.
 Abort.
 

@@ -1,10 +1,11 @@
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
-Require Import Logic.SyntacticReduction.
-Require Import Logic.HenkinCompleteness.
+Require Import Logic.MinimunLogic.MinimunLogic.
+Require Import Logic.MinimunLogic.SyntacticReduction.
+Require Import Logic.MinimunLogic.ContextProperty.
+Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.PropositionalLogic.MinimunPropositionalLogic.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 
@@ -22,6 +23,7 @@ Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
 Instance R: SyntacticReduction L := IntuitionisticReduction.
 Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nIntuitionisticReduction.
 Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
+Instance nG: NormalProofTheory L G := IntuitionisticPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
 Instance rcG: ReductionConsistentProofTheory IntuitionisticReduction G := IntuitionisticPropositionalLogic.rcG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.

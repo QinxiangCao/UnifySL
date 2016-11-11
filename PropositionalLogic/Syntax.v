@@ -2,7 +2,8 @@ Require Import Coq.Logic.ProofIrrelevance.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
-Require Import Logic.SyntacticReduction.
+Require Import Logic.MinimunLogic.MinimunLogic.
+Require Import Logic.MinimunLogic.SyntacticReduction.
 
 Class PropositionalLanguage (L: Language) {nL: NormalLanguage L}: Type := {
   andp : expr -> expr -> expr;
@@ -26,12 +27,21 @@ Class PropositionalLanguage (L: Language) {nL: NormalLanguage L}: Type := {
   neg_propag_denote: forall x, single_propagation_denote neg_propag x = negp x
 }.
 
+Inductive PropositionalPropag (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}: single_propagation -> Prop :=
+  | imp1_prop_propag: forall x: expr, PropositionalPropag L (imp1_propag x)
+  | imp2_prop_propag: forall x: expr, PropositionalPropag L (imp2_propag x)
+  | and1_prop_propag: forall x: expr, PropositionalPropag L (and1_propag x)
+  | and2_prop_propag: forall x: expr, PropositionalPropag L (and2_propag x)
+  | or1_prop_propag: forall x: expr, PropositionalPropag L (or1_propag x)
+  | or2_prop_propag: forall x: expr, PropositionalPropag L (or2_propag x)
+  | iff1_prop_propag: forall x: expr, PropositionalPropag L (iff1_propag x)
+  | iff2_prop_propag: forall x: expr, PropositionalPropag L (iff2_propag x)
+  | neg_prop_propag: PropositionalPropag L neg_propag.
+
 Notation "x && y" := (andp x y) (at level 40, left associativity) : PropositionalLogic.
 Notation "x || y" := (orp x y) (at level 50, left associativity) : PropositionalLogic.
-Notation "x --> y" := (impp x y) (at level 55, right associativity) : PropositionalLogic.
 Notation "x <--> y" := (iffp x y) (at level 60, no associativity) : PropositionalLogic.
 Notation "~~ x" := (negp x) (at level 35) : PropositionalLogic.
-Notation "'FF'" := falsep : PropositionalLogic.
 Notation "'TT'" := truep : PropositionalLogic.
 
 Local Open Scope logic_base.

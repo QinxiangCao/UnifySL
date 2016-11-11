@@ -1,6 +1,8 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.LogicBase.
-Require Import Logic.SyntacticReduction.
+Require Import Logic.MinimunLogic.MinimunLogic.
+Require Import Logic.MinimunLogic.SyntacticReduction.
+Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Omega.
 
 Local Open Scope logic_base.

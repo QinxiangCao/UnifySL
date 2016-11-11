@@ -4,6 +4,7 @@ Require Export Coq.Relations.Relation_Definitions.
 Require Export Coq.Classes.RelationClasses.
 Require Import Logic.LogicBase.
 Require Import Logic.lib.Coqlib.
+Require Import Logic.MinimunLogic.MinimunLogic.
 
 Inductive propag_reduce {L: Language} (atomic_reduce: expr -> expr -> Prop): expr -> expr -> Prop :=
   propag_reduce_spec: forall x y p, atomic_reduce x y ->
@@ -25,6 +26,15 @@ Definition context_reduce {L: Language} {R: SyntacticReduction L} (Phi Psi: cont
   (forall y, Psi y -> exists x, reduce x y /\ Phi x).
 
 Local Open Scope logic_base.
+
+Definition AtomicReductionConsistentProvable {L: Language} {nL: NormalLanguage L} (atomic_reduce: expr -> expr -> Prop) (Gamma: ProofTheory L): Prop :=
+  forall x y, atomic_reduce x y -> (|-- x --> y /\ |-- y --> x).
+
+Definition ReductionPropagationConsistentProvable {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): Prop :=
+  forall x y sp,
+   (|-- x --> y /\ |-- y --> x) ->
+   (|-- single_propagation_denote sp x --> single_propagation_denote sp y /\
+    |-- single_propagation_denote sp y --> single_propagation_denote sp x).
 
 Definition AtomicReductionConsistentSemantics {L: Language} (atomic_reduce: expr -> expr -> Prop) (SM: Semantics L): Prop :=
   forall x y m, atomic_reduce x y -> (m |= x <-> m |= y).
@@ -158,30 +168,16 @@ Proof.
     apply imp_reduce; auto.
 Qed.
 
-Lemma disjunction_reduce_consistent_semantics {L: Language} (SM: Semantics L):
+Lemma disjunction_reduce_consistent_provable {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L):
   forall reduce1 reduce2: relation expr,
-    (forall x y, reduce1 x y -> forall m, m |= x <-> m |= y) ->
-    (forall x y, reduce2 x y -> forall m, m |= x <-> m |= y) ->
-    forall x y, relation_disjunction reduce1 reduce2 x y ->
-    forall m, m |= x <-> m |= y.
-Proof.
-  intros.
-  destruct H1.
-  + apply H; auto.
-  + apply H0; auto.
-Qed.
-
-Lemma Build_ReductionConsistentSemantics {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {SM: Semantics L}:
-  AtomicReductionConsistentSemantics atomic_reduce SM ->
-  ReductionPropagationConsistentSemantics SM ->
-  ReductionConsistentSemantics R SM.
+    AtomicReductionConsistentProvable reduce1 Gamma ->
+    AtomicReductionConsistentProvable reduce2 Gamma ->
+    AtomicReductionConsistentProvable (relation_disjunction reduce1 reduce2) Gamma.
 Proof.
   intros.
   hnf; intros.
-  induction H1; [| tauto | tauto].
   destruct H1.
-  revert m; induction p.
-  + intros; apply H; auto.
+  + apply H; auto.
   + apply H0; auto.
 Qed.
 
@@ -209,17 +205,62 @@ Proof.
     apply Forall2_lr_rev; auto.
 Qed.
 
-Theorem weak_completeness_reduce {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) {nR: NormalSyntacticReduction L R} (Gamma: ProofTheory L) (SM: Semantics L) {rcGamma: ReductionConsistentProofTheory R Gamma} {rcSM: ReductionConsistentSemantics R SM}:
-  (forall x, normal_form x -> |== x -> |-- x) ->
-  weakly_complete Gamma SM.
+
+Lemma Build2_ReductionConsistentProofTheory {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
+  AtomicReductionConsistentProvable reduce Gamma ->
+  ReductionConsistentProofTheory R Gamma.
 Proof.
-  intros; hnf; intros.
-  destruct (reduce_to_norm x) as [y [? ?]].
-  specialize (H y H2).
-  rewrite (provable_reduce x y H1).
-  apply H.
-  intro m; specialize (H0 m).
-  rewrite (sat_reduce x y m H1) in H0.
-  auto.
+  intros.
+  apply Build1_ReductionConsistentProofTheory.
+  hnf; intros.
+  specialize (H _ _ H0).
+  clear H0; destruct H.
+  split; intros.
+  + eapply modus_ponens; eauto.
+  + eapply modus_ponens; eauto.
 Qed.
 
+Lemma Build3_ReductionConsistentProofTheory {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
+  AtomicReductionConsistentProvable atomic_reduce Gamma ->
+  ReductionPropagationConsistentProvable Gamma ->
+  ReductionConsistentProofTheory R Gamma.
+Proof.
+  intros.
+  apply Build2_ReductionConsistentProofTheory.
+  hnf; intros.
+  induction H1.
+  + destruct H1.
+    induction p.
+    - intros; apply H; auto.
+    - apply H0; auto.
+  + split; apply imp_refl.
+  + destruct IHclos_refl_trans1, IHclos_refl_trans2.
+    split; eapply imp_trans; eauto.
+Qed.
+
+Lemma disjunction_reduce_consistent_semantics {L: Language} (SM: Semantics L):
+  forall reduce1 reduce2: relation expr,
+    (forall x y, reduce1 x y -> forall m, m |= x <-> m |= y) ->
+    (forall x y, reduce2 x y -> forall m, m |= x <-> m |= y) ->
+    forall x y, relation_disjunction reduce1 reduce2 x y ->
+    forall m, m |= x <-> m |= y.
+Proof.
+  intros.
+  destruct H1.
+  + apply H; auto.
+  + apply H0; auto.
+Qed.
+
+Lemma Build_ReductionConsistentSemantics {L: Language} {R: SyntacticReduction L} {SM: Semantics L}:
+  AtomicReductionConsistentSemantics atomic_reduce SM ->
+  ReductionPropagationConsistentSemantics SM ->
+  ReductionConsistentSemantics R SM.
+Proof.
+  intros.
+  hnf; intros.
+  induction H1; [| tauto | tauto].
+  destruct H1.
+  revert m; induction p.
+  + intros; apply H; auto.
+  + apply H0; auto.
+Qed.

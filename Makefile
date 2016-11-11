@@ -4,8 +4,8 @@ COQC = coqc
 	@echo COQC $*.v
 	@$(COQC) -q -R "." -as Logic $*.v
 
-all: Wf.vo base.vo IPC.vo trivial.vo Kripke.vo enumerate.vo LogicBase.vo SyntacticReduction.v \
-     HenkinCompleteness.v PropositionalLogic/MinimunPropositionalLogic.vo \
+all: Wf.vo base.vo IPC.vo trivial.vo Kripke.vo enumerate.vo LogicBase.vo MinimunLogic/SyntacticReduction.v \
+     MinimunLogic/HenkinCompleteness.v MinimunLogic/MinimunLogic.vo MinimunLogic/ContextProperty.vo \
      PropositionalLogic/IntuitionisticPropositionalLogic.vo \
      PropositionalLogic/KripkeSemantics.vo \
      PropositionalLogic/Syntax.vo PropositionalLogic/ClassicalPropositionalLogic.vo \
