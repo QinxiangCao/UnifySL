@@ -7,13 +7,13 @@ Require Import Logic.PropositionalLogic.Syntax.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class MinimunPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) := {
+Class MinimunPropositionalLogic (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L) := {
   modus_ponens: forall x y, |-- (x --> y) -> |-- x -> |-- y;
   axiom1: forall x y, |-- (x --> (y --> x));
   axiom2: forall x y z, |-- ((x --> y --> z) --> (x --> y) --> (x --> z))
 }.
 
-Lemma imp_refl: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x: expr), |-- x --> x.
+Lemma imp_refl: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x: expr), |-- x --> x.
 Proof.
   intros.
   pose proof axiom2 x (x --> x) x.
@@ -24,14 +24,14 @@ Proof.
   auto.
 Qed.
 
-Lemma add_imp_left: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y: expr), |-- x -> |-- y --> x.
+Lemma add_imp_left: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y: expr), |-- x -> |-- y --> x.
 Proof.
   intros.
   pose proof axiom1 x y.
   eapply modus_ponens; eauto.
 Qed.
 
-Lemma aux_minimun_theorem00: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |--  (y --> z) --> (x --> y) --> (x --> z).
+Lemma aux_minimun_theorem00: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |--  (y --> z) --> (x --> y) --> (x --> z).
 Proof.
   intros.
   pose proof axiom2 x y z.
@@ -43,7 +43,7 @@ Proof.
   auto.
 Qed.
 
-Lemma remove_iden_assum_from_imp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- x --> y -> |-- (z --> x) --> (z --> y).
+Lemma remove_iden_assum_from_imp: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- x --> y -> |-- (z --> x) --> (z --> y).
 Proof.
   intros.
   pose proof aux_minimun_theorem00 z x y.
@@ -51,7 +51,7 @@ Proof.
   auto.
 Qed.
 
-Lemma imp_trans: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- x --> y -> |-- y --> z -> |-- x --> z.
+Lemma imp_trans: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- x --> y -> |-- y --> z -> |-- x --> z.
 Proof.
   intros.
   pose proof aux_minimun_theorem00 x y z.
@@ -60,14 +60,14 @@ Proof.
   auto.
 Qed.
 
-Lemma aux_minimun_theorem01: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |--  (x --> z) --> (x --> y --> z).
+Lemma aux_minimun_theorem01: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |--  (x --> z) --> (x --> y --> z).
 Proof.
   intros.
   apply remove_iden_assum_from_imp.
   apply axiom1.
 Qed.
 
-Lemma aux_minimun_theorem02: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y: expr), |-- x --> (x --> y) --> y.
+Lemma aux_minimun_theorem02: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y: expr), |-- x --> (x --> y) --> y.
 Proof.
   intros.
   pose proof axiom2 (x --> y) x y.
@@ -79,7 +79,7 @@ Proof.
   auto.
 Qed.
 
-Lemma aux_minimun_theorem03: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |--  y --> (x --> y --> z) --> (x --> z).
+Lemma aux_minimun_theorem03: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |--  y --> (x --> y --> z) --> (x --> z).
 Proof.
   intros.
   pose proof aux_minimun_theorem00 x (y --> z) z.
@@ -87,7 +87,7 @@ Proof.
   eapply imp_trans; eauto.
 Qed.
 
-Lemma aux_minimun_theorem04: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y: expr), |-- (x --> x --> y) --> x --> y.
+Lemma aux_minimun_theorem04: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y: expr), |-- (x --> x --> y) --> x --> y.
 Proof.
   intros.
   pose proof axiom2 x (x --> y) y.
@@ -96,7 +96,7 @@ Proof.
   auto.
 Qed.
 
-Lemma imp_arg_switch: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- (x --> y --> z) --> (y --> x --> z).
+Lemma imp_arg_switch: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- (x --> y --> z) --> (y --> x --> z).
 Proof.
   intros.
   apply imp_trans with (y --> x --> y --> z).
@@ -108,7 +108,7 @@ Proof.
     apply aux_minimun_theorem02.
 Qed.
 
-Lemma imp_trans_strong: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- (x --> y) --> (y --> z) --> (x --> z).
+Lemma imp_trans_strong: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (x y z: expr), |-- (x --> y) --> (y --> z) --> (x --> z).
 Proof.
   intros.
   pose proof imp_arg_switch (y --> z) (x --> y) (x --> z).
@@ -116,7 +116,7 @@ Proof.
   apply aux_minimun_theorem00.
 Qed.
 
-Lemma multi_imp_arg_switch: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (xs: list expr) (x y: expr), |-- (x --> multi_imp xs (x --> y)) --> multi_imp xs (x --> y).
+Lemma multi_imp_arg_switch: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (xs: list expr) (x y: expr), |-- (x --> multi_imp xs (x --> y)) --> multi_imp xs (x --> y).
 Proof.
   intros.
   induction xs.
@@ -128,7 +128,7 @@ Proof.
     apply imp_arg_switch.
 Qed.
 
-Lemma multi_imp_remove_rel: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (xs1 xs2: list expr) (x y: expr), remove_rel x xs1 xs2 -> |-- multi_imp xs1 y --> multi_imp xs2 (x --> y).
+Lemma multi_imp_remove_rel: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} (xs1 xs2: list expr) (x y: expr), remove_rel x xs1 xs2 -> |-- multi_imp xs1 y --> multi_imp xs2 (x --> y).
 Proof.
   intros.
   induction H.
@@ -142,7 +142,7 @@ Proof.
     apply remove_iden_assum_from_imp; auto.
 Qed.
 
-Lemma derivable_assum: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x: expr), Phi x -> Phi |-- x.
+Lemma derivable_assum: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x: expr), Phi x -> Phi |-- x.
 Proof.
   intros.
   rewrite derivable_provable.
@@ -152,7 +152,7 @@ Proof.
     apply imp_refl.
 Qed.
 
-Lemma derivable_assum1: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x: expr), Union _ Phi (Singleton _ x) |-- x.
+Lemma derivable_assum1: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x: expr), Union _ Phi (Singleton _ x) |-- x.
 Proof.
   intros.
   apply derivable_assum.
@@ -172,7 +172,7 @@ Proof.
     intros; auto.
 Qed.
 
-Lemma impp_elim: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma impp_elim: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Union _ Phi (Singleton _ x) |-- y ->
   Phi |-- x --> y.
 Proof.
@@ -193,7 +193,7 @@ Proof.
     eapply modus_ponens; eauto.
 Qed.
 
-Theorem deduction_theorem {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
+Theorem deduction_theorem {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
   forall (Phi: context) (x y: expr),
     Union _ Phi (Singleton _ x) |-- y <->
     Phi |-- x --> y.
@@ -203,7 +203,7 @@ Proof.
   + apply impp_intros; auto.
 Qed.
 
-Lemma add_multi_imp_left_head: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} xs1 xs2 y, |-- multi_imp xs2 y --> multi_imp (xs1 ++ xs2) y.
+Lemma add_multi_imp_left_head: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} xs1 xs2 y, |-- multi_imp xs2 y --> multi_imp (xs1 ++ xs2) y.
 Proof.
   intros.
   induction xs1.
@@ -212,7 +212,7 @@ Proof.
     apply axiom1.
 Qed.
 
-Lemma add_multi_imp_left_tail: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} xs1 xs2 y, |-- multi_imp xs1 y --> multi_imp (xs1 ++ xs2) y.
+Lemma add_multi_imp_left_tail: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} xs1 xs2 y, |-- multi_imp xs1 y --> multi_imp (xs1 ++ xs2) y.
 Proof.
   intros.
   induction xs1; simpl.
@@ -221,7 +221,7 @@ Proof.
   + apply remove_iden_assum_from_imp; auto.
 Qed.
 
-Lemma multi_imp_modus_ponens: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} xs y z, |-- multi_imp xs y --> multi_imp xs (y --> z) --> multi_imp xs z.
+Lemma multi_imp_modus_ponens: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {mpGamma: MinimunPropositionalLogic L Gamma} xs y z, |-- multi_imp xs y --> multi_imp xs (y --> z) --> multi_imp xs z.
 Proof.
   intros.
   induction xs; simpl.
@@ -234,7 +234,7 @@ Proof.
     apply aux_minimun_theorem00.
 Qed.
 
-Lemma derivable_modus_ponens: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma derivable_modus_ponens: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x ->
   Phi |-- x --> y ->
   Phi |-- y.
@@ -252,14 +252,14 @@ Proof.
     auto.
 Qed.
 
-Lemma derivable_imp_refl: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x: expr), Phi |-- x --> x.
+Lemma derivable_imp_refl: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x: expr), Phi |-- x --> x.
 Proof.
   intros.
   apply deduction_theorem.
   apply derivable_assum1.
 Qed.
 
-Lemma derivable_add_imp_left: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma derivable_add_imp_left: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x ->
   Phi |-- y --> x.
 Proof.
@@ -268,7 +268,7 @@ Proof.
   apply derivable_weaken1; auto.
 Qed.
 
-Lemma axiom1_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma axiom1_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x --> y --> x.
 Proof.
   intros.
@@ -277,7 +277,7 @@ Proof.
   split; [constructor | apply axiom1].
 Qed.
 
-Lemma axiom2_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y z: expr),
+Lemma axiom2_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y z: expr),
   Phi |-- (x --> y --> z) --> (x --> y) --> (x --> z).
 Proof.
   intros.
@@ -286,7 +286,7 @@ Proof.
   split; [constructor | apply axiom2].
 Qed.
 
-Lemma derivable_closed_element_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
+Lemma derivable_closed_element_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x: expr, Phi x <-> Phi |-- x).
 Proof.
@@ -295,7 +295,7 @@ Proof.
   apply derivable_assum; auto.
 Qed.
 
-Lemma maximal_consistent_derivable_closed: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
+Lemma maximal_consistent_derivable_closed: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Phi ->
   derivable_closed Phi.
 Proof.
@@ -315,7 +315,7 @@ Proof.
   right; constructor.
 Qed.
 
-Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
+Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Phi ->
   (forall x: expr, Phi x <-> Phi |-- x).
 Proof.
@@ -323,3 +323,58 @@ Proof.
   apply derivable_closed_element_derivable, maximal_consistent_derivable_closed.
   auto.
 Qed.
+
+Definition AtomicReductionConsistentProvable {L: Language} {nL: NormalLanguage L} (atomic_reduce: expr -> expr -> Prop) (Gamma: ProofTheory L): Prop :=
+  forall x y, atomic_reduce x y -> (|-- x --> y /\ |-- y --> x).
+
+Definition ReductionPropagationConsistentProvable {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L): Prop :=
+  forall x y sp,
+   (|-- x --> y /\ |-- y --> x) ->
+   (|-- single_propagation_denote sp x --> single_propagation_denote sp y /\
+    |-- single_propagation_denote sp y --> single_propagation_denote sp x).
+
+Lemma disjunction_reduce_consistent_provable {L: Language} {nL: NormalLanguage L} (Gamma: ProofTheory L):
+  forall reduce1 reduce2: relation expr,
+    AtomicReductionConsistentProvable reduce1 Gamma ->
+    AtomicReductionConsistentProvable reduce2 Gamma ->
+    AtomicReductionConsistentProvable (relation_disjunction reduce1 reduce2) Gamma.
+Proof.
+  intros.
+  hnf; intros.
+  destruct H1.
+  + apply H; auto.
+  + apply H0; auto.
+Qed.
+
+Lemma Build2_ReductionConsistentProofTheory {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
+  AtomicReductionConsistentProvable reduce Gamma ->
+  ReductionConsistentProofTheory R Gamma.
+Proof.
+  intros.
+  apply Build1_ReductionConsistentProofTheory.
+  hnf; intros.
+  specialize (H _ _ H0).
+  clear H0; destruct H.
+  split; intros.
+  + eapply modus_ponens; eauto.
+  + eapply modus_ponens; eauto.
+Qed.
+
+Lemma Build3_ReductionConsistentProofTheory {L: Language} {nL: NormalLanguage L} {R: SyntacticReduction L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
+  AtomicReductionConsistentProvable atomic_reduce Gamma ->
+  ReductionPropagationConsistentProvable Gamma ->
+  ReductionConsistentProofTheory R Gamma.
+Proof.
+  intros.
+  apply Build2_ReductionConsistentProofTheory.
+  hnf; intros.
+  induction H1.
+  + destruct H1.
+    induction p.
+    - intros; apply H; auto.
+    - apply H0; auto.
+  + split; apply imp_refl.
+  + destruct IHclos_refl_trans1, IHclos_refl_trans2.
+    split; eapply imp_trans; eauto.
+Qed.
+

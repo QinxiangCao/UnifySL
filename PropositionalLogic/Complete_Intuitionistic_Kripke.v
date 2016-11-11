@@ -25,8 +25,8 @@ Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
 Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
 Instance rcG: ReductionConsistentProofTheory IntuitionisticReduction G := IntuitionisticPropositionalLogic.rcG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
-Instance SM: Semantics L := KripkeSemantics.SM Var.
-Instance rcSM: ReductionConsistentSemantics IntuitionisticReduction SM := KripkeSemantics.rcSM Var.
+Instance SM: Semantics L := KripkeSemantics_All.SM Var.
+Instance rcSM: ReductionConsistentSemantics IntuitionisticReduction SM := KripkeSemantics_All.rcSM Var.
 
 Definition DCS: Type := sig (fun Phi =>
   derivable_closed Phi /\
@@ -48,8 +48,11 @@ Next Obligation.
   apply H; auto.
 Qed.
 
-Definition canonical_model (Phi: DCS): @model _ (KripkeSemantics.SM Var) :=
-  KripkeSemantics.Build_model Var canonical_frame canonical_eval Phi.
+Definition canonical_Kmodel: KripkeSemantics_All.Kmodel :=
+  KripkeSemantics_All.Build_Kmodel Var canonical_frame canonical_eval.
+
+Definition canonical_model (Phi: DCS): model :=
+  KripkeSemantics_All.Build_model Var canonical_Kmodel Phi.
 
 Lemma Lindenbaum_lemma:
   forall Phi x,
@@ -164,7 +167,7 @@ Proof.
     split.
     - intros.
       rewrite H.
-      apply (@deduction_theorem _ _ _ _ _ (IntuitionisticPropositionalLogic.mpG Var)).
+      apply (@deduction_theorem _ _ _ _ (IntuitionisticPropositionalLogic.mpG Var)).
       apply Classical_Prop.NNPP; intro.
       pose proof Lindenbaum_lemma _ _ H3.
       destruct H4 as [Psi [? [? ?]]].
@@ -173,8 +176,7 @@ Proof.
       assert (Included _ (proj1_sig Phi) Psi) by (hnf; intros; apply H4; left; auto).
       specialize (H2 H7).
       simpl in IHx1, IHx2.
-      change (KripkeSemantics.model_frame (canonical_model Phi)) with canonical_frame in H2.
-      change (KripkeSemantics.model_var (canonical_model Phi)) with canonical_eval in H2.
+      simpl in H2.
       rewrite IHx1, IHx2 in H2; simpl in H2.
       assert (Psi x1) by (apply H4; right; constructor).
       specialize (H2 H8).
@@ -184,8 +186,6 @@ Proof.
       hnf; intros Psi ?H.
       change DCS in Psi.
       simpl in H3.
-      change (KripkeSemantics.model_frame (canonical_model Phi)) with canonical_frame.
-      change (KripkeSemantics.model_var (canonical_model Phi)) with canonical_eval.
       simpl in IHx1, IHx2.
       rewrite IHx1, IHx2.
       intros.
@@ -203,7 +203,7 @@ Proof.
     tauto.
 Qed.
 
-Theorem complete_intuitionistic_kripke: strongly_complete (IntuitionisticPropositionalLogic.G Var) (KripkeSemantics.SM Var).
+Theorem complete_intuitionistic_kripke: strongly_complete G SM.
 Proof.
   assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
   + intros.

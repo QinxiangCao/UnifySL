@@ -7,9 +7,9 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
 Class TrivialPropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {rcSM: ReductionConsistentSemantics MendelsonReduction SM}: Type := {
-  sem_impp: forall m x y, m |= x --> y <-> (m |= x -> m |= y);
-  sem_negp: forall m x, m |= ~~ x <-> ~ m |= x;
-  sem_truep: forall m, m |= TT
+  sat_impp: forall m x y, m |= x --> y <-> (m |= x -> m |= y);
+  sat_negp: forall m x, m |= ~~ x <-> ~ m |= x;
+  sat_truep: forall m, m |= TT
 }.
 
 (*
@@ -83,7 +83,7 @@ Proof.
     inversion H0.
 Qed.
 
-Lemma RPC {Var: Type}: ReductionPropagationConsistent (SM Var).
+Lemma RPC {Var: Type}: ReductionPropagationConsistentSemantics (SM Var).
 Proof.
   hnf; intros; simpl in *.
   specialize (H m).
@@ -122,7 +122,7 @@ Proof.
   apply Build_ReductionConsistentSemantics.
   + hnf; intros.
     revert x y H m.
-    repeat apply disjunction_reduce_consistent.
+    repeat apply disjunction_reduce_consistent_semantics.
     - apply ImpNegAsPrime_consistent.
     - apply ReduceIff_consistent.
     - apply ReduceFalse_consistent.

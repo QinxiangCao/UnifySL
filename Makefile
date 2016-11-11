@@ -5,7 +5,6 @@ COQC = coqc
 	@$(COQC) -q -R "." -as Logic $*.v
 
 all: Wf.vo base.vo IPC.vo trivial.vo Kripke.vo enumerate.vo LogicBase.vo SyntacticReduction.v \
-     KripkeModel.vo \
      HenkinCompleteness.v PropositionalLogic/MinimunPropositionalLogic.vo \
      PropositionalLogic/IntuitionisticPropositionalLogic.vo \
      PropositionalLogic/KripkeSemantics.vo \

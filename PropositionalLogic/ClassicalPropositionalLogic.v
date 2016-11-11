@@ -241,6 +241,8 @@ Instance AG: AxiomaticProofTheory.AxiomaticProofTheory L :=
 
 Instance G: ProofTheory L := AxiomaticProofTheory.G AG.
 
+Instance nG: NormalProofTheory L G := AxiomaticProofTheory.nG AG.
+
 Instance mpG: MinimunPropositionalLogic L G.
 Proof.
   constructor.
@@ -251,6 +253,7 @@ Qed.
 
 Instance rcG: ReductionConsistentProofTheory MendelsonReduction G.
 Proof.
+  apply Build1_ReductionConsistentProofTheory.
   hnf; intros; split.
   + apply syntactic_reduction_rule1; auto.
   + apply syntactic_reduction_rule2; auto.

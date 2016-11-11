@@ -160,6 +160,7 @@ Qed.
 
 Instance rcG: ReductionConsistentProofTheory IntuitionisticReduction G.
 Proof.
+  apply Build1_ReductionConsistentProofTheory.
   constructor.
   + apply syntactic_reduction_rule1; auto.
   + apply syntactic_reduction_rule2; auto.
