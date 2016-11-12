@@ -29,11 +29,17 @@ Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   consistent Phi).
 
 Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {icSM: ReductionConsistentSemantics IntuitionisticReduction SM} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (M: Kmodel): Type := {
-  underlying_bij :> bijection (Kworlds M) (DCS Gamma);
-  canonical_relation: forall m n m' n',
-    underlying_bij m m' ->
-    underlying_bij n n' ->
-    (Korder m n <-> Included _ (proj1_sig n') (proj1_sig m'))
+  underlying_surj :> surjection (Kworlds M) (DCS Gamma);
+  canonical_relation_sound: forall m n m' n',
+    underlying_surj m m' ->
+    underlying_surj n n' ->
+    Korder m n ->
+    Included _ (proj1_sig n') (proj1_sig m');
+  canonical_relation_complete: forall n m' n',
+    underlying_surj n n' ->
+    Included _ (proj1_sig n') (proj1_sig m') ->
+    exists m,
+    underlying_surj m m' /\ Korder m n
 }.
 
 Lemma Lindenbaum_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {icGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}:
@@ -167,24 +173,22 @@ Proof.
       change Psi' with (proj1_sig Psi) in H5, H6.
       clearbody Psi; clear Psi' H7.
       rewrite sat_impp in H3.
-      destruct (su_bij _ _ X Psi) as [n ?].
-      specialize (H3 n).
       assert (Included _ (proj1_sig Phi) (proj1_sig Psi)) by (hnf; intros; apply H5; left; auto).
-      rewrite <- canonical_relation in H8 by eauto.
-      specialize (H3 H8).
+      destruct (canonical_relation_complete _ _ X m Psi Phi H H7) as [n [? ?]].
+      specialize (H3 n H9).
       rewrite IHx1, IHx2 in H3 by eauto.
       assert (proj1_sig Psi x1) by (apply H5; right; constructor).
-      specialize (H3 H9).
+      specialize (H3 H10).
       specialize (H0 Psi x2).
       rewrite H0 in H3; auto.
     - intros.
       change (PropositionalLanguage.impp x1 x2) with (x1 --> x2) in *.
       rewrite sat_impp; intros n ?H.
-      destruct (im_bij _ _ X n) as [Psi ?].
+      destruct (im_surj _ _ X n) as [Psi ?].
       rewrite IHx1, IHx2 by eauto.
       intros.
       rewrite H0 in H3, H6 |- *.
-      rewrite canonical_relation in H4 by eauto.
+      eapply canonical_relation_sound in H4; [| eauto | eauto].
       eapply derivable_weaken in H3; [| exact H4].
       eapply derivable_modus_ponens; [exact H6 | exact H3].
   + pose proof sat_falsep M m.
