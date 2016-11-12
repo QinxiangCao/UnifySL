@@ -23,14 +23,21 @@ Definition function_surjective {A B} (f: A -> B): Prop :=
   forall b, exists a, f a = b.
 
 Record injection (A B: Type): Type := {
-  inj_R: A -> B -> Prop;
+  inj_R:> A -> B -> Prop;
   im_inj: image_defined inj_R;
   pf_inj: partial_functional inj_R;
   in_inj: injective inj_R
 }.
 
+Record surjection (A B: Type): Type := {
+  sur_R:> A -> B -> Prop;
+  im_surj: image_defined sur_R;
+  pf_surj: partial_functional sur_R;
+  su_surj: surjective sur_R
+}.
+
 Record bijection (A B: Type): Type := {
-  bij_R: A -> B -> Prop;
+  bij_R:> A -> B -> Prop;
   im_bij: image_defined bij_R;
   pf_bij: partial_functional bij_R;
   in_bij: injective bij_R;
@@ -39,6 +46,14 @@ Record bijection (A B: Type): Type := {
 
 Definition FBuild_injection (A B: Type) (f: A -> B) (H: function_injective f): injection A B.
   apply (Build_injection _ _ (fun a b => f a = b)).
+  + hnf; intros; eauto.
+  + hnf; intros; congruence.
+  + hnf; intros.
+    apply H; congruence.
+Qed.
+
+Definition FBuild_surjection (A B: Type) (f: A -> B) (H: function_surjective f): surjection A B.
+  apply (Build_surjection _ _ (fun a b => f a = b)).
   + hnf; intros; eauto.
   + hnf; intros; congruence.
   + hnf; intros.
@@ -57,7 +72,7 @@ Qed.
 
 Definition injection_trans {A B C} (R1: injection A B) (R2: injection B C): injection A C.
   intros.
-  apply (Build_injection _ _ (fun a c => exists b, inj_R _ _ R1 a b /\ inj_R _ _ R2 b c)).
+  apply (Build_injection _ _ (fun a c => exists b, R1 a b /\ R2 b c)).
   + hnf; intros.
     destruct (im_inj _ _ R1 a) as [b ?].
     destruct (im_inj _ _ R2 b) as [c ?].
@@ -75,7 +90,7 @@ Definition injection_trans {A B C} (R1: injection A B) (R2: injection B C): inje
 Defined.
 
 Definition bijection_sym {A B} (R: bijection A B): bijection B A.
-  apply (Build_bijection _ _ (fun a b => bij_R _ _ R b a)).
+  apply (Build_bijection _ _ (fun a b => R b a)).
   + hnf.
     apply (su_bij _ _ R).
   + hnf; intros.
@@ -91,8 +106,8 @@ Proof.
   intros.
   apply (Build_injection _ _ (fun a b =>
           match a, b with
-          | inl a, inl b => inj_R _ _ R1 a b
-          | inr a, inr b => inj_R _ _ R2 a b
+          | inl a, inl b => R1 a b
+          | inr a, inr b => R2 a b
           | _, _ => False
           end)).
   + hnf; intros.
@@ -114,7 +129,7 @@ Qed.
 Definition prod_injection {A1 B1 A2 B2} (R1: injection A1 B1) (R2: injection A2 B2): injection (prod A1 A2) (prod B1 B2).
 Proof.
   intros.
-  apply (Build_injection _ _ (fun a b => inj_R _ _ R1 (fst a) (fst b) /\ inj_R _ _ R2 (snd a) (snd b))).
+  apply (Build_injection _ _ (fun a b => R1 (fst a) (fst b) /\ R2 (snd a) (snd b))).
   + hnf; intros.
     destruct (im_inj _ _ R1 (fst a)) as [b1 ?].
     destruct (im_inj _ _ R2 (snd a)) as [b2 ?].
@@ -132,7 +147,7 @@ Proof.
 Qed.
 
 Definition sigT_injection (I: Type) (A: I -> Type) (B: Type) (R: forall i: I, injection (A i) B): injection (sigT A) (I * B).
-  apply (Build_injection _ _ (fun a b => projT1 a = fst b /\ inj_R _ _ (R (projT1 a)) (projT2 a) (snd b))).
+  apply (Build_injection _ _ (fun a b => projT1 a = fst b /\ (R (projT1 a)) (projT2 a) (snd b))).
   + hnf; intros.
     destruct a as [i a0].
     destruct (im_inj _ _ (R i) a0) as [b0 ?].
@@ -152,7 +167,7 @@ Definition sigT_injection (I: Type) (A: I -> Type) (B: Type) (R: forall i: I, in
 Qed.
 
 Definition bijection_injection {A B} (R: bijection A B): injection A B :=
-  Build_injection _ _ (bij_R _ _ R) (im_bij _ _ R) (pf_bij _ _ R) (in_bij _ _ R).
+  Build_injection _ _ R (im_bij _ _ R) (pf_bij _ _ R) (in_bij _ _ R).
 
 Definition nat2_nat_bijection: bijection (sum nat nat) nat.
   apply (Build_bijection _ _ (fun n m => match n with | inl n => m = n + n | inr n => m = n + n +1 end)).

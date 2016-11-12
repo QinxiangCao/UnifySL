@@ -71,7 +71,7 @@ Proof.
   set (step :=
           fun n Phi x0 =>
              Phi x0 \/
-            (inj_R _ _ X x0 n /\
+            (X x0 n /\
              ~ (Union _ Phi (Singleton _ x0)) |-- x)).
   exists (LindenbaumConstruction step Phi).
   assert (Included expr Phi (LindenbaumConstruction step Phi) /\
@@ -96,7 +96,7 @@ Proof.
     - intros ? ? ? ?; left; auto.
     - apply H.
     - intros.
-      destruct (Classical_Prop.classic (exists x0, inj_R _ _ X x0 n /\ ~ (Union _ S (Singleton _ x0)) |-- x)) as [[x0 [? ?]] |].
+      destruct (Classical_Prop.classic (exists x0, X x0 n /\ ~ (Union _ S (Singleton _ x0)) |-- x)) as [[x0 [? ?]] |].
       * intro; apply H2; clear H2.
         eapply derivable_weaken; [| exact H3].
         hnf; intros ? [? | [? ?]]; [left; auto |].

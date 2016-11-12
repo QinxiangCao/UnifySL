@@ -31,8 +31,8 @@ Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
 Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {icSM: ReductionConsistentSemantics IntuitionisticReduction SM} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (M: Kmodel): Type := {
   underlying_bij :> bijection (Kworlds M) (DCS Gamma);
   canonical_relation: forall m n m' n',
-    bij_R _ _ underlying_bij m m' ->
-    bij_R _ _ underlying_bij n n' ->
+    underlying_bij m m' ->
+    underlying_bij n n' ->
     (Korder m n <-> Included _ (proj1_sig n') (proj1_sig m'))
 }.
 
@@ -51,7 +51,7 @@ Proof.
   set (step :=
           fun n Phi x0 =>
              Phi x0 \/
-            (inj_R _ _ X x0 n /\
+            (X x0 n /\
              ~ (Union _ Phi (Singleton _ x0)) |-- x)).
   exists (LindenbaumConstruction step Phi).
   assert (Included expr Phi (LindenbaumConstruction step Phi) /\
@@ -76,7 +76,7 @@ Proof.
     - intros ? ? ? ?; left; auto.
     - apply H.
     - intros.
-      destruct (Classical_Prop.classic (exists x0, inj_R _ _ X x0 n /\ ~ (Union _ S (Singleton _ x0)) |-- x)) as [[x0 [? ?]] |].
+      destruct (Classical_Prop.classic (exists x0, X x0 n /\ ~ (Union _ S (Singleton _ x0)) |-- x)) as [[x0 [? ?]] |].
       * intro; apply H2; clear H2.
         eapply derivable_weaken; [| exact H3].
         hnf; intros ? [? | [? ?]]; [left; auto |].
@@ -123,10 +123,10 @@ Qed.
 Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {icGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SM: Semantics L} {icSM: ReductionConsistentSemantics IntuitionisticReduction SM} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM}:
   forall M (X: canonical Gamma M),
    (forall m Phi v,
-      bij_R _ _ X m Phi ->
+      X m Phi ->
       (KRIPKE: M, m |= PropositionalLanguage.varp v <-> proj1_sig Phi (PropositionalLanguage.varp v))) ->
    (forall m Phi,
-      bij_R _ _ X m Phi ->
+      X m Phi ->
       forall x, KRIPKE: M, m |= x <-> proj1_sig Phi x).
 Proof.
   intros.

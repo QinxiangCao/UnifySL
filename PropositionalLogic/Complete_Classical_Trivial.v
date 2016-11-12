@@ -46,7 +46,7 @@ Proof.
   set (step :=
           fun n Phi x =>
              Phi x \/
-            (inj_R _ _ X x n /\ consistent (Union _ Phi (Singleton _ x)))).
+            (X x n /\ consistent (Union _ Phi (Singleton _ x)))).
   exists (LindenbaumConstruction step Phi).
   split; [| rewrite maximal_consistent_spec; split].
   + apply (Lindenbaum_spec_included _ _ 0).
@@ -58,7 +58,7 @@ Proof.
     - intros ? ? ? ?; left; auto.
     - apply H.
     - intros.
-      destruct (Classical_Prop.classic (exists x, inj_R _ _ X x n /\ consistent (Union _ S (Singleton _ x)))) as [[x [? ?]] |].
+      destruct (Classical_Prop.classic (exists x, X x n /\ consistent (Union _ S (Singleton _ x)))) as [[x [? ?]] |].
       * intro; apply H2; clear H2.
         eapply derivable_weaken; [| exact H3].
         hnf; intros ? [? | [? ?]]; [left; auto |].
