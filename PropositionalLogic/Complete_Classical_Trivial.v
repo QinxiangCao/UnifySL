@@ -25,10 +25,10 @@ Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nMendelsonRed
 Instance G: ProofTheory L := ClassicalPropositionalLogic.G Var.
 Instance nG: NormalProofTheory L G := ClassicalPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
-Instance rcG: ReductionConsistentProofTheory MendelsonReduction G := ClassicalPropositionalLogic.rcG Var.
+Instance mcG: ReductionConsistentProofTheory MendelsonReduction G := ClassicalPropositionalLogic.mcG Var.
 Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
 Instance SM: Semantics L := TrivialSemantics.SM Var.
-Instance rcSM: ReductionConsistentSemantics MendelsonReduction SM := TrivialSemantics.rcSM Var.
+Instance mcSM: ReductionConsistentSemantics MendelsonReduction SM := TrivialSemantics.mcSM Var.
 
 Definition MCS: Type := sig maximal_consistent.
 

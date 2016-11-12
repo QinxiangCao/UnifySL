@@ -158,7 +158,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance rcG: ReductionConsistentProofTheory IntuitionisticReduction G.
+Instance icG: ReductionConsistentProofTheory IntuitionisticReduction G.
 Proof.
   apply Build1_ReductionConsistentProofTheory.
   constructor.

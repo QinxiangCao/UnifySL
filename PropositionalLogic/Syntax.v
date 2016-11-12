@@ -27,16 +27,16 @@ Class PropositionalLanguage (L: Language) {nL: NormalLanguage L}: Type := {
   neg_propag_denote: forall x, single_propagation_denote neg_propag x = negp x
 }.
 
-Inductive PropositionalPropag (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}: single_propagation -> Prop :=
-  | imp1_prop_propag: forall x: expr, PropositionalPropag L (imp1_propag x)
-  | imp2_prop_propag: forall x: expr, PropositionalPropag L (imp2_propag x)
-  | and1_prop_propag: forall x: expr, PropositionalPropag L (and1_propag x)
-  | and2_prop_propag: forall x: expr, PropositionalPropag L (and2_propag x)
-  | or1_prop_propag: forall x: expr, PropositionalPropag L (or1_propag x)
-  | or2_prop_propag: forall x: expr, PropositionalPropag L (or2_propag x)
-  | iff1_prop_propag: forall x: expr, PropositionalPropag L (iff1_propag x)
-  | iff2_prop_propag: forall x: expr, PropositionalPropag L (iff2_propag x)
-  | neg_prop_propag: PropositionalPropag L neg_propag.
+Inductive PropositionalPropag {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: single_propagation -> Prop :=
+  | imp1_prop_propag: forall x: expr, PropositionalPropag (imp1_propag x)
+  | imp2_prop_propag: forall x: expr, PropositionalPropag (imp2_propag x)
+  | and1_prop_propag: forall x: expr, PropositionalPropag (and1_propag x)
+  | and2_prop_propag: forall x: expr, PropositionalPropag (and2_propag x)
+  | or1_prop_propag: forall x: expr, PropositionalPropag (or1_propag x)
+  | or2_prop_propag: forall x: expr, PropositionalPropag (or2_propag x)
+  | iff1_prop_propag: forall x: expr, PropositionalPropag (iff1_propag x)
+  | iff2_prop_propag: forall x: expr, PropositionalPropag (iff2_propag x)
+  | neg_prop_propag: PropositionalPropag neg_propag.
 
 Notation "x && y" := (andp x y) (at level 40, left associativity) : PropositionalLogic.
 Notation "x || y" := (orp x y) (at level 50, left associativity) : PropositionalLogic.
@@ -46,6 +46,13 @@ Notation "'TT'" := truep : PropositionalLogic.
 
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
+
+Definition PropositonalPropagationConsistentProvable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L): Prop :=
+  forall x y sp,
+    PropositionalPropag sp ->
+    (|-- x --> y /\ |-- y --> x) ->
+    (|-- single_propagation_denote sp x --> single_propagation_denote sp y /\
+     |-- single_propagation_denote sp y --> single_propagation_denote sp x).
 
 Lemma and_reduce {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {R: SyntacticReduction L}:
   forall x1 x2 y1 y2,
@@ -424,6 +431,16 @@ Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
     simpl in H.
     inversion H; auto.
 Qed. (* 20 seconds *)
+
+Lemma RPPC_RPC {Var} {Gamma: ProofTheory (L Var)}:
+  PropositonalPropagationConsistentProvable Gamma ->
+  ReductionPropagationConsistentProvable Gamma.
+Proof.
+  intros.
+  hnf; intros.
+  apply (H x y sp); auto.
+  destruct sp; constructor.
+Qed.
 
 End PropositionalLanguage.
 

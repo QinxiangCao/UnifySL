@@ -16,7 +16,7 @@ Class PreKripkeSemantics (L: Language) (SM: Semantics L): Type := {
 
 Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity) : logic_base.
 
-Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {rcSM: ReductionConsistentSemantics IntuitionisticReduction SM} {pkSM: PreKripkeSemantics L SM}: Type := {
+Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {icSM: ReductionConsistentSemantics IntuitionisticReduction SM} {pkSM: PreKripkeSemantics L SM}: Type := {
   Korder: forall {M: Kmodel}, Kworlds M -> Kworlds M -> Prop; (* <= *)
   sat_mono: forall M m n x, Korder m n -> KRIPKE: M , n |= x -> KRIPKE: M , m |= x;
   sat_impp: forall M m x y, KRIPKE: M , m |= x --> y <-> (forall n, Korder n m -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
@@ -191,7 +191,7 @@ Proof.
   apply RPC_aux; auto.
 Qed.
 
-Instance rcSM (Var: Type): ReductionConsistentSemantics IntuitionisticReduction (SM Var).
+Instance icSM (Var: Type): ReductionConsistentSemantics IntuitionisticReduction (SM Var).
 Proof.
   apply Build_ReductionConsistentSemantics.
   + hnf; intros.
@@ -258,7 +258,7 @@ Proof.
   apply RPC_aux; auto.
 Qed.
 
-Instance rcSM (Var: Type): ReductionConsistentSemantics IntuitionisticReduction (SM Var).
+Instance icSM (Var: Type): ReductionConsistentSemantics IntuitionisticReduction (SM Var).
 Proof.
   apply Build_ReductionConsistentSemantics.
   + hnf; intros.

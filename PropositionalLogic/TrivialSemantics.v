@@ -7,7 +7,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class TrivialPropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {rcSM: ReductionConsistentSemantics MendelsonReduction SM}: Type := {
+Class TrivialPropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {mcSM: ReductionConsistentSemantics MendelsonReduction SM}: Type := {
   sat_impp: forall m x y, m |= x --> y <-> (m |= x -> m |= y);
   sat_negp: forall m x, m |= ~~ x <-> ~ m |= x;
   sat_truep: forall m, m |= TT
@@ -118,7 +118,7 @@ Proof.
     tauto.
 Qed.
 
-Instance rcSM (Var: Type): ReductionConsistentSemantics MendelsonReduction (SM Var).
+Instance mcSM (Var: Type): ReductionConsistentSemantics MendelsonReduction (SM Var).
 Proof.
   apply Build_ReductionConsistentSemantics.
   + hnf; intros.

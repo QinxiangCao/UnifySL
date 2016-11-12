@@ -123,7 +123,7 @@ Proof.
   auto.
 Qed.
 
-Lemma aux_classic_theorem05: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+Lemma aux_classic_theorem05: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {mcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- ~~ x --> FF ->
   Phi |-- x.
 Proof.
@@ -146,7 +146,7 @@ Proof.
     apply double_negp_elim.
 Qed.
 
-Lemma MCS_nonelement_inconsistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
+Lemma MCS_nonelement_inconsistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {mcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Phi ->
   (forall x: expr, ~ Phi x <-> Phi |-- x --> FF).
 Proof.
@@ -165,7 +165,7 @@ Proof.
     destruct H; auto.
 Qed.
 
-Lemma MCS_negp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
+Lemma MCS_negp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {mcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Phi ->
   (forall x: expr, Phi (~~ x) <-> ~ Phi x).
 Proof.
@@ -195,7 +195,7 @@ Proof.
         apply imp_refl.
 Qed.
 
-Lemma MCS_impp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {rcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
+Lemma MCS_impp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {mcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Phi ->
   (forall x y: expr, Phi (x --> y) <-> (Phi x -> Phi y)).
 Proof.
@@ -249,7 +249,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance rcG: ReductionConsistentProofTheory MendelsonReduction G.
+Instance mcG: ReductionConsistentProofTheory MendelsonReduction G.
 Proof.
   apply Build1_ReductionConsistentProofTheory.
   hnf; intros; split.
