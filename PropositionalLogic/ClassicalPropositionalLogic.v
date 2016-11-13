@@ -10,76 +10,46 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
 Class ClassicalPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
-  excluded_middle: forall x, |-- x || (x --> FF)
+  excluded_middle: forall x, |-- x || ~~ x
 }.
 
-Lemma excluded_middle_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
-  Phi |-- x || (x --> FF).
+Lemma derivable_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+  Phi |-- x || ~~ x.
 Proof.
   intros.
   pose proof excluded_middle x.
-  rewrite provable_derivable in H.
-  eapply derivable_weaken; eauto.
-  intros ? [].
+  apply deduction_weaken0; auto.
 Qed.
 
-Lemma double_negp_elim: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x: expr),
-  Phi |-- x --> ~~ ~~ x.
-Proof.
-  intros.
-  unfold negp.
-  apply derivable_weaken0.
-  apply aux_minimun_theorem02.
-Qed.
-
-Lemma double_negp_intros: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+Lemma derivable_double_negp_elim: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- ~~ (~~ x) --> x.
 Proof.
   intros.
-  apply derivable_weaken0.
   unfold negp.
-  pose proof orp_elim x (x --> FF) (((x --> FF) --> FF) --> x).
-  pose proof axiom1 x ((x --> FF) --> FF).
-  pose proof modus_ponens _ _ H H0.
+  pose proof derivable_orp_elim Phi x (x --> FF) (((x --> FF) --> FF) --> x).
+  pose proof derivable_axiom1 Phi x ((x --> FF) --> FF).
+  pose proof deduction_modus_ponens _ _ _ H0 H.
   clear H H0.
 
-  pose proof aux_minimun_theorem02 (x --> FF) FF.
-  pose proof falsep_elim x.
-  pose proof remove_iden_assum_from_imp _ _ ((x --> FF) --> FF) H0.
-  pose proof remove_iden_assum_from_imp _ _ (x --> FF) H2.
-  pose proof modus_ponens _ _ H3 H.
-  pose proof modus_ponens _ _ H1 H4.
-  clear H1 H H0 H2 H3 H4.
+  pose proof derivable_contradiction_elim Phi (x --> FF) x.
+  pose proof deduction_modus_ponens _ _ _ H H1.
+  clear H H1.
 
-  pose proof excluded_middle x.
-  pose proof modus_ponens _ _ H5 H.
+  pose proof derivable_excluded_middle Phi x.
+  pose proof deduction_modus_ponens _ _ _ H H0.
   auto.
 Qed.
 
-Lemma double_negp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+Lemma deduction_double_negp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- x <-> Phi |-- ~~ ~~ x.
 Proof.
   intros.
-  split; intros; eapply derivable_modus_ponens; eauto.
-  + apply double_negp_elim.
-  + apply double_negp_intros.
+  split; intros; eapply deduction_modus_ponens; eauto.
+  + apply derivable_double_negp_intros.
+  + apply derivable_double_negp_elim.
 Qed.
 
 (*
-Lemma contradiction_rule: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
-  Phi |-- ~~ x ->
-  Phi |-- x ->
-  Phi |-- y.
-Proof.
-  intros.
-  pose proof axiom3_derivable Phi y x.
-  apply (derivable_add_imp_left _ _  (~~ y)) in H.
-  apply (derivable_add_imp_left _ _  (~~ y)) in H0.
-  pose proof derivable_modus_ponens _ _ _ H0 H1.
-  pose proof derivable_modus_ponens _ _ _ H H2.
-  auto.
-Qed.
-
 Lemma contrapositivePP: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
   Phi |-- ~~ y --> ~~ x ->
   Phi |-- x --> y.
@@ -143,35 +113,14 @@ Proof.
   auto.
 Qed.
 
-Lemma aux_classic_theorem05: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {mcGamma: ReductionConsistentProofTheory MendelsonReduction Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
-  Phi |-- ~~ x --> FF ->
-  Phi |-- x.
-Proof.
-  intros.
-  apply contrapositiveNP in H.
-  apply (derivable_modus_ponens _ TT x).
-  1: rewrite derivable_provable; exists nil; split; [auto | apply true_provable].
-  eapply derivable_modus_ponens; eauto.
-  rewrite derivable_provable; exists nil; split; [auto |].
-  simpl; eapply provable_reduce.
-  + apply imp_reduce; [| apply reduce_refl].
-    apply imp_reduce; [| apply reduce_refl].
-    apply neg_reduce.
-    apply reduce_step.
-    right; right; constructor.
-  + simpl; clear H.
-    pose proof imp_trans_strong TT (~~ ~~ TT) x.
-    eapply modus_ponens; eauto.
-    rewrite provable_derivable.
-    apply double_negp_elim.
-Qed.
+
 *)
 
 Lemma classical_derivable_spec: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- x <-> ~ consistent (Union _ Phi (Singleton _ (~~ x))).
 Proof.
   intros.
-  rewrite double_negp.
+  rewrite deduction_double_negp.
   unfold negp at 1.
   rewrite <- deduction_theorem.
   unfold consistent.
@@ -193,7 +142,7 @@ Proof.
     tauto.
   + intro.
     pose proof derivable_assum Phi x H1.
-    pose proof derivable_modus_ponens _ _ _ H2 H0.
+    pose proof deduction_modus_ponens _ _ _ H2 H0.
     destruct H; auto.
 Qed.
 
@@ -218,19 +167,13 @@ Proof.
     rewrite MCS_nonelement_inconsistent in H1 by auto.
     rewrite MCS_nonelement_inconsistent in H2 by auto.
     rewrite MCS_element_derivable in H0 by auto.
-    pose proof orp_elim_derivable Phi x y FF.
-    pose proof derivable_modus_ponens _ _ _ H1 H3.
-    pose proof derivable_modus_ponens _ _ _ H2 H4.
-    pose proof derivable_modus_ponens _ _ _ H0 H5.
+    pose proof deduction_orp_elim Phi x y FF H1 H2.
+    pose proof deduction_modus_ponens _ _ _ H0 H3.
     destruct H.
     auto.
   + destruct H0; rewrite MCS_element_derivable in H0 |- * by auto.
-    - pose proof orp_intros1_derivable Phi x y.
-      pose proof derivable_modus_ponens _ _ _ H0 H1.
-      auto.
-    - pose proof orp_intros2_derivable Phi x y.
-      pose proof derivable_modus_ponens _ _ _ H0 H1.
-      auto.
+    - pose proof deduction_orp_intros1 Phi x y H0; auto.
+    - pose proof deduction_orp_intros2 Phi x y H0; auto.
 Qed.
 
 Lemma MCS_impp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
@@ -240,25 +183,26 @@ Proof.
   intros.
   split; intros.
   + rewrite MCS_element_derivable in H0, H1 |- * by auto.
-    apply (derivable_modus_ponens _ x y); auto.
-  + pose proof excluded_middle_derivable Phi y.
+    apply (deduction_modus_ponens _ x y); auto.
+  + pose proof derivable_excluded_middle Phi y.
     rewrite <- MCS_element_derivable in H1 by auto.
     rewrite MCS_orp_iff in H1 by auto.
-    pose proof excluded_middle_derivable Phi x.
+    pose proof derivable_excluded_middle Phi x.
     rewrite <- MCS_element_derivable in H2 by auto.
     rewrite MCS_orp_iff in H2 by auto.
     destruct H1; [| destruct H2].
     - rewrite MCS_element_derivable in H1 |- * by auto.
-      apply derivable_add_imp_left; auto.
+      apply deduction_left_impp_intros; auto.
     - exfalso.
       apply H0 in H2.
       rewrite MCS_element_derivable in H1, H2 by auto.
-      pose proof derivable_modus_ponens _ _ _ H2 H1.
+      pose proof deduction_modus_ponens _ _ _ H2 H1.
       destruct H; auto.
     - rewrite MCS_element_derivable in H2 |- * by auto.
+      unfold negp in H2.
       rewrite <- deduction_theorem in H2 |- *.
-      eapply derivable_modus_ponens; [exact H2 |].
-      apply falsep_elim_derivable.
+      pose proof deduction_falsep_elim _ y H2.
+      auto.
 Qed.
 
 Module ClassicalPropositionalLogic.

@@ -66,3 +66,17 @@ Proof.
     - exists (a :: l2); subst.
       apply remove_rel_cons_neq; auto.
 Qed.
+
+Lemma remove_rel_result_belong: forall (A : Type) (l1 l2 : list A) (x : A), remove_rel x l1 l2 -> Forall (fun y => In y l1) l2.
+Proof.
+  intros.
+  induction H.
+  + auto.
+  + simpl.
+    revert IHremove_rel; apply Forall_impl.
+    intros; auto.
+  + constructor; simpl; auto.
+    revert IHremove_rel; apply Forall_impl.
+    intros; auto.
+Qed.
+

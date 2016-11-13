@@ -57,12 +57,12 @@ Proof.
     - intros.
       destruct (Classical_Prop.classic (exists x, X x n /\ consistent (Union _ S (Singleton _ x)))) as [[x [? ?]] |].
       * intro; apply H2; clear H2.
-        eapply derivable_weaken; [| exact H3].
+        eapply deduction_weaken; [| exact H3].
         hnf; intros ? [? | [? ?]]; [left; auto |].
         pose proof in_inj _ _ X _ _ _ H1 H2.
         subst; right; constructor.
       * intro; apply H0; clear H0.
-        eapply derivable_weaken; [| exact H2].
+        eapply deduction_weaken; [| exact H2].
         hnf; intros ? [? | [? ?]]; [auto |].
         exfalso; apply H1; clear H1.
         exists x; auto.
@@ -75,7 +75,7 @@ Proof.
     right; split; auto.
     intro; apply H0; clear H0.
     rewrite deduction_theorem in H2 |- *.
-    eapply derivable_weaken; [| exact H2].
+    eapply deduction_weaken; [| exact H2].
     apply (Lindenbaum_spec_included _ _ n); auto.
 Qed.
 

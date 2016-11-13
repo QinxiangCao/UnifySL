@@ -28,7 +28,7 @@ Proof.
     apply H0.
     unfold consistent in*.
     intro; apply H1.
-    eapply derivable_weaken; [| exact H4].
+    eapply deduction_weaken; [| exact H4].
     intros ? [? | ?]; auto.
     intros []; auto.
 Qed.
@@ -51,8 +51,8 @@ Proof.
   assert (consistent (Union _ Phi (Singleton _ x))).
   Focus 1. {
     intro.
-    pose proof impp_elim _ _ _ H1.
-    pose proof derivable_modus_ponens _ _ _ H0 H2.
+    pose proof deduction_impp_intros _ _ _ H1.
+    pose proof deduction_modus_ponens _ _ _ H0 H2.
     destruct H; auto.
   } Unfocus.
   destruct H.

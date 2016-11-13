@@ -67,8 +67,8 @@ Proof.
     destruct H0 as [? [? [? ?]]].
     split; [| split; [| split; [| split]]]; auto.
     intro; apply H1.
-    pose proof falsep_elim_derivable (LindenbaumConstruction step Phi) x.
-    eapply derivable_modus_ponens; [exact H4 | exact H5].
+    pose proof deduction_falsep_elim _ x H4.
+    auto.
   } Unfocus.
   split; [| split; [| split]].
   + apply (Lindenbaum_spec_included _ _ 0).
@@ -81,12 +81,12 @@ Proof.
     - intros.
       destruct (Classical_Prop.classic (exists x0, X x0 n /\ ~ (Union _ S (Singleton _ x0)) |-- x)) as [[x0 [? ?]] |].
       * intro; apply H2; clear H2.
-        eapply derivable_weaken; [| exact H3].
+        eapply deduction_weaken; [| exact H3].
         hnf; intros ? [? | [? ?]]; [left; auto |].
         pose proof in_inj _ _ X _ _ _ H1 H2.
         subst; right; constructor.
       * intro; apply H0; clear H0.
-        eapply derivable_weaken; [| exact H2].
+        eapply deduction_weaken; [| exact H2].
         hnf; intros ? [? | [? ?]]; [auto |].
         exfalso; apply H1; clear H1.
         exists x0; auto.
@@ -98,8 +98,8 @@ Proof.
     right; split; auto.
     intro.
     rewrite deduction_theorem in H3.
-    eapply derivable_weaken in H3; [| apply (Lindenbaum_spec_included _ _ n)].
-    pose proof derivable_modus_ponens _ _ _ H1 H3.
+    eapply deduction_weaken in H3; [| apply (Lindenbaum_spec_included _ _ n)].
+    pose proof deduction_modus_ponens _ _ _ H1 H3.
     auto.
   + intros; hnf; intros x0 y0 ?.
     destruct (im_inj _ _ X x0) as [nx ?].
@@ -113,13 +113,11 @@ Proof.
       [| destruct HH as [HH | HH]; auto].
     apply Classical_Prop.not_and_or; intros [? ?].
     rewrite deduction_theorem in H4, H5.
-    eapply derivable_weaken in H4; [| apply (Lindenbaum_spec_included _ _ nx)].
-    eapply derivable_weaken in H5; [| apply (Lindenbaum_spec_included _ _ ny)].
-    pose proof orp_elim_derivable (LindenbaumConstruction step Phi) x0 y0 x.
-    pose proof derivable_modus_ponens _ _ _ H4 H6.
-    pose proof derivable_modus_ponens _ _ _ H5 H7.
+    eapply deduction_weaken in H4; [| apply (Lindenbaum_spec_included _ _ nx)].
+    eapply deduction_weaken in H5; [| apply (Lindenbaum_spec_included _ _ ny)].
+    pose proof deduction_orp_elim (LindenbaumConstruction step Phi) x0 y0 x H4 H5.
     apply (derivable_assum _ (x0 || y0)) in H1.
-    pose proof derivable_modus_ponens _ _ _ H1 H8.
+    pose proof deduction_modus_ponens _ _ _ H1 H6.
     auto.
 Qed.
 
@@ -178,8 +176,8 @@ Proof.
       intros.
       rewrite H0 in H1, H4 |- *.
       eapply canonical_relation_sound in H2; [| eauto | eauto].
-      eapply derivable_weaken in H1; [| exact H2].
-      eapply derivable_modus_ponens; [exact H4 | exact H1].
+      eapply deduction_weaken in H1; [| exact H2].
+      eapply deduction_modus_ponens; [exact H4 | exact H1].
   + pose proof sat_falsep M m.
     split; [intros; tauto | intros].
     rewrite H0 in H2.
