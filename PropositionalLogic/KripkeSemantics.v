@@ -18,6 +18,7 @@ Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity)
 
 Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM}: Type := {
   Korder: forall {M: Kmodel}, Kworlds M -> Kworlds M -> Prop; (* <= *)
+  Korder_PreOrder: forall M, PreOrder (@Korder M);
   sat_mono: forall M m n x, Korder m n -> KRIPKE: M , n |= x -> KRIPKE: M , m |= x;
   sat_impp: forall M m x y, KRIPKE: M , m |= x --> y <-> (forall n, Korder n m -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
   sat_andp: forall M m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y);
@@ -123,17 +124,19 @@ Instance pkSM (Var: Type): PreKripkeSemantics (PropositionalLanguage.L Var) (SM 
 Instance kiSM (Var: Type): KripkeIntuitionisticSemantics (PropositionalLanguage.L Var) (SM Var).
 Proof.
   apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) (fun M => Korder M)).
+  + intros.
+    apply Korder_preorder.
   + hnf; simpl; intros.
     eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
   + split; auto.
   + split; auto.
   + split; auto.
   + intros; simpl. auto.
-Qed.
+Defined.
 
 End KripkeSemantics_All.
 
-Module KripkeSemantics_Reflexive.
+Module KripkeSemantics_Identical.
 
 Import KripkeSemantics.
 
@@ -142,7 +145,7 @@ Import KripkeSemantics.
 Record Kmodel {Var: Type} : Type := {
   underlying_frame :> frame;
   Kvar: Var -> sem underlying_frame;
-  frame_reflexive: Reflexive (Korder underlying_frame)
+  frame_ident: forall (F: frame) m n, Korder F m n -> m = n
 }.
 
 Record model {Var: Type}: Type := {
@@ -169,13 +172,15 @@ Instance pkSM (Var: Type): PreKripkeSemantics (PropositionalLanguage.L Var) (SM 
 Instance kiSM (Var: Type): KripkeIntuitionisticSemantics (PropositionalLanguage.L Var) (SM Var).
 Proof.
   apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) (fun M => Korder M)).
+  + intros.
+    apply Korder_preorder.
   + hnf; simpl; intros.
     eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
   + split; auto.
   + split; auto.
   + split; auto.
   + intros; simpl. auto.
-Qed.
+Defined.
 
-End KripkeSemantics_Reflexive.
+End KripkeSemantics_Identical.
 
