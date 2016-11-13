@@ -5,12 +5,10 @@ Require Import Logic.LogicBase.
 Local Open Scope logic_base.
 
 Class NormalLanguage (L: Language): Type := {
-  falsep: expr;
   impp: expr -> expr -> expr
 }.
 
 Notation "x --> y" := (impp x y) (at level 55, right associativity) : logic_base.
-Notation "'FF'" := falsep : logic_base.
 
 Definition multi_imp {L: Language} {nL: NormalLanguage L} (xs: list expr) (y: expr): expr :=
   fold_right impp y xs.

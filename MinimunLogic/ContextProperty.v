@@ -4,9 +4,6 @@ Require Import Logic.MinimunLogic.MinimunLogic.
 
 Local Open Scope logic_base.
 
-Definition consistent {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
-  fun Phi => ~ derivable Phi falsep.
-
 Definition maximal_consistent {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => consistent Phi /\ forall Psi, consistent Psi -> Included _ Phi Psi -> Included _ Psi Phi.
 
@@ -27,6 +24,8 @@ Proof.
     hnf; intros.
     apply H0.
     unfold consistent in*.
+    destruct H1 as [y ?].
+    exists y.
     intro; apply H1.
     eapply deduction_weaken; [| exact H4].
     intros ? [? | ?]; auto.
@@ -50,10 +49,12 @@ Proof.
   hnf; intros.
   assert (consistent (Union _ Phi (Singleton _ x))).
   Focus 1. {
+    destruct H as [[y ?] _].
+    exists y.
     intro.
     pose proof deduction_impp_intros _ _ _ H1.
     pose proof deduction_modus_ponens _ _ _ H0 H2.
-    destruct H; auto.
+    auto.
   } Unfocus.
   destruct H.
   specialize (H2 _ H1).

@@ -123,11 +123,11 @@ Proof.
   rewrite deduction_double_negp.
   unfold negp at 1.
   rewrite <- deduction_theorem.
-  unfold consistent.
+  rewrite consistent_spec.
   tauto.
 Qed.
 
-Lemma MCS_nonelement_inconsistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
+Lemma MCS_nonelement_inconsistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   maximal_consistent Phi ->
   (forall x: expr, ~ Phi x <-> Phi |-- x --> FF).
 Proof.
@@ -135,7 +135,7 @@ Proof.
   split; intros.
   + destruct H.
     specialize (H1 (Union _ Phi (Singleton _ x))).
-    unfold consistent in H1.
+    rewrite consistent_spec in H1.
     rewrite deduction_theorem in H1.
     assert (Included expr Phi (Union expr Phi (Singleton expr x))) by (intros ? ?; left; auto).
     assert (~ Included expr (Union expr Phi (Singleton expr x)) Phi) by (intros HH; specialize (HH x); apply H0, HH; right; constructor).
@@ -143,7 +143,8 @@ Proof.
   + intro.
     pose proof derivable_assum Phi x H1.
     pose proof deduction_modus_ponens _ _ _ H2 H0.
-    destruct H; auto.
+    destruct H as [? _].
+    rewrite consistent_spec in H; auto.
 Qed.
 
 Lemma MCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
@@ -169,8 +170,8 @@ Proof.
     rewrite MCS_element_derivable in H0 by auto.
     pose proof deduction_orp_elim Phi x y FF H1 H2.
     pose proof deduction_modus_ponens _ _ _ H0 H3.
-    destruct H.
-    auto.
+    destruct H as [? _].
+    rewrite consistent_spec in H; auto.
   + destruct H0; rewrite MCS_element_derivable in H0 |- * by auto.
     - pose proof deduction_orp_intros1 Phi x y H0; auto.
     - pose proof deduction_orp_intros2 Phi x y H0; auto.
@@ -197,7 +198,8 @@ Proof.
       apply H0 in H2.
       rewrite MCS_element_derivable in H1, H2 by auto.
       pose proof deduction_modus_ponens _ _ _ H2 H1.
-      destruct H; auto.
+      destruct H as [? _].
+      rewrite consistent_spec in H; auto.
     - rewrite MCS_element_derivable in H2 |- * by auto.
       unfold negp in H2.
       rewrite <- deduction_theorem in H2 |- *.

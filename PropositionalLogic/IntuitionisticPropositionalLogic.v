@@ -213,6 +213,18 @@ Proof.
     - pose proof deduction_orp_intros2 Phi x y H; auto.
 Qed.
 
+Lemma consistent_spec {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}:
+  forall (Phi: context), consistent Phi <-> ~ Phi |-- FF.
+Proof.
+  intros.
+  split; intros.
+  + intro.
+    destruct H as [x H]; apply H; clear H.
+    apply deduction_falsep_elim.
+    auto.
+  + exists FF; auto.
+Qed.
+
 Module IntuitionisticPropositionalLogic.
 Section IntuitionisticPropositionalLogic.
 

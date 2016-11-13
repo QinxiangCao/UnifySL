@@ -6,17 +6,19 @@ Require Import Logic.MinimunLogic.MinimunLogic.
 
 Class PropositionalLanguage (L: Language) {nL: NormalLanguage L}: Type := {
   andp : expr -> expr -> expr;
-  orp : expr -> expr -> expr
+  orp : expr -> expr -> expr;
+  falsep: expr
 }.
 
-Definition negp {L: Language} {nL: NormalLanguage L} (x: expr): expr := impp x falsep.
+Definition negp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} (x: expr): expr := impp x falsep.
 Definition iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} (x y: expr): expr := andp (impp x y) (impp y x).
-Definition truep {L: Language} {nL: NormalLanguage L}: expr := impp falsep falsep.
+Definition truep {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: expr := impp falsep falsep.
 
 Notation "x && y" := (andp x y) (at level 40, left associativity) : PropositionalLogic.
 Notation "x || y" := (orp x y) (at level 50, left associativity) : PropositionalLogic.
 Notation "x <--> y" := (iffp x y) (at level 60, no associativity) : PropositionalLogic.
 Notation "~~ x" := (negp x) (at level 35) : PropositionalLogic.
+Notation "'FF'" := falsep : PropositionalLogic.
 Notation "'TT'" := truep : PropositionalLogic.
 
 Local Open Scope logic_base.
@@ -40,10 +42,10 @@ Instance L (Var: Type): Language :=
   Build_Language (expr Var).
 
 Instance nL (Var: Type): NormalLanguage (L Var) :=
-  Build_NormalLanguage (L Var) falsep impp.
+  Build_NormalLanguage (L Var) impp.
 
 Instance pL (Var: Type): PropositionalLanguage (L Var) :=
-  Build_PropositionalLanguage (L Var) (nL Var) andp orp.
+  Build_PropositionalLanguage (L Var) (nL Var) andp orp falsep.
 
 Definition rank {Var: Type}: expr Var -> nat :=
   fix rank (x: expr Var): nat :=

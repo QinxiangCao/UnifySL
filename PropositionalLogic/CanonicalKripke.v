@@ -66,6 +66,7 @@ Proof.
   Focus 2. {
     destruct H0 as [? [? [? ?]]].
     split; [| split; [| split; [| split]]]; auto.
+    rewrite consistent_spec.
     intro; apply H1.
     pose proof deduction_falsep_elim _ x H4.
     auto.
@@ -183,6 +184,7 @@ Proof.
     rewrite H0 in H2.
     pose proof proj2_sig Phi.
     destruct H3 as [_ [_ ?]].
+    rewrite consistent_spec in H3.
     exfalso; apply H3; auto.
   + auto.
 Qed.

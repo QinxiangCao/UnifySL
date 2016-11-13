@@ -78,6 +78,7 @@ Proof.
   Focus 2. {
     destruct H0 as [? [? [? ?]]].
     split; [| split; [| split; [| split]]]; auto.
+    rewrite consistent_spec.
     intro; apply H1.
     pose proof deduction_falsep_elim _ x H4.
     auto.
@@ -184,7 +185,7 @@ Proof.
     rewrite H in H0.
     pose proof proj2_sig Phi.
     destruct H1 as [_ [_ ?]].
-    apply H1; auto.
+    rewrite consistent_spec in H1; apply H1; auto.
   + simpl.
     unfold canonical_model.
     tauto.

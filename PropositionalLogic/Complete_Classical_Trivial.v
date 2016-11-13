@@ -47,16 +47,17 @@ Proof.
   exists (LindenbaumConstruction step Phi).
   split; [| rewrite maximal_consistent_spec; split].
   + apply (Lindenbaum_spec_included _ _ 0).
-  + unfold consistent.
+  + rewrite consistent_spec.
     apply (Lindenbaum_spec_pos _ _
             (fun xs => |-- multi_imp xs FF)
             (fun Phi => Phi |-- FF)).
     - intros; apply derivable_provable.
     - intros ? ? ? ?; left; auto.
-    - apply H.
+    - rewrite consistent_spec in H; apply H.
     - intros.
       destruct (Classical_Prop.classic (exists x, X x n /\ consistent (Union _ S (Singleton _ x)))) as [[x [? ?]] |].
-      * intro; apply H2; clear H2.
+      * rewrite consistent_spec in H2.
+        intro; apply H2; clear H2.
         eapply deduction_weaken; [| exact H3].
         hnf; intros ? [? | [? ?]]; [left; auto |].
         pose proof in_inj _ _ X _ _ _ H1 H2.
@@ -71,7 +72,7 @@ Proof.
     apply (Lindenbaum_spec_neg _ _ _ (S n)).
     simpl.
     unfold step at 1.
-    unfold consistent.
+    rewrite consistent_spec in H0 |- *.
     right; split; auto.
     intro; apply H0; clear H0.
     rewrite deduction_theorem in H2 |- *.
@@ -101,7 +102,9 @@ Proof.
   + simpl.
     rewrite H.
     split; [intros [] |].
-    apply (proj2_sig Phi).
+    pose proof proj2_sig Phi.
+    destruct H0.
+    rewrite consistent_spec in H0; auto.
   + simpl.
     unfold canonical_model.
     tauto.
