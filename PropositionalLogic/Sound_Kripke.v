@@ -213,4 +213,29 @@ Proof.
     apply (@KripkeSemantics_Identical.frame_ident Var M).
 Qed.
 
+Theorem sound_intuitionistic_kripke_no_branch (Var: Type): sound (IntuitionisticPropositionalLogic.G Var) (KripkeSemantics_NoBranch.SM Var).
+Proof.
+  hnf; intros.
+  pose (KripkeSemantics_NoBranch.SM Var) as SM.
+  pose (KripkeSemantics_NoBranch.pkSM Var) as pkSM.
+  pose (KripkeSemantics_NoBranch.kiSM Var) as kiSM.
+  intro m.
+  destruct m as [M m].
+  change (@Kmodel _ _ pkSM) in M.
+  change (Kworlds M) in m.
+  change (KRIPKE: M, m |= x).
+  induction H.
+  + pose proof sound_modus_ponens x y M m.
+    exact (H1 IHprovable1 IHprovable2).
+  + apply sound_axiom1.
+  + apply sound_axiom2.
+  + apply sound_andp_intros.
+  + apply sound_andp_elim1. 
+  + apply sound_andp_elim2.
+  + apply sound_orp_intros1.
+  + apply sound_orp_intros2.
+  + apply sound_orp_elim.
+  + apply sound_falsep_elim.
+Qed.
+
 

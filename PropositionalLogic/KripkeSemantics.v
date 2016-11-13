@@ -184,3 +184,51 @@ Defined.
 
 End KripkeSemantics_Identical.
 
+Module KripkeSemantics_NoBranch.
+
+Import KripkeSemantics.
+
+Import KripkeSemantics.
+
+Record Kmodel {Var: Type} : Type := {
+  underlying_frame :> frame;
+  Kvar: Var -> sem underlying_frame;
+  frame_no_branch: forall (F: frame) m1 m2 n, Korder F m1 n -> Korder F m2 n -> Korder F m1 m2 \/ Korder F m2 m1
+}.
+
+Record model {Var: Type}: Type := {
+  underlying_model :> @Kmodel Var;
+  elm: underlying_model
+}.
+
+Implicit Arguments model.
+
+Instance SM (Var: Type): Semantics (PropositionalLanguage.L Var) :=
+  Build_Semantics (PropositionalLanguage.L Var)
+   (@model Var)
+   (fun M x => proj1_sig (denotation M (Kvar M) x) (elm M)).
+
+Local Open Scope logic_base.
+Local Open Scope PropositionalLogic.
+
+Instance pkSM (Var: Type): PreKripkeSemantics (PropositionalLanguage.L Var) (SM Var) :=
+  Build_PreKripkeSemantics _ (SM Var)
+   Kmodel
+   (fun M => M)
+   (fun M m => Build_model _ M m).
+
+Instance kiSM (Var: Type): KripkeIntuitionisticSemantics (PropositionalLanguage.L Var) (SM Var).
+Proof.
+  apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) (fun M => Korder M)).
+  + intros.
+    apply Korder_preorder.
+  + hnf; simpl; intros.
+    eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
+  + split; auto.
+  + split; auto.
+  + split; auto.
+  + intros; simpl. auto.
+Defined.
+
+End KripkeSemantics_NoBranch.
+
