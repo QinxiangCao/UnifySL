@@ -6,11 +6,7 @@ Local Open Scope logic_base.
 
 Class NormalLanguage (L: Language): Type := {
   falsep: expr;
-  impp: expr -> expr -> expr;
-  imp1_propag: expr -> single_propagation;
-  imp2_propag: expr -> single_propagation;
-  imp1_propag_denote: forall x y, single_propagation_denote (imp1_propag x) y = impp y x;
-  imp2_propag_denote: forall x y, single_propagation_denote (imp2_propag x) y = impp x y
+  impp: expr -> expr -> expr
 }.
 
 Notation "x --> y" := (impp x y) (at level 55, right associativity) : logic_base.
@@ -56,6 +52,16 @@ Proof.
   intros.
   eapply derivable_weaken; eauto.
   intros ? ?; left; auto.
+Qed.
+
+Lemma derivable_weaken0 {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi y,
+  |-- y ->
+  Phi |-- y.
+Proof.
+  intros.
+  rewrite provable_derivable in H.
+  eapply derivable_weaken; eauto.
+  intros ? [].
 Qed.
 
 (* TODO: Merge with deduction theorem *)

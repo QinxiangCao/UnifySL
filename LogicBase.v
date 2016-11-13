@@ -3,16 +3,8 @@ Require Export Coq.Lists.List.
 Require Import Logic.lib.Coqlib.
 
 Class Language: Type := {
-  expr: Type;
-  single_propagation: Type;
-  single_propagation_denote: single_propagation -> expr -> expr
+  expr: Type
 }.
-
-Fixpoint propagation_denote {L: Language} (p: list single_propagation) (x: expr): expr :=
-  match p with
-  | nil => x
-  | sp :: p0 => single_propagation_denote sp (propagation_denote p0 x)
-  end.
 
 Definition context {L: Language}: Type := Ensemble expr.
 

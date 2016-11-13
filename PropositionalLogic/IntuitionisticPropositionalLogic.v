@@ -2,7 +2,6 @@ Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.SyntacticReduction.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 
@@ -130,11 +129,7 @@ Context (Var: Type).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance R: SyntacticReduction L := IntuitionisticReduction.
-
 Inductive provable: expr -> Prop :=
-| syntactic_reduction_rule1: forall x y, reduce x y -> provable x -> provable y
-| syntactic_reduction_rule2: forall x y, reduce x y -> provable y -> provable x
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
@@ -156,14 +151,6 @@ Proof.
   + apply modus_ponens.
   + apply axiom1.
   + apply axiom2.
-Qed.
-
-Instance icG: ReductionConsistentProofTheory IntuitionisticReduction G.
-Proof.
-  apply Build1_ReductionConsistentProofTheory.
-  constructor.
-  + apply syntactic_reduction_rule1; auto.
-  + apply syntactic_reduction_rule2; auto.
 Qed.
 
 Instance ipG: IntuitionisticPropositionalLogic L G.

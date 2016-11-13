@@ -2,7 +2,6 @@ Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.SyntacticReduction.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
@@ -20,15 +19,13 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance R: SyntacticReduction L := IntuitionisticReduction.
-Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nIntuitionisticReduction.
 
 Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   derivable_closed Phi /\
   orp_witnessed Phi /\
   consistent Phi).
 
-Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {icSM: ReductionConsistentSemantics IntuitionisticReduction SM} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (M: Kmodel): Type := {
+Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (M: Kmodel): Type := {
   underlying_surj :> surjection (Kworlds M) (DCS Gamma);
   canonical_relation_sound: forall m n m' n',
     underlying_surj m m' ->
@@ -42,7 +39,7 @@ Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {icSM: ReductionConsis
     underlying_surj m m' /\ Korder m n
 }.
 
-Lemma Lindenbaum_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {icGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}:
+Lemma Lindenbaum_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}:
   forall Phi x,
     ~ Phi |-- x ->
     exists Psi,
@@ -126,7 +123,7 @@ Proof.
     auto.
 Qed.
 
-Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {icGamma: ReductionConsistentProofTheory IntuitionisticReduction Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SM: Semantics L} {icSM: ReductionConsistentSemantics IntuitionisticReduction SM} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM}:
+Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM}:
   forall M (X: canonical Gamma M),
    (forall m Phi v,
       X m Phi ->
@@ -137,66 +134,58 @@ Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mp
 Proof.
   intros.
   rename H into ATOM_ASSUM, H0 into H.
-  revert x.
   pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))).
-  apply (truth_lemma_from_syntactic_reduction _ _ _ _ _ (H0 Phi)).
-  intros.
   revert Phi m H.
   induction x; try solve [inversion H1]; intros.
-  + destruct H1.
-    specialize (IHx1 H1 Phi m H).
-    specialize (IHx2 H2 Phi m H).
+  + specialize (IHx1 Phi m H).
+    specialize (IHx2 Phi m H).
     pose proof DCS_andp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) x1 x2.
     change (PropositionalLanguage.andp x1 x2) with (x1 && x2).
     rewrite sat_andp.
     tauto.
-  + destruct H1.
-    specialize (IHx1 H1 Phi m H).
-    specialize (IHx2 H2 Phi m H).
+  + specialize (IHx1 Phi m H).
+    specialize (IHx2 Phi m H).
     pose proof DCS_orp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) (proj1 (proj2 (proj2_sig Phi))) x1 x2.
     simpl in *.
     change (PropositionalLanguage.orp x1 x2) with (x1 || x2).
     rewrite sat_orp.
     tauto.
-  + destruct H1.
-    specialize (IHx1 H1).
-    specialize (IHx2 H2).
-    split.
+  + split.
     - intros.
       rewrite H0.
       change (PropositionalLanguage.impp x1 x2) with (x1 --> x2) in *.
       apply deduction_theorem.
       apply Classical_Prop.NNPP; intro.
-      pose proof Lindenbaum_lemma _ _ H4.
-      destruct H5 as [Psi' [? [? ?]]].
-      set (Psi := exist _ Psi' H7: DCS Gamma).
-      change Psi' with (proj1_sig Psi) in H5, H6.
-      clearbody Psi; clear Psi' H7.
-      rewrite sat_impp in H3.
-      assert (Included _ (proj1_sig Phi) (proj1_sig Psi)) by (hnf; intros; apply H5; left; auto).
-      destruct (canonical_relation_complete _ _ X m Psi Phi H H7) as [n [? ?]].
-      specialize (H3 n H9).
-      rewrite IHx1, IHx2 in H3 by eauto.
-      assert (proj1_sig Psi x1) by (apply H5; right; constructor).
-      specialize (H3 H10).
+      pose proof Lindenbaum_lemma _ _ H2.
+      destruct H3 as [Psi' [? [? ?]]].
+      set (Psi := exist _ Psi' H5: DCS Gamma).
+      change Psi' with (proj1_sig Psi) in H3, H4.
+      clearbody Psi; clear Psi' H5.
+      rewrite sat_impp in H1.
+      assert (Included _ (proj1_sig Phi) (proj1_sig Psi)) by (hnf; intros; apply H3; left; auto).
+      destruct (canonical_relation_complete _ _ X m Psi Phi H H5) as [n [? ?]].
+      specialize (H1 n H7).
+      rewrite IHx1, IHx2 in H1 by eauto.
+      assert (proj1_sig Psi x1) by (apply H3; right; constructor).
+      specialize (H1 H8).
       specialize (H0 Psi x2).
-      rewrite H0 in H3; auto.
+      rewrite H0 in H1; auto.
     - intros.
       change (PropositionalLanguage.impp x1 x2) with (x1 --> x2) in *.
       rewrite sat_impp; intros n ?H.
       destruct (im_surj _ _ X n) as [Psi ?].
       rewrite IHx1, IHx2 by eauto.
       intros.
-      rewrite H0 in H3, H6 |- *.
-      eapply canonical_relation_sound in H4; [| eauto | eauto].
-      eapply derivable_weaken in H3; [| exact H4].
-      eapply derivable_modus_ponens; [exact H6 | exact H3].
+      rewrite H0 in H1, H4 |- *.
+      eapply canonical_relation_sound in H2; [| eauto | eauto].
+      eapply derivable_weaken in H1; [| exact H2].
+      eapply derivable_modus_ponens; [exact H4 | exact H1].
   + pose proof sat_falsep M m.
     split; [intros; tauto | intros].
-    rewrite H0 in H3.
+    rewrite H0 in H2.
     pose proof proj2_sig Phi.
-    destruct H4 as [_ [_ ?]].
-    exfalso; apply H4; auto.
+    destruct H3 as [_ [_ ?]].
+    exfalso; apply H3; auto.
   + auto.
 Qed.
 

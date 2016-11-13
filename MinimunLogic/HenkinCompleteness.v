@@ -1,29 +1,12 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.SyntacticReduction.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Omega.
 
 Local Open Scope logic_base.
 
-Lemma truth_lemma_from_syntactic_reduction {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) {sR: NormalSyntacticReduction L R} (SM: Semantics L) {rcSM: ReductionConsistentSemantics R SM} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {rcGamma: ReductionConsistentProofTheory R Gamma}:
-  forall (canonical_model: model) (Phi: context),
-    (forall x, Phi x <-> Phi |-- x) ->
-    (forall x: expr, normal_form x -> (canonical_model |= x <-> Phi x)) ->
-    (forall x: expr, canonical_model |= x <-> Phi x).
-Proof.
-  intros.
-  destruct (reduce_to_norm x) as [y [? ?]].
-  specialize (H0 y H2).
-  specialize (derivable_reduce Phi Phi x y (context_reduce_refl _) H1).
-  specialize (sat_reduce x y canonical_model H1).
-  pose proof H x.
-  pose proof H y.
-  tauto.
-Qed.
-
-Lemma contrapositive_strongly_complete {L: Language} (R: SyntacticReduction L) {sR: NormalSyntacticReduction L R} (SM: Semantics L) (Gamma: ProofTheory L):
+Lemma contrapositive_strongly_complete {L: Language} (SM: Semantics L) (Gamma: ProofTheory L):
   (forall Phi x, ~ Phi |-- x -> ~ Phi |== x) ->
   strongly_complete Gamma SM.
 Proof.

@@ -2,10 +2,10 @@ Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.SyntacticReduction.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
+Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.TrivialSemantics.
 
@@ -20,15 +20,12 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance R: SyntacticReduction L := MendelsonReduction.
-Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nMendelsonReduction.
 Instance G: ProofTheory L := ClassicalPropositionalLogic.G Var.
 Instance nG: NormalProofTheory L G := ClassicalPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
-Instance mcG: ReductionConsistentProofTheory MendelsonReduction G := ClassicalPropositionalLogic.mcG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogic.ipG Var.
 Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
 Instance SM: Semantics L := TrivialSemantics.SM Var.
-Instance mcSM: ReductionConsistentSemantics MendelsonReduction SM := TrivialSemantics.mcSM Var.
 
 Definition MCS: Type := sig maximal_consistent.
 
@@ -87,27 +84,24 @@ Proof.
   intros.
   revert x.
   pose proof MCS_element_derivable (proj1_sig Phi) (proj2_sig Phi).
-  apply (truth_lemma_from_syntactic_reduction _ _ _ _ _ H).
   intros.
   induction x; try solve [inversion H0].
-  + destruct H0.
-    specialize (IHx1 H0).
-    specialize (IHx2 H1).
-    pose proof MCS_impp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
+  + pose proof MCS_andp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
+    simpl in *.
+    unfold TrivialSemantics.sem_and.
+    tauto.
+  + pose proof MCS_orp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
+    simpl in *.
+    unfold TrivialSemantics.sem_or.
+    tauto.
+  + pose proof MCS_impp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
     simpl in *.
     unfold TrivialSemantics.sem_imp.
     tauto.
-  + specialize (IHx H0).
-    pose proof MCS_negp_iff (proj1_sig Phi) (proj2_sig Phi) x.
-    simpl in *.
-    unfold TrivialSemantics.sem_neg.
-    tauto.
   + simpl.
     rewrite H.
-    split; auto; intros _.
-    rewrite derivable_provable; exists nil.
-    split; auto.
-    apply (ClassicalPropositionalLogic.true_provable).
+    split; [intros [] |].
+    apply (proj2_sig Phi).
   + simpl.
     unfold canonical_model.
     tauto.
@@ -126,25 +120,18 @@ Proof.
     simpl.
     apply H0; auto.
   + hnf; intros.
-    specialize (H (Union _ Phi (Singleton _ (~~ x)))).
-    unfold consistent in H.
-    apply Classical_Prop.NNPP.
+    rewrite classical_derivable_spec.
     intro.
-    assert (satisfiable (Union expr Phi (Singleton expr (~~ x)))).
-    Focus 1. {
-      apply H.
-      intro; apply H1.
-      rewrite deduction_theorem in H2.
-      clear - H2.
-      apply aux_classic_theorem05; auto.
-    } Unfocus.
-    destruct H2 as [m ?].
+    specialize (H _ H1); clear H1.
+
+    destruct H as [m ?].
+    pose proof (fun x0 (HH: Phi x0) => H x0 (Union_introl _ _ _ _ HH)).
+    pose proof (H (~~ x) (Union_intror _ _ _ _ (In_singleton _ _))).
     specialize (H0 m).
-    pose proof (H2 (~~ x) (Union_intror _ _ _ _ (In_singleton _ _))).
-    pose proof (fun x H => H2 x (Union_introl _ _ _ _ H)).
-    specialize (H0 H4).
-    clear - H0 H3.
-    simpl in *; auto.
+    clear H.
+
+    specialize (H0 H1).
+    exact (H2 H0).
 Qed.
 
 End Completeness.

@@ -2,7 +2,6 @@ Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.SyntacticReduction.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
@@ -20,15 +19,11 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance R: SyntacticReduction L := IntuitionisticReduction.
-Instance nR: NormalSyntacticReduction L R := PropositionalLanguage.nIntuitionisticReduction.
 Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
 Instance nG: NormalProofTheory L G := IntuitionisticPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
-Instance icG: ReductionConsistentProofTheory IntuitionisticReduction G := IntuitionisticPropositionalLogic.icG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
 Instance SM: Semantics L := KripkeSemantics_All.SM Var.
-Instance icSM: ReductionConsistentSemantics IntuitionisticReduction SM := KripkeSemantics_All.icSM Var.
 
 Definition DCS: Type := sig (fun Phi =>
   derivable_closed Phi /\
@@ -143,63 +138,55 @@ Qed.
 Lemma truth_lemma: forall (Phi: DCS) x, canonical_model Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  revert x.
   pose proof (fun Phi: DCS => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))).
-  apply (truth_lemma_from_syntactic_reduction _ _ _ _ _ (H Phi)).
-  intros.
   revert Phi.
   induction x; try solve [inversion H0]; intros.
-  + destruct H0.
-    specialize (IHx1 H0 Phi).
-    specialize (IHx2 H1 Phi).
+  + specialize (IHx1 Phi).
+    specialize (IHx2 Phi).
     pose proof DCS_andp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) x1 x2.
     simpl in *.
     unfold KripkeSemantics.sem_and.
     tauto.
-  + destruct H0.
-    specialize (IHx1 H0 Phi).
-    specialize (IHx2 H1 Phi).
+  + specialize (IHx1 Phi).
+    specialize (IHx2 Phi).
     pose proof DCS_orp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) (proj1 (proj2 (proj2_sig Phi))) x1 x2.
     simpl in *.
     unfold KripkeSemantics.sem_or.
     tauto.
-  + destruct H0.
-    specialize (IHx1 H0).
-    specialize (IHx2 H1).
-    split.
+  + split.
     - intros.
       rewrite H.
       apply (@deduction_theorem _ _ _ _ (IntuitionisticPropositionalLogic.mpG Var)).
       apply Classical_Prop.NNPP; intro.
-      pose proof Lindenbaum_lemma _ _ H3.
-      destruct H4 as [Psi [? [? ?]]].
-      hnf in H2.
-      specialize (H2 (exist _ Psi H6)).
-      assert (Included _ (proj1_sig Phi) Psi) by (hnf; intros; apply H4; left; auto).
-      specialize (H2 H7).
+      pose proof Lindenbaum_lemma _ _ H1.
+      destruct H2 as [Psi [? [? ?]]].
+      hnf in H0.
+      specialize (H0 (exist _ Psi H4)).
+      assert (Included _ (proj1_sig Phi) Psi) by (hnf; intros; apply H2; left; auto).
+      specialize (H0 H5).
       simpl in IHx1, IHx2.
-      simpl in H2.
-      rewrite IHx1, IHx2 in H2; simpl in H2.
-      assert (Psi x1) by (apply H4; right; constructor).
-      specialize (H2 H8).
-      specialize (H (exist _ Psi H6) x2); simpl in H.
-      rewrite H in H2; auto.
+      simpl in H0.
+      rewrite IHx1, IHx2 in H0; simpl in H0.
+      assert (Psi x1) by (apply H2; right; constructor).
+      specialize (H0 H6).
+      specialize (H (exist _ Psi H4) x2); simpl in H.
+      rewrite H in H0; auto.
     - intros.
       hnf; intros Psi ?H.
       change DCS in Psi.
-      simpl in H3.
+      simpl in H1.
       simpl in IHx1, IHx2.
       rewrite IHx1, IHx2.
       intros.
-      rewrite H in H2, H4 |- *.
-      eapply derivable_weaken in H2; [| exact H3].
-      eapply derivable_modus_ponens; [exact H4 | exact H2].
+      rewrite H in H0, H2 |- *.
+      eapply derivable_weaken in H0; [| exact H1].
+      eapply derivable_modus_ponens; [exact H2 | exact H0].
   + simpl.
     split; [intros [] | intros].
-    rewrite H in H1.
+    rewrite H in H0.
     pose proof proj2_sig Phi.
-    destruct H2 as [_ [_ ?]].
-    apply H2; auto.
+    destruct H1 as [_ [_ ?]].
+    apply H1; auto.
   + simpl.
     unfold canonical_model.
     tauto.
