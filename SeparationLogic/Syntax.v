@@ -1,0 +1,81 @@
+Require Import Coq.Logic.ProofIrrelevance.
+Require Import Logic.lib.Bijection.
+Require Import Logic.lib.Countable.
+Require Import Logic.LogicBase.
+Require Import Logic.MinimunLogic.MinimunLogic.
+Require Import Logic.PropositionalLogic.Syntax.
+
+Class SeparationLanguage (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}: Type := {
+  sepcon : expr -> expr -> expr;
+  wand : expr -> expr -> expr
+}.
+
+Class UnitarySeparationLanguage (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L}: Type := {
+  emp: expr
+}.
+
+Notation "x * y" := (sepcon x y) (at level 40, left associativity) : SeparationLogic.
+Notation "x -* y" := (wand x y) (at level 55, right associativity) : SeparationLogic.
+
+Local Open Scope logic_base.
+Local Open Scope PropositionalLogic.
+Local Open Scope SeparationLogic.
+
+Module SeparationLanguage.
+
+Inductive expr {Var: Type}: Type :=
+  | andp : expr -> expr -> expr
+  | orp : expr -> expr -> expr
+  | impp : expr -> expr -> expr
+  | falsep : expr
+  | sepcon : expr -> expr -> expr
+  | wand : expr -> expr -> expr
+  | varp : Var -> expr.
+
+Implicit Arguments expr.
+
+Instance L (Var: Type): Language :=
+  Build_Language (expr Var).
+
+Instance nL (Var: Type): NormalLanguage (L Var) :=
+  Build_NormalLanguage (L Var) impp.
+
+Instance pL (Var: Type): PropositionalLanguage (L Var) :=
+  Build_PropositionalLanguage (L Var) (nL Var) andp orp falsep.
+
+Instance SL (Var: Type): SeparationLanguage (L Var) :=
+  Build_SeparationLanguage (L Var) (nL Var) (pL Var) sepcon wand.
+
+End SeparationLanguage.
+
+Module UnitarySeparationLanguage.
+
+Inductive expr {Var: Type}: Type :=
+  | andp : expr -> expr -> expr
+  | orp : expr -> expr -> expr
+  | impp : expr -> expr -> expr
+  | falsep : expr
+  | sepcon : expr -> expr -> expr
+  | wand : expr -> expr -> expr
+  | emp : expr
+  | varp : Var -> expr.
+
+Implicit Arguments expr.
+
+Instance L (Var: Type): Language :=
+  Build_Language (expr Var).
+
+Instance nL (Var: Type): NormalLanguage (L Var) :=
+  Build_NormalLanguage (L Var) impp.
+
+Instance pL (Var: Type): PropositionalLanguage (L Var) :=
+  Build_PropositionalLanguage (L Var) (nL Var) andp orp falsep.
+
+Instance SL (Var: Type): SeparationLanguage (L Var) :=
+  Build_SeparationLanguage (L Var) (nL Var) (pL Var) sepcon wand.
+
+Instance uSL (Var: Type): UnitarySeparationLanguage (L Var) :=
+  Build_UnitarySeparationLanguage (L Var) (nL Var) (pL Var) (SL Var) emp.
+
+End UnitarySeparationLanguage.
+

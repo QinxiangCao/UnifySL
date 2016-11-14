@@ -9,11 +9,11 @@ Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class WeakClassicalPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
+Class GodelDummettPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   impp_choice: forall x y, |-- (x --> y) || (y --> x)
 }.
 
-Lemma derivable_impp_choice: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wpGamma: WeakClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Lemma derivable_impp_choice: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wpGamma: GodelDummettPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- (x --> y) || (y --> x).
 Proof.
   intros.
@@ -21,7 +21,7 @@ Proof.
   apply deduction_weaken0; auto.
 Qed.
 
-Lemma derivable_weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wpGamma: WeakClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+Lemma derivable_weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wpGamma: GodelDummettPropositionalLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- ~~ x || ~~ ~~ x.
 Proof.
   intros.
@@ -81,8 +81,8 @@ Proof.
     tauto.
 Qed.
 *)
-Module WeakClassicalPropositionalLogic.
-Section WeakClassicalPropositionalLogic.
+Module GodelDummettPropositionalLogic.
+Section GodelDummettPropositionalLogic.
 
 Context (Var: Type).
 
@@ -127,12 +127,12 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance wpG: WeakClassicalPropositionalLogic L G.
+Instance wpG: GodelDummettPropositionalLogic L G.
 Proof.
   constructor.
   apply impp_choice.
 Qed.
 
-End WeakClassicalPropositionalLogic.
-End WeakClassicalPropositionalLogic.
+End GodelDummettPropositionalLogic.
+End GodelDummettPropositionalLogic.
 

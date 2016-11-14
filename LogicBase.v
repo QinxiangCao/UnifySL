@@ -45,10 +45,10 @@ Definition weakly_complete {L: Language} (Gamma: ProofTheory L) (SM: Semantics L
 Definition strongly_complete {L: Language} (Gamma: ProofTheory L) (SM: Semantics L): Prop :=
   forall (Phi: context) (x: expr), consequence Phi x -> derivable Phi x.
 
-Notation "m  |=  x" := (satisfies m x) (at level 60, no associativity) : logic_base.
-Notation "|==  x" := (valid x) (at level 61, no associativity) : logic_base.
-Notation "Phi  |==  x" := (consequence Phi x) (at level 60, no associativity) : logic_base.
-Notation "|--  x" := (provable x) (at level 61, no associativity) : logic_base.
-Notation "Phi  |--  x" := (derivable Phi x) (at level 60, no associativity) : logic_base.
+Notation "m  |=  x" := (satisfies m x) (at level 70, no associativity) : logic_base.
+Notation "|==  x" := (valid x) (at level 71, no associativity) : logic_base.
+Notation "Phi  |==  x" := (consequence Phi x) (at level 70, no associativity) : logic_base.
+Notation "|--  x" := (provable x) (at level 71, no associativity) : logic_base.
+Notation "Phi  |--  x" := (derivable Phi x) (at level 70, no associativity) : logic_base.
 
 

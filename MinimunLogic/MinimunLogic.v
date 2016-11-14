@@ -4,6 +4,8 @@ Require Import Logic.LogicBase.
 
 Local Open Scope logic_base.
 
+(* TODO: split language from logic. *)
+
 Class NormalLanguage (L: Language): Type := {
   impp: expr -> expr -> expr
 }.

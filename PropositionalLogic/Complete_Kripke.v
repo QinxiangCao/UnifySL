@@ -9,7 +9,7 @@ Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
-Require Import Logic.PropositionalLogic.WeakClassicalPropositionalLogic.
+Require Import Logic.PropositionalLogic.GodelDummettLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 
@@ -443,11 +443,11 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance G: ProofTheory L := WeakClassicalPropositionalLogic.G Var.
-Instance nG: NormalProofTheory L G := WeakClassicalPropositionalLogic.nG Var.
-Instance mpG: MinimunPropositionalLogic L G := WeakClassicalPropositionalLogic.mpG Var.
-Instance ipG: IntuitionisticPropositionalLogic L G := WeakClassicalPropositionalLogic.ipG Var.
-Instance wpG: WeakClassicalPropositionalLogic L G := WeakClassicalPropositionalLogic.wpG Var.
+Instance G: ProofTheory L := GodelDummettPropositionalLogic.G Var.
+Instance nG: NormalProofTheory L G := GodelDummettPropositionalLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := GodelDummettPropositionalLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := GodelDummettPropositionalLogic.ipG Var.
+Instance wpG: GodelDummettPropositionalLogic L G := GodelDummettPropositionalLogic.wpG Var.
 Instance SM: Semantics L := KripkeSemantics_NoBranch.SM Var.
 Instance pkSM: PreKripkeSemantics L SM := KripkeSemantics_NoBranch.pkSM Var.
 Instance kiSM: KripkeIntuitionisticSemantics L SM := KripkeSemantics_NoBranch.kiSM Var.

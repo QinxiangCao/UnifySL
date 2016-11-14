@@ -9,7 +9,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
-Require Import Logic.PropositionalLogic.WeakClassicalPropositionalLogic.
+Require Import Logic.PropositionalLogic.GodelDummettLogic.
 
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
@@ -243,7 +243,7 @@ Proof.
     apply (@KripkeSemantics_Identical.frame_ident Var M).
 Qed.
 
-Theorem sound_weak_classical_kripke_no_branch (Var: Type): sound (WeakClassicalPropositionalLogic.G Var) (KripkeSemantics_NoBranch.SM Var).
+Theorem sound_weak_classical_kripke_no_branch (Var: Type): sound (GodelDummettPropositionalLogic.G Var) (KripkeSemantics_NoBranch.SM Var).
 Proof.
   hnf; intros.
   pose (KripkeSemantics_NoBranch.SM Var) as SM.
