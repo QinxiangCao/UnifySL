@@ -9,7 +9,7 @@ Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class GodelDummettPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
+Class GodelDummettPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   impp_choice: forall x y, |-- (x --> y) || (y --> x)
 }.
 

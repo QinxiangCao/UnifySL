@@ -8,7 +8,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class IntuitionisticPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {mpGamma: MinimunPropositionalLogic L Gamma} := {
+Class IntuitionisticPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} := {
   andp_intros: forall x y, |-- x --> y --> x && y;
   andp_elim1: forall x y, |-- x && y --> x;
   andp_elim2: forall x y, |-- x && y --> y;

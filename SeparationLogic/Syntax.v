@@ -43,7 +43,7 @@ Instance nL (Var: Type): NormalLanguage (L Var) :=
 Instance pL (Var: Type): PropositionalLanguage (L Var) :=
   Build_PropositionalLanguage (L Var) (nL Var) andp orp falsep.
 
-Instance SL (Var: Type): SeparationLanguage (L Var) :=
+Instance sL (Var: Type): SeparationLanguage (L Var) :=
   Build_SeparationLanguage (L Var) (nL Var) (pL Var) sepcon wand.
 
 End SeparationLanguage.
@@ -71,11 +71,11 @@ Instance nL (Var: Type): NormalLanguage (L Var) :=
 Instance pL (Var: Type): PropositionalLanguage (L Var) :=
   Build_PropositionalLanguage (L Var) (nL Var) andp orp falsep.
 
-Instance SL (Var: Type): SeparationLanguage (L Var) :=
+Instance sL (Var: Type): SeparationLanguage (L Var) :=
   Build_SeparationLanguage (L Var) (nL Var) (pL Var) sepcon wand.
 
-Instance uSL (Var: Type): UnitarySeparationLanguage (L Var) :=
-  Build_UnitarySeparationLanguage (L Var) (nL Var) (pL Var) (SL Var) emp.
+Instance usL (Var: Type): UnitarySeparationLanguage (L Var) :=
+  Build_UnitarySeparationLanguage (L Var) (nL Var) (pL Var) (sL Var) emp.
 
 End UnitarySeparationLanguage.
 
