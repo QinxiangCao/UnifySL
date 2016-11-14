@@ -193,7 +193,7 @@ Import KripkeSemantics.
 Record Kmodel {Var: Type} : Type := {
   underlying_frame :> frame;
   Kvar: Var -> sem underlying_frame;
-  frame_no_branch: forall (F: frame) m1 m2 n, Korder F m1 n -> Korder F m2 n -> Korder F m1 m2 \/ Korder F m2 m1
+  frame_no_branch: forall m1 m2 n, Korder underlying_frame m1 n -> Korder underlying_frame m2 n -> Korder underlying_frame m1 m2 \/ Korder underlying_frame m2 m1
 }.
 
 Record model {Var: Type}: Type := {

@@ -1,3 +1,5 @@
+Require Import Coq.Logic.Classical_Prop.
+Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.LogicBase.
@@ -7,6 +9,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
+Require Import Logic.PropositionalLogic.WeakClassicalPropositionalLogic.
 
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
@@ -161,6 +164,33 @@ Proof.
   tauto.
 Qed.
 
+Lemma sound_impp_choice_no_branch {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM}:
+  forall x y: expr,
+    forall M,
+      (forall m1 m2 n, @Korder _ _ _ _ _ _ M m1 n -> @Korder _ _ _ _ _ _ M m2 n -> @Korder _ _ _ _ _ _ M m1 m2 \/ @Korder _ _ _ _ _ _ M m2 m1) ->
+      (forall m, KRIPKE: M, m |= (x --> y) || (y --> x)).
+Proof.
+  intros.
+  rewrite sat_orp, !sat_impp.
+  apply Classical_Prop.NNPP; intro.
+  apply not_or_and in H0; destruct H0.
+  apply not_all_ex_not in H0.
+  apply not_all_ex_not in H1.
+  destruct H0 as [n1 ?], H1 as [n2 ?].
+  apply imply_to_and in H0.
+  apply imply_to_and in H1.
+  destruct H0, H1.
+  apply imply_to_and in H2.
+  apply imply_to_and in H3.
+  destruct H2, H3.
+  specialize (H n1 n2 m H0 H1).
+  destruct H.
+  + pose proof (sat_mono _ _ _ y H).
+    tauto.
+  + pose proof (sat_mono _ _ _ x H).
+    tauto.
+Qed.
+
 Theorem sound_intuitionistic_kripke_all (Var: Type): sound (IntuitionisticPropositionalLogic.G Var) (KripkeSemantics_All.SM Var).
 Proof.
   hnf; intros.
@@ -213,7 +243,7 @@ Proof.
     apply (@KripkeSemantics_Identical.frame_ident Var M).
 Qed.
 
-Theorem sound_intuitionistic_kripke_no_branch (Var: Type): sound (IntuitionisticPropositionalLogic.G Var) (KripkeSemantics_NoBranch.SM Var).
+Theorem sound_weak_classical_kripke_no_branch (Var: Type): sound (WeakClassicalPropositionalLogic.G Var) (KripkeSemantics_NoBranch.SM Var).
 Proof.
   hnf; intros.
   pose (KripkeSemantics_NoBranch.SM Var) as SM.
@@ -236,6 +266,8 @@ Proof.
   + apply sound_orp_intros2.
   + apply sound_orp_elim.
   + apply sound_falsep_elim.
+  + apply sound_impp_choice_no_branch.
+    apply (@KripkeSemantics_NoBranch.frame_no_branch Var M).
 Qed.
 
 

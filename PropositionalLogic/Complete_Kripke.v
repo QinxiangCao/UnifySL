@@ -1,5 +1,6 @@
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.Classical_Prop.
+Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
@@ -8,6 +9,7 @@ Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
+Require Import Logic.PropositionalLogic.WeakClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 
@@ -395,7 +397,6 @@ Defined.
 Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-Locate truth_lemma.
   apply (truth_lemma Var CV _ canonical_model_canonical).
   + intros.
     hnf in H; unfold id in H; subst Phi0.
@@ -431,3 +432,139 @@ Qed.
 End Canonical_Identical.
 
 End Canonical_Identical.
+
+Module Canonical_NoBranch.
+
+Section Canonical_NoBranch.
+
+Context (Var: Type).
+Context (CV: Countable Var).
+
+Instance L: Language := PropositionalLanguage.L Var.
+Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
+Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Instance G: ProofTheory L := WeakClassicalPropositionalLogic.G Var.
+Instance nG: NormalProofTheory L G := WeakClassicalPropositionalLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := WeakClassicalPropositionalLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := WeakClassicalPropositionalLogic.ipG Var.
+Instance wpG: WeakClassicalPropositionalLogic L G := WeakClassicalPropositionalLogic.wpG Var.
+Instance SM: Semantics L := KripkeSemantics_NoBranch.SM Var.
+Instance pkSM: PreKripkeSemantics L SM := KripkeSemantics_NoBranch.pkSM Var.
+Instance kiSM: KripkeIntuitionisticSemantics L SM := KripkeSemantics_NoBranch.kiSM Var.
+
+Definition canonical_frame: KripkeSemantics.frame.
+  refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
+  constructor.
+  + hnf; intros.
+    hnf; intros; auto.
+  + hnf; intros.
+    hnf; intros; auto.
+Defined.
+
+Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
+  fun p a => a (PropositionalLanguage.varp p).
+Next Obligation.
+  apply H; auto.
+Qed.
+
+Program Definition canonical_Kmodel: @KripkeSemantics_NoBranch.Kmodel Var :=
+  KripkeSemantics_NoBranch.Build_Kmodel Var canonical_frame canonical_eval _.
+Next Obligation.
+  destruct (classic (Included _ (proj1_sig m2) (proj1_sig m1))); auto.
+  destruct (classic (Included _ (proj1_sig m1) (proj1_sig m2))); auto.
+  exfalso.
+  unfold Included, Ensembles.In in H, H0, H1, H2.
+  apply not_all_ex_not in H1.
+  apply not_all_ex_not in H2.
+  destruct H1 as [x1 ?], H2 as [x2 ?].
+  pose proof derivable_impp_choice (proj1_sig n) x1 x2.
+  rewrite <- derivable_closed_element_derivable in H3 by (destruct (proj2_sig n); tauto).
+  pose proof (proj1 (proj2 (proj2_sig n))).
+  apply H4 in H3; clear H4.
+  destruct H3; pose proof H3; apply H in H3; apply H0 in H4.
+  + rewrite derivable_closed_element_derivable in H3 by (destruct (proj2_sig m1); tauto).
+    rewrite derivable_closed_element_derivable in H4 by (destruct (proj2_sig m2); tauto).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H3).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H4).
+    rewrite <- !derivable_closed_element_derivable in H5 by (destruct (proj2_sig m1); tauto).
+    rewrite <- !derivable_closed_element_derivable in H6 by (destruct (proj2_sig m2); tauto).
+    clear - H1 H2 H5 H6.
+    tauto.
+  + rewrite derivable_closed_element_derivable in H3 by (destruct (proj2_sig m1); tauto).
+    rewrite derivable_closed_element_derivable in H4 by (destruct (proj2_sig m2); tauto).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H3).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H4).
+    rewrite <- !derivable_closed_element_derivable in H5 by (destruct (proj2_sig m1); tauto).
+    rewrite <- !derivable_closed_element_derivable in H6 by (destruct (proj2_sig m2); tauto).
+    clear - H1 H2 H5 H6.
+    tauto.
+Qed.
+
+Definition canonical_model (Phi: DCS Var G): model :=
+  KripkeSemantics_NoBranch.Build_model Var canonical_Kmodel Phi.
+
+Definition canonical_Kmodel_surjection: surjection (KripkeSemantics.underlying_set (KripkeSemantics_NoBranch.underlying_frame canonical_Kmodel)) (DCS Var G).
+Proof.
+  apply (FBuild_surjection _ _ id).
+  hnf; intros.
+  exists b; auto.
+Defined.
+
+Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
+Proof.
+  intros.
+  apply (Build_canonical _ _ _ _ _ _ canonical_Kmodel_surjection).
+  + intros.
+    change (DCS Var G) in m, n.
+    change (m = m') in H.
+    change (n = n') in H0.
+    subst n' m'.
+    auto.
+  + intros.
+    change (DCS Var G) in n, m'.
+    change (n = n') in H.
+    subst n.
+    exists m'.
+    split; auto.
+    change (m' = m').
+    auto.
+Defined.
+
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
+Proof.
+  intros.
+  apply (truth_lemma Var CV _ canonical_model_canonical).
+  + intros.
+    hnf in H; unfold id in H; subst Phi0.
+    reflexivity.
+  + reflexivity.
+Qed.
+
+Theorem complete_intuitionistic_kripke: strongly_complete G SM.
+Proof.
+  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
+  + intros.
+    assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
+    Focus 1. {
+      apply (Lindenbaum_lemma Var CV) in H.
+      destruct H as [Psi [? [? ?]]].
+      exists (exist _ Psi H1).
+      simpl; auto.
+    } Unfocus.
+    destruct H0 as [Psi [? ?]].
+    intro.
+    specialize (H2 (canonical_model Psi)).
+    apply H1.
+    rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
+    rewrite <- truth_lemma.
+    apply H2; intros.
+    apply truth_lemma.
+    apply H0; auto.
+  + hnf; intros.
+    apply Classical_Prop.NNPP; intro; revert H0.
+    apply H; auto.
+Qed.
+
+End Canonical_NoBranch.
+
+End Canonical_NoBranch.
