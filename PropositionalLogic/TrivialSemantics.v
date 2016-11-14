@@ -1,5 +1,5 @@
 Require Import Coq.Logic.Classical_Prop.
-Require Import Logic.LogicBase.
+Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.PropositionalLogic.Syntax.
 

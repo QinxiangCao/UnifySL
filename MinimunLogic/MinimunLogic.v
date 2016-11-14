@@ -1,6 +1,6 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.LogicBase.
+Require Import Logic.MinimunLogic.LogicBase.
 
 Local Open Scope logic_base.
 

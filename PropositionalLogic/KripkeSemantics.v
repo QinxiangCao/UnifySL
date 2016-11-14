@@ -1,7 +1,7 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
-Require Import Logic.LogicBase.
+Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.PropositionalLogic.Syntax.
 

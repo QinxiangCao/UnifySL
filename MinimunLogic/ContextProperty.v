@@ -1,5 +1,5 @@
-Require Import Logic.LogicBase.
 Require Import Logic.lib.Coqlib.
+Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
 
 Local Open Scope logic_base.

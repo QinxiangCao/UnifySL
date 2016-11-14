@@ -3,7 +3,7 @@ Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
-Require Import Logic.LogicBase.
+Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
