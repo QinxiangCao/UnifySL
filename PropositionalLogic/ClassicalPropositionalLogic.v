@@ -207,6 +207,27 @@ Proof.
       auto.
 Qed.
 
+Lemma DCS_negp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
+  derivable_closed Phi ->
+  orp_witnessed Phi ->
+  consistent Phi ->
+  (forall x: expr, Phi x <-> ~ Phi (~~ x)).
+Proof.
+  intros.
+  split; intros.
+  + rewrite derivable_closed_element_derivable in H2 |- * by auto.
+    intro.
+    pose proof deduction_modus_ponens _ _ _ H2 H3.
+    rewrite consistent_spec in H1; apply H1; auto.
+  + rewrite derivable_closed_element_derivable in H2 |- * by auto.
+    pose proof derivable_excluded_middle Phi x.
+    specialize (H0 x (~~ x)).
+    rewrite derivable_closed_element_derivable in H0 by auto.
+    apply H0 in H3.
+    destruct H3; rewrite derivable_closed_element_derivable in H3 by auto; auto.
+    tauto.
+Qed.
+
 Module ClassicalPropositionalLogic.
 Section ClassicalPropositionalLogic.
 

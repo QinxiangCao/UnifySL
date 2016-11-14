@@ -50,7 +50,7 @@ Definition FBuild_injection (A B: Type) (f: A -> B) (H: function_injective f): i
   + hnf; intros; congruence.
   + hnf; intros.
     apply H; congruence.
-Qed.
+Defined.
 
 Definition FBuild_surjection (A B: Type) (f: A -> B) (H: function_surjective f): surjection A B.
   apply (Build_surjection _ _ (fun a b => f a = b)).
@@ -58,7 +58,7 @@ Definition FBuild_surjection (A B: Type) (f: A -> B) (H: function_surjective f):
   + hnf; intros; congruence.
   + hnf; intros.
     apply H; congruence.
-Qed.
+Defined.
 
 Definition FBuild_bijection (A B: Type) (f: A -> B) (H: function_injective f) (H0: function_surjective f): bijection A B.
   apply (Build_bijection _ _ (fun a b => f a = b)).
@@ -68,7 +68,7 @@ Definition FBuild_bijection (A B: Type) (f: A -> B) (H: function_injective f) (H
     apply H; congruence.
   + hnf; intros.
     apply H0.
-Qed.
+Defined.
 
 Definition injection_trans {A B C} (R1: injection A B) (R2: injection B C): injection A C.
   intros.

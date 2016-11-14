@@ -145,7 +145,7 @@ Import KripkeSemantics.
 Record Kmodel {Var: Type} : Type := {
   underlying_frame :> frame;
   Kvar: Var -> sem underlying_frame;
-  frame_ident: forall (F: frame) m n, Korder F m n -> m = n
+  frame_ident: forall m n, Korder underlying_frame m n -> m = n
 }.
 
 Record model {Var: Type}: Type := {

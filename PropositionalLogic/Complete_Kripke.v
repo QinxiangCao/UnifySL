@@ -1,3 +1,5 @@
+Require Import Coq.Logic.FunctionalExtensionality.
+Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.LogicBase.
@@ -6,12 +8,13 @@ Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
+Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Section Completeness.
+Section GeneralCanonical.
 
 Context (Var: Type).
 Context (CV: Countable Var).
@@ -24,6 +27,22 @@ Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   derivable_closed Phi /\
   orp_witnessed Phi /\
   consistent Phi).
+
+Lemma DCS_ext {Gamma: ProofTheory L}: forall m n: DCS Gamma,
+  m = n <-> (forall x: expr, proj1_sig m x <-> proj1_sig n x).
+Proof.
+  intros.
+  split; [intros; subst; reflexivity |].
+  intros.
+  destruct m as [m ?H], n as [n ?H].
+  simpl in H.
+  assert (m = n).
+  + apply Extensionality_Ensembles.
+    split; unfold Included, Ensembles.In; intros; apply H; auto.
+  + subst n.
+    assert (H0 = H1) by apply proof_irrelevance.
+    subst H1; auto.
+Qed.
 
 Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (M: Kmodel): Type := {
   underlying_surj :> surjection (Kworlds M) (DCS Gamma);
@@ -189,4 +208,226 @@ Proof.
   + auto.
 Qed.
 
-End Completeness.
+End GeneralCanonical.
+
+Module Canonical_All.
+
+Section Canonical_All.
+
+Context (Var: Type).
+Context (CV: Countable Var).
+
+Instance L: Language := PropositionalLanguage.L Var.
+Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
+Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
+Instance nG: NormalProofTheory L G := IntuitionisticPropositionalLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
+Instance SM: Semantics L := KripkeSemantics_All.SM Var.
+Instance pkSM: PreKripkeSemantics L SM := KripkeSemantics_All.pkSM Var.
+Instance kiSM: KripkeIntuitionisticSemantics L SM := KripkeSemantics_All.kiSM Var.
+
+Definition canonical_frame: KripkeSemantics.frame.
+  refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
+  constructor.
+  + hnf; intros.
+    hnf; intros; auto.
+  + hnf; intros.
+    hnf; intros; auto.
+Defined.
+
+Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
+  fun p a => a (PropositionalLanguage.varp p).
+Next Obligation.
+  apply H; auto.
+Qed.
+
+Definition canonical_Kmodel: KripkeSemantics_All.Kmodel :=
+  KripkeSemantics_All.Build_Kmodel Var canonical_frame canonical_eval.
+
+Definition canonical_model (Phi: DCS Var G): model :=
+  KripkeSemantics_All.Build_model Var canonical_Kmodel Phi.
+
+Definition canonical_Kmodel_surjection: surjection (KripkeSemantics.underlying_set (KripkeSemantics_All.underlying_frame canonical_Kmodel)) (DCS Var G).
+Proof.
+  apply (FBuild_surjection _ _ id).
+  hnf; intros.
+  exists b; auto.
+Defined.
+
+Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
+Proof.
+  intros.
+  apply (Build_canonical _ _ _ _ _ _ canonical_Kmodel_surjection).
+  + intros.
+    change (DCS Var G) in m, n.
+    change (m = m') in H.
+    change (n = n') in H0.
+    subst n' m'.
+    auto.
+  + intros.
+    change (DCS Var G) in n, m'.
+    change (n = n') in H.
+    subst n.
+    exists m'.
+    split; auto.
+    change (m' = m').
+    auto.
+Defined.
+
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
+Proof.
+  intros.
+  apply (truth_lemma Var CV _ canonical_model_canonical).
+  + intros.
+    hnf in H; unfold id in H; subst Phi0.
+    reflexivity.
+  + reflexivity.
+Qed.
+
+Theorem complete_intuitionistic_kripke: strongly_complete G SM.
+Proof.
+  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
+  + intros.
+    assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
+    Focus 1. {
+      apply (Lindenbaum_lemma Var CV) in H.
+      destruct H as [Psi [? [? ?]]].
+      exists (exist _ Psi H1).
+      simpl; auto.
+    } Unfocus.
+    destruct H0 as [Psi [? ?]].
+    intro.
+    specialize (H2 (canonical_model Psi)).
+    apply H1.
+    rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
+    rewrite <- truth_lemma.
+    apply H2; intros.
+    apply truth_lemma.
+    apply H0; auto.
+  + hnf; intros.
+    apply Classical_Prop.NNPP; intro; revert H0.
+    apply H; auto.
+Qed.
+
+End Canonical_All.
+
+End Canonical_All.
+
+Module Canonical_Identical.
+
+Section Canonical_Identical.
+
+Context (Var: Type).
+Context (CV: Countable Var).
+
+Instance L: Language := PropositionalLanguage.L Var.
+Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
+Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Instance G: ProofTheory L := ClassicalPropositionalLogic.G Var.
+Instance nG: NormalProofTheory L G := ClassicalPropositionalLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogic.ipG Var.
+Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
+Instance SM: Semantics L := KripkeSemantics_Identical.SM Var.
+Instance pkSM: PreKripkeSemantics L SM := KripkeSemantics_Identical.pkSM Var.
+Instance kiSM: KripkeIntuitionisticSemantics L SM := KripkeSemantics_Identical.kiSM Var.
+
+Definition canonical_frame: KripkeSemantics.frame.
+  refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
+  constructor.
+  + hnf; intros.
+    hnf; intros; auto.
+  + hnf; intros.
+    hnf; intros; auto.
+Defined.
+
+Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
+  fun p a => a (PropositionalLanguage.varp p).
+Next Obligation.
+  apply H; auto.
+Qed.
+
+Program Definition canonical_Kmodel: @KripkeSemantics_Identical.Kmodel Var :=
+  KripkeSemantics_Identical.Build_Kmodel Var canonical_frame canonical_eval _.
+Next Obligation.
+  apply DCS_ext.
+  intros.
+  split; auto; [| apply H].
+  intros.
+  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig m); tauto).
+  assert (~ proj1_sig n (~~ x)) by (intro; apply H0, H; auto).
+  rewrite DCS_negp_iff by (destruct (proj2_sig n); tauto).
+  auto.
+Qed.
+
+Definition canonical_model (Phi: DCS Var G): model :=
+  KripkeSemantics_Identical.Build_model Var canonical_Kmodel Phi.
+
+Definition canonical_Kmodel_surjection: surjection (KripkeSemantics.underlying_set (KripkeSemantics_Identical.underlying_frame canonical_Kmodel)) (DCS Var G).
+Proof.
+  apply (FBuild_surjection _ _ id).
+  hnf; intros.
+  exists b; auto.
+Defined.
+
+Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
+Proof.
+  intros.
+  apply (Build_canonical _ _ _ _ _ _ canonical_Kmodel_surjection).
+  + intros.
+    change (DCS Var G) in m, n.
+    change (m = m') in H.
+    change (n = n') in H0.
+    subst n' m'.
+    auto.
+  + intros.
+    change (DCS Var G) in n, m'.
+    change (n = n') in H.
+    subst n.
+    exists m'.
+    split; auto.
+    change (m' = m').
+    auto.
+Defined.
+
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
+Proof.
+  intros.
+Locate truth_lemma.
+  apply (truth_lemma Var CV _ canonical_model_canonical).
+  + intros.
+    hnf in H; unfold id in H; subst Phi0.
+    reflexivity.
+  + reflexivity.
+Qed.
+
+Theorem complete_intuitionistic_kripke: strongly_complete G SM.
+Proof.
+  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
+  + intros.
+    assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
+    Focus 1. {
+      apply (Lindenbaum_lemma Var CV) in H.
+      destruct H as [Psi [? [? ?]]].
+      exists (exist _ Psi H1).
+      simpl; auto.
+    } Unfocus.
+    destruct H0 as [Psi [? ?]].
+    intro.
+    specialize (H2 (canonical_model Psi)).
+    apply H1.
+    rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
+    rewrite <- truth_lemma.
+    apply H2; intros.
+    apply truth_lemma.
+    apply H0; auto.
+  + hnf; intros.
+    apply Classical_Prop.NNPP; intro; revert H0.
+    apply H; auto.
+Qed.
+
+End Canonical_Identical.
+
+End Canonical_Identical.
