@@ -25,8 +25,9 @@ PropositionalLogic_FILES = \
 SeparationLogic_FILES = \
   Syntax.v \
   SeparationLogic.v \
-  QinxiangSantiagoSemantics.v Sound.v \
-  QinxiangSantiagoSemantics_Fail.v Sound_Fail.v
+  DownwardsSemantics.v Sound_Downwards.v \
+  UpwardsSemantics.v Sound_Upwards.v \
+  DownUpSemantics_Fail.v Sound_DownUp_Fail.v
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \

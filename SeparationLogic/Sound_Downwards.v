@@ -5,7 +5,7 @@ Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.QinxiangSantiagoSemantics.
+Require Import Logic.SeparationLogic.DownwardsSemantics.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.SeparationLogic.SeparationLogic.
 
@@ -13,7 +13,7 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 Local Open Scope SeparationLogic.
 
-Lemma sound_sepcon_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {qsSM: QinxiangSantiago_Semantics L SM}:
+Lemma sound_sepcon_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM}:
   forall x y: expr,
     forall M m,
       KRIPKE: M, m |= x * y --> y * x.
@@ -27,7 +27,7 @@ Proof.
   apply join_comm; auto.
 Qed.
 
-Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {qsSM: QinxiangSantiago_Semantics L SM}:
+Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM}:
   forall x y z: expr,
     forall M m,
       KRIPKE: M, m |= x * (y * z) <--> (x * y) * z.
@@ -66,7 +66,7 @@ Proof.
     split; [| split]; auto.
 Qed.
 
-Lemma sound_wand_sepcon_adjoint {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {qsSM: QinxiangSantiago_Semantics L SM}:
+Lemma sound_wand_sepcon_adjoint {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM}:
   forall x y z: expr,
     forall M,
      (forall m, KRIPKE: M, m |= x * y --> z) <-> (forall m, KRIPKE: M, m |= x --> (y -* z)).
@@ -106,7 +106,7 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma sound_sepcon_mono {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {qsSM: QinxiangSantiago_Semantics L SM}:
+Lemma sound_sepcon_mono {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM}:
   forall x1 x2 y1 y2: expr,
     forall M,
      (forall m, KRIPKE: M, m |= x1 --> x2) ->
@@ -135,7 +135,7 @@ Proof.
   exists m1, m2; auto.
 Qed.
 
-Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {qsSM: QinxiangSantiago_Semantics L SM} {qsuSM: QinxiangSantiago_USemantics L SM}:
+Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM} {UdsSM: UnitaryDownwardsSemantics L SM}:
   forall x: expr,
     forall M m, KRIPKE: M, m |= x * emp <--> x.
 Proof.
@@ -163,9 +163,10 @@ Proof.
     - rewrite sat_emp; auto.
 Qed.
 
-Lemma sound_sepcon_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {sSM: QinxiangSantiago_Semantics L SM} {gcsSM: QinxiangSantiago_GCSemantics L SM}:
+Lemma sound_sepcon_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM}:
   forall x y: expr,
-    forall M m, KRIPKE: M, m |= x * y --> x.
+    forall M (join_as_Korder: forall M (m1 m2 m: Kworlds M), join m1 m2 m -> Korder m m1),
+      forall m, KRIPKE: M, m |= x * y --> x.
 Proof.
   intros.
   pose proof Korder_PreOrder M as H_PreOrder.

@@ -5,7 +5,7 @@ Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.QinxiangSantiagoSemantics_Fail.
+Require Import Logic.SeparationLogic.DownUpSemantics_Fail.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.SeparationLogic.SeparationLogic.
 
@@ -13,7 +13,7 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 Local Open Scope SeparationLogic.
 
-Lemma sound_sepcon_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {qsSM: QinxiangSantiagoSemantics L SM}:
+Lemma sound_sepcon_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dusSM: DownUpSemantics L SM}:
   forall x y: expr,
     forall M m,
       KRIPKE: M, m |= x * y --> y * x.
@@ -28,7 +28,7 @@ Proof.
   apply join_comm; auto.
 Qed.
 
-Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {qsSM: QinxiangSantiagoSemantics L SM}:
+Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkS: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dusSM: DownUpSemantics L SM}:
   forall x y z: expr,
     forall M m,
       KRIPKE: M, m |= x * (y * z) <--> (x * y) * z.
