@@ -1,11 +1,15 @@
 CURRENT_DIR=./
-COQC=coqc
-COQDEP=coqdep -slash
+COQBIN=
+
+-include CONFIGURE
+
+COQC=$(COQBIN)coqc
+COQDEP=$(COQBIN)coqdep
 
 DIRS = lib MinimunLogic PropositionalLogic SeparationLogic
-INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) -as Logic.$(d))
+INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 COQ_FLAG = $(INCLUDE_DEMO)
-DEP_DEMO = -R $(CURRENT_DIR) -as Logic
+DEP_DEMO = -R $(CURRENT_DIR) Logic
 DEP_FLAG = $(DEP_DEMO) 
 
 lib_FILES = \
@@ -50,7 +54,7 @@ depend:
 	@$(COQDEP) $(DEP_FLAG) $(FILES) > .depend
 
 clean:
-	@rm *.vo */*.vo *.glob */*.glob
+	@rm */*.vo */*.glob
 
 .DEFAULT_GOAL := all
 

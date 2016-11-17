@@ -2,6 +2,9 @@ Require Export Coq.Relations.Relation_Definitions.
 Require Export Coq.Relations.Relation_Operators.
 Require Export Coq.Relations.Relation_Definitions.
 Require Export Coq.Classes.RelationClasses.
+Require Import Coq.Arith.Even.
+Require Import Coq.Arith.Div2.
+Require Import Coq.Numbers.Natural.Peano.NPeano.
 Require Import Omega.
 
 Definition image_defined {A B} (R: A -> B -> Prop): Prop :=

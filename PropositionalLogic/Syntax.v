@@ -3,6 +3,7 @@ Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.MinimunLogic.MinimunLogic.
+Require Import Omega.
 
 Class PropositionalLanguage (L: Language) {nL: NormalLanguage L}: Type := {
   andp : expr -> expr -> expr;
@@ -76,11 +77,12 @@ Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
         1: exists (inl v); eauto; f_equal; apply proof_irrelevance.
     - set (s := sig (fun x: expr Var => rank x <= n)).
       apply (@injection_Countable _ (s * s + s * s + s * s + unit + Var)%type); [| solve_Countable].
+
       apply (Build_injection _ _ (fun x y =>
         match y with
-        | inl (inl (inl (inl (exist y _, exist z _)))) => proj1_sig x = andp y z
-        | inl (inl (inl (inr (exist y _, exist z _)))) => proj1_sig x = orp y z
-        | inl (inl (inr (exist y _, exist z _))) => proj1_sig x = impp y z
+        | inl (inl (inl (inl (exist _ y _, exist _ z _)))) => proj1_sig x = andp y z
+        | inl (inl (inl (inr (exist _ y _, exist _ z _)))) => proj1_sig x = orp y z
+        | inl (inl (inr (exist _ y _, exist _ z _))) => proj1_sig x = impp y z
         | inl (inr _) => proj1_sig x = falsep
         | inr p => proj1_sig x = varp p
         end)).
@@ -113,7 +115,7 @@ Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
         (* 4 *) f_equal; apply proof_irrelevance.
         (* 5 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
   + apply (@injection_Countable _ (sigT (fun n => sig (fun x: expr Var => rank x <= n)))); [| solve_Countable; auto].
-    apply (FBuild_injection _ _ (fun x => existT _ (rank x) (exist _ x (le_n _)))).
+    apply (FBuild_injection _ _ (fun x0 => existT (fun n => sig (fun x => rank x <= n)) (rank x0) (exist (fun x => rank x <= rank x0) x0 (le_n (rank x0))))).
     hnf; intros.
     simpl in H.
     inversion H; auto.

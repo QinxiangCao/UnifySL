@@ -21,7 +21,19 @@ Definition d2u_sSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLangua
     split; [| split]; auto.
     apply DownwardsSemantics.join_comm; auto.
   + (* join_assoc *)
-    admit.
+    intros.
+    pose proof Korder_PreOrder M as H_PreOrder.
+    destruct H as [mx'' [my'' [? [? ?]]]].
+    destruct H0 as [mxy' [mz' [? [? ?]]]].
+    destruct (DownwardsSemantics.join_Korder M _ _ _ _ H2 H0) as [mx' [my' [? [? ?]]]].
+    destruct (DownwardsSemantics.join_assoc M _ _ _ _ _ H5 H4) as [myz' [? ?]].
+    exists myz'.
+    split.
+    - exists my', mz'; split; [| split]; auto.
+      etransitivity; eauto.
+    - exists mx', myz'; split; [| split]; auto.
+      * etransitivity; eauto.
+      * reflexivity.
   + (* join_Korder *)
     intros.
     pose proof Korder_PreOrder M as H_PreOrder.

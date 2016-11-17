@@ -251,7 +251,7 @@ Definition canonical_Kmodel: KripkeSemantics_All.Kmodel :=
 Definition canonical_model (Phi: DCS Var G): model :=
   KripkeSemantics_All.Build_model Var canonical_Kmodel Phi.
 
-Definition canonical_Kmodel_surjection: surjection (KripkeSemantics.underlying_set (KripkeSemantics_All.underlying_frame canonical_Kmodel)) (DCS Var G).
+Definition canonical_Kmodel_surjection: surjection (Kworlds  canonical_Kmodel) (DCS Var G).
 Proof.
   apply (FBuild_surjection _ _ id).
   hnf; intros.
@@ -367,7 +367,7 @@ Qed.
 Definition canonical_model (Phi: DCS Var G): model :=
   KripkeSemantics_Identical.Build_model Var canonical_Kmodel Phi.
 
-Definition canonical_Kmodel_surjection: surjection (KripkeSemantics.underlying_set (KripkeSemantics_Identical.underlying_frame canonical_Kmodel)) (DCS Var G).
+Definition canonical_Kmodel_surjection: surjection (Kworlds canonical_Kmodel) (DCS Var G).
 Proof.
   apply (FBuild_surjection _ _ id).
   hnf; intros.
@@ -503,7 +503,7 @@ Qed.
 Definition canonical_model (Phi: DCS Var G): model :=
   KripkeSemantics_NoBranch.Build_model Var canonical_Kmodel Phi.
 
-Definition canonical_Kmodel_surjection: surjection (KripkeSemantics.underlying_set (KripkeSemantics_NoBranch.underlying_frame canonical_Kmodel)) (DCS Var G).
+Definition canonical_Kmodel_surjection: surjection (Kworlds canonical_Kmodel) (DCS Var G).
 Proof.
   apply (FBuild_surjection _ _ id).
   hnf; intros.
