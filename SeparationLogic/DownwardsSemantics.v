@@ -10,7 +10,7 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 Local Open Scope SeparationLogic.
 
-Class DownwardsSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} : Type := {
+Class DownwardsSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} {kiSM: KripkeIntuitionisticSemantics L SM} : Type := {
   join: forall {M: Kmodel}, Kworlds M -> Kworlds M -> Kworlds M -> Prop;
   join_comm: forall M (m1 m2 m: Kworlds M), join m1 m2 m -> join m2 m1 m;
   join_assoc: forall M (mx my mz mxy mxyz: Kworlds M), join mx my mxy -> join mxy mz mxyz -> exists myz, join my mz myz /\ join mx myz mxyz;
@@ -19,7 +19,7 @@ Class DownwardsSemantics (L: Language) {nL: NormalLanguage L} {pL: Propositional
   sat_wand: forall M m x y, KRIPKE: M , m |= x -* y <-> forall m0 m1 m2, Korder m0 m -> join m0 m1 m2 -> KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
 }.
 
-Class UnitaryDownwardsSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM}: Type := {
+Class UnitaryDownwardsSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} {kiSM: KripkeIntuitionisticSemantics L SM} {dsSM: DownwardsSemantics L SM}: Type := {
   unit := fun M (m: Kworlds M) => forall n n', join m n n' -> Korder n' n;
   unit_exists: forall M (n: Kworlds M), exists m, join m n n /\ (forall m', Korder m' m -> unit M m');
   sat_emp: forall M (m: Kworlds M), KRIPKE: M, m |= emp <-> forall n, Korder n m -> unit M n

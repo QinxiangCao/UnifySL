@@ -46,7 +46,7 @@ Proof.
     subst H1; auto.
 Qed.
 
-Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (M: Kmodel): Type := {
+Record canonical (Gamma: ProofTheory L) {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (M: Kmodel): Type := {
   underlying_surj :> surjection (Kworlds M) (DCS Gamma);
   canonical_relation_sound: forall m n m' n',
     underlying_surj m m' ->
@@ -143,7 +143,7 @@ Proof.
     auto.
 Qed.
 
-Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM}:
+Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} {kiSM: KripkeIntuitionisticSemantics L SM}:
   forall M (X: canonical Gamma M),
    (forall m Phi v,
       X m Phi ->
@@ -261,7 +261,7 @@ Defined.
 Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
 Proof.
   intros.
-  apply (Build_canonical _ _ _ _ _ _ canonical_Kmodel_surjection).
+  apply (Build_canonical _ _ _ _ _ _ _ canonical_Kmodel_surjection).
   + intros.
     change (DCS Var G) in m, n.
     change (m = m') in H.
@@ -377,7 +377,7 @@ Defined.
 Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
 Proof.
   intros.
-  apply (Build_canonical _ _ _ _ _ _ canonical_Kmodel_surjection).
+  apply (Build_canonical _ _ _ _ _ _ _ canonical_Kmodel_surjection).
   + intros.
     change (DCS Var G) in m, n.
     change (m = m') in H.
@@ -513,7 +513,7 @@ Defined.
 Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
 Proof.
   intros.
-  apply (Build_canonical _ _ _ _ _ _ canonical_Kmodel_surjection).
+  apply (Build_canonical _ _ _ _ _ _ _ canonical_Kmodel_surjection).
   + intros.
     change (DCS Var G) in m, n.
     change (m = m') in H.

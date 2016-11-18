@@ -16,9 +16,20 @@ Class PreKripkeSemantics (L: Language) (SM: Semantics L): Type := {
 
 Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity) : logic_base.
 
-Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM}: Type := {
+Class KripkeIntuitionisticModel (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM}: Type := {
   Korder: forall {M: Kmodel}, Kworlds M -> Kworlds M -> Prop; (* <= *)
-  Korder_PreOrder: forall M, PreOrder (@Korder M);
+  Korder_PreOrder: forall M, PreOrder (@Korder M)
+}.
+
+Class IdenticalKripkeIntuitionisticModel (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM}: Type := {
+  Korder_identical: forall M (m n: Kworlds M), Korder m n -> m = n
+}.
+
+Class NoBranchKripkeIntuitionisticModel (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM}: Type := {
+  Korder_no_branch: forall M (m1 m2 n: Kworlds M), Korder m1 n -> Korder m2 n -> Korder m1 m2 \/ Korder m2 m1
+}.
+
+Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} : Type := {
   sat_mono: forall M m n x, Korder m n -> KRIPKE: M , n |= x -> KRIPKE: M , m |= x;
   sat_impp: forall M m x y, KRIPKE: M , m |= x --> y <-> (forall n, Korder n m -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
   sat_andp: forall M m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y);
@@ -121,11 +132,16 @@ Instance pkSM (Var: Type): PreKripkeSemantics (PropositionalLanguage.L Var) (SM 
    (fun M => M)
    (fun M m => Build_model _ M m).
 
+Instance kiM (Var: Type): KripkeIntuitionisticModel (PropositionalLanguage.L Var) (SM Var).
+Proof.
+  apply (Build_KripkeIntuitionisticModel _ _ _ _ (pkSM Var) (fun M => Korder M)).
+  intros.
+  apply Korder_preorder.
+Defined.
+
 Instance kiSM (Var: Type): KripkeIntuitionisticSemantics (PropositionalLanguage.L Var) (SM Var).
 Proof.
-  apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) (fun M => Korder M)).
-  + intros.
-    apply Korder_preorder.
+  apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) _).
   + hnf; simpl; intros.
     eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
   + split; auto.
@@ -169,11 +185,23 @@ Instance pkSM (Var: Type): PreKripkeSemantics (PropositionalLanguage.L Var) (SM 
    (fun M => M)
    (fun M m => Build_model _ M m).
 
+Instance kiM (Var: Type): KripkeIntuitionisticModel (PropositionalLanguage.L Var) (SM Var).
+Proof.
+  apply (Build_KripkeIntuitionisticModel _ _ _ _ (pkSM Var) (fun M => Korder M)).
+  intros.
+  apply Korder_preorder.
+Defined.
+
+Instance ikiM (Var: Type): IdenticalKripkeIntuitionisticModel (PropositionalLanguage.L Var) (SM Var).
+Proof.
+  apply (Build_IdenticalKripkeIntuitionisticModel _ _ _ _ (pkSM Var) _).
+  intros.
+  apply frame_ident; auto.
+Defined.
+
 Instance kiSM (Var: Type): KripkeIntuitionisticSemantics (PropositionalLanguage.L Var) (SM Var).
 Proof.
-  apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) (fun M => Korder M)).
-  + intros.
-    apply Korder_preorder.
+  apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) _).
   + hnf; simpl; intros.
     eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
   + split; auto.
@@ -217,11 +245,22 @@ Instance pkSM (Var: Type): PreKripkeSemantics (PropositionalLanguage.L Var) (SM 
    (fun M => M)
    (fun M m => Build_model _ M m).
 
+Instance kiM (Var: Type): KripkeIntuitionisticModel (PropositionalLanguage.L Var) (SM Var).
+Proof.
+  apply (Build_KripkeIntuitionisticModel _ _ _ _ (pkSM Var) (fun M => Korder M)).
+  intros.
+  apply Korder_preorder.
+Defined.
+
+Instance nkiM (Var: Type): NoBranchKripkeIntuitionisticModel (PropositionalLanguage.L Var) (SM Var).
+Proof.
+  apply (Build_NoBranchKripkeIntuitionisticModel _ _ _ _ (pkSM Var) _).
+  apply frame_no_branch; auto.
+Defined.
+
 Instance kiSM (Var: Type): KripkeIntuitionisticSemantics (PropositionalLanguage.L Var) (SM Var).
 Proof.
-  apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) (fun M => Korder M)).
-  + intros.
-    apply Korder_preorder.
+  apply (Build_KripkeIntuitionisticSemantics _ _ _ _ (pkSM Var) _).
   + hnf; simpl; intros.
     eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
   + split; auto.

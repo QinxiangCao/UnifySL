@@ -10,7 +10,7 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 Local Open Scope SeparationLogic.
 
-Class DownUpSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} : Type := {
+Class DownUpSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} {kiSM: KripkeIntuitionisticSemantics L SM} : Type := {
   join: forall {M: Kmodel}, Kworlds M -> Kworlds M -> Kworlds M -> Prop;
   join_comm: forall M (m1 m2 m: Kworlds M), join m1 m2 m -> join m2 m1 m;
   join_assoc: forall M (mx my mz mxy mxyz: Kworlds M), join mx my mxy -> join mxy mz mxyz -> exists myz, join my mz myz /\ join mx myz mxyz;

@@ -12,8 +12,8 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 Local Open Scope SeparationLogic.
 
-Definition d2u_sSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (dsSM: DownwardsSemantics L SM): UpwardsSemantics L SM.
-  refine (Build_UpwardsSemantics _ _ _ _ _ _ _ (fun M (m1 m2 m: Kworlds M) => exists n1 n2, Korder n1 m1 /\ Korder n2 m2 /\ DownwardsSemantics.join n1 n2 m) _ _ _ _ _).
+Definition d2u_sSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L} {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} {kiSM: KripkeIntuitionisticSemantics L SM} (dsSM: DownwardsSemantics L SM): UpwardsSemantics L SM.
+  refine (Build_UpwardsSemantics _ _ _ _ _ _ _ _ (fun M (m1 m2 m: Kworlds M) => exists n1 n2, Korder n1 m1 /\ Korder n2 m2 /\ DownwardsSemantics.join n1 n2 m) _ _ _ _ _).
   + (* join_comm *)
     intros.
     destruct H as [n1 [n2 [? [? ?]]]].
