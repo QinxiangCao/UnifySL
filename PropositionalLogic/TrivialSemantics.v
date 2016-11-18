@@ -6,7 +6,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class TrivialPropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (SM: Semantics L): Type := {
+Class TrivialPropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) (SM: Semantics L MD): Type := {
   sat_andp: forall m x y, m |= x && y <-> (m |= x /\ m |= y);
   sat_orp: forall m x y, m |= x || y <-> (m |= x \/ m |= y);
   sat_impp: forall m x y, m |= x --> y <-> (m |= x -> m |= y);
@@ -37,10 +37,13 @@ Fixpoint denotation {Var: Type} (x: expr Var): Ensemble (model Var) :=
   | varp p => fun m => m p
   end.
 
-Instance SM (Var: Type): Semantics (PropositionalLanguage.L Var) :=
-  Build_Semantics (PropositionalLanguage.L Var) (model Var) (fun m x => denotation x m).
+Instance MD (Var: Type): Model :=
+  Build_Model (model Var).
 
-Instance tpSM (Var: Type): TrivialPropositionalSemantics (L Var) (SM Var).
+Instance SM (Var: Type): Semantics (PropositionalLanguage.L Var) (MD Var)  :=
+  Build_Semantics (PropositionalLanguage.L Var) (MD Var) (fun m x => denotation x m).
+
+Instance tpSM (Var: Type): TrivialPropositionalSemantics (L Var) (MD Var) (SM Var).
 Proof.
   constructor.
   + simpl; intros.

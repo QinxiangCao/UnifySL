@@ -5,10 +5,12 @@ Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
+Require Import Logic.SeparationLogic.SeparationAlgebra.
 
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 Local Open Scope SeparationLogic.
+Local Open Scope KripkeSemantics.
 
 Class DownUpSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} (SM: Semantics L) {pkSM: PreKripkeSemantics L SM} {kiM: KripkeIntuitionisticModel L SM} {kiSM: KripkeIntuitionisticSemantics L SM} : Type := {
   join: forall {M: Kmodel}, Kworlds M -> Kworlds M -> Kworlds M -> Prop;

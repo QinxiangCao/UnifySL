@@ -25,7 +25,8 @@ Instance nG: NormalProofTheory L G := ClassicalPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogic.ipG Var.
 Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
-Instance SM: Semantics L := TrivialSemantics.SM Var.
+Instance MD: Model := TrivialSemantics.MD Var.
+Instance SM: Semantics L MD := TrivialSemantics.SM Var.
 
 Definition MCS: Type := sig maximal_consistent.
 

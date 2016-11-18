@@ -23,7 +23,11 @@ Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
 Instance nG: NormalProofTheory L G := IntuitionisticPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
-Instance SM: Semantics L := KripkeSemantics_All.SM Var.
+Instance MD: Model := KripkeSemantics_All.MD Var.
+Instance kMD: KripkeModel MD := KripkeSemantics_All.kMD Var.
+Instance kiMD: KripkeIntuitionisticModel MD := KripkeSemantics_All.kiMD Var.
+Instance SM: Semantics L MD := KripkeSemantics_All.SM Var.
+Instance kiSM: KripkeIntuitionisticSemantics L MD SM := KripkeSemantics_All.kiSM Var.
 
 Definition DCS: Type := sig (fun Phi =>
   derivable_closed Phi /\
@@ -45,7 +49,7 @@ Next Obligation.
   apply H; auto.
 Qed.
 
-Definition canonical_Kmodel: KripkeSemantics_All.Kmodel :=
+Definition canonical_Kmodel: KripkeSemantics_All.Kmodel Var :=
   KripkeSemantics_All.Build_Kmodel Var canonical_frame canonical_eval.
 
 Definition canonical_model (Phi: DCS): model :=
