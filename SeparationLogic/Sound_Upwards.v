@@ -29,7 +29,7 @@ Proof.
   apply join_comm; auto.
 Qed.
 
-Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M}{SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}:
+Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}:
   forall x y z: expr,
     forall m,
       KRIPKE: M, m |= x * (y * z) <--> (x * y) * z.
@@ -46,8 +46,8 @@ Proof.
     destruct H3 as [myz'' [my'' [mz'' [? [? [? ?]]]]]].
     apply join_comm in H1.
     apply join_comm in H4.
-    assert (Korder mx' mx') by reflexivity.
-    destruct (join_Korder _ _ _ _ _ H1 H3 H7) as [n'' [? ?]].
+    assert (mx' <= mx') by reflexivity.
+    destruct (join_Korder_up _ _ _ _ _ H1 H3 H7) as [n'' [? ?]].
     destruct (join_assoc mz'' my'' mx' myz'' n'' H4 H8) as [mxy'' [? ?]].
     apply join_comm in H10.
     apply join_comm in H11.
@@ -65,7 +65,7 @@ Proof.
     rewrite sat_sepcon in H2.
     destruct H2 as [mxy'' [mx'' [my'' [? [? [? ?]]]]]].
     assert (Korder mz' mz') by reflexivity.
-    destruct (join_Korder _ _ _ _ _ H1 H2 H7) as [n'' [? ?]].
+    destruct (join_Korder_up _ _ _ _ _ H1 H2 H7) as [n'' [? ?]].
     destruct (join_assoc mx'' my'' mz' mxy'' n'' H4 H8) as [myz'' [? ?]].
     rewrite sat_sepcon.
     exists n'', mx'', myz''.
@@ -159,7 +159,7 @@ Proof.
     destruct H0 as [m'' [m' [u [? [? [? ?]]]]]].
     rewrite sat_emp in H2.
     destruct H2 as [u' [? ?]].
-    destruct (join_Korder _ _ _ m' u' H0) as [m''' [? ?]]; [reflexivity | auto |].
+    destruct (join_Korder_up _ _ _ m' u' H0) as [m''' [? ?]]; [reflexivity | auto |].
     apply join_comm in H4.
     rewrite unit_spec in H3.
     apply H3 in H4.
@@ -191,3 +191,4 @@ Proof.
   eapply sat_mono; eauto.
   eapply sat_mono; eauto.
 Qed.
+

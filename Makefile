@@ -32,8 +32,8 @@ SeparationLogic_FILES = \
   SeparationAlgebra.v \
   DownwardsSemantics.v Sound_Downwards.v \
   UpwardsSemantics.v Sound_Upwards.v \
-  DownUpSemantics_Fail.v Sound_DownUp_Fail.v
-#  Downwards2Upwards.v Upwards2Downwards.v
+  DownUpSemantics_Fail.v Sound_DownUp_Fail.v \
+  Downwards2Upwards.v Upwards2Downwards.v
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \

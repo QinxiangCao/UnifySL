@@ -12,7 +12,7 @@ Local Open Scope KripkeSemantics.
 Local Open Scope SeparationLogic.
 
 Class UpwardsClosedSeparationAlgebra (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M}: Type := {
-  join_Korder: forall (m1 m2 m n1 n2: Kworlds M), join m1 m2 m -> m1 <= n1 -> m2 <= n2 -> exists n, join n1 n2 n /\ m <= n
+  join_Korder_up: forall (m1 m2 m n1 n2: Kworlds M), join m1 m2 m -> m1 <= n1 -> m2 <= n2 -> exists n, join n1 n2 n /\ m <= n
 }.
 
 (* David J. Pym, Peter W. O’Hearn, and Hongseok Yang. Possible worlds and resources: the semantics of BI. *)
