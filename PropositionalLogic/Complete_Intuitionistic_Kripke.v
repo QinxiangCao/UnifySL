@@ -25,9 +25,9 @@ Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
 Instance MD: Model := KripkeSemantics_All.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics_All.kMD Var.
-Instance kiMD: KripkeIntuitionisticModel MD := KripkeSemantics_All.kiMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics_All.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics_All.SM Var.
-Instance kiSM: KripkeIntuitionisticSemantics L MD SM := KripkeSemantics_All.kiSM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_All.kiSM Var M.
 
 Definition DCS: Type := sig (fun Phi =>
   derivable_closed Phi /\

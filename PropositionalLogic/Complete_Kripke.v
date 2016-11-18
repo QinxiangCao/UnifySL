@@ -46,7 +46,7 @@ Proof.
     subst H1; auto.
 Qed.
 
-Record canonical (Gamma: ProofTheory L) {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM} (M: Kmodel): Type := {
+Record canonical (Gamma: ProofTheory L) {MD: Model} {kMD: KripkeModel MD}  (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type := {
   underlying_surj :> surjection (Kworlds M) (DCS Gamma);
   canonical_relation_sound: forall m n m' n',
     underlying_surj m m' ->
@@ -143,8 +143,8 @@ Proof.
     auto.
 Qed.
 
-Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
-  forall M (X: canonical Gamma M),
+Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
+  forall (X: canonical Gamma M),
    (forall m Phi v,
       X m Phi ->
       (KRIPKE: M, m |= PropositionalLanguage.varp v <-> proj1_sig Phi (PropositionalLanguage.varp v))) ->
@@ -200,7 +200,7 @@ Proof.
       eapply canonical_relation_sound in H2; [| eauto | eauto].
       eapply deduction_weaken in H1; [| exact H2].
       eapply deduction_modus_ponens; [exact H4 | exact H1].
-  + pose proof sat_falsep M m.
+  + pose proof sat_falsep m.
     split; [intros; tauto | intros].
     rewrite H0 in H2.
     pose proof proj2_sig Phi.
@@ -228,9 +228,9 @@ Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
 Instance MD: Model := KripkeSemantics_All.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics_All.kMD Var.
-Instance kiMD: KripkeIntuitionisticModel MD := KripkeSemantics_All.kiMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics_All.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics_All.SM Var.
-Instance kiSM: KripkeIntuitionisticSemantics L MD SM := KripkeSemantics_All.kiSM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_All.kiSM Var M.
 
 Definition canonical_frame: KripkeSemantics.frame.
   refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
@@ -336,9 +336,10 @@ Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogi
 Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
 Instance MD: Model := KripkeSemantics_Identical.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics_Identical.kMD Var.
-Instance kiMD: KripkeIntuitionisticModel MD := KripkeSemantics_Identical.kiMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M := KripkeSemantics_Identical.kiM Var M.
+Instance ikiM (M: Kmodel): IdenticalKripkeIntuitionisticModel MD M := KripkeSemantics_Identical.ikiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics_Identical.SM Var.
-Instance kiSM: KripkeIntuitionisticSemantics L MD SM := KripkeSemantics_Identical.kiSM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_Identical.kiSM Var M.
 
 Definition canonical_frame: KripkeSemantics.frame.
   refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
@@ -454,9 +455,10 @@ Instance ipG: IntuitionisticPropositionalLogic L G := GodelDummettPropositionalL
 Instance wpG: GodelDummettPropositionalLogic L G := GodelDummettPropositionalLogic.wpG Var.
 Instance MD: Model := KripkeSemantics_NoBranch.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics_NoBranch.kMD Var.
-Instance kiMD: KripkeIntuitionisticModel MD := KripkeSemantics_NoBranch.kiMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics_NoBranch.kiM Var M.
+Instance nkiM (M: Kmodel): NoBranchKripkeIntuitionisticModel MD M:= KripkeSemantics_NoBranch.nkiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics_NoBranch.SM Var.
-Instance kiSM: KripkeIntuitionisticSemantics L MD SM := KripkeSemantics_NoBranch.kiSM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_NoBranch.kiSM Var M.
 
 Definition canonical_frame: KripkeSemantics.frame.
   refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).

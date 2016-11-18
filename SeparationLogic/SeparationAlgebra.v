@@ -3,12 +3,18 @@ Require Import Logic.lib.Coqlib.
 Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 
-Class SeparationAlgebra (MD: Model) {kMD: KripkeModel MD}: Type := {
-  join: forall {M: Kmodel}, Kworlds M -> Kworlds M -> Kworlds M -> Prop;
-  join_comm: forall M (m1 m2 m: Kworlds M), join m1 m2 m -> join m2 m1 m;
-  join_assoc: forall M (mx my mz mxy mxyz: Kworlds M), join mx my mxy -> join mxy mz mxyz -> exists myz, join my mz myz /\ join mx myz mxyz
+Local Open Scope KripkeSemantics.
+
+Class SeparationAlgebra (MD: Model) {kMD: KripkeModel MD} (M: Kmodel): Type := {
+  join: Kworlds M -> Kworlds M -> Kworlds M -> Prop;
+  join_comm: forall m1 m2 m: Kworlds M, join m1 m2 m -> join m2 m1 m;
+  join_assoc: forall mx my mz mxy mxyz: Kworlds M, join mx my mxy -> join mxy mz mxyz -> exists myz, join my mz myz /\ join mx myz mxyz
 }.
 
-Class UnitarySeparationAlgebra (MD: Model) {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SA: SeparationAlgebra MD}: Type := {
-  unit: forall {M: Kmodel}, Kworlds M -> Prop
+Class GarbageCollectSeparationAlgebra (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M}: Type := {
+  join_has_order1: forall (m1 m2 m: Kworlds M), join m1 m2 m -> m <= m1
+}.
+
+Class UnitarySeparationAlgebra (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M}: Type := {
+  unit: Kworlds M -> Prop
 }.

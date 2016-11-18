@@ -15,22 +15,22 @@ Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 Local Open Scope KripkeSemantics.
 
-Lemma sound_modus_ponens {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_modus_ponens {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= (x --> y) -> KRIPKE: M, m |= x -> KRIPKE: M, m |= y.
 Proof.
   intros.
-  pose proof Korder_PreOrder M as H_PreOrder.
+  pose proof Korder_PreOrder as H_PreOrder.
   rewrite sat_impp in H.
   specialize (H m).
   apply H; auto.
   reflexivity.
 Qed.
 
-Lemma sound_axiom1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_axiom1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= x --> y --> x.
 Proof.
   intros.
@@ -39,13 +39,13 @@ Proof.
   eapply sat_mono; eauto.
 Qed.
 
-Lemma sound_axiom2 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_axiom2 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y z: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= (x --> y --> z) --> (x --> y) --> (x --> z).
 Proof.
   intros.
-  pose proof Korder_PreOrder M as H_PreOrder.
+  pose proof Korder_PreOrder as H_PreOrder.
   rewrite sat_impp; intros.
   rewrite sat_impp; intros.
   rewrite sat_impp; intros.
@@ -62,9 +62,9 @@ Proof.
   auto.
 Qed.
 
-Lemma sound_andp_intros {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_andp_intros {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= x --> y --> x && y.
 Proof.
   intros.
@@ -76,9 +76,9 @@ Proof.
   + auto.
 Qed.
 
-Lemma sound_andp_elim1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_andp_elim1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= x && y --> x.
 Proof.
   intros.
@@ -87,9 +87,9 @@ Proof.
   tauto.
 Qed.
 
-Lemma sound_andp_elim2 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_andp_elim2 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= x && y --> y.
 Proof.
   intros.
@@ -98,9 +98,9 @@ Proof.
   tauto.
 Qed.
 
-Lemma sound_orp_intros1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_orp_intros1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= x --> x || y.
 Proof.
   intros.
@@ -109,9 +109,9 @@ Proof.
   tauto.
 Qed.
 
-Lemma sound_orp_intros2 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_orp_intros2 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= y --> x || y.
 Proof.
   intros.
@@ -120,13 +120,13 @@ Proof.
   tauto.
 Qed.
 
-Lemma sound_orp_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_orp_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y z: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= (x --> z) --> (y --> z) --> (x || y --> z).
 Proof.
   intros.
-  pose proof Korder_PreOrder M as H_PreOrder.
+  pose proof Korder_PreOrder as H_PreOrder.
   rewrite sat_impp; intros.
   rewrite sat_impp; intros.
   rewrite sat_impp; intros.
@@ -139,21 +139,20 @@ Proof.
     apply H2; auto.
 Qed.
 
-Lemma sound_falsep_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_falsep_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x: expr,
-    forall M m,
+    forall m,
       KRIPKE: M, m |= FF --> x.
 Proof.
   intros.
   rewrite sat_impp; intros.
-  pose proof sat_falsep M n.
+  pose proof sat_falsep n.
   tauto.
 Qed.
 
-Lemma sound_excluded_middle_ident {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_excluded_middle_ident {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {ikiM: IdenticalKripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x: expr,
-    forall M {ikiM: IdenticalKripkeIntuitionisticModel MD M},
-      (forall m, KRIPKE: M, m |= x || ~~ x).
+    forall m, KRIPKE: M, m |= x || ~~ x.
 Proof.
   intros.
   unfold negp.
@@ -164,10 +163,9 @@ Proof.
   tauto.
 Qed.
 
-Lemma sound_impp_choice_no_branch {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {kiMD: KripkeIntuitionisticModel MD} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD SM}:
+Lemma sound_impp_choice_no_branch {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel MD M} {nkiM: NoBranchKripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,
-    forall M {nkiM: NoBranchKripkeIntuitionisticModel MD M},
-      (forall m, KRIPKE: M, m |= (x --> y) || (y --> x)).
+    forall m, KRIPKE: M, m |= (x --> y) || (y --> x).
 Proof.
   intros.
   rewrite sat_orp, !sat_impp.
@@ -183,9 +181,9 @@ Proof.
   apply imply_to_and in H2.
   destruct H1, H2.
   destruct (Korder_no_branch n1 n2 m H H0).
-  + pose proof (sat_mono _ _ _ y H5).
+  + pose proof (sat_mono _ _ y H5).
     tauto.
-  + pose proof (sat_mono _ _ _ x H5).
+  + pose proof (sat_mono _ _ x H5).
     tauto.
 Qed.
 
@@ -197,16 +195,16 @@ Proof.
   pose (PropositionalLanguage.pL Var: PropositionalLanguage L) as pL.
   pose (KripkeSemantics_All.MD Var) as MD.
   pose (KripkeSemantics_All.kMD Var: KripkeModel MD) as kMD.
-  pose (KripkeSemantics_All.kiMD Var: KripkeIntuitionisticModel MD) as kiMD.
-  pose (KripkeSemantics_All.SM Var: Semantics L MD) as SM.
-  pose (KripkeSemantics_All.kiSM Var: KripkeIntuitionisticSemantics L MD SM) as kiSM.
   intro m.
   destruct m as [M m].
   change Kmodel in M.
   change (Kworlds M) in m.
+  pose (KripkeSemantics_All.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
+  pose (KripkeSemantics_All.SM Var: Semantics L MD) as SM.
+  pose (KripkeSemantics_All.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
   change (KRIPKE: M, m |= x).
   induction H.
-  + pose proof sound_modus_ponens x y M m.
+  + pose proof sound_modus_ponens x y m.
     exact (H1 IHprovable1 IHprovable2).
   + apply sound_axiom1.
   + apply sound_axiom2.
@@ -227,16 +225,17 @@ Proof.
   pose (PropositionalLanguage.pL Var: PropositionalLanguage L) as pL.
   pose (KripkeSemantics_Identical.MD Var) as MD.
   pose (KripkeSemantics_Identical.kMD Var: KripkeModel MD) as kMD.
-  pose (KripkeSemantics_Identical.kiMD Var: KripkeIntuitionisticModel MD) as kiMD.
-  pose (KripkeSemantics_Identical.SM Var: Semantics L MD) as SM.
-  pose (KripkeSemantics_Identical.kiSM Var: KripkeIntuitionisticSemantics L MD SM) as kiSM.
   intro m.
   destruct m as [M m].
   change Kmodel in M.
   change (Kworlds M) in m.
+  pose (KripkeSemantics_Identical.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
+  pose (KripkeSemantics_Identical.ikiM Var M: IdenticalKripkeIntuitionisticModel MD M) as ikiM.
+  pose (KripkeSemantics_Identical.SM Var: Semantics L MD) as SM.
+  pose (KripkeSemantics_Identical.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
   change (KRIPKE: M, m |= x).
   induction H.
-  + pose proof sound_modus_ponens x y M m.
+  + pose proof sound_modus_ponens x y m.
     exact (H1 IHprovable1 IHprovable2).
   + apply sound_axiom1.
   + apply sound_axiom2.
@@ -248,8 +247,6 @@ Proof.
   + apply sound_orp_elim.
   + apply sound_falsep_elim.
   + apply sound_excluded_middle_ident.
-    constructor.
-    apply (@KripkeSemantics_Identical.frame_ident Var M).
 Qed.
 
 Theorem sound_weak_classical_kripke_no_branch (Var: Type): sound (GodelDummettPropositionalLogic.G Var) (KripkeSemantics_NoBranch.SM Var).
@@ -260,16 +257,17 @@ Proof.
   pose (PropositionalLanguage.pL Var: PropositionalLanguage L) as pL.
   pose (KripkeSemantics_NoBranch.MD Var) as MD.
   pose (KripkeSemantics_NoBranch.kMD Var: KripkeModel MD) as kMD.
-  pose (KripkeSemantics_NoBranch.kiMD Var: KripkeIntuitionisticModel MD) as kiMD.
-  pose (KripkeSemantics_NoBranch.SM Var: Semantics L MD) as SM.
-  pose (KripkeSemantics_NoBranch.kiSM Var: KripkeIntuitionisticSemantics L MD SM) as kiSM.
   intro m.
   destruct m as [M m].
   change Kmodel in M.
   change (Kworlds M) in m.
+  pose (KripkeSemantics_NoBranch.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
+  pose (KripkeSemantics_NoBranch.nkiM Var M: NoBranchKripkeIntuitionisticModel MD M) as nkiM.
+  pose (KripkeSemantics_NoBranch.SM Var: Semantics L MD) as SM.
+  pose (KripkeSemantics_NoBranch.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
   change (KRIPKE: M, m |= x).
   induction H.
-  + pose proof sound_modus_ponens x y M m.
+  + pose proof sound_modus_ponens x y m.
     exact (H1 IHprovable1 IHprovable2).
   + apply sound_axiom1.
   + apply sound_axiom2.
@@ -281,8 +279,4 @@ Proof.
   + apply sound_orp_elim.
   + apply sound_falsep_elim.
   + apply sound_impp_choice_no_branch.
-    constructor.
-    apply (@KripkeSemantics_NoBranch.frame_no_branch Var M).
 Qed.
-
-
