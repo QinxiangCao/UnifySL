@@ -210,6 +210,54 @@ Proof.
   + auto.
 Qed.
 
+Definition canonical_frame {Gamma: ProofTheory L}: KripkeSemantics.frame.
+  refine (KripkeSemantics.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
+  constructor.
+  + hnf; intros.
+    hnf; intros; auto.
+  + hnf; intros.
+    hnf; intros; auto.
+Defined.
+
+Program Definition canonical_eval {Gamma: ProofTheory L}: Var -> KripkeSemantics.sem canonical_frame :=
+  fun p a => a (PropositionalLanguage.varp p).
+Next Obligation.
+  apply H; auto.
+Qed.
+
+Definition canonical_Kmodel {Gamma: ProofTheory L}: @Kmodel (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) :=
+  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
+
+Definition canonical_model {Gamma: ProofTheory L} (Phi: DCS Gamma) : @model (KripkeSemantics.MD Var) :=
+  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
+
+Definition canonical_Kmodel_surjection {Gamma: ProofTheory L}: surjection (@Kworlds (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) canonical_Kmodel) (DCS Gamma).
+Proof.
+  apply (FBuild_surjection _ _ id).
+  hnf; intros.
+  exists b; auto.
+Defined.
+
+Lemma canonical_model_canonical {Gamma: ProofTheory L}: @canonical Gamma (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) canonical_Kmodel (KripkeSemantics.kiM Var _) (KripkeSemantics.SM Var) (KripkeSemantics.kiSM Var _).
+Proof.
+  intros.
+  apply (Build_canonical _ _ _ _ _ _ _ canonical_Kmodel_surjection).
+  + intros.
+    change (DCS Gamma) in m, n.
+    change (m = m') in H.
+    change (n = n') in H0.
+    subst n' m'.
+    auto.
+  + intros.
+    change (DCS Gamma) in n, m'.
+    change (n = n') in H.
+    subst n.
+    exists m'.
+    split; auto.
+    change (m' = m').
+    auto.
+Defined.
+
 End GeneralCanonical.
 
 Module Canonical_All.
@@ -232,58 +280,10 @@ Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM V
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
-Definition canonical_frame: KripkeSemantics.frame.
-  refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
-  constructor.
-  + hnf; intros.
-    hnf; intros; auto.
-  + hnf; intros.
-    hnf; intros; auto.
-Defined.
-
-Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
-  fun p a => a (PropositionalLanguage.varp p).
-Next Obligation.
-  apply H; auto.
-Qed.
-
-Definition canonical_Kmodel: KripkeSemantics.Kmodel Var :=
-  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
-
-Definition canonical_model (Phi: DCS Var G): model :=
-  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
-
-Definition canonical_Kmodel_surjection: surjection (Kworlds  canonical_Kmodel) (DCS Var G).
-Proof.
-  apply (FBuild_surjection _ _ id).
-  hnf; intros.
-  exists b; auto.
-Defined.
-
-Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  apply (Build_canonical _ _ _ _ _ _ _ _ canonical_Kmodel_surjection).
-  + intros.
-    change (DCS Var G) in m, n.
-    change (m = m') in H.
-    change (n = n') in H0.
-    subst n' m'.
-    auto.
-  + intros.
-    change (DCS Var G) in n, m'.
-    change (n = n') in H.
-    subst n.
-    exists m'.
-    split; auto.
-    change (m' = m').
-    auto.
-Defined.
-
-Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
-Proof.
-  intros.
-  apply (truth_lemma Var CV _ canonical_model_canonical).
+  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
   + intros.
     hnf in H; unfold id in H; subst Phi0.
     reflexivity.
@@ -303,7 +303,7 @@ Proof.
     } Unfocus.
     destruct H0 as [Psi [? ?]].
     intro.
-    specialize (H2 (canonical_model Psi)).
+    specialize (H2 (canonical_model Var Psi)).
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     rewrite <- truth_lemma.
@@ -340,66 +340,8 @@ Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M := KripkeSemantics.kiM 
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
-Definition canonical_frame: KripkeSemantics.frame.
-  refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
-  constructor.
-  + hnf; intros.
-    hnf; intros; auto.
-  + hnf; intros.
-    hnf; intros; auto.
-Defined.
-
-Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
-  fun p a => a (PropositionalLanguage.varp p).
-Next Obligation.
-  apply H; auto.
-Qed.
-
-Definition canonical_Kmodel: @KripkeSemantics.Kmodel Var :=
-  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
-
-Definition canonical_model (Phi: DCS Var G): model :=
-  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
-
-Definition canonical_Kmodel_surjection: surjection (Kworlds canonical_Kmodel) (DCS Var G).
-Proof.
-  apply (FBuild_surjection _ _ id).
-  hnf; intros.
-  exists b; auto.
-Defined.
-
-Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
-Proof.
-  intros.
-  apply (Build_canonical _ _ _ _ _ _ _ _ canonical_Kmodel_surjection).
-  + intros.
-    change (DCS Var G) in m, n.
-    change (m = m') in H.
-    change (n = n') in H0.
-    subst n' m'.
-    auto.
-  + intros.
-    change (DCS Var G) in n, m'.
-    change (n = n') in H.
-    subst n.
-    exists m'.
-    split; auto.
-    change (m' = m').
-    auto.
-Defined.
-
-Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
-Proof.
-  intros.
-  apply (truth_lemma Var CV _ canonical_model_canonical).
-  + intros.
-    hnf in H; unfold id in H; subst Phi0.
-    reflexivity.
-  + reflexivity.
-Qed.
-
 Lemma classical_canonical_ident: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_Identical Var)
-  (canonical_model Psi).
+  (canonical_model Var Psi).
 Proof.
   intros.
   unfold canonical_model; constructor.
@@ -415,6 +357,16 @@ Proof.
   auto.
 Qed.
 
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
+Proof.
+  intros.
+  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
+  + intros.
+    hnf in H; unfold id in H; subst Phi0.
+    reflexivity.
+  + reflexivity.
+Qed.
+
 Theorem complete_classical_kripke_ident: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical _)).
 Proof.
   assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical _)) Phi x).
@@ -428,7 +380,7 @@ Proof.
     } Unfocus.
     destruct H0 as [Psi [? ?]].
     intro.
-    specialize (H2 (canonical_model Psi)).
+    specialize (H2 (canonical_model Var Psi)).
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     rewrite <- truth_lemma.
@@ -465,65 +417,17 @@ Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM V
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
-Definition canonical_frame: KripkeSemantics.frame.
-  refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
-  constructor.
-  + hnf; intros.
-    hnf; intros; auto.
-  + hnf; intros.
-    hnf; intros; auto.
-Defined.
-
-Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
-  fun p a => a (PropositionalLanguage.varp p).
-Next Obligation.
-  apply H; auto.
-Qed.
-
-Definition canonical_Kmodel: @KripkeSemantics.Kmodel Var :=
-  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
-
-Definition canonical_model (Phi: DCS Var G): model :=
-  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
-
-Definition canonical_Kmodel_surjection: surjection (Kworlds canonical_Kmodel) (DCS Var G).
-Proof.
-  apply (FBuild_surjection _ _ id).
-  hnf; intros.
-  exists b; auto.
-Defined.
-
-Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  apply (Build_canonical _ _ _ _ _ _ _ _ canonical_Kmodel_surjection).
-  + intros.
-    change (DCS Var G) in m, n.
-    change (m = m') in H.
-    change (n = n') in H0.
-    subst n' m'.
-    auto.
-  + intros.
-    change (DCS Var G) in n, m'.
-    change (n = n') in H.
-    subst n.
-    exists m'.
-    split; auto.
-    change (m' = m').
-    auto.
-Defined.
-
-Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
-Proof.
-  intros.
-  apply (truth_lemma Var CV _ canonical_model_canonical).
+  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
   + intros.
     hnf in H; unfold id in H; subst Phi0.
     reflexivity.
   + reflexivity.
 Qed.
 
-Lemma Godel_Dummett_canonical_no_branch: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_NoBranch Var) (canonical_model Psi).
+Lemma Godel_Dummett_canonical_no_branch: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_NoBranch Var) (canonical_model Var Psi).
 Proof.
   intros.
   unfold canonical_model; constructor.
@@ -572,7 +476,7 @@ Proof.
     } Unfocus.
     destruct H0 as [Psi [? ?]].
     intro.
-    specialize (H2 (canonical_model Psi)).
+    specialize (H2 (canonical_model Var Psi)).
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     rewrite <- truth_lemma.
