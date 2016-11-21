@@ -162,7 +162,7 @@ Proof.
     apply join_comm in H4.
     rewrite unit_spec in H3.
     apply H3 in H4.
-    subst m'''.
+    eapply sat_mono; eauto.
     eapply sat_mono; eauto.
     eapply sat_mono; eauto.
   + rewrite sat_impp; intros.

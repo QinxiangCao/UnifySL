@@ -17,7 +17,7 @@ Class UpwardsSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLa
 }.
 
 Class UpwardsClosedUnitarySeparationAlgebra (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M}: Type := {
-  unit_spec: forall m: Kworlds M, unit m <-> forall n n', join m n n' -> n = n';
+  unit_spec : forall m: Kworlds M, unit m <-> forall n n', join m n n' -> n' <= n;
   unit_exists: forall n: Kworlds M, exists m, join m n n /\ unit m
 }.
 
