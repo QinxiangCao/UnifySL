@@ -1,5 +1,4 @@
 Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
@@ -123,10 +122,11 @@ Proof.
   tauto.
 Qed.
 
-Theorem sound_classical_trivial (Var: Type): sound (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).
+Theorem sound_classical_trivial (Var: Type): sound (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var) (AllModel _).
 Proof.
   hnf; intros.
   intro m.
+  intros _.
   induction H.
   + pose proof sound_modus_ponens x y.
     exact (H1 m IHprovable1 IHprovable2).

@@ -23,6 +23,8 @@ Class Semantics (L: Language) (MD: Model): Type := {
   satisfies: model -> expr -> Prop
 }.
 
+Definition ModelClass (MD: Model) := model -> Prop.
+
 Class NormalLanguage (L: Language): Type := {
   impp: expr -> expr -> expr
 }.
@@ -33,38 +35,38 @@ Class KripkeModel (MD: Model): Type := {
   build_model: forall M: Kmodel, Kworlds M -> model
 }.
 
+Definition AllModel (MD: Model): ModelClass MD := fun _ => True.
+
+Inductive KripkeModelClass (MD: Model) {kMD: KripkeModel MD} (H: Kmodel -> Prop): ModelClass MD :=
+| Build_KripkeModelClass: forall (M: Kmodel) (m: Kworlds M), H M -> KripkeModelClass MD H (build_model M m).
+
 Definition consistent {L: Language} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi =>
     exists x: expr, ~ derivable Phi x.
 
-Definition consequence {L: Language} {MD: Model} {MD: Model} {SM: Semantics L MD}: context -> expr -> Prop :=
-  fun Phi y =>
-    forall m: model, (forall x, Phi x -> satisfies m x) -> satisfies m y.
+Definition satisfiable {L: Language} {MD: Model} {SM: Semantics L MD}: ModelClass MD -> context -> Prop :=
+  fun MC Phi =>
+    exists m: model, MC m /\ forall x: expr, Phi x -> satisfies m x.
 
-Definition valid {L: Language} {MD: Model} {SM: Semantics L MD}: expr -> Prop :=
-  fun x =>
-    forall m: model, satisfies m x.
+Definition consequence {L: Language} {MD: Model} {MD: Model} {SM: Semantics L MD}: ModelClass MD -> context -> expr -> Prop :=
+  fun MC Phi y =>
+    forall m: model, MC m -> (forall x, Phi x -> satisfies m x) -> satisfies m y.
 
-Definition satisfiable {L: Language} {MD: Model} {SM: Semantics L MD}: context -> Prop :=
-  fun Phi =>
-    exists m: model, forall x: expr, Phi x -> satisfies m x.
+Definition valid {L: Language} {MD: Model} {SM: Semantics L MD}: ModelClass MD -> expr -> Prop :=
+  fun MC x =>
+    forall m: model, MC m -> satisfies m x.
 
-Definition sound {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD): Prop :=
-  forall x: expr, provable x -> valid x.
+Definition sound {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
+  forall x: expr, provable x -> valid MC x.
 
-Definition weakly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD): Prop :=
-  forall x: expr, valid x -> provable x.
+Definition weakly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
+  forall x: expr, valid MC x -> provable x.
 
-Definition strongly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD): Prop :=
-  forall (Phi: context) (x: expr), consequence Phi x -> derivable Phi x.
+Definition strongly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
+  forall (Phi: context) (x: expr), consequence MC Phi x -> derivable Phi x.
 
 Notation "m  |=  x" := (satisfies m x) (at level 70, no associativity) : logic_base.
-Notation "|==  x" := (valid x) (at level 71, no associativity) : logic_base.
-Notation "Phi  |==  x" := (consequence Phi x) (at level 70, no associativity) : logic_base.
 Notation "|--  x" := (provable x) (at level 71, no associativity) : logic_base.
 Notation "Phi  |--  x" := (derivable Phi x) (at level 70, no associativity) : logic_base.
 Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity) : logic_base.
 Notation "x --> y" := (impp x y) (at level 55, right associativity) : logic_base.
-
-
-

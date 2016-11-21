@@ -3,7 +3,6 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
@@ -187,21 +186,21 @@ Proof.
     tauto.
 Qed.
 
-Theorem sound_intuitionistic_kripke_all (Var: Type): sound (IntuitionisticPropositionalLogic.G Var) (KripkeSemantics_All.SM Var).
+Theorem sound_intuitionistic_kripke_all (Var: Type): sound (IntuitionisticPropositionalLogic.G Var) (KripkeSemantics.SM Var) (AllModel _).
 Proof.
   hnf; intros.
   pose (PropositionalLanguage.L Var) as L.
   pose (PropositionalLanguage.nL Var: NormalLanguage L) as nL.
   pose (PropositionalLanguage.pL Var: PropositionalLanguage L) as pL.
-  pose (KripkeSemantics_All.MD Var) as MD.
-  pose (KripkeSemantics_All.kMD Var: KripkeModel MD) as kMD.
-  intro m.
+  pose (KripkeSemantics.MD Var) as MD.
+  pose (KripkeSemantics.kMD Var: KripkeModel MD) as kMD.
+  intros m _.
   destruct m as [M m].
   change Kmodel in M.
   change (Kworlds M) in m.
-  pose (KripkeSemantics_All.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
-  pose (KripkeSemantics_All.SM Var: Semantics L MD) as SM.
-  pose (KripkeSemantics_All.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
+  pose (KripkeSemantics.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
+  pose (KripkeSemantics.SM Var: Semantics L MD) as SM.
+  pose (KripkeSemantics.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
   change (KRIPKE: M, m |= x).
   induction H.
   + pose proof sound_modus_ponens x y m.
@@ -217,23 +216,21 @@ Proof.
   + apply sound_falsep_elim.
 Qed.
 
-Theorem sound_classical_kripke_identical (Var: Type): sound (ClassicalPropositionalLogic.G Var) (KripkeSemantics_Identical.SM Var).
+Theorem sound_classical_kripke_identical (Var: Type): sound (ClassicalPropositionalLogic.G Var) (KripkeSemantics.SM Var) (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical Var)).
 Proof.
   hnf; intros.
   pose (PropositionalLanguage.L Var) as L.
   pose (PropositionalLanguage.nL Var: NormalLanguage L) as nL.
   pose (PropositionalLanguage.pL Var: PropositionalLanguage L) as pL.
-  pose (KripkeSemantics_Identical.MD Var) as MD.
-  pose (KripkeSemantics_Identical.kMD Var: KripkeModel MD) as kMD.
-  intro m.
-  destruct m as [M m].
-  change Kmodel in M.
-  change (Kworlds M) in m.
-  pose (KripkeSemantics_Identical.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
-  pose (KripkeSemantics_Identical.ikiM Var M: IdenticalKripkeIntuitionisticModel MD M) as ikiM.
-  pose (KripkeSemantics_Identical.SM Var: Semantics L MD) as SM.
-  pose (KripkeSemantics_Identical.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
-  change (KRIPKE: M, m |= x).
+  pose (KripkeSemantics.MD Var) as MD.
+  pose (KripkeSemantics.kMD Var: KripkeModel MD) as kMD.
+  intros m ?.
+  destruct H0.
+  unfold KripkeSemantics.Kmodel_Identical in H0.
+  rename H0 into ikiM.
+  pose (KripkeSemantics.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
+  pose (KripkeSemantics.SM Var: Semantics L MD) as SM.
+  pose (KripkeSemantics.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
   induction H.
   + pose proof sound_modus_ponens x y m.
     exact (H1 IHprovable1 IHprovable2).
@@ -249,23 +246,23 @@ Proof.
   + apply sound_excluded_middle_ident.
 Qed.
 
-Theorem sound_weak_classical_kripke_no_branch (Var: Type): sound (GodelDummettPropositionalLogic.G Var) (KripkeSemantics_NoBranch.SM Var).
+Theorem sound_weak_classical_kripke_no_branch (Var: Type): sound 
+(GodelDummettPropositionalLogic.G Var) (KripkeSemantics.SM Var)
+(@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_NoBranch Var)).
 Proof.
   hnf; intros.
   pose (PropositionalLanguage.L Var) as L.
   pose (PropositionalLanguage.nL Var: NormalLanguage L) as nL.
   pose (PropositionalLanguage.pL Var: PropositionalLanguage L) as pL.
-  pose (KripkeSemantics_NoBranch.MD Var) as MD.
-  pose (KripkeSemantics_NoBranch.kMD Var: KripkeModel MD) as kMD.
-  intro m.
-  destruct m as [M m].
-  change Kmodel in M.
-  change (Kworlds M) in m.
-  pose (KripkeSemantics_NoBranch.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
-  pose (KripkeSemantics_NoBranch.nkiM Var M: NoBranchKripkeIntuitionisticModel MD M) as nkiM.
-  pose (KripkeSemantics_NoBranch.SM Var: Semantics L MD) as SM.
-  pose (KripkeSemantics_NoBranch.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
-  change (KRIPKE: M, m |= x).
+  pose (KripkeSemantics.MD Var) as MD.
+  pose (KripkeSemantics.kMD Var: KripkeModel MD) as kMD.
+  intros m ?.
+  destruct H0.
+  unfold KripkeSemantics.Kmodel_NoBranch in H0.
+  rename H0 into nkiM.
+  pose (KripkeSemantics.kiM Var M: KripkeIntuitionisticModel MD M) as kiM.
+  pose (KripkeSemantics.SM Var: Semantics L MD) as SM.
+  pose (KripkeSemantics.kiSM Var M: KripkeIntuitionisticSemantics L MD M SM) as kiSM.
   induction H.
   + pose proof sound_modus_ponens x y m.
     exact (H1 IHprovable1 IHprovable2).

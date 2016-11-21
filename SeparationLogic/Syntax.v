@@ -2,7 +2,6 @@ Require Import Coq.Logic.ProofIrrelevance.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Class SeparationLanguage (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}: Type := {

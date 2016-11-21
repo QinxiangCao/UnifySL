@@ -226,11 +226,11 @@ Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
 Instance nG: NormalProofTheory L G := IntuitionisticPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
-Instance MD: Model := KripkeSemantics_All.MD Var.
-Instance kMD: KripkeModel MD := KripkeSemantics_All.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics_All.kiM Var M.
-Instance SM: Semantics L MD := KripkeSemantics_All.SM Var.
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_All.kiSM Var M.
+Instance MD: Model := KripkeSemantics.MD Var.
+Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM Var M.
+Instance SM: Semantics L MD := KripkeSemantics.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
 Definition canonical_frame: KripkeSemantics.frame.
   refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
@@ -247,11 +247,11 @@ Next Obligation.
   apply H; auto.
 Qed.
 
-Definition canonical_Kmodel: KripkeSemantics_All.Kmodel Var :=
-  KripkeSemantics_All.Build_Kmodel Var canonical_frame canonical_eval.
+Definition canonical_Kmodel: KripkeSemantics.Kmodel Var :=
+  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
 
 Definition canonical_model (Phi: DCS Var G): model :=
-  KripkeSemantics_All.Build_model Var canonical_Kmodel Phi.
+  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
 
 Definition canonical_Kmodel_surjection: surjection (Kworlds  canonical_Kmodel) (DCS Var G).
 Proof.
@@ -290,9 +290,9 @@ Proof.
   + reflexivity.
 Qed.
 
-Theorem complete_intuitionistic_kripke: strongly_complete G SM.
+Theorem complete_intuitionistic_kripke: strongly_complete G SM (AllModel _).
 Proof.
-  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
+  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (AllModel _) Phi x).
   + intros.
     assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
     Focus 1. {
@@ -307,7 +307,7 @@ Proof.
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     rewrite <- truth_lemma.
-    apply H2; intros.
+    apply H2; intros; [hnf; auto |].
     apply truth_lemma.
     apply H0; auto.
   + hnf; intros.
@@ -334,12 +334,11 @@ Instance nG: NormalProofTheory L G := ClassicalPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogic.ipG Var.
 Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
-Instance MD: Model := KripkeSemantics_Identical.MD Var.
-Instance kMD: KripkeModel MD := KripkeSemantics_Identical.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M := KripkeSemantics_Identical.kiM Var M.
-Instance ikiM (M: Kmodel): IdenticalKripkeIntuitionisticModel MD M := KripkeSemantics_Identical.ikiM Var M.
-Instance SM: Semantics L MD := KripkeSemantics_Identical.SM Var.
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_Identical.kiSM Var M.
+Instance MD: Model := KripkeSemantics.MD Var.
+Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M := KripkeSemantics.kiM Var M.
+Instance SM: Semantics L MD := KripkeSemantics.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
 Definition canonical_frame: KripkeSemantics.frame.
   refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
@@ -356,21 +355,11 @@ Next Obligation.
   apply H; auto.
 Qed.
 
-Program Definition canonical_Kmodel: @KripkeSemantics_Identical.Kmodel Var :=
-  KripkeSemantics_Identical.Build_Kmodel Var canonical_frame canonical_eval _.
-Next Obligation.
-  apply DCS_ext.
-  intros.
-  split; auto; [| apply H].
-  intros.
-  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig m); tauto).
-  assert (~ proj1_sig n (~~ x)) by (intro; apply H0, H; auto).
-  rewrite DCS_negp_iff by (destruct (proj2_sig n); tauto).
-  auto.
-Qed.
+Definition canonical_Kmodel: @KripkeSemantics.Kmodel Var :=
+  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
 
 Definition canonical_model (Phi: DCS Var G): model :=
-  KripkeSemantics_Identical.Build_model Var canonical_Kmodel Phi.
+  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
 
 Definition canonical_Kmodel_surjection: surjection (Kworlds canonical_Kmodel) (DCS Var G).
 Proof.
@@ -409,9 +398,26 @@ Proof.
   + reflexivity.
 Qed.
 
-Theorem complete_intuitionistic_kripke: strongly_complete G SM.
+Lemma classical_canonical_ident: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_Identical Var)
+  (canonical_model Psi).
 Proof.
-  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
+  intros.
+  unfold canonical_model; constructor.
+  hnf; constructor.
+  intros.
+  apply DCS_ext.
+  intros.
+  split; auto; [| apply H].
+  intros.
+  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig m); tauto).
+  assert (~ proj1_sig n (~~ x)) by (intro; apply H0, H; auto).
+  rewrite DCS_negp_iff by (destruct (proj2_sig n); tauto).
+  auto.
+Qed.
+
+Theorem complete_classical_kripke_ident: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical _)).
+Proof.
+  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical _)) Phi x).
   + intros.
     assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
     Focus 1. {
@@ -426,7 +432,7 @@ Proof.
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     rewrite <- truth_lemma.
-    apply H2; intros.
+    apply H2; [apply classical_canonical_ident |]; intros.
     apply truth_lemma.
     apply H0; auto.
   + hnf; intros.
@@ -453,12 +459,11 @@ Instance nG: NormalProofTheory L G := GodelDummettPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := GodelDummettPropositionalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := GodelDummettPropositionalLogic.ipG Var.
 Instance wpG: GodelDummettPropositionalLogic L G := GodelDummettPropositionalLogic.wpG Var.
-Instance MD: Model := KripkeSemantics_NoBranch.MD Var.
-Instance kMD: KripkeModel MD := KripkeSemantics_NoBranch.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics_NoBranch.kiM Var M.
-Instance nkiM (M: Kmodel): NoBranchKripkeIntuitionisticModel MD M:= KripkeSemantics_NoBranch.nkiM Var M.
-Instance SM: Semantics L MD := KripkeSemantics_NoBranch.SM Var.
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_NoBranch.kiSM Var M.
+Instance MD: Model := KripkeSemantics.MD Var.
+Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM Var M.
+Instance SM: Semantics L MD := KripkeSemantics.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
 Definition canonical_frame: KripkeSemantics.frame.
   refine (KripkeSemantics.Build_frame (DCS Var G) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
@@ -475,9 +480,55 @@ Next Obligation.
   apply H; auto.
 Qed.
 
-Program Definition canonical_Kmodel: @KripkeSemantics_NoBranch.Kmodel Var :=
-  KripkeSemantics_NoBranch.Build_Kmodel Var canonical_frame canonical_eval _.
-Next Obligation.
+Definition canonical_Kmodel: @KripkeSemantics.Kmodel Var :=
+  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
+
+Definition canonical_model (Phi: DCS Var G): model :=
+  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
+
+Definition canonical_Kmodel_surjection: surjection (Kworlds canonical_Kmodel) (DCS Var G).
+Proof.
+  apply (FBuild_surjection _ _ id).
+  hnf; intros.
+  exists b; auto.
+Defined.
+
+Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
+Proof.
+  intros.
+  apply (Build_canonical _ _ _ _ _ _ _ _ canonical_Kmodel_surjection).
+  + intros.
+    change (DCS Var G) in m, n.
+    change (m = m') in H.
+    change (n = n') in H0.
+    subst n' m'.
+    auto.
+  + intros.
+    change (DCS Var G) in n, m'.
+    change (n = n') in H.
+    subst n.
+    exists m'.
+    split; auto.
+    change (m' = m').
+    auto.
+Defined.
+
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
+Proof.
+  intros.
+  apply (truth_lemma Var CV _ canonical_model_canonical).
+  + intros.
+    hnf in H; unfold id in H; subst Phi0.
+    reflexivity.
+  + reflexivity.
+Qed.
+
+Lemma Godel_Dummett_canonical_no_branch: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_NoBranch Var) (canonical_model Psi).
+Proof.
+  intros.
+  unfold canonical_model; constructor.
+  hnf; constructor.
+  intros.
   destruct (classic (Included _ (proj1_sig m2) (proj1_sig m1))); auto.
   destruct (classic (Included _ (proj1_sig m1) (proj1_sig m2))); auto.
   exfalso.
@@ -508,49 +559,9 @@ Next Obligation.
     tauto.
 Qed.
 
-Definition canonical_model (Phi: DCS Var G): model :=
-  KripkeSemantics_NoBranch.Build_model Var canonical_Kmodel Phi.
-
-Definition canonical_Kmodel_surjection: surjection (Kworlds canonical_Kmodel) (DCS Var G).
+Theorem complete_GodelDummett_kripke_no_branch: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_NoBranch _)).
 Proof.
-  apply (FBuild_surjection _ _ id).
-  hnf; intros.
-  exists b; auto.
-Defined.
-
-Lemma canonical_model_canonical: canonical Var G canonical_Kmodel.
-Proof.
-  intros.
-  apply (Build_canonical _ _ _ _ _ _ _ _ canonical_Kmodel_surjection).
-  + intros.
-    change (DCS Var G) in m, n.
-    change (m = m') in H.
-    change (n = n') in H0.
-    subst n' m'.
-    auto.
-  + intros.
-    change (DCS Var G) in n, m'.
-    change (n = n') in H.
-    subst n.
-    exists m'.
-    split; auto.
-    change (m' = m').
-    auto.
-Defined.
-
-Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Phi |= x <-> proj1_sig Phi x.
-Proof.
-  intros.
-  apply (truth_lemma Var CV _ canonical_model_canonical).
-  + intros.
-    hnf in H; unfold id in H; subst Phi0.
-    reflexivity.
-  + reflexivity.
-Qed.
-
-Theorem complete_intuitionistic_kripke: strongly_complete G SM.
-Proof.
-  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
+  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_NoBranch _)) Phi x).
   + intros.
     assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
     Focus 1. {
@@ -565,7 +576,7 @@ Proof.
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     rewrite <- truth_lemma.
-    apply H2; intros.
+    apply H2; [apply Godel_Dummett_canonical_no_branch |]; intros.
     apply truth_lemma.
     apply H0; auto.
   + hnf; intros.

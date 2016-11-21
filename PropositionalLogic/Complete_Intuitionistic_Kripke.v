@@ -23,11 +23,11 @@ Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
 Instance nG: NormalProofTheory L G := IntuitionisticPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
-Instance MD: Model := KripkeSemantics_All.MD Var.
-Instance kMD: KripkeModel MD := KripkeSemantics_All.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics_All.kiM Var M.
-Instance SM: Semantics L MD := KripkeSemantics_All.SM Var.
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics_All.kiSM Var M.
+Instance MD: Model := KripkeSemantics.MD Var.
+Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM Var M.
+Instance SM: Semantics L MD := KripkeSemantics.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
 Definition DCS: Type := sig (fun Phi =>
   derivable_closed Phi /\
@@ -49,11 +49,11 @@ Next Obligation.
   apply H; auto.
 Qed.
 
-Definition canonical_Kmodel: KripkeSemantics_All.Kmodel Var :=
-  KripkeSemantics_All.Build_Kmodel Var canonical_frame canonical_eval.
+Definition canonical_Kmodel: KripkeSemantics.Kmodel Var :=
+  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
 
 Definition canonical_model (Phi: DCS): model :=
-  KripkeSemantics_All.Build_model Var canonical_Kmodel Phi.
+  KripkeSemantics.Build_model Var canonical_Kmodel Phi.
 
 Lemma Lindenbaum_lemma:
   forall Phi x,
@@ -195,9 +195,9 @@ Proof.
     tauto.
 Qed.
 
-Theorem complete_intuitionistic_kripke: strongly_complete G SM.
+Theorem complete_intuitionistic_kripke: strongly_complete G SM (AllModel _).
 Proof.
-  assert (forall Phi x, ~ Phi |-- x -> ~ Phi |== x).
+  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (AllModel _) Phi x).
   + intros.
     assert (exists Psi: DCS, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
     Focus 1. {
@@ -212,7 +212,7 @@ Proof.
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     apply truth_lemma.
-    apply H2; intros.
+    apply H2; intros; [hnf; auto |].
     apply truth_lemma.
     apply H0; auto.
   + hnf; intros.

@@ -111,14 +111,15 @@ Proof.
     tauto.
 Qed.
 
-Theorem complete_classical_trivial: strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var).
+Theorem complete_classical_trivial: strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var) (AllModel _).
 Proof.
-  assert (forall Phi, consistent Phi -> satisfiable Phi).
+  assert (forall Phi, consistent Phi -> satisfiable (AllModel _) Phi).
   + intros.
     assert (exists Psi, Included _ Phi Psi /\ maximal_consistent Psi)
       by (apply Lindenbaum_lemma; auto).
     destruct H0 as [Psi [? ?]].
     exists (canonical_model (exist _ Psi H1)).
+    split; [hnf; auto |].
     intros.
     apply truth_lemma.
     simpl.
@@ -128,13 +129,13 @@ Proof.
     intro.
     specialize (H _ H1); clear H1.
 
-    destruct H as [m ?].
+    destruct H as [m [_ ?]].
     pose proof (fun x0 (HH: Phi x0) => H x0 (Union_introl _ _ _ _ HH)).
     pose proof (H (~~ x) (Union_intror _ _ _ _ (In_singleton _ _))).
     specialize (H0 m).
     clear H.
 
-    specialize (H0 H1).
+    specialize (H0 I H1).
     exact (H2 H0).
 Qed.
 

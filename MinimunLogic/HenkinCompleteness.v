@@ -6,9 +6,9 @@ Require Import Omega.
 
 Local Open Scope logic_base.
 
-Lemma contrapositive_strongly_complete {L: Language} {MD: Model} (SM: Semantics L MD) (Gamma: ProofTheory L):
-  (forall Phi x, ~ Phi |-- x -> ~ Phi |== x) ->
-  strongly_complete Gamma SM.
+Lemma contrapositive_strongly_complete {L: Language} {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD) (Gamma: ProofTheory L):
+  (forall Phi x, ~ Phi |-- x -> ~ consequence MC Phi x) ->
+  strongly_complete Gamma SM MC.
 Proof.
   intros.
   hnf; intros.
