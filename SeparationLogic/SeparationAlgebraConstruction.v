@@ -84,6 +84,17 @@ Proof.
   apply unit_down.
 Qed.
 
+Definition DownwardsClosure_gcSA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {gcSA: GarbageCollectSeparationAlgebra MD M}: @GarbageCollectSeparationAlgebra MD _ M _ (DownwardsClosure_SA M).
+Proof.
+  constructor.
+  simpl.
+  intros.
+  pose proof Korder_PreOrder as H_PreOrder.
+  destruct H as [n [? ?]].
+  etransitivity; eauto.
+  eapply join_has_order1; eauto.
+Qed.
+
 Definition UpwardsClosure_SA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M}: SeparationAlgebra MD M.
 Proof.
   apply (Build_SeparationAlgebra _ _ _ (fun (m1 m2 m: Kworlds M) => exists n1 n2, n1 <= m1 /\ n2 <= m2 /\ join n1 n2 m)).
@@ -161,4 +172,15 @@ Proof.
   constructor.
   simpl.
   apply unit_down.
+Qed.
+
+Definition UpwardsClosure_gcSA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {gcSA: GarbageCollectSeparationAlgebra MD M}: @GarbageCollectSeparationAlgebra MD _ M _ (UpwardsClosure_SA M).
+Proof.
+  constructor.
+  simpl.
+  intros.
+  pose proof Korder_PreOrder as H_PreOrder.
+  destruct H as [n1 [n2 [? [? ?]]]].
+  etransitivity; [| eauto].
+  eapply join_has_order1; eauto.
 Qed.

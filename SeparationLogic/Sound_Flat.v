@@ -131,3 +131,42 @@ Proof.
   destruct H2 as [m1 [m2 [? [? ?]]]].
   exists m1, m2; auto.
 Qed.
+
+Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM}:
+  forall x: expr,
+    forall m, KRIPKE: M, m |= x * emp <--> x.
+Proof.
+  intros.
+  pose proof Korder_PreOrder as H_PreOrder.
+  unfold iffp.
+  rewrite sat_andp.
+  split.
+  + rewrite sat_impp; intros.
+    rewrite sat_sepcon in H0.
+    destruct H0 as [n' [u [? [? ?]]]].
+    rewrite sat_emp in H2.
+    apply join_comm in H0.
+    rewrite unit_spec in H2.
+    specialize (H2 _ _ H0).
+    eapply sat_mono; eauto.
+  + rewrite sat_impp; intros.
+    rewrite sat_sepcon.
+    destruct (unit_exists n) as [u [? ?]].
+    exists n, u.
+    split; [| split]; auto.
+    - apply join_comm; auto.
+    - rewrite sat_emp; auto.
+Qed.
+
+Lemma sound_sepcon_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {GC: GarbageCollectSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM}:
+  forall x y: expr,
+    forall m, KRIPKE: M, m |= x * y --> x.
+Proof.
+  intros.
+  pose proof Korder_PreOrder as H_PreOrder.
+  rewrite sat_impp; intros.
+  rewrite sat_sepcon in H0.
+  destruct H0 as [m1 [m2 [? [? ?]]]].
+  apply join_has_order1 in H0.
+  eapply sat_mono; eauto.
+Qed.

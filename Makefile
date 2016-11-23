@@ -6,7 +6,7 @@ COQBIN=
 COQC=$(COQBIN)coqc
 COQDEP=$(COQBIN)coqdep
 
-DIRS = lib MinimunLogic PropositionalLogic SeparationLogic
+DIRS = lib MinimunLogic PropositionalLogic SeparationLogic HoareLogic
 INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 COQ_FLAG = $(INCLUDE_DEMO)
 DEP_DEMO = -R $(CURRENT_DIR) Logic
@@ -35,11 +35,15 @@ SeparationLogic_FILES = \
   DownUpSemantics_Fail.v Sound_DownUp_Fail.v \
   Downwards2Upwards.v Upwards2Downwards.v
 
+HoareLogic_FILES = \
+  ImperativeLanguage.v HoareLogic.v 
+
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
   $(MinimunLogic_FILES:%.v=MinimunLogic/%.v) \
   $(PropositionalLogic_FILES:%.v=PropositionalLogic/%.v) \
-  $(SeparationLogic_FILES:%.v=SeparationLogic/%.v)
+  $(SeparationLogic_FILES:%.v=SeparationLogic/%.v) \
+  $(HoareLogic_FILES:%.v=HoareLogic/%.v)
 
 $(FILES:%.v=%.vo): %.vo: %.v
 	@echo COQC $*.v

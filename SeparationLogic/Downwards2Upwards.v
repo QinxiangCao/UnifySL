@@ -47,6 +47,14 @@ Proof.
       reflexivity.
 Defined.
 
+Definition UsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM} : @UnitarySemantics L _ _ _ _ MD _ M kiM (UpwardsClosure_SA M) (UpwardsClosure_USA M) SM kiSM.
+Proof.
+  constructor.
+  pose proof Korder_PreOrder as H_PreOrder.
+  intros; simpl.
+  apply sat_emp.
+Qed.
+
 End Downwards2Upwards.
 
 Module Downwards2Flat.
@@ -81,5 +89,13 @@ Proof.
       split; [| split]; auto.
       reflexivity.
 Defined.
+
+Definition UsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM} : @UnitarySemantics L _ _ _ _ MD _ M kiM (UpwardsClosure_SA M) (UpwardsClosure_USA M) SM kiSM.
+Proof.
+  constructor.
+  pose proof Korder_PreOrder as H_PreOrder.
+  intros; simpl.
+  apply sat_emp.
+Qed.
 
 End Downwards2Flat.
