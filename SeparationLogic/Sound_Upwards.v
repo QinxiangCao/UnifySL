@@ -143,7 +143,7 @@ Proof.
   exists m0, m1, m2; auto.
 Qed.
 
-Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {uUSA: UpwardsClosedUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {uUsSM: UnitaryUpwardsSemantics L MD M SM}:
+Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {uUsSM: UnitaryUpwardsSemantics L MD M SM}:
   forall x: expr,
     forall m, KRIPKE: M, m |= x * emp <--> x.
 Proof.

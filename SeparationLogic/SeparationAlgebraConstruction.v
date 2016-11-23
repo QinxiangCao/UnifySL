@@ -7,7 +7,7 @@ Require Import Logic.SeparationLogic.SeparationAlgebra.
 Local Open Scope logic_base.
 Local Open Scope KripkeSemantics.
 
-Definition DownwardsClosureSA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M}: SeparationAlgebra MD M.
+Definition DownwardsClosure_SA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M}: SeparationAlgebra MD M.
 Proof.
   apply (Build_SeparationAlgebra _ _ _ (fun (m1 m2 m: Kworlds M) => exists n, Korder m n /\ join m1 m2 n)).
   + intros.
@@ -30,7 +30,30 @@ Proof.
       etransitivity; eauto.
 Defined.
 
-Definition DownwardsClosure_DownwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M}: @DownwardsClosedSeparationAlgebra MD _ M _ (DownwardsClosureSA M).
+Definition DownwardsClosure_USA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M}: @UnitarySeparationAlgebra MD _ M _ (DownwardsClosure_SA M).
+Proof.
+  apply (Build_UnitarySeparationAlgebra _ _ _ _ _ unit).
+  + intros.
+    simpl.
+    pose proof Korder_PreOrder as H_PreOrder.
+    rewrite unit_spec.
+    split; intros.
+    - destruct H0 as [n0 [? ?]].
+      etransitivity; eauto.
+    - apply H.
+      exists n'.
+      split; auto.
+      reflexivity.
+  + intros.
+    simpl.
+    pose proof Korder_PreOrder as H_PreOrder.
+    destruct (unit_exists n) as [u [? ?]].
+    exists u; split; auto.
+    exists n; split; auto.
+    reflexivity.
+Defined.
+
+Definition DownwardsClosure_DownwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M}: @DownwardsClosedSeparationAlgebra MD _ M _ (DownwardsClosure_SA M).
 Proof.
   constructor.
   intros.
@@ -42,7 +65,7 @@ Proof.
   split; auto; etransitivity; eauto.
 Defined.
 
-Definition DownwardsClosure_UpwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M}: @UpwardsClosedSeparationAlgebra MD _ M _ (DownwardsClosureSA M).
+Definition DownwardsClosure_UpwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M}: @UpwardsClosedSeparationAlgebra MD _ M _ (DownwardsClosure_SA M).
 Proof.
   constructor.
   intros.
@@ -54,7 +77,14 @@ Proof.
   exists n'; split; auto.
 Defined.
 
-Definition UpwardsClosureSA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M}: SeparationAlgebra MD M.
+Definition DownwardsClosure_nUSA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M}: @NormalUnitarySeparationAlgebra MD _ M _ (DownwardsClosure_SA M) (DownwardsClosure_USA M).
+Proof.
+  constructor.
+  simpl.
+  apply unit_down.
+Qed.
+
+Definition UpwardsClosure_SA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M}: SeparationAlgebra MD M.
 Proof.
   apply (Build_SeparationAlgebra _ _ _ (fun (m1 m2 m: Kworlds M) => exists n1 n2, n1 <= m1 /\ n2 <= m2 /\ join n1 n2 m)).
   + (* join_comm *)
@@ -79,7 +109,30 @@ Proof.
       * reflexivity.
 Defined.
 
-Definition UpwardsClosureSA_UpwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA_D: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M}: @UpwardsClosedSeparationAlgebra MD _ M _ (UpwardsClosureSA M).
+Definition UpwardsClosure_USA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M}: @UnitarySeparationAlgebra MD _ M _ (UpwardsClosure_SA M).
+Proof.
+  apply (Build_UnitarySeparationAlgebra _ _ _ _ _ unit).
+  + intros.
+    simpl.
+    pose proof Korder_PreOrder as H_PreOrder.
+    split; intros.
+    - destruct H0 as [m0 [n0 [? [? ?]]]].
+      pose proof unit_down _ _ H0 H.
+      rewrite unit_spec in H3.
+      etransitivity; eauto.
+    - rewrite unit_spec.
+      intros; apply H.
+      exists m, n.
+      split; [| split]; auto; reflexivity.
+  + intros.
+    simpl.
+    pose proof Korder_PreOrder as H_PreOrder.
+    destruct (unit_exists n) as [u [? ?]].
+    exists u; split; auto.
+    exists u, n; split; [| split]; auto; reflexivity.
+Defined.
+
+Definition UpwardsClosure_UpwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA_D: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M}: @UpwardsClosedSeparationAlgebra MD _ M _ (UpwardsClosure_SA M).
 Proof.
   constructor.
   intros.
@@ -91,7 +144,7 @@ Proof.
   split; [| split]; auto; etransitivity; eauto.
 Qed.
 
-Definition UpwardsClosureSA_DownwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA_D: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M}: @DownwardsClosedSeparationAlgebra MD _ M _ (UpwardsClosureSA M).
+Definition UpwardsClosure_DownwardsClosed {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA_D: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M}: @DownwardsClosedSeparationAlgebra MD _ M _ (UpwardsClosure_SA M).
 Proof.
   constructor.
   intros.
@@ -103,3 +156,9 @@ Proof.
   exists n1', n2'; split; [| split]; auto.
 Qed.
 
+Definition UpwardsClosure_nUSA {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {dSA: DownwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M}: @NormalUnitarySeparationAlgebra MD _ M _ (UpwardsClosure_SA M) (UpwardsClosure_USA M).
+Proof.
+  constructor.
+  simpl.
+  apply unit_down.
+Qed.

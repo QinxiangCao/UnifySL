@@ -134,7 +134,7 @@ Proof.
   exists m1, m2; auto.
 Qed.
 
-Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {dUSA: DownwardsClosedUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics L MD M SM} {dUsSM: UnitaryDownwardsSemantics L MD M SM}:
+Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics L MD M SM} {dUsSM: UnitaryDownwardsSemantics L MD M SM}:
   forall x: expr,
     forall m, KRIPKE: M, m |= x * emp <--> x.
 Proof.
@@ -147,8 +147,6 @@ Proof.
     rewrite sat_sepcon in H0.
     destruct H0 as [n' [u [? [? ?]]]].
     rewrite sat_emp in H2.
-    assert (Korder u u) by reflexivity.
-    specialize (H2 u H3).
     apply join_comm in H0.
     rewrite unit_spec in H2.
     specialize (H2 _ _ H0).
