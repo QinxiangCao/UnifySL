@@ -6,9 +6,7 @@ Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.SeparationAlgebraConstruction.
-Require Import Logic.SeparationLogic.UpwardsSemantics.
-Require Import Logic.SeparationLogic.DownwardsSemantics.
-Require Import Logic.SeparationLogic.FlatSemantics.
+Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.UpwardsSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
@@ -17,7 +15,7 @@ Local Open Scope KripkeSemantics.
 
 Module Upwards2Downwards.
 
-Definition dSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @DownwardsSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA M) SM kiSM.
+Definition dSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @DownwardsSemantics.DownwardsSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA M) SM kiSM.
 Proof.
   constructor.
   + (* sat_sepcon *)
@@ -52,7 +50,7 @@ End Upwards2Downwards.
 
 Module Upwards2Flat.
 
-Definition dSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @FlatSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA M) SM kiSM.
+Definition dSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @FlatSemantics.FlatSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA M) SM kiSM.
 Proof.
   constructor.
   + (* sat_sepcon *)

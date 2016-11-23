@@ -30,9 +30,8 @@ SeparationLogic_FILES = \
   Syntax.v \
   SeparationLogic.v \
   SeparationAlgebra.v SeparationAlgebraConstruction.v \
-  DownwardsSemantics.v Sound_Downwards.v \
-  UpwardsSemantics.v Sound_Upwards.v \
-  FlatSemantics.v \
+  Semantics.v \
+  Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \
   DownUpSemantics_Fail.v Sound_DownUp_Fail.v \
   Downwards2Upwards.v Upwards2Downwards.v
 

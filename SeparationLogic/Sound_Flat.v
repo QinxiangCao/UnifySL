@@ -5,7 +5,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
-Require Import Logic.SeparationLogic.FlatSemantics.
+Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.SeparationLogic.SeparationLogic.
 
