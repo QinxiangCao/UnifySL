@@ -1,12 +1,27 @@
 Require Import Logic.MinimunLogic.LogicBase.
+Require Import Logic.SeparationLogic.SeparationAlgebra.
 
 Class ImperativeProgrammingLanguage: Type := {
   cmd: Type
 }.
 
+Class BigStepSemantics (Imp: ImperativeProgrammingLanguage) (MD: Model): Type := {
+  state := model;
+  exceptional_state: Type;
+  access: state + exceptional_state -> cmd -> state + exceptional_state -> Prop
+}.
+
+(*
+
+Class FrameBigStepSemantics (Imp: ImperativeProgrammingLanguage) (MD: Model) {kMD: KripkeModel MD} {SA: forall M: Kmodel, SeparationAlgebra MD M} (BSS: BigStepSemantics Imp MD): Type := {
+  frame_property: forall 
+}.
+*)
+(*
 Class NormalImperativeProgrammingLanguage (Imp: ImperativeProgrammingLanguage): Type := {
   Ssequence: cmd -> cmd -> cmd;
   Sskip: cmd;
+  neq_Sskip_Ssequence: forall c1 c2, Sskip <> Ssequence c1 c2
 }.
 
 Class SmallStepSemantics (Imp: ImperativeProgrammingLanguage) (MD: Model): Type := {
@@ -24,6 +39,9 @@ Definition fmap_sum_left {A1 A2 B: Type} (f: A1 -> A2) (x: A1 + B): A2 + B :=
 Definition fmap_Sseq {Imp: ImperativeProgrammingLanguage} {nImp: NormalImperativeProgrammingLanguage Imp} {MD: Model} {sss: SmallStepSemantics Imp MD} (mcs: cmd * state + exceptional_state) (c0: cmd) :=
   fmap_sum_left (fun cs: cmd * state => let (c, s) := cs in (Ssequence c c0, s)) mcs.
 
+Definition fmap_pair_cmd {Imp: ImperativeProgrammingLanguage} {nImp: NormalImperativeProgrammingLanguage Imp} {MD: Model} {sss: SmallStepSemantics Imp MD} (ms: state + exceptional_state) (c: cmd) :=
+  fmap_sum_left (pair c) ms.
+
 Class NormalSmallStepSemantics (Imp: ImperativeProgrammingLanguage) {nImp: NormalImperativeProgrammingLanguage Imp} (MD: Model) (sss: SmallStepSemantics Imp MD): Type := {
   step_Ssequence1: forall c1 c2 s1 mcs2,
     c2 <> Sskip ->
@@ -35,7 +53,10 @@ Class NormalSmallStepSemantics (Imp: ImperativeProgrammingLanguage) {nImp: Norma
   step_progress: forall c s, c = Sskip <-> exists mcs, step (c, s) mcs
 }.
 
-Inductive access {Imp: ImperativeProgrammingLanguage} {nImp: NormalImperativeProgrammingLanguage Imp} {MD: Model} {sss: SmallStepSemantics Imp MD}: cmd * state + exceptional_state -> cmd * state + exceptional_state -> Prop :=
-| access_refl: forall mcs, access mcs mcs
-| access_step: forall cs mcs, step cs mcs -> access (inl cs) mcs
-| access_trans: forall mcs1 mcs2 mcs3, access mcs1 mcs2 -> access mcs2 mcs3 -> access mcs1 mcs3.
+Inductive iter_step {Imp: ImperativeProgrammingLanguage} {nImp: NormalImperativeProgrammingLanguage Imp} {MD: Model} {sss: SmallStepSemantics Imp MD}: cmd * state + exceptional_state -> cmd * state + exceptional_state -> Prop :=
+| iter_step_refl: forall mcs, iter_step mcs mcs
+| iter_step_step: forall cs mcs1 mcs2, step cs mcs1 -> iter_step mcs1 mcs2 -> iter_step (inl cs) mcs2.
+
+Definition access {Imp: ImperativeProgrammingLanguage} {nImp: NormalImperativeProgrammingLanguage Imp} {MD: Model} {sss: SmallStepSemantics Imp MD} (ms_init: state + exceptional_state) (c: cmd) (ms_end: state + exceptional_state): Prop :=
+  iter_step (fmap_pair_cmd ms_init c) (fmap_pair_cmd ms_end Sskip).
+*)
