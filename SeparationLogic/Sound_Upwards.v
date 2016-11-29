@@ -158,7 +158,7 @@ Proof.
     destruct H0 as [m'' [m' [u [? [? [? ?]]]]]].
     rewrite sat_emp in H2.
     apply join_comm in H0.
-    rewrite unit_spec in H2.
+    unfold pre_unit in H2.
     apply H2 in H0.
     eapply sat_mono; eauto.
     eapply sat_mono; eauto.
@@ -167,7 +167,6 @@ Proof.
     destruct (unit_exists n) as [u [? ?]].
     exists n, n, u.
     split; [| split; [| split]]; auto.
-    - reflexivity.
     - apply join_comm; auto.
     - rewrite sat_emp.
       auto.

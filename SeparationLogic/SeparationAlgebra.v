@@ -18,14 +18,15 @@ Class GarbageCollectSeparationAlgebra (worlds: Type) {kiM: KripkeIntuitionisticM
   join_has_order1: forall (m1 m2 m: worlds), join m1 m2 m -> m <= m1
 }.
 
+Definition pre_unit {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds}: worlds -> Prop :=
+  fun m => forall n n', join m n n' -> n' <= n.
+
 Class UnitarySeparationAlgebra (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds}: Type := {
-  unit: worlds -> Prop;
-  unit_spec: forall m: worlds, unit m <-> forall n n', join m n n' -> n' <= n;
-  unit_exists: forall n: worlds, exists m, join m n n /\ unit m
+  unit_exists: forall n: worlds, exists m, join m n n /\ pre_unit m
 }.
 
 Class NormalUnitarySeparationAlgebra (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {USA: UnitarySeparationAlgebra worlds}: Type := {
-  unit_down: forall n m: worlds, n <= m -> unit m -> unit n
+  unit_down: forall n m: worlds, n <= m -> pre_unit m -> pre_unit n
 }.
 
 Class DownwardsClosedSeparationAlgebra (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds}: Type := {
@@ -49,7 +50,7 @@ Proof.
   constructor.
   intros.
   pose proof Korder_PreOrder as H_PreOrder.
-  rewrite unit_spec in H0 |- *.
+  unfold pre_unit in *.
   intros.
   destruct (join_Korder_up _ _ _ _ n0 H1 H) as [n'' [? ?]]; [reflexivity |].
   etransitivity; eauto.

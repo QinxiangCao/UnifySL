@@ -39,6 +39,6 @@ Class FlatSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLangu
 End FlatSemantics.
 
 Class UnitarySemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {USA: UnitarySeparationAlgebra (Kworlds M)} (SM: Semantics L MD) {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type := {
-  sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> unit m
+  sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> pre_unit m
 }.
 

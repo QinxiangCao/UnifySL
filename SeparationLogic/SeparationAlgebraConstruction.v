@@ -33,27 +33,29 @@ Proof.
       etransitivity; eauto.
 Defined.
 
+Lemma DownwardsClosure_pre_unit {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {uSA: UpwardsClosedSeparationAlgebra worlds}: forall m, @pre_unit _ _ SA m <-> @pre_unit _ _ (DownwardsClosure_SA worlds) m.
+Proof.
+  intros.
+  pose proof Korder_PreOrder as H_PreOrder.
+  unfold pre_unit; split; intros.
+  + destruct H0 as [n0 [? ?]].
+    etransitivity; eauto.
+  + apply H.
+    exists n'.
+    split; auto.
+    reflexivity.
+Qed.
+
 Definition DownwardsClosure_USA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {uSA: UpwardsClosedSeparationAlgebra worlds} {USA: UnitarySeparationAlgebra worlds} {nUSA: NormalUnitarySeparationAlgebra worlds}: @UnitarySeparationAlgebra worlds _ (DownwardsClosure_SA worlds).
 Proof.
-  apply (Build_UnitarySeparationAlgebra _ _ _ unit).
-  + intros.
-    simpl.
-    pose proof Korder_PreOrder as H_PreOrder.
-    rewrite unit_spec.
-    split; intros.
-    - destruct H0 as [n0 [? ?]].
-      etransitivity; eauto.
-    - apply H.
-      exists n'.
-      split; auto.
-      reflexivity.
-  + intros.
-    simpl.
-    pose proof Korder_PreOrder as H_PreOrder.
-    destruct (unit_exists n) as [u [? ?]].
-    exists u; split; auto.
-    exists n; split; auto.
-    reflexivity.
+  constructor.
+  intros.
+  simpl.
+  pose proof Korder_PreOrder as H_PreOrder.
+  destruct (unit_exists n) as [u [? ?]].
+  exists u; split; auto.
+  exists n; split; auto.
+  rewrite <- DownwardsClosure_pre_unit; auto.
 Defined.
 
 Definition DownwardsClosure_DownwardsClosed {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {uSA: UpwardsClosedSeparationAlgebra worlds}: @DownwardsClosedSeparationAlgebra worlds _ (DownwardsClosure_SA worlds).
@@ -83,8 +85,9 @@ Defined.
 Definition DownwardsClosure_nUSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {uSA: UpwardsClosedSeparationAlgebra worlds} {USA: UnitarySeparationAlgebra worlds} {nUSA: NormalUnitarySeparationAlgebra worlds}: @NormalUnitarySeparationAlgebra worlds _ (DownwardsClosure_SA worlds) (DownwardsClosure_USA worlds).
 Proof.
   constructor.
-  simpl.
-  apply unit_down.
+  intros.
+  rewrite <- DownwardsClosure_pre_unit in H0 |- *.
+  revert H H0; apply unit_down.
 Qed.
 
 Definition DownwardsClosure_gcSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {uSA: UpwardsClosedSeparationAlgebra worlds} {gcSA: GarbageCollectSeparationAlgebra worlds}: @GarbageCollectSeparationAlgebra worlds _ (DownwardsClosure_SA worlds).
@@ -126,27 +129,31 @@ Proof.
       * reflexivity.
 Defined.
 
+Lemma UpwardsClosure_pre_unit {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {dSA: DownwardsClosedSeparationAlgebra worlds} {USA: UnitarySeparationAlgebra worlds} {nUSA: NormalUnitarySeparationAlgebra worlds}: forall m, @pre_unit _ _ SA m <-> @pre_unit _ _ (UpwardsClosure_SA worlds) m.
+Proof.
+  intros.
+  pose proof Korder_PreOrder as H_PreOrder.
+  unfold pre_unit; split; intros.
+  + destruct H0 as [m0 [n0 [? [? ?]]]].
+    pose proof unit_down _ _ H0 H.
+    unfold pre_unit in H3.
+    etransitivity; eauto.
+  + unfold pre_unit.
+    intros; apply H.
+    exists m, n.
+    split; [| split]; auto; reflexivity.
+Qed.
+
 Definition UpwardsClosure_USA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {dSA: DownwardsClosedSeparationAlgebra worlds} {USA: UnitarySeparationAlgebra worlds} {nUSA: NormalUnitarySeparationAlgebra worlds}: @UnitarySeparationAlgebra worlds _ (UpwardsClosure_SA worlds).
 Proof.
-  apply (Build_UnitarySeparationAlgebra _ _ _ unit).
-  + intros.
-    simpl.
-    pose proof Korder_PreOrder as H_PreOrder.
-    split; intros.
-    - destruct H0 as [m0 [n0 [? [? ?]]]].
-      pose proof unit_down _ _ H0 H.
-      rewrite unit_spec in H3.
-      etransitivity; eauto.
-    - rewrite unit_spec.
-      intros; apply H.
-      exists m, n.
-      split; [| split]; auto; reflexivity.
-  + intros.
-    simpl.
-    pose proof Korder_PreOrder as H_PreOrder.
-    destruct (unit_exists n) as [u [? ?]].
-    exists u; split; auto.
-    exists u, n; split; [| split]; auto; reflexivity.
+  constructor.
+  intros.
+  simpl.
+  pose proof Korder_PreOrder as H_PreOrder.
+  destruct (unit_exists n) as [u [? ?]].
+  exists u; split; auto.
+  + exists u, n; split; [| split]; auto; reflexivity.
+  + rewrite <- UpwardsClosure_pre_unit; auto.
 Defined.
 
 Definition UpwardsClosure_UpwardsClosed {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}: @UpwardsClosedSeparationAlgebra worlds _ (UpwardsClosure_SA worlds).
@@ -176,8 +183,9 @@ Qed.
 Definition UpwardsClosure_nUSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {dSA: DownwardsClosedSeparationAlgebra worlds} {USA: UnitarySeparationAlgebra worlds} {nUSA: NormalUnitarySeparationAlgebra worlds}: @NormalUnitarySeparationAlgebra worlds _ (UpwardsClosure_SA worlds) (UpwardsClosure_USA worlds).
 Proof.
   constructor.
-  simpl.
-  apply unit_down.
+  intros.
+  rewrite <- UpwardsClosure_pre_unit in H0 |- *.
+  revert H H0; apply unit_down.
 Qed.
 
 Definition UpwardsClosure_gcSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {dSA: DownwardsClosedSeparationAlgebra worlds} {gcSA: GarbageCollectSeparationAlgebra worlds}: @GarbageCollectSeparationAlgebra worlds _ (UpwardsClosure_SA worlds).

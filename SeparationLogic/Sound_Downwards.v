@@ -148,7 +148,7 @@ Proof.
     destruct H0 as [n' [u [? [? ?]]]].
     rewrite sat_emp in H2.
     apply join_comm in H0.
-    rewrite unit_spec in H2.
+    unfold pre_unit in H2.
     specialize (H2 _ _ H0).
     eapply sat_mono; eauto.
   + rewrite sat_impp; intros.

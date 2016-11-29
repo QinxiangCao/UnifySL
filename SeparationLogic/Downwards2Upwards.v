@@ -52,6 +52,7 @@ Proof.
   constructor.
   pose proof Korder_PreOrder as H_PreOrder.
   intros; simpl.
+  rewrite <- UpwardsClosure_pre_unit.
   apply sat_emp.
 Qed.
 
@@ -95,6 +96,7 @@ Proof.
   constructor.
   pose proof Korder_PreOrder as H_PreOrder.
   intros; simpl.
+  rewrite <- UpwardsClosure_pre_unit.
   apply sat_emp.
 Qed.
 
