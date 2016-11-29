@@ -25,7 +25,7 @@ Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM Var M.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 

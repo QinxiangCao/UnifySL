@@ -7,23 +7,23 @@ Require Import Logic.PropositionalLogic.Syntax.
 Local Open Scope logic_base.
 Local Open Scope PropositionalLogic.
 
-Class KripkeIntuitionisticModel (MD: Model) {kMD: KripkeModel MD} (M: Kmodel): Type := {
-  Korder: Kworlds M -> Kworlds M -> Prop; (* <= *)
+Class KripkeIntuitionisticModel (worlds: Type): Type := {
+  Korder: worlds -> worlds -> Prop; (* <= *)
   Korder_PreOrder: PreOrder Korder
 }.
 
 Infix "<=" := Korder: KripkeSemantics.
 Local Open Scope KripkeSemantics.
 
-Class IdenticalKripkeIntuitionisticModel (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} : Prop := {
-  Korder_identical: forall (m n: Kworlds M), m <= n -> m = n
+Class IdentityKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisticModel worlds} : Prop := {
+  Korder_identity: forall m n: worlds, m <= n -> m = n
 }.
 
-Class NoBranchKripkeIntuitionisticModel (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} : Prop := {
-  Korder_no_branch: forall (m1 m2 n: Kworlds M), m1 <= n -> m2 <= n -> m1 <= m2 \/ m2 <= m1
+Class NoBranchKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisticModel worlds} : Prop := {
+  Korder_no_branch: forall m1 m2 n: worlds, m1 <= n -> m2 <= n -> m1 <= m2 \/ m2 <= m1
 }.
 
-Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} (SM: Semantics L MD) : Type := {
+Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiW: KripkeIntuitionisticModel (Kworlds M)} (SM: Semantics L MD) : Type := {
   sat_mono: forall m n x, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , m |= x;
   sat_impp: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, n <= m -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
   sat_andp: forall m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y);
@@ -116,8 +116,8 @@ Instance kMD: KripkeModel MD :=
     (fun M => M)
     (fun M m => Build_model M m).
 
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M :=
-  Build_KripkeIntuitionisticModel _ _ M (Korder M) (Korder_preorder _).
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M) :=
+  Build_KripkeIntuitionisticModel (Kworlds M) (Korder M) (Korder_preorder _).
 
 Instance SM: Semantics L MD :=
   Build_Semantics L MD
@@ -135,10 +135,10 @@ Proof.
 Defined.
 
 Definition Kmodel_Identical: Kmodel -> Prop := fun M =>
-  IdenticalKripkeIntuitionisticModel MD M.
+  IdentityKripkeIntuitionisticModel (Kworlds M).
 
 Definition Kmodel_NoBranch: Kmodel -> Prop := fun M =>
-  NoBranchKripkeIntuitionisticModel MD M.
+  NoBranchKripkeIntuitionisticModel (Kworlds M).
 
 End KripkeSemantics.
 End KripkeSemantics.

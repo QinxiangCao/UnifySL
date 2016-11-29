@@ -46,7 +46,7 @@ Proof.
     subst H1; auto.
 Qed.
 
-Record canonical (Gamma: ProofTheory L) {MD: Model} {kMD: KripkeModel MD}  (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type := {
+Record canonical (Gamma: ProofTheory L) {MD: Model} {kMD: KripkeModel MD}  (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type := {
   underlying_surj :> surjection (Kworlds M) (DCS Gamma);
   canonical_relation_sound: forall m n m' n',
     underlying_surj m m' ->
@@ -143,7 +143,7 @@ Proof.
     auto.
 Qed.
 
-Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
+Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall (X: canonical Gamma M),
    (forall m Phi v,
       X m Phi ->
@@ -276,7 +276,7 @@ Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.
 Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM Var M.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
@@ -336,7 +336,7 @@ Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogi
 Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M := KripkeSemantics.kiM Var M.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M) := KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
@@ -413,7 +413,7 @@ Instance ipG: IntuitionisticPropositionalLogic L G := GodelDummettPropositionalL
 Instance wpG: GodelDummettPropositionalLogic L G := GodelDummettPropositionalLogic.wpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel MD M:= KripkeSemantics.kiM Var M.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 

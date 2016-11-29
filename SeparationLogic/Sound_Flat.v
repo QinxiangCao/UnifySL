@@ -14,7 +14,7 @@ Local Open Scope PropositionalLogic.
 Local Open Scope SeparationLogic.
 Local Open Scope KripkeSemantics.
 
-Lemma sound_sepcon_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM}:
+Lemma sound_sepcon_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM}:
   forall x y: expr,
     forall m,
       KRIPKE: M, m |= x * y --> y * x.
@@ -28,7 +28,7 @@ Proof.
   apply join_comm; auto.
 Qed.
 
-Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM}:
+Lemma sound_sepcon_assoc {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM}:
   forall x y z: expr,
     forall m,
       KRIPKE: M, m |= x * (y * z) <--> (x * y) * z.
@@ -67,7 +67,7 @@ Proof.
     split; [| split]; auto.
 Qed.
 
-Lemma sound_wand_sepcon_adjoint {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: FlatSemantics L MD M SM}:
+Lemma sound_wand_sepcon_adjoint {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: FlatSemantics L MD M SM}:
   forall x y z: expr,
     (forall m, KRIPKE: M, m |= x * y --> z) <-> (forall m, KRIPKE: M, m |= x --> (y -* z)).
 Proof.
@@ -104,7 +104,7 @@ Proof.
     apply (ASSU m2 n m1); auto.
 Qed.
 
-Lemma sound_sepcon_mono {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: FlatSemantics L MD M SM}:
+Lemma sound_sepcon_mono {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: FlatSemantics L MD M SM}:
   forall x1 x2 y1 y2: expr,
    (forall m, KRIPKE: M, m |= x1 --> x2) ->
    (forall m, KRIPKE: M, m |= y1 --> y2) ->
@@ -132,7 +132,7 @@ Proof.
   exists m1, m2; auto.
 Qed.
 
-Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM}:
+Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {USA: UnitarySeparationAlgebra (Kworlds M)} {nUSA: NormalUnitarySeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM}:
   forall x: expr,
     forall m, KRIPKE: M, m |= x * emp <--> x.
 Proof.
@@ -158,7 +158,7 @@ Proof.
     - rewrite sat_emp; auto.
 Qed.
 
-Lemma sound_sepcon_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {GC: GarbageCollectSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM}:
+Lemma sound_sepcon_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {GC: GarbageCollectSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics L MD M SM}:
   forall x y: expr,
     forall m, KRIPKE: M, m |= x * y --> x.
 Proof.

@@ -15,7 +15,7 @@ Local Open Scope KripkeSemantics.
 
 Module Upwards2Downwards.
 
-Definition dsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @DownwardsSemantics.DownwardsSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA M) SM kiSM.
+Definition dsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @DownwardsSemantics.DownwardsSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA (Kworlds M)) SM kiSM.
 Proof.
   constructor.
   + (* sat_sepcon *)
@@ -46,7 +46,7 @@ Proof.
         reflexivity.
 Defined.
 
-Definition UsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM} : @UnitarySemantics L _ _ _ _ MD _ M kiM (DownwardsClosure_SA M) (DownwardsClosure_USA M) SM kiSM.
+Definition UsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)} {USA: UnitarySeparationAlgebra (Kworlds M)} {nUSA: NormalUnitarySeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM} : @UnitarySemantics L _ _ _ _ MD _ M kiM (DownwardsClosure_SA (Kworlds M)) (DownwardsClosure_USA (Kworlds M)) SM kiSM.
 Proof.
   constructor.
   pose proof Korder_PreOrder as H_PreOrder.
@@ -58,7 +58,7 @@ End Upwards2Downwards.
 
 Module Upwards2Flat.
 
-Definition fsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @FlatSemantics.FlatSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA M) SM kiSM.
+Definition fsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}: @FlatSemantics.FlatSemantics L _ _ _ MD _ M kiM (DownwardsClosure_SA (Kworlds M)) SM kiSM.
 Proof.
   constructor.
   + (* sat_sepcon *)
@@ -86,7 +86,7 @@ Proof.
       reflexivity.
 Defined.
 
-Definition UsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel MD M} {SA: SeparationAlgebra MD M} {uSA: UpwardsClosedSeparationAlgebra MD M} {USA: UnitarySeparationAlgebra MD M} {nUSA: NormalUnitarySeparationAlgebra MD M} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM} : @UnitarySemantics L _ _ _ _ MD _ M kiM (DownwardsClosure_SA M) (DownwardsClosure_USA M) SM kiSM.
+Definition UsSM {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)} {USA: UnitarySeparationAlgebra (Kworlds M)} {nUSA: NormalUnitarySeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM} : @UnitarySemantics L _ _ _ _ MD _ M kiM (DownwardsClosure_SA (Kworlds M)) (DownwardsClosure_USA (Kworlds M)) SM kiSM.
 Proof.
   constructor.
   pose proof Korder_PreOrder as H_PreOrder.
