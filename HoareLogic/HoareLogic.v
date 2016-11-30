@@ -6,12 +6,23 @@ Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics.
 
+Class SABigStepSemantics (Imp: ImperativeProgrammingLanguage) (state: Type) {SA: SeparationAlgebra state} (BSS: BigStepSemantics Imp state): Type := {
+  safety_preserve: forall m mf m' c, join m mf m' -> safe m c -> safe m' c;
+  terminate_preserve: forall m mf m' c, join m mf m' -> term_norm m c -> term_norm m' c;
+  frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c (Terminating n') -> exists n, join n mf n' /\ access m c (Terminating n)
+}.
+
 Class HoareLogic (Imp: ImperativeProgrammingLanguage) (L: Language): Type := {
   triple: expr -> cmd -> expr -> Prop
 }.
 
 Local Open Scope logic_base.
-Local Open Scope KripkeSemantics.
+Local Open Scope syntax.
+Local Open Scope kripke_model.
+Import PropositionalLanguageNotation.
+Import SeparationLogicNotation.
+Import KripkeModelFamilyNotation.
+Import KripkeModelNotation_Intuitionistic.
 
 Definition triple_partial_valid {Imp: ImperativeProgrammingLanguage} {L: Language} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {BSS: BigStepSemantics Imp (Kworlds M)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
   forall (s_pre: Kworlds M) (ms_post: MetaState (Kworlds M)),
@@ -38,10 +49,6 @@ Section soundness.
 Context {Imp: ImperativeProgrammingLanguage} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {BSS: BigStepSemantics Imp (Kworlds M)} {nBSS: NormalBigStepSemantics Imp (Kworlds M) BSS} {SA: SeparationAlgebra (Kworlds M)} {SA_BSS: SABigStepSemantics Imp (Kworlds M) BSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel (Kworlds M)} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics.FlatSemantics L MD M SM}.
-
-Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-Local Open Scope SeparationLogic.
 
 Lemma hoare_frame_partial_sound: forall c P Q F,
   triple_partial_valid P c Q ->

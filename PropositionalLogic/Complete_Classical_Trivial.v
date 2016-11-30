@@ -10,7 +10,8 @@ Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.TrivialSemantics.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
+Local Open Scope syntax.
+Import PropositionalLanguageNotation.
 
 Section Completeness.
 

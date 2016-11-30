@@ -35,6 +35,9 @@ Class KripkeModel (MD: Model): Type := {
   build_model: forall M: Kmodel, Kworlds M -> model
 }.
 
+Definition unit_kMD (MD: Model): KripkeModel MD :=
+  Build_KripkeModel MD unit (fun _ => model) (fun _ m => m).
+
 Definition AllModel (MD: Model): ModelClass MD := fun _ => True.
 
 Inductive KripkeModelClass (MD: Model) {kMD: KripkeModel MD} (H: Kmodel -> Prop): ModelClass MD :=
@@ -68,5 +71,14 @@ Definition strongly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (S
 Notation "m  |=  x" := (satisfies m x) (at level 70, no associativity) : logic_base.
 Notation "|--  x" := (provable x) (at level 71, no associativity) : logic_base.
 Notation "Phi  |--  x" := (derivable Phi x) (at level 70, no associativity) : logic_base.
-Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity) : logic_base.
-Notation "x --> y" := (impp x y) (at level 55, right associativity) : logic_base.
+Notation "x --> y" := (impp x y) (at level 55, right associativity) : syntax.
+
+Module KripkeModelFamilyNotation.
+Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity) : kripke_model.
+End KripkeModelFamilyNotation.
+
+Module KripkeModelSingleNotation.
+Notation "'KRIPKE:'  m" := (@build_model _ (unit_kMD _) unit m) (at level 59, no associativity) : kripke_model.
+End KripkeModelSingleNotation.
+
+

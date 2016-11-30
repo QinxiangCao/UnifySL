@@ -11,8 +11,11 @@ Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.GodelDummettLogic.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-Local Open Scope KripkeSemantics.
+Local Open Scope syntax.
+Local Open Scope kripke_model.
+Import PropositionalLanguageNotation.
+Import KripkeModelFamilyNotation.
+Import KripkeModelNotation_Intuitionistic.
 
 Lemma sound_modus_ponens {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
   forall x y: expr,

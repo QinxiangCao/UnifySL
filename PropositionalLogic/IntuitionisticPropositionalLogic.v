@@ -6,7 +6,8 @@ Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
+Local Open Scope syntax.
+Import PropositionalLanguageNotation.
 
 Class IntuitionisticPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} := {
   andp_intros: forall x y, |-- x --> y --> x && y;

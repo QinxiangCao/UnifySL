@@ -5,15 +5,23 @@ Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
+Local Open Scope syntax.
+Local Open Scope kripke_model.
+Import PropositionalLanguageNotation.
+Import KripkeModelFamilyNotation.
 
 Class KripkeIntuitionisticModel (worlds: Type): Type := {
   Korder: worlds -> worlds -> Prop; (* <= *)
   Korder_PreOrder: PreOrder Korder
 }.
 
-Infix "<=" := Korder: KripkeSemantics.
-Local Open Scope KripkeSemantics.
+Module KripkeModelNotation_Intuitionistic.
+
+Infix "<=" := Korder: kripke_model.
+
+End KripkeModelNotation_Intuitionistic.
+
+Import KripkeModelNotation_Intuitionistic.
 
 Class IdentityKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisticModel worlds} : Prop := {
   Korder_identity: forall m n: worlds, m <= n -> m = n

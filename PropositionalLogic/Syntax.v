@@ -15,15 +15,20 @@ Definition negp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage 
 Definition iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} (x y: expr): expr := andp (impp x y) (impp y x).
 Definition truep {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L}: expr := impp falsep falsep.
 
-Notation "x && y" := (andp x y) (at level 40, left associativity) : PropositionalLogic.
-Notation "x || y" := (orp x y) (at level 50, left associativity) : PropositionalLogic.
-Notation "x <--> y" := (iffp x y) (at level 60, no associativity) : PropositionalLogic.
-Notation "~~ x" := (negp x) (at level 35) : PropositionalLogic.
-Notation "'FF'" := falsep : PropositionalLogic.
-Notation "'TT'" := truep : PropositionalLogic.
+Module PropositionalLanguageNotation.
+
+Notation "x && y" := (andp x y) (at level 40, left associativity) : syntax.
+Notation "x || y" := (orp x y) (at level 50, left associativity) : syntax.
+Notation "x <--> y" := (iffp x y) (at level 60, no associativity) : syntax.
+Notation "~~ x" := (negp x) (at level 35) : syntax.
+Notation "'FF'" := falsep : syntax.
+Notation "'TT'" := truep : syntax.
+
+End PropositionalLanguageNotation.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
+Local Open Scope syntax.
+Import PropositionalLanguageNotation.
 
 Definition orp_witnessed {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => forall x y, Phi (x || y) -> Phi x \/ Phi y.

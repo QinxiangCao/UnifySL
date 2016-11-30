@@ -10,9 +10,12 @@ Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.SeparationLogic.SeparationLogic.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-Local Open Scope SeparationLogic.
-Local Open Scope KripkeSemantics.
+Local Open Scope syntax.
+Local Open Scope kripke_model.
+Import PropositionalLanguageNotation.
+Import SeparationLogicNotation.
+Import KripkeModelFamilyNotation.
+Import KripkeModelNotation_Intuitionistic.
 
 Lemma sound_sepcon_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM}:
   forall x y: expr,

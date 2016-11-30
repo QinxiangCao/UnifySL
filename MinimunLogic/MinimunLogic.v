@@ -3,8 +3,7 @@ Require Import Logic.lib.Coqlib.
 Require Import Logic.MinimunLogic.LogicBase.
 
 Local Open Scope logic_base.
-
-(* TODO: split language from logic. *)
+Local Open Scope syntax.
 
 Definition multi_imp {L: Language} {nL: NormalLanguage L} (xs: list expr) (y: expr): expr :=
   fold_right impp y xs.

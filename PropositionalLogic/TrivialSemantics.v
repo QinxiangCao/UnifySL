@@ -3,7 +3,8 @@ Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
+Local Open Scope syntax.
+Import PropositionalLanguageNotation.
 
 Class TrivialPropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) (SM: Semantics L MD): Type := {
   sat_andp: forall m x y, m |= x && y <-> (m |= x /\ m |= y);

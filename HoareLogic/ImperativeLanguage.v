@@ -28,9 +28,3 @@ Class NormalBigStepSemantics (Imp: ImperativeProgrammingLanguage) (state: Type) 
   access_defined: forall s c, exists ms, access s c ms
 }.
 
-Class SABigStepSemantics (Imp: ImperativeProgrammingLanguage) (state: Type) {SA: SeparationAlgebra state} (BSS: BigStepSemantics Imp state): Type := {
-  safety_preserve: forall m mf m' c, join m mf m' -> safe m c -> safe m' c;
-  terminate_preserve: forall m mf m' c, join m mf m' -> term_norm m c -> term_norm m' c;
-  frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c (Terminating n') -> exists n, join n mf n' /\ access m c (Terminating n)
-}.
-

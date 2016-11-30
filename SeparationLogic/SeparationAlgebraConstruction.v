@@ -5,7 +5,9 @@ Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 
 Local Open Scope logic_base.
-Local Open Scope KripkeSemantics.
+Local Open Scope kripke_model.
+Import KripkeModelFamilyNotation.
+Import KripkeModelNotation_Intuitionistic.
 
 Definition DownwardsClosure_SA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds}: SeparationAlgebra worlds :=
   Build_SeparationAlgebra _ (fun m1 m2 m: worlds => exists n, Korder m n /\ join m1 m2 n).

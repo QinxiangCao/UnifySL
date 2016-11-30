@@ -7,9 +7,12 @@ Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-Local Open Scope KripkeSemantics.
-Local Open Scope SeparationLogic.
+Local Open Scope syntax.
+Local Open Scope kripke_model.
+Import PropositionalLanguageNotation.
+Import SeparationLogicNotation.
+Import KripkeModelFamilyNotation.
+Import KripkeModelNotation_Intuitionistic.
 
 Module DownwardsSemantics.
 

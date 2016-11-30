@@ -13,12 +13,17 @@ Class UnitarySeparationLanguage (L: Language) {nL: NormalLanguage L} {pL: Propos
   emp: expr
 }.
 
-Notation "x * y" := (sepcon x y) (at level 40, left associativity) : SeparationLogic.
-Notation "x -* y" := (wand x y) (at level 55, right associativity) : SeparationLogic.
+Module SeparationLogicNotation.
+
+Notation "x * y" := (sepcon x y) (at level 40, left associativity) : syntax.
+Notation "x -* y" := (wand x y) (at level 55, right associativity) : syntax.
+
+End SeparationLogicNotation.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-Local Open Scope SeparationLogic.
+Local Open Scope syntax.
+Import PropositionalLanguageNotation.
+Import SeparationLogicNotation.
 
 Module SeparationLanguage.
 

@@ -10,8 +10,9 @@ Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.SeparationLogic.Syntax.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-Local Open Scope SeparationLogic.
+Local Open Scope syntax.
+Import PropositionalLanguageNotation.
+Import SeparationLogicNotation.
 
 Class SeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   sepcon_comm: forall x y, |-- x * y --> y * x;

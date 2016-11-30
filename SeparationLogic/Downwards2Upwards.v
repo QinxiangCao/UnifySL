@@ -9,9 +9,11 @@ Require Import Logic.SeparationLogic.SeparationAlgebraConstruction.
 Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.DownwardsSemantics.
 
 Local Open Scope logic_base.
-Local Open Scope PropositionalLogic.
-Local Open Scope SeparationLogic.
-Local Open Scope KripkeSemantics.
+Local Open Scope syntax.
+Local Open Scope kripke_model.
+Import PropositionalLanguageNotation.
+Import SeparationLogicNotation.
+Import KripkeModelFamilyNotation.
 
 Module Downwards2Upwards.
 
