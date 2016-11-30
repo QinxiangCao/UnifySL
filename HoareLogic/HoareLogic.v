@@ -21,34 +21,36 @@ Local Open Scope syntax.
 Local Open Scope kripke_model.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
-Import KripkeModelFamilyNotation.
+Import KripkeModelSingleNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Definition triple_partial_valid {Imp: ImperativeProgrammingLanguage} {L: Language} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {BSS: BigStepSemantics Imp (Kworlds M)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
-  forall (s_pre: Kworlds M) (ms_post: MetaState (Kworlds M)),
-  (build_model M s_pre) |= Pre ->
+Existing Instance unit_kMD.
+
+Definition triple_partial_valid {Imp: ImperativeProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics Imp (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
+  forall (s_pre: model) (ms_post: MetaState model),
+  KRIPKE: s_pre |= Pre ->
   access s_pre c ms_post ->
   match ms_post with
   | Error => False
   | NonTerminating => True
-  | Terminating s_post => build_model M s_post |= Post
+  | Terminating s_post => KRIPKE: s_post |= Post
   end.
 
-Definition triple_total_valid {Imp: ImperativeProgrammingLanguage} {L: Language} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {BSS: BigStepSemantics Imp (Kworlds M)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
-  forall (s_pre: Kworlds M) (ms_post: MetaState (Kworlds M)),
-  (build_model M s_pre) |= Pre ->
+Definition triple_total_valid {Imp: ImperativeProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics Imp (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
+  forall (s_pre: model) (ms_post: MetaState model),
+  KRIPKE: s_pre |= Pre ->
   access s_pre c ms_post ->
   match ms_post with
   | Error => False
   | NonTerminating => False
-  | Terminating s_post => build_model M s_post |= Post
+  | Terminating s_post => KRIPKE: s_post |= Post
   end.
 
 Section soundness.
 
-Context {Imp: ImperativeProgrammingLanguage} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {BSS: BigStepSemantics Imp (Kworlds M)} {nBSS: NormalBigStepSemantics Imp (Kworlds M) BSS} {SA: SeparationAlgebra (Kworlds M)} {SA_BSS: SABigStepSemantics Imp (Kworlds M) BSS}.
+Context {Imp: ImperativeProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics Imp model} {nBSS: NormalBigStepSemantics Imp model BSS} {SA: SeparationAlgebra model} {SA_BSS: SABigStepSemantics Imp model BSS}.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel (Kworlds M)} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: FlatSemantics.FlatSemantics L MD M SM}.
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
 
 Lemma hoare_frame_partial_sound: forall c P Q F,
   triple_partial_valid P c Q ->

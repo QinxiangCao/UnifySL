@@ -78,7 +78,7 @@ Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity)
 End KripkeModelFamilyNotation.
 
 Module KripkeModelSingleNotation.
-Notation "'KRIPKE:'  m" := (@build_model _ (unit_kMD _) unit m) (at level 59, no associativity) : kripke_model.
+Notation "'KRIPKE:'  m" := (@build_model _ (unit_kMD _) tt m) (at level 59, no associativity) : kripke_model.
 End KripkeModelSingleNotation.
 
 
