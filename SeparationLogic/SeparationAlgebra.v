@@ -3,7 +3,6 @@ Require Import Logic.lib.Coqlib.
 Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 
-Local Open Scope logic_base.
 Local Open Scope kripke_model.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
