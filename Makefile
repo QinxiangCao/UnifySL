@@ -28,7 +28,7 @@ PropositionalLogic_FILES = \
 
 SeparationLogic_FILES = \
   Syntax.v \
-  SeparationLogic.v \
+  SeparationLogic.v SeparationLogicExtension.v \
   SeparationAlgebra.v SeparationAlgebraConstruction.v \
   SeparationAlgebraExamples.v \
   Semantics.v \

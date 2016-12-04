@@ -242,11 +242,19 @@ Instance Heap_SA (addr val: Type): SeparationAlgebra (Heap addr val) :=
 Instance Heap_nSA (addr val: Type): NormalSeparationAlgebra (Heap addr val) :=
   @fun_nSA _ _ _ (@option_nSA _ _ (identity_nSA _)).
 
-Definition StepIndex_kiM (worlds: Type): KripkeIntuitionisticModel (nat * worlds) := @prod_kiM _ _ nat_le_kiM (identity_kiM _).
+Instance mfHeap_kiM (addr val: Type): KripkeIntuitionisticModel (Heap addr val) :=
+  identity_kiM _.
+
+Instance gcHeap_kiM (addr val: Type): KripkeIntuitionisticModel (Heap addr val) :=
+  @fun_kiM _ _ (@option_kiM _ (identity_kiM _)).
+
+Definition Stack (LV val: Type): Type := LV -> val.
+
+Definition StepIndex_kiM (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}: KripkeIntuitionisticModel (nat * worlds) := @prod_kiM _ _ nat_le_kiM kiM.
 
 Definition StepIndex_SA (worlds: Type) {SA: SeparationAlgebra worlds}: SeparationAlgebra (nat * worlds) := @prod_SA _ _ (identity_SA _) SA.
 
 Definition StepIndex_nSA (worlds: Type) {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds}: @NormalSeparationAlgebra (nat * worlds) (StepIndex_SA worlds) := @prod_nSA _ _ _ _ (identity_nSA _) nSA.
 
-Definition StepIndex_dSA (worlds: Type) {SA: SeparationAlgebra worlds}: @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_kiM worlds) (StepIndex_SA worlds) := @prod_dSA _ _ _ _ _ _ identity_dSA (@ikiM_dSA worlds (identity_kiM _) (identity_ikiM _) SA).
+Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}: @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_kiM worlds) (StepIndex_SA worlds) := @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
 
