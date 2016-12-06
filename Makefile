@@ -37,7 +37,9 @@ SeparationLogic_FILES = \
   Downwards2Upwards.v Upwards2Downwards.v
 
 HoareLogic_FILES = \
-  ImperativeLanguage.v SequentialSemantics.v HoareLogic_Sequential.v \
+  ImperativeLanguage.v \
+  SequentialSemantics.v ConcurrentSemantics.v \
+  HoareLogic_Sequential.v HoareLogic_Concurrent.v \
   Sound_Frame.v
 
 FILES = \

@@ -6,6 +6,7 @@ Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.SequentialSemantics.
+Require Import Logic.HoareLogic.HoareLogic_Sequential.
 
 Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {SA: SeparationAlgebra state} (BSS: BigStepSemantics P state): Type := {
   safety_preserve: forall m mf m' c, join m mf m' -> safe m c -> safe m' c;
@@ -20,26 +21,6 @@ Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import KripkeModelSingleNotation.
 Import KripkeModelNotation_Intuitionistic.
-
-Definition triple_partial_valid {L: Language} {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
-  forall (s_pre: model) (ms_post: MetaState model),
-  KRIPKE: s_pre |= Pre ->
-  access s_pre c ms_post ->
-  match ms_post with
-  | Error => False
-  | NonTerminating => True
-  | Terminating s_post => KRIPKE: s_post |= Post
-  end.
-
-Definition triple_total_valid {L: Language} {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
-  forall (s_pre: model) (ms_post: MetaState model),
-  KRIPKE: s_pre |= Pre ->
-  access s_pre c ms_post ->
-  match ms_post with
-  | Error => False
-  | NonTerminating => False
-  | Terminating s_post => KRIPKE: s_post |= Post
-  end.
 
 Section soundness.
 

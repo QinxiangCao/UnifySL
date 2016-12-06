@@ -6,6 +6,8 @@ Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.SequentialSemantics.
+Require Import Logic.HoareLogic.ConcurrentSemantics.
+Require Import Logic.HoareLogic.HoareLogic_Sequential.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -15,36 +17,64 @@ Import SeparationLogicNotation.
 Import KripkeModelSingleNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Definition triple_partial_valid {L: Language} {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
-  forall (s_pre: model) (ms_post: MetaState model),
-  KRIPKE: s_pre |= Pre ->
-  access s_pre c ms_post ->
-  match ms_post with
-  | Error => False
-  | NonTerminating => True
-  | Terminating s_post => KRIPKE: s_post |= Post
-  end.
+Definition guarded_triple_partial_valid
+           {L: Language}
+           {P: ProgrammingLanguage}
+           {rCP: Resource_ConcurrentProgrammingLanguage P}
+           {MD: Model}
+           {TLBSS: ThreadLocalBigStepSemantics
+                     P (model) (resource -> option expr)}
+           {SM: Semantics L MD}
+           (Inv: resource -> option expr)
+           (Pre: expr)
+           (c: cmd)
+           (Post: expr):
+  Prop :=
+  @triple_partial_valid L P MD (guarded_BSS Inv) SM Pre c Post.
 
-Definition triple_total_valid {L: Language} {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
-  forall (s_pre: model) (ms_post: MetaState model),
-  KRIPKE: s_pre |= Pre ->
-  access s_pre c ms_post ->
-  match ms_post with
-  | Error => False
-  | NonTerminating => False
-  | Terminating s_post => KRIPKE: s_post |= Post
-  end.
+Definition guarded_triple_total_valid
+           {L: Language}
+           {P: ProgrammingLanguage}
+           {rCP: Resource_ConcurrentProgrammingLanguage P}
+           {MD: Model}
+           {TLBSS: ThreadLocalBigStepSemantics
+                     P (model) (resource -> option expr)}
+           {SM: Semantics L MD}
+           (Inv: resource -> option expr)
+           (Pre: expr)
+           (c: cmd)
+           (Post: expr):
+  Prop :=
+  @triple_total_valid L P MD (guarded_BSS Inv) SM Pre c Post.
 
 (***************************************)
 (* Type Classes                        *)
 (***************************************)
 
-Class HoareTriple (L: Language) (P: ProgrammingLanguage) (HLan: Language): Type := {
+(*
+(* TODO: Resume it *)
+Class HoareTriple
+      (L: Language)
+      (P: ProgrammingLanguage)
+      {rCP: Resource_ConcurrentProgrammingLanguage P}
+      (HLan: Language): Type :=
+{
   Assertion := @expr L;
-  triple: Assertion -> cmd -> Assertion -> @expr HLan
+  triple: (resource -> option Assertion) ->
+          Assertion ->
+          cmd ->
+          Assertion ->
+          @expr HLan
 }.
 
-Definition triple_valid {L: Language} {P: ProgrammingLanguage} {HLan: Language} {TI: Semantics HLan unit_MD} (t: @expr HLan): Prop := @satisfies _ _ TI tt t.
+Definition triple_valid
+           {L: Language}
+           {P: ProgrammingLanguage}
+           {rCP: Resource_ConcurrentProgrammingLanguage P}
+           {HLan: Language}
+           {TI: Semantics HLan unit_MD}
+           (t: @expr HLan): Prop :=
+  @satisfies _ _ TI tt t.
 
 Notation "|==  x" := (triple_valid x) (at level 71, no associativity) : hoare_logic.
 Notation "{{ P }} c {{ Q }}" := (triple P c Q) (at level 80, no associativity) : hoare_logic.
@@ -62,3 +92,5 @@ Class TripleInterpretation_Total (L: Language) (P: ProgrammingLanguage) (HLan: L
     (|== {{ P }} c {{ Q }}) <->
     triple_total_valid P c Q
 }.
+
+*)

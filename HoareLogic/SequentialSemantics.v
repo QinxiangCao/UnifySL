@@ -15,10 +15,22 @@ Class BigStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   access: state -> cmd -> MetaState state -> Prop
 }.
 
-Definition safe {P: ProgrammingLanguage} {state: Type} {BSS: BigStepSemantics P state} (s: state) (c: cmd): Prop :=
+Definition safe
+           {P: ProgrammingLanguage}
+           {state: Type}
+           {BSS: BigStepSemantics P state}
+           (s: state)
+           (c: cmd):
+  Prop :=
   ~ access s c Error.
 
-Definition term_norm {P: ProgrammingLanguage} {state: Type} {BSS: BigStepSemantics P state} (s: state) (c: cmd): Prop :=
+Definition term_norm
+           {P: ProgrammingLanguage}
+           {state: Type}
+           {BSS: BigStepSemantics P state}
+           (s: state)
+           (c: cmd):
+  Prop :=
   ~ access s c Error /\ ~ access s c NonTerminating.
 
 Class NormalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (BSS: BigStepSemantics P state): Type := {
