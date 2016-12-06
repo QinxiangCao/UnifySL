@@ -8,6 +8,7 @@ Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.SequentialSemantics.
 Require Import Logic.HoareLogic.HoareLogic_Sequential.
 
+(* TODO: use lift_join to define this type class. *)
 Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} (BSS: BigStepSemantics P state): Type := {
   safety_preserve: forall m mf m' c, join m mf m' -> safe m c -> safe m' c;
   terminate_preserve: forall m mf m' c, join m mf m' -> term_norm m c -> term_norm m' c;

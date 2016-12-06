@@ -12,6 +12,7 @@ Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.PropositionalLogic.GodelDummettLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
+Require Import Logic.PropositionalLogic.WeakClassicalLogic.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -414,7 +415,7 @@ Instance G: ProofTheory L := GodelDummettPropositionalLogic.G Var.
 Instance nG: NormalProofTheory L G := GodelDummettPropositionalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := GodelDummettPropositionalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := GodelDummettPropositionalLogic.ipG Var.
-Instance wpG: GodelDummettPropositionalLogic L G := GodelDummettPropositionalLogic.wpG Var.
+Instance wpG: GodelDummettPropositionalLogic L G := GodelDummettPropositionalLogic.gdG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
 Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
@@ -495,3 +496,74 @@ Qed.
 End Canonical_NoBranch.
 
 End Canonical_NoBranch.
+
+Module Canonical_BranchJoin.
+
+Section Canonical_BranchJoin.
+
+Context (Var: Type).
+Context (CV: Countable Var).
+
+Instance L: Language := PropositionalLanguage.L Var.
+Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
+Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Instance G: ProofTheory L := WeakClassicalLogic.G Var.
+Instance nG: NormalProofTheory L G := WeakClassicalLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := WeakClassicalLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := WeakClassicalLogic.ipG Var.
+Instance wpG: WeakClassicalLogic L G := WeakClassicalLogic.wcG Var.
+Instance MD: Model := KripkeSemantics.MD Var.
+Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
+Instance SM: Semantics L MD := KripkeSemantics.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
+
+Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
+Proof.
+  intros.
+  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
+  + intros.
+    hnf in H; unfold id in H; subst Phi0.
+    reflexivity.
+  + reflexivity.
+Qed.
+
+Lemma weak_classical_canonical_branch_join: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_BranchJoin Var) (canonical_model Var Psi).
+Proof.
+  intros.
+  unfold canonical_model; constructor.
+  hnf; constructor.
+  intros.
+  Abort.
+
+(* TODO: finish this completeness proof. *)
+
+(*
+Theorem complete_GodelDummett_kripke_no_branch: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_NoBranch _)).
+Proof.
+  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_NoBranch _)) Phi x).
+  + intros.
+    assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
+    Focus 1. {
+      apply (Lindenbaum_lemma Var CV) in H.
+      destruct H as [Psi [? [? ?]]].
+      exists (exist _ Psi H1).
+      simpl; auto.
+    } Unfocus.
+    destruct H0 as [Psi [? ?]].
+    intro.
+    specialize (H2 (canonical_model Var Psi)).
+    apply H1.
+    rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
+    rewrite <- truth_lemma.
+    apply H2; [apply Godel_Dummett_canonical_no_branch |]; intros.
+    apply truth_lemma.
+    apply H0; auto.
+  + hnf; intros.
+    apply Classical_Prop.NNPP; intro; revert H0.
+    apply H; auto.
+Qed.
+*)
+End Canonical_BranchJoin.
+
+End Canonical_BranchJoin.

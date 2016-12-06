@@ -131,7 +131,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance wpG: GodelDummettPropositionalLogic L G.
+Instance gdG: GodelDummettPropositionalLogic L G.
 Proof.
   constructor.
   apply impp_choice.

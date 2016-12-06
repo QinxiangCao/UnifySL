@@ -31,6 +31,10 @@ Class NoBranchKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisti
   Korder_no_branch: forall m1 m2 n: worlds, m1 <= n -> m2 <= n -> m1 <= m2 \/ m2 <= m1
 }.
 
+Class BranchJoinKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisticModel worlds} : Prop := {
+  Korder_branch_join: forall m1 m2 n: worlds, m1 <= n -> m2 <= n -> exists m, m <= m1 /\ m <= m2
+}.
+
 Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiW: KripkeIntuitionisticModel (Kworlds M)} (SM: Semantics L MD) : Type := {
   sat_mono: forall m n x, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , m |= x;
   sat_impp: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, n <= m -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
@@ -147,6 +151,9 @@ Definition Kmodel_Identical: Kmodel -> Prop := fun M =>
 
 Definition Kmodel_NoBranch: Kmodel -> Prop := fun M =>
   NoBranchKripkeIntuitionisticModel (Kworlds M).
+
+Definition Kmodel_BranchJoin: Kmodel -> Prop := fun M =>
+  BranchJoinKripkeIntuitionisticModel (Kworlds M).
 
 End KripkeSemantics.
 End KripkeSemantics.

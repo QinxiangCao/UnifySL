@@ -20,7 +20,8 @@ MinimunLogic_FILES = \
 
 PropositionalLogic_FILES = \
   Syntax.v \
-  IntuitionisticPropositionalLogic.v ClassicalPropositionalLogic.v GodelDummettLogic.v \
+  IntuitionisticPropositionalLogic.v ClassicalPropositionalLogic.v \
+  GodelDummettLogic.v WeakClassicalLogic.v \
   KripkeSemantics.v TrivialSemantics.v \
   Sound_Classical_Trivial.v Complete_Classical_Trivial.v \
   Sound_Kripke.v Complete_Kripke.v \
@@ -40,7 +41,7 @@ HoareLogic_FILES = \
   ImperativeLanguage.v \
   SequentialSemantics.v ConcurrentSemantics.v \
   HoareLogic_Sequential.v HoareLogic_Concurrent.v \
-  Sound_Frame.v
+  Sound_Basic.v Sound_Imp.v Sound_Frame.v
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
