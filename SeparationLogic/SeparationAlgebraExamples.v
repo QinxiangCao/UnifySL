@@ -7,32 +7,41 @@ Require Import Logic.SeparationLogic.SeparationAlgebra.
 (* SA examples                     *)
 (***********************************)
 
-Definition identity_SA (worlds: Type): SeparationAlgebra worlds :=
-  Build_SeparationAlgebra _ (fun a b c => a = c /\ b = c).
+Section EquivSA.
+  Variable worlds: Type.
+  
+  Definition equiv_Join: Join worlds:=  (fun a b c => a = c /\ b = c).
 
-Definition identity_nSA (worlds: Type): @NormalSeparationAlgebra worlds (identity_SA worlds).
-Proof.
-  constructor.
-  + intros.
-    simpl in *.
-    tauto.
-  + intros.
-    simpl in *.
-    destruct H, H0.
-    subst mx my mxy mz.
-    exists mxyz; auto.
-Qed.
+  Definition equiv_SA: @SeparationAlgebra worlds equiv_Join.
+  Proof.
+    constructor.
+    + intros.
+      inversion H.
+      split; tauto.
+    + intros.
+      simpl in *.
+      destruct H, H0.
+      subst mx my mxy mz.
+      exists mxyz; do 2 split; auto.
+  Qed.
+End EquivSA.
 
-Inductive option_join {worlds: Type} {SA: SeparationAlgebra worlds}: option worlds -> option worlds -> option worlds -> Prop :=
+
+
+Inductive option_join {worlds: Type} {J: Join worlds}: option worlds -> option worlds -> option worlds -> Prop :=
   | None_None_join: option_join None None None
   | None_Some_join: forall a, option_join None (Some a) (Some a)
   | Some_None_join: forall a, option_join (Some a) None (Some a)
   | Some_Some_join: forall a b c, join a b c -> option_join (Some a) (Some b) (Some c).
 
-Definition option_SA (worlds: Type) {SA: SeparationAlgebra worlds}: SeparationAlgebra (option worlds) :=
-  Build_SeparationAlgebra _ (@option_join worlds SA).
+Definition option_Join (worlds: Type) {SA: Join worlds}: Join (option worlds):=
+(@option_join worlds SA).
 
-Definition option_nSA (worlds: Type) {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds}: @NormalSeparationAlgebra (option worlds) (option_SA worlds).
+Definition option_SA
+           (worlds: Type)
+           {J: Join worlds}
+           {SA: SeparationAlgebra worlds}:
+  @SeparationAlgebra (option worlds) (option_Join worlds).
 Proof.
   constructor.
   + intros.
@@ -55,10 +64,13 @@ Proof.
               | apply None_Some_join | apply Some_Some_join; eauto].
 Qed.
 
-Definition fun_SA (A B: Type) {SA_B: SeparationAlgebra B}: SeparationAlgebra (A -> B) :=
-  Build_SeparationAlgebra _ (fun a b c => forall x, join (a x) (b x) (c x)).
+Definition fun_Join (A B: Type) {J_B: Join B}: Join (A -> B) :=
+  (fun a b c => forall x, join (a x) (b x) (c x)).
 
-Definition fun_nSA (A B: Type) {SA_B: SeparationAlgebra B} {nSA_B: NormalSeparationAlgebra B}: @NormalSeparationAlgebra (A -> B) (fun_SA A B).
+Definition fun_SA
+           (A B: Type)
+           {Join_B: Join B}
+           {SA_B: SeparationAlgebra B}: @SeparationAlgebra (A -> B) (fun_Join A B).
 Proof.
   constructor.
   + intros.
@@ -73,10 +85,10 @@ Proof.
     - exists myz; firstorder.
 Qed.
 
-Definition prod_SA (A B: Type) {SA_A: SeparationAlgebra A} {SA_B: SeparationAlgebra B}: SeparationAlgebra (A * B) :=
-  Build_SeparationAlgebra _ (fun a b c => join (fst a) (fst b) (fst c) /\ join (snd a) (snd b) (snd c)).
+Definition prod_Join (A B: Type) {Join_A: Join A} {Join_B: Join B}: Join (A * B) :=
+  (fun a b c => join (fst a) (fst b) (fst c) /\ join (snd a) (snd b) (snd c)).
 
-Definition prod_nSA (A B: Type) {SA_A: SeparationAlgebra A} {SA_B: SeparationAlgebra B} {nSA_A: NormalSeparationAlgebra A} {nSA_B: NormalSeparationAlgebra B}: @NormalSeparationAlgebra (A * B) (prod_SA A B).
+Definition prod_SA (A B: Type) {Join_A: Join A} {Join_B: Join B} {SA_A: SeparationAlgebra A} {SA_B: SeparationAlgebra B}: @SeparationAlgebra (A * B) (prod_Join A B).
 Proof.
   constructor.
   + intros.
@@ -89,10 +101,10 @@ Proof.
     destruct (join_assoc _ _ _ _ _ H H0) as [myz1 [? ?]].
     destruct (join_assoc _ _ _ _ _ H1 H2) as [myz2 [? ?]].
     exists (myz1, myz2).
-    auto.
+    do 2 split; auto.
 Qed.
 
-Class SeparationAlgebra_unit (worlds: Type) {SA: SeparationAlgebra worlds} := {
+Class SeparationAlgebra_unit (worlds: Type) {J: Join worlds} := {
   unit: worlds;
   unit_join: forall n, join n unit n;
   unit_spec: forall n m, join n unit m -> n = m
@@ -158,22 +170,18 @@ Qed.
 (* dSA uSA examples                *)
 (***********************************)
 
-Definition ikiM_dSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds}: DownwardsClosedSeparationAlgebra worlds.
+Definition ikiM_dSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: DownwardsClosedSeparationAlgebra worlds.
 Proof.
-  constructor.
-  pose proof Korder_PreOrder as H_PreOrder.
-  simpl; intros.
+  intros until m2; intros.
   apply Korder_identity in H0.
   subst n.
   exists m1, m2.
   split; [| split]; auto; reflexivity.
 Qed.
 
-Definition ikiM_uSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds}: UpwardsClosedSeparationAlgebra worlds.
+Definition ikiM_uSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: UpwardsClosedSeparationAlgebra worlds.
 Proof.
-  constructor.
-  pose proof Korder_PreOrder as H_PreOrder.
-  simpl; intros.
+  intros until n2; intros.
   apply Korder_identity in H0.
   apply Korder_identity in H1.
   subst n1 n2.
@@ -181,34 +189,31 @@ Proof.
   split; auto; reflexivity.
 Qed.
 
-Definition identity_dSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds}: @DownwardsClosedSeparationAlgebra worlds kiM (identity_SA _).
+Definition identity_dSA {worlds: Type} {kiM: KripkeIntuitionisticModel worlds}: @DownwardsClosedSeparationAlgebra worlds (equiv_Join _) kiM.
 Proof.
-  constructor.
-  simpl; intros.
+  intros until m2; intros.
   destruct H; subst m1 m2.
-  exists n, n; auto.
+  exists n, n; do 2 split; auto.
 Qed.
 
-Definition prod_dSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {SA_A: SeparationAlgebra A} {SA_B: SeparationAlgebra B} {dSA_A: DownwardsClosedSeparationAlgebra A} {dSA_B: DownwardsClosedSeparationAlgebra B}: @DownwardsClosedSeparationAlgebra (A * B) (@prod_kiM _ _ kiM_A kiM_B) (@prod_SA _ _ SA_A SA_B).
+Definition prod_dSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {Join_A: Join A} {Join_B: Join B} {dSA_A: DownwardsClosedSeparationAlgebra A} {dSA_B: DownwardsClosedSeparationAlgebra B}: @DownwardsClosedSeparationAlgebra (A * B) (@prod_Join _ _ Join_A Join_B) (@prod_kiM _ _ kiM_A kiM_B).
 Proof.
-  constructor.
-  simpl; intros.
+  intros until m2; intros.
   destruct H, H0.
   destruct (join_Korder_down _ _ _ _ H H0) as [fst_n1 [fst_n2 [? [? ?]]]].
   destruct (join_Korder_down _ _ _ _ H1 H2) as [snd_n1 [snd_n2 [? [? ?]]]].
   exists (fst_n1, snd_n1), (fst_n2, snd_n2).
-  auto.
+  do 2 split; simpl; auto.
 Qed.
 
-Definition prod_uSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {SA_A: SeparationAlgebra A} {SA_B: SeparationAlgebra B} {uSA_A: UpwardsClosedSeparationAlgebra A} {uSA_B: UpwardsClosedSeparationAlgebra B}: @UpwardsClosedSeparationAlgebra (A * B) (@prod_kiM _ _ kiM_A kiM_B) (@prod_SA _ _ SA_A SA_B).
+Definition prod_uSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {Join_A: Join A} {Join_B: Join B} {uSA_A: UpwardsClosedSeparationAlgebra A} {uSA_B: UpwardsClosedSeparationAlgebra B}: @UpwardsClosedSeparationAlgebra (A * B) (@prod_Join _ _ Join_A Join_B) (@prod_kiM _ _ kiM_A kiM_B) .
 Proof.
-  constructor.
-  simpl; intros.
+  intros until n2; intros.
   destruct H, H0, H1.
   destruct (join_Korder_up _ _ _ _ _ H H0 H1) as [fst_n [? ?]].
   destruct (join_Korder_up _ _ _ _ _ H2 H3 H4) as [snd_n [? ?]].
   exists (fst_n, snd_n).
-  auto.
+  do 2 split; simpl; auto.
 Qed.
 
 (***********************************)
@@ -224,7 +229,7 @@ Next Obligation.
 Qed.
 
 (* TODO: Probably don't need this one. *)
-Program Definition SAu_kiM (worlds: Type) {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds} {SAu: SeparationAlgebra_unit worlds} : KripkeIntuitionisticModel worlds :=
+Program Definition SAu_kiM (worlds: Type) {J: Join worlds} {SA: SeparationAlgebra worlds} {SAu: SeparationAlgebra_unit worlds} : KripkeIntuitionisticModel worlds :=
   Build_KripkeIntuitionisticModel worlds (fun a b => exists b', join b b' a) _.
 Next Obligation.
   constructor; hnf; intros.
@@ -236,11 +241,11 @@ Qed.
 
 Definition Heap (addr val: Type): Type := addr -> option val.
 
-Instance Heap_SA (addr val: Type): SeparationAlgebra (Heap addr val) :=
-  @fun_SA _ _ (@option_SA _ (identity_SA _)).
+Instance Heap_Join (addr val: Type): Join (Heap addr val) :=
+  @fun_Join _ _ (@option_Join _ (equiv_Join _)).
 
-Instance Heap_nSA (addr val: Type): NormalSeparationAlgebra (Heap addr val) :=
-  @fun_nSA _ _ _ (@option_nSA _ _ (identity_nSA _)).
+Instance Heap_SA (addr val: Type): SeparationAlgebra (Heap addr val) :=
+  @fun_SA _ _ _ (@option_SA _ _ (equiv_SA _)).
 
 Instance mfHeap_kiM (addr val: Type): KripkeIntuitionisticModel (Heap addr val) :=
   identity_kiM _.
@@ -252,9 +257,13 @@ Definition Stack (LV val: Type): Type := LV -> val.
 
 Definition StepIndex_kiM (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}: KripkeIntuitionisticModel (nat * worlds) := @prod_kiM _ _ nat_le_kiM kiM.
 
-Definition StepIndex_SA (worlds: Type) {SA: SeparationAlgebra worlds}: SeparationAlgebra (nat * worlds) := @prod_SA _ _ (identity_SA _) SA.
+Definition StepIndex_Join (worlds: Type) {J: Join worlds}: Join (nat * worlds) :=
+  @prod_Join _ _ (equiv_Join _) J.
 
-Definition StepIndex_nSA (worlds: Type) {SA: SeparationAlgebra worlds} {nSA: NormalSeparationAlgebra worlds}: @NormalSeparationAlgebra (nat * worlds) (StepIndex_SA worlds) := @prod_nSA _ _ _ _ (identity_nSA _) nSA.
+Definition StepIndex_SA (worlds: Type) {J: Join worlds} {SA: SeparationAlgebra worlds}:
+  @SeparationAlgebra (nat * worlds) (StepIndex_Join worlds) := @prod_SA _ _ _ _ (equiv_SA _) SA.
 
-Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}: @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_kiM worlds) (StepIndex_SA worlds) := @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
+Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
+           {J: Join worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}:
+  @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
 

@@ -8,7 +8,7 @@ Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.SequentialSemantics.
 Require Import Logic.HoareLogic.HoareLogic_Sequential.
 
-Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {SA: SeparationAlgebra state} (BSS: BigStepSemantics P state): Type := {
+Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} (BSS: BigStepSemantics P state): Type := {
   safety_preserve: forall m mf m' c, join m mf m' -> safe m c -> safe m' c;
   terminate_preserve: forall m mf m' c, join m mf m' -> term_norm m c -> term_norm m' c;
   frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c (Terminating n') -> exists n, join n mf n' /\ access m c (Terminating n)
@@ -26,7 +26,12 @@ Section soundness.
 
 Existing Instance unit_kMD.
 
-Context {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P model} {nBSS: NormalBigStepSemantics P model BSS} {SA: SeparationAlgebra model} {SA_BSS: SABigStepSemantics P model BSS}.
+Context {P: ProgrammingLanguage}
+        {MD: Model}
+        {BSS: BigStepSemantics P model}
+        {nBSS: NormalBigStepSemantics P model BSS}
+        {J: Join model}
+        {SA_BSS: SABigStepSemantics P model BSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
 
