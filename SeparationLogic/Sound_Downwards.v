@@ -6,8 +6,6 @@ Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.DownwardsSemantics.
-Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
-Require Import Logic.SeparationLogic.SeparationLogic.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -175,3 +173,97 @@ Proof.
   apply join_has_order1 in H0.
   eapply sat_mono; eauto.
 Qed.
+
+(*****************************************)
+(* For SL extension                      *)
+(*****************************************)
+
+Definition unique_cancel {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} (P: worlds -> Prop): Prop :=
+  forall n,
+    (exists n1 n2, P n1 /\ join n1 n2 n) ->
+    (exists n1 n2, P n1 /\ join n1 n2 n /\
+       forall n1' n2', (P n1' /\ join n1' n2' n) -> n2 <= n2').
+
+Lemma sound_precise_sepcon {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {dSA: DownwardsClosedSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics L MD M SM}:
+  forall x y,
+    unique_cancel (fun m => KRIPKE: M, m |= x) ->
+    unique_cancel (fun m => KRIPKE: M, m |= y) ->
+    unique_cancel (fun m => KRIPKE: M, m |= x * y).
+Proof.
+  pose proof Korder_PreOrder as H_PreOrder.
+  intros.
+  hnf; intros.
+  destruct H1 as [nxy [n_res [? ?]]].
+  rewrite sat_sepcon in H1.
+  destruct H1 as [nx [ny [? [? ?]]]].
+  destruct (join_assoc _ _ _ _ _ H1 H2) as [nyr [? ?]].
+  destruct (H n (ex_intro _ nx (ex_intro _ nyr (conj H3 H6))))
+    as [nx' [nyr' [? [? ?]]]].
+  pose proof H9 _ _ (conj H3 H6).
+  destruct (join_Korder_down _ _ _ _ H5 H10) as [ny' [n_res' [? [? ?]]]].
+  eapply sat_mono in H4; [| exact H12].
+  destruct (H0 nyr' (ex_intro _ ny' (ex_intro _ n_res' (conj H4 H11))))
+    as [ny'' [n_res'' [? [? ?]]]].
+
+  clear nx ny nxy n_res nyr H1 H2 H3 ny' n_res' H5 H6 H10 H11 H12 H13 H4.
+  rename nx' into nx, nyr' into nyr, ny'' into ny, n_res'' into nr.
+  destruct (join_assoc _ _ _ _ _ (join_comm _ _ _ H15) (join_comm _ _ _ H8))
+    as [nxy [? ?]].
+  apply join_comm in H1.
+  apply join_comm in H2.
+
+  exists nxy, nr.
+  split; [rewrite sat_sepcon; eauto | split; [auto |]].
+
+  clear H7 H8 H14 H15 H1 H2.
+  intros nxy' nr' [? ?].
+  rewrite sat_sepcon in H1.
+  destruct H1 as [nx' [ny' [? [? ?]]]].
+  destruct (join_assoc _ _ _ _ _ H1 H2) as [nyr' [? ?]].
+  specialize (H9 _ _ (conj H3 H6)).
+  destruct (join_Korder_down _ _ _ _ H5 H9) as [ny'' [nr'' [? [? ?]]]].
+  eapply sat_mono in H4; [| exact H8].
+  specialize (H16 _ _ (conj H4 H7)).
+  etransitivity; eassumption.
+Qed.
+
+(*
+(* This is over generalization, i.e. the soundness of pure_fact_andp needs extra restriction on models. *)
+
+Definition join_inv {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} (P: worlds -> Prop): Prop :=
+  (forall n1 n2 n, join n1 n2 n -> P n ->
+     exists n1' n2', join n1' n2' n /\ n1' <= n1 /\ n2' <= n2 /\ P n1') /\
+  (forall n1 n2 n, join n1 n2 n -> P n1 -> P n).
+
+Lemma sound_andp_sepcon {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {nSA: NormalSeparationAlgebra (Kworlds M)} {dSA: DownwardsClosedSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics L MD M SM}:
+  forall x y z,
+    join_inv (fun m => KRIPKE: M, m |= x) ->
+    forall m,
+      KRIPKE: M, m |= (x && (y * z)) <--> ((x && y) * z).
+Proof.
+  intros.
+  unfold iffp.
+  rewrite sat_andp, !sat_impp; split; intros ? _ ?; clear m.
+  + rewrite sat_andp in H0; destruct H0.
+    rewrite sat_sepcon in H1; destruct H1 as [ny [nz [? [? ?]]]].
+    destruct H as [? _].
+    specialize (H _ _ _ H1 H0).
+    destruct H as [ny' [nz' [? [? [? ?]]]]].
+    rewrite sat_sepcon; exists ny', nz'.
+    split; [| split]; auto.
+    - rewrite sat_andp; split; auto.
+      eapply sat_mono; eauto.
+    - eapply sat_mono; eauto.
+  + rewrite sat_sepcon in H0; destruct H0 as [ny [nz [? [? ?]]]].
+    rewrite sat_andp in H1; destruct H1.
+    rewrite sat_andp; split.
+    - destruct H as [_ ?].
+      apply (H _ _ _ H0 H1).
+    - rewrite sat_sepcon; exists ny, nz.
+      auto.
+Qed.
+
+*)
+Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
+Require Import Logic.SeparationLogic.SeparationLogic.
+Require Import Logic.SeparationLogic.SeparationLogicExtension.

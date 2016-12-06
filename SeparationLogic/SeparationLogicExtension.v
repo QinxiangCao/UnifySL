@@ -17,10 +17,16 @@ Import SeparationLogicNotation.
 
 Class SeparationLogic_Precise (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SL: SeparationLogic L Gamma}:= {
   precise: expr -> Prop;
-  precise_sepcon: forall x y, precise x -> precise y -> precise (x * y);
-  precise_impp: forall x y, |-- x --> y -> precise y -> precise x;
-  sepcon_cancel: forall x y z, |-- (x * z) --> (y * z) -> precise z -> |-- (x --> y)
+  precise_sepcon: forall x y, precise x -> precise y -> precise (x * y)
 }.
+
+(*
+This rule is not sound for garbage collect SL
+precise_impp: forall x y, |-- x --> y -> precise y -> precise x
+
+The following is not sound e.g. when x := a = 0 && emp, y := a = 1, z := a = 0
+sepcon_cancel: forall x y z, |-- (x * z) --> (y * z) -> precise z -> |-- (x --> y)
+*)
 
 Class SeparationLogic_PureFact (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SL: SeparationLogic L Gamma}:= {
   pure_fact: expr -> Prop;

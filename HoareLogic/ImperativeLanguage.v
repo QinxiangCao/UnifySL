@@ -1,30 +1,26 @@
-Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
-
-Class ImperativeProgrammingLanguage: Type := {
+Class ProgrammingLanguage: Type := {
   cmd: Type
 }.
 
-Inductive MetaState (state: Type): Type :=
-  | Error: MetaState state
-  | NonTerminating: MetaState state
-  | Terminating: state -> MetaState state.
-
-Arguments Error {_}.
-Arguments NonTerminating {_}.
-Arguments Terminating {_} _.
-
-Class BigStepSemantics (Imp: ImperativeProgrammingLanguage) (state: Type): Type := {
-  access: state -> cmd -> MetaState state -> Prop
+Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
+  bool_expr: Type;
+  Ssequence: cmd -> cmd -> cmd;
+  Sifthenelse: bool_expr -> cmd -> cmd -> cmd;
+  Swhile: bool_expr -> cmd -> cmd;
+  Sskip: cmd
 }.
 
-Definition safe {Imp: ImperativeProgrammingLanguage} {state: Type} {BSS: BigStepSemantics Imp state} (s: state) (c: cmd): Prop :=
-  ~ access s c Error.
-
-Definition term_norm {Imp: ImperativeProgrammingLanguage} {state: Type} {BSS: BigStepSemantics Imp state} (s: state) (c: cmd): Prop :=
-  ~ access s c Error /\ ~ access s c NonTerminating.
-
-Class NormalBigStepSemantics (Imp: ImperativeProgrammingLanguage) (state: Type) (BSS: BigStepSemantics Imp state): Type := {
-  access_defined: forall s c, exists ms, access s c ms
+Class ConcurrentProgrammingLanguage (P: ProgrammingLanguage): Type := {
+  Sparallel: cmd -> cmd -> cmd
 }.
 
+Class Resource_ConcurrentProgrammingLanguage (P: ProgrammingLanguage): Type := {
+  resource: Type;
+  Sresource: resource -> cmd -> cmd
+}.
+
+Class Lock_ConcurrentProgrammingLanguage (P: ProgrammingLanguage): Type := {
+  lock_expr: Type;
+  Sacquire: lock_expr -> cmd;
+  Srelease: lock_expr -> cmd
+}.

@@ -1,18 +1,19 @@
 Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics.
+Require Import Logic.HoareLogic.ImperativeLanguage.
+Require Import Logic.HoareLogic.SequentialSemantics.
 
-Class SABigStepSemantics (Imp: ImperativeProgrammingLanguage) (state: Type) {SA: SeparationAlgebra state} (BSS: BigStepSemantics Imp state): Type := {
+Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {SA: SeparationAlgebra state} (BSS: BigStepSemantics P state): Type := {
   safety_preserve: forall m mf m' c, join m mf m' -> safe m c -> safe m' c;
   terminate_preserve: forall m mf m' c, join m mf m' -> term_norm m c -> term_norm m' c;
   frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c (Terminating n') -> exists n, join n mf n' /\ access m c (Terminating n)
 }.
 
-Class HoareLogic (Imp: ImperativeProgrammingLanguage) (L: Language): Type := {
+Class HoareLogic (P: ProgrammingLanguage) (L: Language): Type := {
   triple: expr -> cmd -> expr -> Prop
 }.
 
@@ -26,7 +27,7 @@ Import KripkeModelNotation_Intuitionistic.
 
 Existing Instance unit_kMD.
 
-Definition triple_partial_valid {Imp: ImperativeProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics Imp (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
+Definition triple_partial_valid {P: ProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
   forall (s_pre: model) (ms_post: MetaState model),
   KRIPKE: s_pre |= Pre ->
   access s_pre c ms_post ->
@@ -36,7 +37,7 @@ Definition triple_partial_valid {Imp: ImperativeProgrammingLanguage} {L: Languag
   | Terminating s_post => KRIPKE: s_post |= Post
   end.
 
-Definition triple_total_valid {Imp: ImperativeProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics Imp (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
+Definition triple_total_valid {P: ProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
   forall (s_pre: model) (ms_post: MetaState model),
   KRIPKE: s_pre |= Pre ->
   access s_pre c ms_post ->
@@ -48,7 +49,7 @@ Definition triple_total_valid {Imp: ImperativeProgrammingLanguage} {L: Language}
 
 Section soundness.
 
-Context {Imp: ImperativeProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics Imp model} {nBSS: NormalBigStepSemantics Imp model BSS} {SA: SeparationAlgebra model} {SA_BSS: SABigStepSemantics Imp model BSS}.
+Context {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P model} {nBSS: NormalBigStepSemantics P model BSS} {SA: SeparationAlgebra model} {SA_BSS: SABigStepSemantics P model BSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
 

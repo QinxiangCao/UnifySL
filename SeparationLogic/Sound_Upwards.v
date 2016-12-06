@@ -189,3 +189,9 @@ Proof.
   eapply sat_mono; eauto.
 Qed.
 
+(* TODO: fix this: *)
+Definition unique_cancel {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {SA: SeparationAlgebra worlds} (P: worlds -> Prop): Prop :=
+  forall n,
+    (exists n1 n2, P n1 /\ join n1 n2 n) ->
+    (exists n1 n2, P n1 /\ join n1 n2 n /\
+       forall n1' n2', (P n1' /\ join n1' n2' n) -> n2 <= n2').

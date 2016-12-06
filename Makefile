@@ -37,7 +37,7 @@ SeparationLogic_FILES = \
   Downwards2Upwards.v Upwards2Downwards.v
 
 HoareLogic_FILES = \
-  ImperativeLanguage.v HoareLogic.v 
+  ImperativeLanguage.v SequentialSemantics.v HoareLogic.v 
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
