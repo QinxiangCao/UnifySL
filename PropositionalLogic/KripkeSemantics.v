@@ -12,7 +12,7 @@ Import KripkeModelFamilyNotation.
 
 Class KripkeIntuitionisticModel (worlds: Type): Type := {
   Korder: worlds -> worlds -> Prop; (* <= *)
-  Korder_PreOrder: PreOrder Korder
+  Korder_PreOrder:> PreOrder Korder
 }.
 
 Module KripkeModelNotation_Intuitionistic.

@@ -7,21 +7,30 @@ Require Import Logic.SeparationLogic.SeparationAlgebra.
 (* SA examples                     *)
 (***********************************)
 
-Definition identity_SA (worlds: Type): SeparationAlgebra worlds :=
-  Build_SeparationAlgebra _ (fun a b c => a = c /\ b = c).
+Section Identity.
+  Variable worlds: Type.
+  
+  Definition identity_SA: SeparationAlgebra worlds :=
+    Build_SeparationAlgebra _ (fun a b c => a = c /\ b = c).
 
-Definition identity_nSA (worlds: Type): @NormalSeparationAlgebra worlds (identity_SA worlds).
-Proof.
-  constructor.
-  + intros.
-    simpl in *.
-    tauto.
-  + intros.
-    simpl in *.
-    destruct H, H0.
-    subst mx my mxy mz.
-    exists mxyz; auto.
-Qed.
+  
+  
+  Definition identity_nSA: NormalSeparationAlgebra worlds. identity_SA.
+  Proof.
+    constructor.
+    + intros.
+      simpl in *.
+      tauto.
+    + intros.
+      simpl in *.
+      destruct H, H0.
+      subst mx my mxy mz.
+      exists mxyz; auto.
+  Qed.
+
+  Definition identity_GC: GarbageCollectSeparationAlgebra
+
+
 
 Inductive option_join {worlds: Type} {SA: SeparationAlgebra worlds}: option worlds -> option worlds -> option worlds -> Prop :=
   | None_None_join: option_join None None None
