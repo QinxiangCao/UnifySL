@@ -13,10 +13,6 @@ Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {SA: SeparationA
   frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c (Terminating n') -> exists n, join n mf n' /\ access m c (Terminating n)
 }.
 
-Class HoareLogic (P: ProgrammingLanguage) (L: Language): Type := {
-  triple: expr -> cmd -> expr -> Prop
-}.
-
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Local Open Scope kripke_model.
@@ -25,9 +21,7 @@ Import SeparationLogicNotation.
 Import KripkeModelSingleNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Existing Instance unit_kMD.
-
-Definition triple_partial_valid {P: ProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
+Definition triple_partial_valid {L: Language} {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
   forall (s_pre: model) (ms_post: MetaState model),
   KRIPKE: s_pre |= Pre ->
   access s_pre c ms_post ->
@@ -37,7 +31,7 @@ Definition triple_partial_valid {P: ProgrammingLanguage} {L: Language} {MD: Mode
   | Terminating s_post => KRIPKE: s_post |= Post
   end.
 
-Definition triple_total_valid {P: ProgrammingLanguage} {L: Language} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
+Definition triple_total_valid {L: Language} {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P (model)} {SM: Semantics L MD} (Pre: expr) (c: cmd) (Post: expr): Prop :=
   forall (s_pre: model) (ms_post: MetaState model),
   KRIPKE: s_pre |= Pre ->
   access s_pre c ms_post ->
@@ -48,6 +42,8 @@ Definition triple_total_valid {P: ProgrammingLanguage} {L: Language} {MD: Model}
   end.
 
 Section soundness.
+
+Existing Instance unit_kMD.
 
 Context {P: ProgrammingLanguage} {MD: Model} {BSS: BigStepSemantics P model} {nBSS: NormalBigStepSemantics P model BSS} {SA: SeparationAlgebra model} {SA_BSS: SABigStepSemantics P model BSS}.
 

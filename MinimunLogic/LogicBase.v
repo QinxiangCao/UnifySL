@@ -35,6 +35,8 @@ Class KripkeModel (MD: Model): Type := {
   build_model: forall M: Kmodel, Kworlds M -> model
 }.
 
+Definition unit_MD: Model := Build_Model unit.
+
 Definition unit_kMD (MD: Model): KripkeModel MD :=
   Build_KripkeModel MD unit (fun _ => model) (fun _ m => m).
 
