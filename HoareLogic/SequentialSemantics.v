@@ -11,6 +11,10 @@ Arguments Error {_}.
 Arguments NonTerminating {_}.
 Arguments Terminating {_} _.
 
+(*
+Instance MetaState_SA (state: Type) {SA: SeparationAlgebra state}: SeparationAlgebra (MetaState state).
+*)
+
 Class BigStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   access: state -> cmd -> MetaState state -> Prop
 }.

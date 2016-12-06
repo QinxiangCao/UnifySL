@@ -20,12 +20,11 @@ Import KripkeModelNotation_Intuitionistic.
 Definition guarded_triple_partial_valid
            {L: Language}
            {P: ProgrammingLanguage}
-           {rCP: Resource_ConcurrentProgrammingLanguage P}
            {MD: Model}
-           {TLBSS: ThreadLocalBigStepSemantics
-                     P (model) (resource -> option expr)}
+           {guard: Type}
+           {TLBSS: ThreadLocalBigStepSemantics P (model) guard}
            {SM: Semantics L MD}
-           (Inv: resource -> option expr)
+           (Inv: guard)
            (Pre: expr)
            (c: cmd)
            (Post: expr):
@@ -35,12 +34,11 @@ Definition guarded_triple_partial_valid
 Definition guarded_triple_total_valid
            {L: Language}
            {P: ProgrammingLanguage}
-           {rCP: Resource_ConcurrentProgrammingLanguage P}
            {MD: Model}
-           {TLBSS: ThreadLocalBigStepSemantics
-                     P (model) (resource -> option expr)}
+           {guard: Type}
+           {TLBSS: ThreadLocalBigStepSemantics P (model) guard}
            {SM: Semantics L MD}
-           (Inv: resource -> option expr)
+           (Inv: guard)
            (Pre: expr)
            (c: cmd)
            (Post: expr):
@@ -51,9 +49,7 @@ Definition guarded_triple_total_valid
 (* Type Classes                        *)
 (***************************************)
 
-(*
-(* TODO: Resume it *)
-Class HoareTriple
+Class GuardedHoareTriple
       (L: Language)
       (P: ProgrammingLanguage)
       {rCP: Resource_ConcurrentProgrammingLanguage P}
@@ -77,20 +73,6 @@ Definition triple_valid
   @satisfies _ _ TI tt t.
 
 Notation "|==  x" := (triple_valid x) (at level 71, no associativity) : hoare_logic.
-Notation "{{ P }} c {{ Q }}" := (triple P c Q) (at level 80, no associativity) : hoare_logic.
+Notation "{{ Inv }} {{ P }} c {{ Q }}" := (triple Inv P c Q) (at level 80, no associativity) : guarded_hoare_logic.
 
-Local Open Scope hoare_logic.
 
-Class TripleInterpretation_Partial (L: Language) (P: ProgrammingLanguage) (HLan: Language) {HT: HoareTriple L P HLan} (MD: Model) (BSS: BigStepSemantics P model) (SM: Semantics L MD) (TI: Semantics HLan unit_MD) : Type := {
-  partial_valid_spec: forall (P: Assertion) (c: cmd) (Q: Assertion),
-    (|== {{ P }} c {{ Q }}) <->
-    triple_partial_valid P c Q
-}.
-
-Class TripleInterpretation_Total (L: Language) (P: ProgrammingLanguage) (HLan: Language) {HT: HoareTriple L P HLan} (MD: Model) (BSS: BigStepSemantics P model) (SM: Semantics L MD) (TI: Semantics HLan unit_MD) : Type := {
-  total_valid_spec: forall (P: Assertion) (c: cmd) (Q: Assertion),
-    (|== {{ P }} c {{ Q }}) <->
-    triple_total_valid P c Q
-}.
-
-*)
