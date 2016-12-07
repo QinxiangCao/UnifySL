@@ -35,6 +35,9 @@ Class BranchJoinKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionis
   Korder_branch_join: forall m1 m2 n: worlds, m1 <= n -> m2 <= n -> exists m, m <= m1 /\ m <= m2
 }.
 
+Definition Korder_stable {worlds: Type} {kiW: KripkeIntuitionisticModel worlds} (P: worlds -> Prop): Prop :=
+  forall w1 w2, w1 <= w2 -> (P w1 <-> P w2).
+
 Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiW: KripkeIntuitionisticModel (Kworlds M)} (SM: Semantics L MD) : Type := {
   sat_mono: forall m n x, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , m |= x;
   sat_impp: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, n <= m -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
