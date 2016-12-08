@@ -28,7 +28,7 @@ Class Resource_BigStepSemantics
       (P: ProgrammingLanguage)
       {rcP: Resource_ConcurrentProgrammingLanguage P}
       (state: Type)
-      {SA: SeparationAlgebra state}
+      {J: Join state}
       (TLBSS: ThreadLocalBigStepSemantics P state
                 (list (resource * (state -> Prop)))): Type :=
 {
@@ -56,7 +56,7 @@ Section soundness.
 
 Existing Instance unit_kMD.
 
-Context {P: ProgrammingLanguage} {rcP: Resource_ConcurrentProgrammingLanguage P} {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {SA: SeparationAlgebra model} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
+Context {P: ProgrammingLanguage} {rcP: Resource_ConcurrentProgrammingLanguage P} {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
 

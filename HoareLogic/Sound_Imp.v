@@ -234,6 +234,80 @@ Proof.
     exact (H0 _ _ H6 H4).
 Qed.
 
-(* TODO: Add while rule for total correctness. *)
+Lemma hoare_while_total_sound:
+  forall {A: Type} (R: A -> A -> Prop) (Wf: well_founded R) (EQ LE: A -> expr) (D: model -> A),
+    (forall s v, s |= EQ v <-> D s = v) ->
+    (forall s v, s |= LE v <-> R (D s) v) ->
+    (forall s1 s2, s1 <= s2 -> D s1 = D s2) ->
+    forall b c B P,
+     (forall s, s |= B <-> eval_bool s b) ->
+     (forall v, triple_total_valid (P && B && EQ v) c (P && LE v)) ->
+     triple_total_valid P (Swhile b c) (P && ~~ B).
+Proof.
+  intros ? ? WF ? ? ? H_EQ H_LE H_D; intros.
+  unfold triple_total_valid in *.
+  intros s ms ? ?.
+  apply access_Swhile in H2.
+  inversion H2; subst; clear H2; auto.
+
+  Focus 1. {
+  induction H3.
+  + eapply sat_mono; [eassumption |].
+    rewrite sat_andp.
+    split; auto.
+    unfold negp.
+    rewrite sat_impp; intros.
+    rewrite H in H5.
+    pose proof eval_bool_stable b _ _ H4.
+    simpl in H5, H6.
+    tauto.
+  + assert (KRIPKE: s1 |= P0 && B && EQ (D s2)).
+    - rewrite !sat_andp.
+      rewrite H_EQ, H, (H_D _ _ H3).
+      simpl; tauto.
+    - eapply sat_mono in H5; [| eassumption].
+      specialize (H0 _ _ _ H5 H4).
+      apply H0.
+  + assert (KRIPKE: s1 |= P0 && B && EQ (D s2)).
+    - rewrite !sat_andp.
+      rewrite H_EQ, H, (H_D _ _ H3).
+      simpl; tauto.
+    - eapply sat_mono in H5; [| eassumption].
+      specialize (H0 _ _ _ H5 H4).
+      apply H0.
+  + apply IHloop_access_fin; clear IHloop_access_fin H6.
+    assert (KRIPKE: s1 |= P0 && B && EQ (D s2)).
+    - rewrite !sat_andp.
+      rewrite H_EQ, H, (H_D _ _ H3).
+      simpl; tauto.
+    - eapply sat_mono in H6; [| eassumption].
+      eapply sat_mono; [eassumption |].
+      specialize (H0 _ _ _ H6 H4).
+      rewrite sat_andp in H0.
+      tauto.
+  } Unfocus.
+  Focus 1. {
+    inversion H3; subst; clear H3.
+    specialize (WF (D (s1 0))).
+    set (n := 0) in WF, H1; clearbody n.
+    remember (D (s1 n)) as D0 eqn:?H.
+    revert n H1 H3.
+    induction WF.
+
+    intros.
+    subst x.
+    assert (KRIPKE: s1 n |= P0 && B && EQ (D (s1 n))).
+    - rewrite !sat_andp.
+      rewrite H_EQ, H.
+      specialize (H2 n).
+      simpl; tauto.
+    - eapply sat_mono in H8; [| apply H4].
+      specialize (H0 _ _ _ H8 (H5 _)).
+      eapply sat_mono in H0; [| apply H6].
+      rewrite sat_andp in H0; destruct H0.
+      rewrite H_LE in H9; simpl in H9.
+      exact (H3 _ H9 (S n) H0 eq_refl).
+  } Unfocus.
+Qed.
 
 End soundness.

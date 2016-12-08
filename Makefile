@@ -41,7 +41,7 @@ HoareLogic_FILES = \
   ImperativeLanguage.v \
   SequentialSemantics.v ConcurrentSemantics.v \
   HoareLogic_Sequential.v HoareLogic_Concurrent.v \
-  Sound_Basic.v Sound_Imp.v Sound_Frame.v
+  Sound_Basic.v Sound_Imp.v Sound_Frame.v Sound_Resource.v
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
