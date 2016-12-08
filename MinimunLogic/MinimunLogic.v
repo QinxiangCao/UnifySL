@@ -468,6 +468,22 @@ Proof.
   auto.
 Qed.
 
+Lemma derivable_impp_arg_switch: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y z: expr),
+  Phi |-- (x --> y --> z) --> (y --> x --> z).
+Proof.
+  intros.
+  apply deduction_weaken0, provable_impp_arg_switch.
+Qed.
+
+Lemma deduction_impp_arg_switch: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y z: expr),
+  Phi |-- x --> y --> z ->
+  Phi |-- y --> x --> z.
+Proof.
+  intros.
+  eapply deduction_modus_ponens; [exact H |].
+  apply derivable_impp_arg_switch.
+Qed.
+
 (*
 
 Theorem weak_completeness_reduce {L: Language} {nL: NormalLanguage L} (R: SyntacticReduction L) {nR: NormalSyntacticReduction L R} (Gamma: ProofTheory L) (SM: Semantics L) {rcGamma: ReductionConsistentProofTheory R Gamma} {rcSM: ReductionConsistentSemantics R SM}:

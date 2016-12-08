@@ -34,7 +34,7 @@ Class Resource_BigStepSemantics
 {
   access_Sresource:
     forall (r: resource) (I: state -> Prop) Inv Inv'
-      c  m1 m_acq m1' m2 m_rel m2',
+      c m1 m_acq m1' m2 m_rel m2',
     tl_access Inv m1 c (Terminating m2) ->
     join m1' m_acq m1 ->
     join m2' m_rel m2 ->
@@ -60,4 +60,13 @@ Context {P: ProgrammingLanguage} {rcP: Resource_ConcurrentProgrammingLanguage P}
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
 
+(*
+Lemma hoare_resource_partial_sound: forall r I Inv Inv' c P Q F,
+  guarded_triple_partial_valid Inv (P * I) c (Q * F) ->
+  triple_partial_valid (P * F) c (Q * F).
+Proof.
+  intros.
+  unfold triple_partial_valid in *.
+  intros s ms ? ?.
+*)
 End soundness.

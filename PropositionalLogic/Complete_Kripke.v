@@ -9,10 +9,10 @@ Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.MinimunLogic.HenkinCompleteness.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
+Require Import Logic.PropositionalLogic.WeakClassicalLogic.
 Require Import Logic.PropositionalLogic.GodelDummettLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.PropositionalLogic.WeakClassicalLogic.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -445,7 +445,7 @@ Proof.
   apply not_all_ex_not in H1.
   apply not_all_ex_not in H2.
   destruct H1 as [x1 ?], H2 as [x2 ?].
-  pose proof derivable_impp_choice (proj1_sig n) x1 x2.
+  pose proof GodelDummettLogic.derivable_impp_choice (proj1_sig n) x1 x2.
   rewrite <- derivable_closed_element_derivable in H3 by (destruct (proj2_sig n); tauto).
   pose proof (proj1 (proj2 (proj2_sig n))).
   apply H4 in H3; clear H4.
@@ -544,7 +544,7 @@ Proof.
     apply derivable_closed_union_derivable in H8; [| auto].
     destruct H8 as [x [? ?]].
     rewrite derivable_closed_element_derivable in H8 by auto.
-    pose proof derivable_weak_excluded_middle (proj1_sig n) x.
+    pose proof WeakClassicalLogic.derivable_weak_excluded_middle (proj1_sig n) x.
     rewrite <- derivable_closed_element_derivable in H10 by auto.
     apply (H6 (~~ x)) in H10.
     destruct H10.

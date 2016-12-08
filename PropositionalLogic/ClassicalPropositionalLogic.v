@@ -50,6 +50,31 @@ Proof.
   + apply derivable_double_negp_elim.
 Qed.
 
+Lemma derivable_impp_choice: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+  Phi |-- (x --> y) || (y --> x).
+Proof.
+  intros.
+  pose proof derivable_excluded_middle Phi x.
+  eapply deduction_modus_ponens; [exact H |].
+  apply deduction_orp_elim.
+  + rewrite <- deduction_theorem.
+    apply deduction_orp_intros2.
+    rewrite deduction_theorem.
+    apply derivable_axiom1.
+  + rewrite <- deduction_theorem.
+    apply deduction_orp_intros1.
+    rewrite deduction_theorem.
+    apply deduction_impp_arg_switch.
+    apply derivable_contradiction_elim.
+Qed.
+
+Lemma derivable_weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
+  Phi |-- ~~ x || ~~ ~~ x.
+Proof.
+  intros.
+  apply derivable_excluded_middle.
+Qed.
+
 (*
 Lemma contrapositivePP: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
   Phi |-- ~~ y --> ~~ x ->
