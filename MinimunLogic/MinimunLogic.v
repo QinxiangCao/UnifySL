@@ -197,7 +197,7 @@ Proof.
   apply aux_minimun_theorem00.
 Qed.
 
-Lemma provable_multi_imp_arg_switch: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (xs: list expr) (x y: expr), |-- (x --> multi_imp xs (x --> y)) --> multi_imp xs (x --> y).
+Lemma provable_multi_imp_shrink: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (xs: list expr) (x y: expr), |-- (x --> multi_imp xs (x --> y)) --> multi_imp xs (x --> y).
 Proof.
   intros.
   induction xs.
@@ -209,6 +209,38 @@ Proof.
     apply provable_impp_arg_switch.
 Qed.
 
+Lemma provable_multi_imp_arg_switch1: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (xs: list expr) (x y: expr), |-- (x --> multi_imp xs  y) --> multi_imp xs (x --> y).
+Proof.
+  intros.
+  induction xs.
+  + simpl.
+    apply provable_impp_refl.
+  + simpl.
+    apply aux_minimun_rule02 with (a --> x --> multi_imp xs y).
+    - apply provable_impp_arg_switch.
+    - apply aux_minimun_rule01; auto.
+Qed.
+
+Lemma provable_multi_imp_arg_switch2: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (xs: list expr) (x y: expr), |-- multi_imp xs (x --> y) --> (x --> multi_imp xs  y).
+Proof.
+  intros.
+  induction xs.
+  + simpl.
+    apply provable_impp_refl.
+  + simpl.
+    apply aux_minimun_rule02 with (a --> x --> multi_imp xs y).
+    - apply aux_minimun_rule01; auto.
+    - apply provable_impp_arg_switch.
+Qed.
+
+Lemma provable_multi_imp_weaken: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (xs: list expr) (x y: expr), |-- x --> y -> |-- multi_imp xs x --> multi_imp xs y.
+Proof.
+  intros.
+  induction xs.
+  + auto.
+  + apply aux_minimun_rule01; auto.
+Qed.
+
 Lemma provable_multi_imp_remove_rel: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (xs1 xs2: list expr) (x y: expr), remove_rel x xs1 xs2 -> |-- multi_imp xs1 y --> multi_imp xs2 (x --> y).
 Proof.
   intros.
@@ -218,9 +250,75 @@ Proof.
   + simpl.
     apply aux_minimun_rule02 with (a --> multi_imp ys (a --> y)).
     - apply aux_minimun_rule01; auto.
-    - apply provable_multi_imp_arg_switch.
+    - apply provable_multi_imp_shrink.
   + simpl.
     apply aux_minimun_rule01; auto.
+Qed.
+
+Lemma provable_multi_imp_split
+      {L: Language}
+      {nL: NormalLanguage L}
+      {Gamma: ProofTheory L}
+      {nGamma: NormalProofTheory L Gamma}
+      {mpGamma: MinimunPropositionalLogic L Gamma}:
+  forall Phi1 Phi2 (xs: list expr) (y: expr),
+    Forall (Union _ Phi1 Phi2) xs ->
+    |-- multi_imp xs y ->
+    exists xs1 xs2,
+      Forall Phi1 xs1 /\
+      Forall Phi2 xs2 /\
+      |-- multi_imp xs1 (multi_imp xs2 y).
+Proof.
+  intros.
+  revert y H0; induction H.
+  + exists nil, nil.
+    split; [| split]; [constructor .. | auto].
+  + intros.
+    specialize (IHForall (x --> y)).
+    eapply modus_ponens in H1;
+      [| simpl; apply provable_multi_imp_arg_switch1].
+    specialize (IHForall H1); clear H1.
+    destruct IHForall as [xs1 [xs2 [? [? ?]]]].
+    destruct H.
+    - exists (x :: xs1), xs2.
+      split; [constructor | split]; auto.
+      simpl; eapply modus_ponens; [apply provable_multi_imp_arg_switch2 |].
+      eapply modus_ponens; [apply provable_multi_imp_weaken | exact H3].
+      apply provable_multi_imp_arg_switch2.
+    - exists xs1, (x :: xs2).
+      split; [| split; [constructor | ]]; auto.
+      eapply modus_ponens; [apply provable_multi_imp_weaken | exact H3].
+      simpl; apply provable_multi_imp_arg_switch2.
+Qed.
+
+Lemma union_derivable {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
+  forall (Phi1 Phi2: context) (x: expr),
+    Union _ Phi1 Phi2 |-- x <->
+    exists xs, Forall Phi2 xs /\ Phi1 |-- multi_imp xs x.
+Proof.
+  intros.
+  split; intros.
+  + rewrite derivable_provable in H.
+    destruct H as [xs [? ?]].
+    pose proof provable_multi_imp_split _ _ _ _ H H0.
+    destruct H1 as [xs1 [xs2 [? [? ?]]]].
+    exists xs2.
+    split; auto.
+    rewrite derivable_provable.
+    exists xs1; auto.
+  + destruct H as [xs2 [? ?]].
+    rewrite derivable_provable in H0.
+    destruct H0 as [xs1 [? ?]].
+    unfold multi_imp in H1.
+    rewrite <- fold_right_app in H1.
+    fold (multi_imp (xs1 ++ xs2) x) in H1.
+    rewrite derivable_provable.
+    exists (xs1 ++ xs2).
+    split; auto.
+    rewrite Forall_app_iff; split;
+    eapply Forall_impl; try eassumption.
+    - intros; left; auto.
+    - intros; right; auto.
 Qed.
 
 Lemma derivable_assum: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x: expr), Phi x -> Phi |-- x.

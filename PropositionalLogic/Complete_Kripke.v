@@ -534,14 +534,42 @@ Proof.
   unfold canonical_model; constructor.
   hnf; constructor.
   intros.
-  Abort.
+  change (DCS Var G) in m1, m2, n.
+  destruct (proj2_sig m1) as [? [_ ?]].
+  destruct (proj2_sig m2) as [? [_ ?]].
+  destruct (proj2_sig n) as [? [? ?]].
+  assert (~ (Union _ (proj1_sig m1) (proj1_sig m2)) |-- FF).
+  Focus 1. {
+    intro.
+    apply derivable_closed_union_derivable in H8; [| auto].
+    destruct H8 as [x [? ?]].
+    rewrite derivable_closed_element_derivable in H8 by auto.
+    pose proof derivable_weak_excluded_middle (proj1_sig n) x.
+    rewrite <- derivable_closed_element_derivable in H10 by auto.
+    apply (H6 (~~ x)) in H10.
+    destruct H10.
+    + apply H0 in H10; unfold Ensembles.In in H10.
+      rewrite derivable_closed_element_derivable in H10 by auto.
+      pose proof deduction_modus_ponens _ _ _ H8 H10.
+      rewrite consistent_spec in H4; auto.
+    + apply H in H10; unfold Ensembles.In in H10.
+      rewrite derivable_closed_element_derivable in H10 by auto.
+      pose proof deduction_modus_ponens _ _ _ H9 H10.
+      rewrite consistent_spec in H2; auto.
+  } Unfocus.
+  destruct (Lindenbaum_lemma _ CV  _ _ H8) as [m' [? [_ ?]]].
+  set (m := exist _ m' H10: DCS Var G).
+  change m' with (proj1_sig m) in H9.
+  clearbody m; clear m' H10.
+  exists m.
+  split.
+  + intros ? ?; apply H9; left; auto.
+  + intros ? ?; apply H9; right; auto.
+Qed.
 
-(* TODO: finish this completeness proof. *)
-
-(*
-Theorem complete_GodelDummett_kripke_no_branch: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_NoBranch _)).
+Theorem complete_weak_classical_kripke_branch_join: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_BranchJoin _)).
 Proof.
-  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_NoBranch _)) Phi x).
+  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_BranchJoin _)) Phi x).
   + intros.
     assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
     Focus 1. {
@@ -556,14 +584,14 @@ Proof.
     apply H1.
     rewrite <- derivable_closed_element_derivable by (exact (proj1 (proj2_sig Psi))).
     rewrite <- truth_lemma.
-    apply H2; [apply Godel_Dummett_canonical_no_branch |]; intros.
+    apply H2; [apply weak_classical_canonical_branch_join |]; intros.
     apply truth_lemma.
     apply H0; auto.
   + hnf; intros.
     apply Classical_Prop.NNPP; intro; revert H0.
     apply H; auto.
 Qed.
-*)
+
 End Canonical_BranchJoin.
 
 End Canonical_BranchJoin.
