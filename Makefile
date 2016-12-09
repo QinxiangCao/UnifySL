@@ -16,7 +16,8 @@ lib_FILES = \
   Coqlib.v Bijection.v Countable.v
 
 MinimunLogic_FILES = \
-  LogicBase.v MinimunLogic.v ContextProperty.v HenkinCompleteness.v
+  LogicBase.v MinimunLogic.v RewriteClass.v \
+  ContextProperty.v HenkinCompleteness.v
 
 PropositionalLogic_FILES = \
   Syntax.v \
