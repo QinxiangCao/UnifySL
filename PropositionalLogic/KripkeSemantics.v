@@ -149,7 +149,7 @@ Proof.
   + intros; simpl. auto.
 Defined.
 
-Definition Kmodel_Identical: Kmodel -> Prop := fun M =>
+Definition Kmodel_Identity: Kmodel -> Prop := fun M =>
   IdentityKripkeIntuitionisticModel (Kworlds M).
 
 Definition Kmodel_NoBranch: Kmodel -> Prop := fun M =>

@@ -324,9 +324,9 @@ End Canonical_All.
 
 End Canonical_All.
 
-Module Canonical_Identical.
+Module Canonical_Identity.
 
-Section Canonical_Identical.
+Section Canonical_Identity.
 
 Context (Var: Type).
 Context (CV: Countable Var).
@@ -345,7 +345,7 @@ Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M) := KripkeSemanti
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
-Lemma classical_canonical_ident: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_Identical Var)
+Lemma classical_canonical_ident: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_Identity Var)
   (canonical_model Var Psi).
 Proof.
   intros.
@@ -372,9 +372,9 @@ Proof.
   + reflexivity.
 Qed.
 
-Theorem complete_classical_kripke_ident: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical _)).
+Theorem complete_classical_kripke_ident: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identity _)).
 Proof.
-  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical _)) Phi x).
+  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identity _)) Phi x).
   + intros.
     assert (exists Psi: DCS Var G, Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x).
     Focus 1. {
@@ -397,9 +397,9 @@ Proof.
     apply H; auto.
 Qed.
 
-End Canonical_Identical.
+End Canonical_Identity.
 
-End Canonical_Identical.
+End Canonical_Identity.
 
 Module Canonical_NoBranch.
 

@@ -246,7 +246,7 @@ Proof.
   + apply sound_falsep_elim.
 Qed.
 
-Theorem sound_classical_kripke_identical (Var: Type): sound (ClassicalPropositionalLogic.G Var) (KripkeSemantics.SM Var) (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identical Var)).
+Theorem sound_classical_kripke_identity (Var: Type): sound (ClassicalPropositionalLogic.G Var) (KripkeSemantics.SM Var) (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identity Var)).
 Proof.
   hnf; intros.
   pose (PropositionalLanguage.L Var) as L.
@@ -256,7 +256,7 @@ Proof.
   pose (KripkeSemantics.kMD Var: KripkeModel MD) as kMD.
   intros m ?.
   destruct H0.
-  unfold KripkeSemantics.Kmodel_Identical in H0.
+  unfold KripkeSemantics.Kmodel_Identity in H0.
   rename H0 into ikiM.
   pose (KripkeSemantics.kiM Var M: KripkeIntuitionisticModel (Kworlds M)) as kiM.
   pose (KripkeSemantics.SM Var: Semantics L MD) as SM.
