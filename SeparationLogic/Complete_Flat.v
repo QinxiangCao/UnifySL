@@ -24,7 +24,7 @@ Import SeparationLogicNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Section Canonical_All.
+Section GeneralCanonical.
 
 Context (Var: Type).
 Context (CV: Countable Var).

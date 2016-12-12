@@ -72,4 +72,3 @@ Proof.
   apply derivable_closed_element_derivable, maximal_consistent_derivable_closed.
   auto.
 Qed.
-

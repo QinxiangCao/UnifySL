@@ -25,11 +25,10 @@ PropositionalLogic_FILES = \
   GodelDummettLogic.v WeakClassicalLogic.v \
   KripkeSemantics.v TrivialSemantics.v \
   Sound_Classical_Trivial.v Complete_Classical_Trivial.v \
-  Sound_Kripke.v Complete_Kripke.v \
-  Complete_Intuitionistic_Kripke.v
+  Sound_Kripke.v Complete_Kripke.v 
 
 SeparationLogic_FILES = \
-  Syntax.v \
+  Syntax.v SoundCompleteParameter.v \
   SeparationLogic.v SeparationLogicExtension.v \
   SeparationAlgebra.v SeparationAlgebraConstruction.v \
   SeparationAlgebraExamples.v \

@@ -29,6 +29,11 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Instance MD: Model := KripkeSemantics.MD Var.
+Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
+Instance SM: Semantics L MD := KripkeSemantics.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
 Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   derivable_closed Phi /\
@@ -50,7 +55,7 @@ Proof.
     assert (H0 = H1) by apply proof_irrelevance.
     subst H1; auto.
 Qed.
-
+(*
 Record canonical (Gamma: ProofTheory L) {MD: Model} {kMD: KripkeModel MD}  (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type := {
   underlying_surj :> surjection (Kworlds M) (DCS Gamma);
   canonical_relation_sound: forall m n m' n',
@@ -64,7 +69,7 @@ Record canonical (Gamma: ProofTheory L) {MD: Model} {kMD: KripkeModel MD}  (M: K
     exists m,
     underlying_surj m m' /\ Korder m n
 }.
-
+*)
 Lemma Lindenbaum_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}:
   forall Phi x,
     ~ Phi |-- x ->
@@ -148,73 +153,6 @@ Proof.
     auto.
 Qed.
 
-Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}:
-  forall (X: canonical Gamma M),
-   (forall m Phi v,
-      X m Phi ->
-      (KRIPKE: M, m |= PropositionalLanguage.varp v <-> proj1_sig Phi (PropositionalLanguage.varp v))) ->
-   (forall m Phi,
-      X m Phi ->
-      forall x, KRIPKE: M, m |= x <-> proj1_sig Phi x).
-Proof.
-  intros.
-  rename H into ATOM_ASSUM, H0 into H.
-  pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))).
-  revert Phi m H.
-  induction x; try solve [inversion H1]; intros.
-  + specialize (IHx1 Phi m H).
-    specialize (IHx2 Phi m H).
-    pose proof DCS_andp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) x1 x2.
-    change (PropositionalLanguage.andp x1 x2) with (x1 && x2).
-    rewrite sat_andp.
-    tauto.
-  + specialize (IHx1 Phi m H).
-    specialize (IHx2 Phi m H).
-    pose proof DCS_orp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) (proj1 (proj2 (proj2_sig Phi))) x1 x2.
-    simpl in *.
-    change (PropositionalLanguage.orp x1 x2) with (x1 || x2).
-    rewrite sat_orp.
-    tauto.
-  + split.
-    - intros.
-      rewrite H0.
-      change (PropositionalLanguage.impp x1 x2) with (x1 --> x2) in *.
-      apply deduction_theorem.
-      apply Classical_Prop.NNPP; intro.
-      pose proof Lindenbaum_lemma _ _ H2.
-      destruct H3 as [Psi' [? [? ?]]].
-      set (Psi := exist _ Psi' H5: DCS Gamma).
-      change Psi' with (proj1_sig Psi) in H3, H4.
-      clearbody Psi; clear Psi' H5.
-      rewrite sat_impp in H1.
-      assert (Included _ (proj1_sig Phi) (proj1_sig Psi)) by (hnf; intros; apply H3; left; auto).
-      destruct (canonical_relation_complete _ _ X m Psi Phi H H5) as [n [? ?]].
-      specialize (H1 n H7).
-      rewrite IHx1, IHx2 in H1 by eauto.
-      assert (proj1_sig Psi x1) by (apply H3; right; constructor).
-      specialize (H1 H8).
-      specialize (H0 Psi x2).
-      rewrite H0 in H1; auto.
-    - intros.
-      change (PropositionalLanguage.impp x1 x2) with (x1 --> x2) in *.
-      rewrite sat_impp; intros n ?H.
-      destruct (im_surj _ _ X n) as [Psi ?].
-      rewrite IHx1, IHx2 by eauto.
-      intros.
-      rewrite H0 in H1, H4 |- *.
-      eapply canonical_relation_sound in H2; [| eauto | eauto].
-      eapply deduction_weaken in H1; [| exact H2].
-      eapply deduction_modus_ponens; [exact H4 | exact H1].
-  + pose proof sat_falsep m.
-    split; [intros; tauto | intros].
-    rewrite H0 in H2.
-    pose proof proj2_sig Phi.
-    destruct H3 as [_ [_ ?]].
-    rewrite consistent_spec in H3.
-    exfalso; apply H3; auto.
-  + auto.
-Qed.
-
 Definition canonical_frame {Gamma: ProofTheory L}: KripkeSemantics.frame.
   refine (KripkeSemantics.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
   constructor.
@@ -236,32 +174,64 @@ Definition canonical_Kmodel {Gamma: ProofTheory L}: @Kmodel (KripkeSemantics.MD 
 Definition canonical_model {Gamma: ProofTheory L} (Phi: DCS Gamma) : @model (KripkeSemantics.MD Var) :=
   KripkeSemantics.Build_model Var canonical_Kmodel Phi.
 
-Definition canonical_Kmodel_surjection {Gamma: ProofTheory L}: surjection (@Kworlds (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) canonical_Kmodel) (DCS Gamma).
-Proof.
-  apply (FBuild_surjection _ _ id).
-  hnf; intros.
-  exists b; auto.
-Defined.
-
-Lemma canonical_model_canonical {Gamma: ProofTheory L}: @canonical Gamma (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) canonical_Kmodel (KripkeSemantics.kiM Var _) (KripkeSemantics.SM Var) (KripkeSemantics.kiSM Var _).
+Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}:
+  forall Phi x,
+    KRIPKE: canonical_Kmodel, Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  apply (Build_canonical _ _ _ _ _ _ _ canonical_Kmodel_surjection).
-  + intros.
-    change (DCS Gamma) in m, n.
-    change (m = m') in H.
-    change (n = n') in H0.
-    subst n' m'.
-    auto.
-  + intros.
-    change (DCS Gamma) in n, m'.
-    change (n = n') in H.
-    subst n.
-    exists m'.
-    split; auto.
-    change (m' = m').
-    auto.
-Defined.
+  change (DCS Gamma) in Phi.
+  pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))).
+  revert Phi.
+  induction x; intros.
+  + specialize (IHx1 Phi).
+    specialize (IHx2 Phi).
+    pose proof DCS_andp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) x1 x2.
+    change (PropositionalLanguage.andp x1 x2) with (x1 && x2).
+    rewrite sat_andp.
+    tauto.
+  + specialize (IHx1 Phi).
+    specialize (IHx2 Phi).
+    pose proof DCS_orp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) (proj1 (proj2 (proj2_sig Phi))) x1 x2.
+    change (PropositionalLanguage.orp x1 x2) with (x1 || x2).
+    rewrite sat_orp.
+    tauto.
+  + split.
+    - intros.
+      rewrite H.
+      change (PropositionalLanguage.impp x1 x2) with (x1 --> x2) in *.
+      apply deduction_theorem.
+      apply Classical_Prop.NNPP; intro.
+      pose proof Lindenbaum_lemma _ _ H1.
+      destruct H2 as [Psi' [? [? ?]]].
+      set (Psi := exist _ Psi' H4: DCS Gamma).
+      change Psi' with (proj1_sig Psi) in H2, H3.
+      clearbody Psi; clear Psi' H4.
+      rewrite sat_impp in H0.
+      assert (Included _ (proj1_sig Phi) (proj1_sig Psi)) by (hnf; intros; apply H2; left; auto).
+      specialize (H0 Psi H4).
+      rewrite IHx1, IHx2 in H0 by eauto.
+      assert (proj1_sig Psi x1) by (apply H2; right; constructor).
+      specialize (H0 H5).
+      specialize (H Psi x2).
+      rewrite H in H0; auto.
+    - intros.
+      change (PropositionalLanguage.impp x1 x2) with (x1 --> x2) in *.
+      rewrite sat_impp; intros Psi ?H.
+      rewrite IHx1, IHx2 by eauto.
+      intros.
+      rewrite H in H0, H2 |- *.
+      eapply deduction_weaken in H0; [| exact H1].
+      eapply deduction_modus_ponens; [exact H2 | exact H0].
+  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ Phi.
+    split; [intros; tauto | intros].
+    rewrite H in H1.
+    pose proof proj2_sig Phi.
+    destruct H2 as [_ [_ ?]].
+    rewrite consistent_spec in H2.
+    exfalso; apply H2; auto.
+  + simpl.
+    reflexivity.
+Qed.
 
 End GeneralCanonical.
 
@@ -288,11 +258,7 @@ Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSema
 Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
-  + intros.
-    hnf in H; unfold id in H; subst Phi0.
-    reflexivity.
-  + reflexivity.
+  apply (truth_lemma Var CV).
 Qed.
 
 Theorem complete_intuitionistic_kripke: strongly_complete G SM (AllModel _).
@@ -365,11 +331,7 @@ Qed.
 Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
-  + intros.
-    hnf in H; unfold id in H; subst Phi0.
-    reflexivity.
-  + reflexivity.
+  apply (truth_lemma Var CV).
 Qed.
 
 Theorem complete_classical_kripke_ident: strongly_complete G SM (@KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) (KripkeSemantics.Kmodel_Identity _)).
@@ -425,11 +387,7 @@ Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSema
 Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
-  + intros.
-    hnf in H; unfold id in H; subst Phi0.
-    reflexivity.
-  + reflexivity.
+  apply (truth_lemma Var CV).
 Qed.
 
 Lemma Godel_Dummett_canonical_no_branch: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_NoBranch Var) (canonical_model Var Psi).
@@ -521,11 +479,7 @@ Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSema
 Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
 Proof.
   intros.
-  apply (truth_lemma Var CV _ (canonical_model_canonical Var)).
-  + intros.
-    hnf in H; unfold id in H; subst Phi0.
-    reflexivity.
-  + reflexivity.
+  apply (truth_lemma Var CV).
 Qed.
 
 Lemma weak_classical_canonical_branch_join: forall Psi: DCS Var G, KripkeModelClass (KripkeSemantics.MD Var) (KripkeSemantics.Kmodel_BranchJoin Var) (canonical_model Var Psi).
