@@ -108,7 +108,6 @@ Class UnitarySemantics
       (M: Kmodel)
       {kiM: KripkeIntuitionisticModel (Kworlds M)}
       {J: Join (Kworlds M)}
-      {USA: UnitarySeparationAlgebra (Kworlds M)}
       (SM: Semantics L MD)
       {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type :=
     sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> pre_unit m.
@@ -251,6 +250,21 @@ Proof.
   + intros; simpl. auto.
 Defined.
 
+Instance fsSM (M: Kmodel): FlatSemantics.FlatSemantics L MD M SM.
+Proof.
+  apply FlatSemantics.Build_FlatSemantics.
+  + intros.
+    simpl; reflexivity.
+  + intros.
+    simpl; reflexivity.
+Defined.
+
+Instance UsSM (M: Kmodel): UnitarySemantics L MD M SM.
+Proof.
+  hnf; intros.
+  simpl; reflexivity.
+Defined.
+
 Definition Kmodel_Identity: Kmodel -> Prop := fun M =>
   IdentityKripkeIntuitionisticModel (Kworlds M).
 
@@ -259,6 +273,22 @@ Definition Kmodel_NoBranch: Kmodel -> Prop := fun M =>
 
 Definition Kmodel_BranchJoin: Kmodel -> Prop := fun M =>
   BranchJoinKripkeIntuitionisticModel (Kworlds M).
+
+Definition Kmodel_GarbageCollect: Kmodel -> Prop := fun M =>
+  GarbageCollectSeparationAlgebra (Kworlds M).
+
+Definition Kmodel_Unitary: Kmodel -> Prop := fun M =>
+  UnitarySeparationAlgebra (Kworlds M).
+
+Require Import Logic.SeparationLogic.SoundCompleteParameter.
+
+Record Kmodel_ParClass (PAR: SA_Parameter) (M: Kmodel): Prop := {
+  SA_ID: ID PAR = true -> IdentityKripkeIntuitionisticModel (Kworlds M);
+  SA_NB: NB PAR = true -> NoBranchKripkeIntuitionisticModel (Kworlds M);
+  SA_BJ: BJ PAR = true -> BranchJoinKripkeIntuitionisticModel (Kworlds M);
+  SA_GC: GC PAR = true -> GarbageCollectSeparationAlgebra (Kworlds M);
+  SA_Uni: Uni PAR = true -> UnitarySeparationAlgebra (Kworlds M)
+}.
 
 End KripkeSemantics.
 End FlatSemanticsModel.

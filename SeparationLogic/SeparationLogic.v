@@ -244,10 +244,15 @@ Section SeparationLogic.
 
 Context (Var: Type).
 
-Instance L: Language := SeparationLanguage.L Var.
-Instance nL: NormalLanguage L := SeparationLanguage.nL Var.
-Instance pL: PropositionalLanguage L := SeparationLanguage.pL Var.
-Instance SL: SeparationLanguage L := SeparationLanguage.sL Var.
+Instance L: Language := UnitarySeparationLanguage.L Var.
+Instance nL: NormalLanguage L := UnitarySeparationLanguage.nL Var.
+Instance pL: PropositionalLanguage L := UnitarySeparationLanguage.pL Var.
+Instance SL: SeparationLanguage L := UnitarySeparationLanguage.sL Var.
+Instance uSL: UnitarySeparationLanguage L := UnitarySeparationLanguage.usL Var.
+
+Require Import Logic.SeparationLogic.SoundCompleteParameter.
+
+Context (PAR: SL_Parameter).
 
 Inductive provable: expr -> Prop :=
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
@@ -260,11 +265,15 @@ Inductive provable: expr -> Prop :=
 | orp_intros2: forall x y, provable (y --> x || y)
 | orp_elim: forall x y z, provable ((x --> z) --> (y --> z) --> (x || y --> z))
 | falsep_elim: forall x, provable (FF --> x)
+| impp_choice: IC PAR = true -> forall x y, provable ((x --> y) || (y --> x))
+| excluded_middle: EM PAR = true -> forall x, provable (x || ~~ x)
 | sepcon_comm: forall x y, provable (x * y --> y * x)
 | sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
-| sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2)).
+| sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
+| sepcon_emp: EMP PAR = true -> forall x, provable (x * emp <--> x)
+| sepcon_elim1: SCE PAR = true -> forall x y, provable (x * y --> x).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
 

@@ -12,6 +12,7 @@ Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
 Require Import Logic.SeparationLogic.SeparationLogic.
+Require Import Logic.SeparationLogic.SoundCompleteParameter.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -25,21 +26,27 @@ Section Canonical_All.
 
 Context (Var: Type).
 Context (CV: Countable Var).
+Context (SLP: SL_Parameter).
 
-Instance L: Language := SeparationLanguage.L Var.
-Instance nL: NormalLanguage L := SeparationLanguage.nL Var.
-Instance pL: PropositionalLanguage L := SeparationLanguage.pL Var.
-Instance G: ProofTheory L := SeparationLogic.G Var.
-Instance nG: NormalProofTheory L G := SeparationLogic.nG Var.
-Instance mpG: MinimunPropositionalLogic L G := SeparationLogic.mpG Var.
-Instance ipG: IntuitionisticPropositionalLogic L G := SeparationLogic.ipG Var.
+Instance L: Language := UnitarySeparationLanguage.L Var.
+Instance nL: NormalLanguage L := UnitarySeparationLanguage.nL Var.
+Instance pL: PropositionalLanguage L := UnitarySeparationLanguage.pL Var.
+Instance G: ProofTheory L := SeparationLogic.G Var SLP.
+Instance nG: NormalProofTheory L G := SeparationLogic.nG Var SLP.
+Instance mpG: MinimunPropositionalLogic L G := SeparationLogic.mpG Var SLP.
+Instance ipG: IntuitionisticPropositionalLogic L G := SeparationLogic.ipG Var SLP.
 Instance MD: Model := FlatSemanticsModel.MD Var.
 Instance kMD: KripkeModel MD := FlatSemanticsModel.kMD Var.
-Check FlatSemanticsModel.kiM.
-Print Kmodel.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= FlatSemanticsModel.kiM (underlying_frame M).
-Instance SM: Semantics L MD := KripkeSemantics.SM Var.
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= FlatSemanticsModel.kiM (FlatSemanticsModel.underlying_frame Var M).
+Instance J (M: Kmodel): Join (Kworlds M):= FlatSemanticsModel.J (FlatSemanticsModel.underlying_frame Var M).
+Instance SA (M: Kmodel): SeparationAlgebra (Kworlds M):= FlatSemanticsModel.SA (FlatSemanticsModel.underlying_frame Var M).
+Instance dSA (M: Kmodel): DownwardsClosedSeparationAlgebra (Kworlds M):= FlatSemanticsModel.dSA (FlatSemanticsModel.underlying_frame Var M).
+Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M):= FlatSemanticsModel.uSA (FlatSemanticsModel.underlying_frame Var M).
+
+Instance SM: Semantics L MD := FlatSemanticsModel.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := FlatSemanticsModel.kiSM Var M.
+Instance fsSM (M: Kmodel): FlatSemantics.FlatSemantics L MD M SM := FlatSemanticsModel.fsSM Var M.
+Instance UsSM (M: Kmodel): UnitarySemantics L MD M SM := FlatSemanticsModel.UsSM Var M.
 
 Lemma truth_lemma: forall (Phi: DCS Var G) x, canonical_model Var Phi |= x <-> proj1_sig Phi x.
 Proof.
