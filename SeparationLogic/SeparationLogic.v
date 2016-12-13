@@ -169,6 +169,7 @@ Proof.
   apply derivable_sepcon_orp_left.
 Qed.
 
+(* TODO: add corresponding rewrite rule. *)
 Lemma deduction_sepcon_orp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x y z: expr),
   Phi |-- x * (y || z) <-> Phi |-- x * y || x * z.
 Proof.
@@ -178,6 +179,59 @@ Proof.
     apply derivable_sepcon_orp_right.
   + eapply deduction_andp_elim2.
     apply derivable_sepcon_orp_right.
+Qed.
+
+Lemma derivable_sepcon_andp_left: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x y z: expr),
+  Phi |-- (x && y) * z --> (x * z) && (y * z).
+Proof.
+  intros.
+  rewrite <- deduction_theorem.
+  apply deduction_andp_intros.
+  + rewrite deduction_theorem.
+    apply deduction_weaken0.
+    apply sepcon_mono.
+    - apply andp_elim1.
+    - apply provable_impp_refl.
+  + rewrite deduction_theorem.
+    apply deduction_weaken0.
+    apply sepcon_mono.
+    - apply andp_elim2.
+    - apply provable_impp_refl.
+Qed.
+
+Lemma derivable_FF_sepcon: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x: expr),
+  Phi |-- FF * x --> FF.
+Proof.
+  intros.
+  apply deduction_weaken0.
+  apply wand_sepcon_adjoint.
+  apply falsep_elim.
+Qed.
+
+Lemma derivable_sepcon_FF: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x: expr),
+  Phi |-- x * FF --> FF.
+Proof.
+  intros.
+  rewrite (sepcon_comm x FF).
+  apply derivable_FF_sepcon.
+Qed.
+
+Lemma derivable_sepcon_andp_right: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x y z: expr),
+  Phi |-- x * (y && z) --> (x * y) && (x * z).
+Proof.
+  intros.
+  rewrite <- deduction_theorem.
+  apply deduction_andp_intros.
+  + rewrite deduction_theorem.
+    apply deduction_weaken0.
+    apply sepcon_mono.
+    - apply provable_impp_refl.
+    - apply andp_elim1.
+  + rewrite deduction_theorem.
+    apply deduction_weaken0.
+    apply sepcon_mono.
+    - apply provable_impp_refl.
+    - apply andp_elim2.
 Qed.
 
 Lemma derivable_emp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {usL: UnitarySeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {usGamma: UnitarySeparationLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} (Phi: context) (x y: expr),
