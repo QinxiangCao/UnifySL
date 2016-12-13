@@ -36,6 +36,7 @@ SeparationLogic_FILES = \
   Semantics.v \
   Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \
   DownUpSemantics_Fail.v Sound_DownUp_Fail.v \
+  Complete_Flat.v \
   Downwards2Upwards.v Upwards2Downwards.v
 
 HoareLogic_FILES = \
