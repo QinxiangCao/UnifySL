@@ -353,9 +353,25 @@ Proof.
     exists (x && x'), (y && y').
     split; [| split].
     - clear l H2 H3 H4 H5 H6.
+      rewrite (provable_sepcon_andp_right (x && x') y y').
+      rewrite (provable_sepcon_andp_left x x' y).
+      rewrite (provable_sepcon_andp_left x x' y').
+      rewrite (andp_elim1 (x * y) _).
+      rewrite (andp_elim2 _ (x' * y')).
       rewrite provable_derivable.
-      eapply deduction_impp_trans; [apply derivable_sepcon_andp_left |].
-SearchAbout andp impp.
+      rewrite <- deduction_theorem.
+      pose proof derivable_assum1 empty_context ((x * y) && (x' * y')).
+      pose proof deduction_andp_elim1 _ _ _ H2.
+      pose proof deduction_andp_elim2 _ _ _ H2.
+      apply (deduction_weaken0 (Union _ empty_context (Singleton _ (x * y && (x' * y'))))) in H1.
+      pose proof deduction_modus_ponens _ _ _ H3 H1.
+      pose proof deduction_modus_ponens _ _ _ H4 H5.
+      auto.
+    - rewrite derivable_closed_element_derivable in H3, H5 |- * by auto.
+      apply deduction_andp_intros; auto.
+    - rewrite derivable_closed_element_derivable in H4, H6 |- * by auto.
+      apply deduction_andp_intros; auto.
+Qed.
 
 Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.frame.
   refine (FlatSemanticsModel.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _ (fun a b c => forall x y, proj1_sig a x -> proj1_sig b y -> proj1_sig c (x * y)) _ _ _).
@@ -381,27 +397,40 @@ Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L G
       rewrite <- (@sepcon_comm _ _ _ _ _ _ _ _ sGamma y x).
       auto.
     - intros.
-      set (Phi :=
-            (fun x => exists y z,
-               x = y * z /\ proj1_sig my y /\ proj1_sig mz z): context).
+      set (Phi := context_sepcon (proj1_sig my) (proj1_sig mz)).
       assert (forall x yz,
                 proj1_sig mx |-- x ->
                 Phi |-- yz ->
                 proj1_sig mxyz |-- (x * yz)).
       Focus 1. {
         intros.
-        subst Phi.
-        destruct H2 as [y [z [? [? ?]]]]; subst yz.
-        rewrite ED.
-        pose proof (sepcon_assoc x y z).
-        apply (deduction_weaken0 (proj1_sig mxyz)) in H2.
-        apply deduction_andp_elim2 in H2.
-        eapply deduction_modus_ponens; [| exact H2]; clear H2.
-        specialize (H _ _ H1 H3).
-        specialize (H0 _ _ H H4).
+        destruct (context_sepcon_derivable_closed (proj1_sig my) (proj1_sig mz) yz) as [y [z [? [? ?]]]].
+        1: destruct (proj2_sig my); auto.
+        1: destruct (proj2_sig mz); auto.
+        1: auto.
+        rewrite <- H3.
+        rewrite (sepcon_assoc x y z).
+        rewrite <- ED in H1.
+        specialize (H _ _ H1 H4).
+        specialize (H0 _ _ H H5).
         rewrite <- ED; auto.
       } Unfocus.
-      pose proof Lindenbaum_lemma2 (proj1_sig mx) (proj1_sig mxyz) Phi. H1.
+      destruct (Lindenbaum_lemma2 (proj1_sig mx) (proj1_sig mxyz) Phi H1)
+        as [Psi [? [? ?]]];
+        [destruct (proj2_sig mxyz) as [? [? ?]]; auto .. |].
+      set (myz := exist _ Psi H4 : DCS Gamma).
+      change Psi with (proj1_sig myz) in H2, H3;
+      clearbody myz; clear Psi H4.
+      exists myz.
+      split.
+      * hnf; intros.
+        apply H2; unfold Ensembles.In.
+        subst Phi; hnf.
+        exists x, y; auto.
+      * hnf; intros x yz ? ?.
+        rewrite ED in H4, H5 |- *.
+        apply H3; auto.
+  + hnf; intros.
 Defined.
 
 Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
