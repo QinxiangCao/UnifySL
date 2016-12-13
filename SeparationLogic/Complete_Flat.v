@@ -323,6 +323,39 @@ Proof.
     auto.
 Qed.
 
+Definition context_sepcon {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi Psi: context): context :=
+  fun z => exists x y, z = x * y /\ Phi x /\ Psi y.
+
+Lemma context_sepcon_derivable_closed {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
+  forall (Phi Psi: context) z,
+    derivable_closed Phi ->
+    derivable_closed Psi ->
+    context_sepcon Phi Psi |-- z ->
+    exists x y, |-- x * y --> z /\ Phi x /\ Psi y.
+Proof.
+  intros.
+  rewrite derivable_provable in H1.
+  destruct H1 as [xs [? ?]].
+  revert z H2; induction H1; intros.
+  + exists TT, TT.
+    split; [| split].
+    - apply aux_minimun_rule00; auto.
+    - rewrite derivable_closed_element_derivable by auto.
+      apply derivable_impp_refl.
+    - rewrite derivable_closed_element_derivable by auto.
+      apply derivable_impp_refl.
+  + pose proof provable_multi_imp_arg_switch1 l x z.
+    pose proof modus_ponens _ _ H4 H3.
+    specialize (IHForall _ H5); clear H3 H4 H5.
+    destruct H1 as [x' [y' [? [? ?]]]]; subst x.
+    destruct IHForall as [x [y [? [? ?]]]].
+    exists (x && x'), (y && y').
+    split; [| split].
+    - clear l H2 H3 H4 H5 H6.
+      rewrite provable_derivable.
+      eapply deduction_impp_trans; [apply derivable_sepcon_andp_left |].
+SearchAbout andp impp.
+
 Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.frame.
   refine (FlatSemanticsModel.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _ (fun a b c => forall x y, proj1_sig a x -> proj1_sig b y -> proj1_sig c (x * y)) _ _ _).
   Unshelve.
@@ -336,16 +369,38 @@ Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L G
     + hnf; intros.
       hnf; intros; auto.
   } Unfocus.
-  + constructor.
+  + pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
+    constructor.
     - intros; simpl in *.
       intros x y ? ?.
       specialize (H y x H1 H0).
       pose proof proj2_sig m.
       destruct H2 as [? _].
-      rewrite derivable_closed_element_derivable in H |- * by auto.
+      rewrite ED in H |- *.
       rewrite <- (@sepcon_comm _ _ _ _ _ _ _ _ sGamma y x).
       auto.
     - intros.
+      set (Phi :=
+            (fun x => exists y z,
+               x = y * z /\ proj1_sig my y /\ proj1_sig mz z): context).
+      assert (forall x yz,
+                proj1_sig mx |-- x ->
+                Phi |-- yz ->
+                proj1_sig mxyz |-- (x * yz)).
+      Focus 1. {
+        intros.
+        subst Phi.
+        destruct H2 as [y [z [? [? ?]]]]; subst yz.
+        rewrite ED.
+        pose proof (sepcon_assoc x y z).
+        apply (deduction_weaken0 (proj1_sig mxyz)) in H2.
+        apply deduction_andp_elim2 in H2.
+        eapply deduction_modus_ponens; [| exact H2]; clear H2.
+        specialize (H _ _ H1 H3).
+        specialize (H0 _ _ H H4).
+        rewrite <- ED; auto.
+      } Unfocus.
+      pose proof Lindenbaum_lemma2 (proj1_sig mx) (proj1_sig mxyz) Phi. H1.
 Defined.
 
 Program Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
