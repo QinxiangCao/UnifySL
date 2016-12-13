@@ -23,6 +23,7 @@ PropositionalLogic_FILES = \
   Syntax.v \
   IntuitionisticPropositionalLogic.v ClassicalPropositionalLogic.v \
   GodelDummettLogic.v WeakClassicalLogic.v \
+  RewriteClass.v \
   KripkeSemantics.v TrivialSemantics.v \
   Sound_Classical_Trivial.v Complete_Classical_Trivial.v \
   Sound_Kripke.v Complete_Kripke.v 

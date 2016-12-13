@@ -8,7 +8,7 @@ Require Import Logic.MinimunLogic.MinimunLogic.
 Local Open Scope logic_base.
 Local Open Scope syntax.
 
-Instance provable_rewrite {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: RewriteRelation (fun x y => |-- x --> y).
+Instance provable_impp_rewrite {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: RewriteRelation (fun x y => |-- x --> y).
 
 Instance provable_impp_refl {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}: Reflexive (fun x y => |-- x --> y).
 Proof.
@@ -17,7 +17,15 @@ Proof.
   apply provable_impp_refl.
 Qed.
 
-Instance derivable_proper {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} : Proper (eq ==> (fun x y => |-- impp x y) ==> Basics.impl) derivable.
+Instance provable_proper_impp {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} : Proper ((fun x y => |-- impp x y) ==> Basics.impl) provable.
+Proof.
+  intros.
+  hnf; intros.
+  intro.
+  eapply modus_ponens; eauto.
+Qed.
+
+Instance derivable_proper_impp {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} : Proper (eq ==> (fun x y => |-- impp x y) ==> Basics.impl) derivable.
 Proof.
   hnf; intros Phi Phi' ?; subst Phi'.
   hnf; intros x1 x2 ?.
@@ -26,7 +34,7 @@ Proof.
   exact (deduction_modus_ponens _ _ _ H0 H).
 Qed.
 
-Instance impp_proper {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} : Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) impp.
+Instance impp_proper_impp {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} : Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) impp.
 Proof.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.

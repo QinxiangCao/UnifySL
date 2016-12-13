@@ -7,8 +7,10 @@ Require Import Logic.MinimunLogic.MinimunLogic.
 Require Import Logic.MinimunLogic.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
+Require Import Logic.PropositionalLogic.WeakClassicalLogic.
 Require Import Logic.PropositionalLogic.GodelDummettLogic.
 Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
+Require Import Logic.PropositionalLogic.RewriteClass.
 Require Import Logic.SeparationLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -541,7 +543,7 @@ Inductive provable: expr -> Prop :=
 | orp_intros2: forall x y, provable (y --> x || y)
 | orp_elim: forall x y z, provable ((x --> z) --> (y --> z) --> (x || y --> z))
 | falsep_elim: forall x, provable (FF --> x)
-| impp_choice: forall x y, provable ((x --> y) || (y --> x))
+| weak_excluded_middle: forall x, provable (~~ x || ~~ ~~ x)
 | sepcon_comm: forall x y, provable (x * y --> y * x)
 | sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
@@ -574,10 +576,10 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance gdpG: GodelDummettPropositionalLogic L G.
+Instance wcpG: WeakClassicalLogic L G.
 Proof.
   constructor.
-  apply impp_choice.
+  apply weak_excluded_middle.
 Qed.
 
 Instance sG: SeparationLogic L G.

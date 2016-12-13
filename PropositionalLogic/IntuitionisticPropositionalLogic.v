@@ -187,34 +187,6 @@ Proof.
   auto.
 Qed.
 
-Instance andp_proper {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) andp.
-Proof.
-  hnf; intros x1 x2 ?.
-  hnf; intros y1 y2 ?.
-  rewrite provable_derivable.
-  rewrite <- !deduction_theorem.
-  apply (deduction_weaken0 (Union expr empty_context (Singleton expr (x1 && y1)))) in H.
-  apply (deduction_weaken0 (Union expr empty_context (Singleton expr (x1 && y1)))) in H0.
-  pose proof derivable_assum1 empty_context (x1 && y1).
-  pose proof deduction_andp_elim1 _ _ _ H1.
-  pose proof deduction_andp_elim2 _ _ _ H1.
-  pose proof deduction_modus_ponens _ _ _ H2 H.
-  pose proof deduction_modus_ponens _ _ _ H3 H0.
-  apply deduction_andp_intros; auto.
-Qed.
-
-Instance orp_proper {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) orp.
-Proof.
-  hnf; intros x1 x2 ?.
-  hnf; intros y1 y2 ?.
-  rewrite provable_derivable in H, H0 |- *.
-  apply deduction_orp_elim.
-  + eapply deduction_impp_trans; [exact H |].
-    apply derivable_orp_intros1.
-  + eapply deduction_impp_trans; [exact H0 |].
-    apply derivable_orp_intros2.
-Qed.
-
 Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).

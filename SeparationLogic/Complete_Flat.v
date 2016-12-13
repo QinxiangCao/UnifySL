@@ -14,6 +14,7 @@ Require Import Logic.PropositionalLogic.Complete_Kripke.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
+Require Import Logic.PropositionalLogic.RewriteClass.
 Require Import Logic.SeparationLogic.SeparationLogic.
 Require Import Logic.SeparationLogic.SoundCompleteParameter.
 
