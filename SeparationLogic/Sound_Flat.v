@@ -155,9 +155,11 @@ Proof.
   + rewrite sat_impp; intros.
     rewrite sat_sepcon.
     destruct (unit_exists n) as [u [? ?]].
-    exists n, u.
+    destruct H1 as [n' [H1 H1']].
+    exists n', u.
     split; [| split]; auto.
     - apply join_comm; auto.
+    - eapply sat_mono; eauto.
     - rewrite sat_emp; auto.
 Qed.
 

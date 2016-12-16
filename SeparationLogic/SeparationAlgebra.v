@@ -27,9 +27,13 @@ Class GarbageCollectSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticMo
 Definition pre_unit {worlds: Type} {kiM: KripkeIntuitionisticModel worlds}{J: Join worlds}: worlds -> Prop :=
   fun m => forall n n', join m n n' -> n' <= n.
 
+Definition partition {worlds: Type} {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds}
+  (m n: worlds): Prop :=
+  exists n', join n n' m /\ n' <= m. 
+
 Class UnitarySeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds}: Type :=
   {
-    unit_exists: forall n: worlds, exists m, join m n n /\ pre_unit m ;
+    unit_exists: forall n: worlds, exists m, partition n m /\ pre_unit m ;
     unit_down: forall n m: worlds, n <= m -> pre_unit m -> pre_unit n
   }.
 
@@ -54,7 +58,7 @@ It is necessary to be this strong, or else sepcon_assoc will be unsound, e.g. th
   join_Korder: forall M (m1 m2 m n1: Kworlds M), join m1 m2 m -> Korder m1 n1 -> exists n2 n, join n1 n2 n /\ Korder m2 n2 /\ Korder m n;  *)
 
 Definition UpwardsClosed_nUSA(worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds} {uSA: UpwardsClosedSeparationAlgebra worlds}:
-  forall (unit_exists: forall n: worlds, exists m, join m n n /\ pre_unit m),
+  forall (unit_exists: forall n: worlds, exists m,  partition n m /\ pre_unit m),
     UnitarySeparationAlgebra worlds .
 Proof.
   intros; constructor; auto.

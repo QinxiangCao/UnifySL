@@ -89,8 +89,12 @@ Proof.
   - intros.
     simpl.
     destruct (unit_exists n) as [u [? ?]].
+    destruct H as [n' [H1 H2]].
     exists u; split; auto.
+    exists n'; split; auto.
+    unfold join, DownwardsClosure_SA.
     exists n; split; auto.
+    reflexivity.
     rewrite <- DownwardsClosure_pre_unit; auto.
 Defined.
 
@@ -194,8 +198,10 @@ Proof.
   - intros.
     simpl.
     destruct (unit_exists n) as [u [? ?]].
+    destruct H as [n' [H1 H2]].
     exists u; split; auto.
-    + exists u, n; split; [| split]; auto; reflexivity.
+    + exists n'; split; auto.
+      exists u, n'; split; [| split]; auto; reflexivity.
     + rewrite <- UpwardsClosure_pre_unit; auto.
   - intros.
     rewrite <- UpwardsClosure_pre_unit in H0 |- *.

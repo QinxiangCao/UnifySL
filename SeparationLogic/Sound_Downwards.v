@@ -155,10 +155,12 @@ Proof.
   + rewrite sat_impp; intros.
     rewrite sat_sepcon.
     destruct (unit_exists n) as [u [? ?]].
-    exists n, u.
+    destruct H1 as [n' [H1 H1']].
+    exists n', u.
     split; [| split]; auto.
     - apply join_comm; auto.
-    - rewrite sat_emp; auto.
+    - eapply sat_mono; eauto.
+    - rewrite sat_emp; eauto. 
 Qed.
 
 Lemma sound_sepcon_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {GC: GarbageCollectSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics L MD M SM}:
