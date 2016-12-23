@@ -40,8 +40,9 @@ SeparationLogic_FILES = \
   Downwards2Upwards.v Upwards2Downwards.v
 
 HoareLogic_FILES = \
-  ImperativeLanguage.v \
-  SequentialSemantics.v ConcurrentSemantics.v \
+  ImperativeLanguage.v ProgramState.v \
+  SimpleSmallStepSemantics.v SmallStepSemantics.v \
+  BigStepSemantics.v ConcurrentSemantics.v OperationalSemanticsGenerator.v \
   HoareLogic_Sequential.v HoareLogic_Concurrent.v \
   Sound_Basic.v Sound_Imp.v Sound_Frame.v Sound_Resource.v
 

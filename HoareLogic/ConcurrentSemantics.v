@@ -1,7 +1,8 @@
 Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.HoareLogic.ImperativeLanguage.
-Require Import Logic.HoareLogic.SequentialSemantics.
+Require Import Logic.HoareLogic.ProgramState.
+Require Import Logic.HoareLogic.BigStepSemantics.
 
 Class ThreadLocalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (guard: Type): Type :=
   guarded_BSS: guard -> BigStepSemantics P state.

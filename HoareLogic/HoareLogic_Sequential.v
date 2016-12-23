@@ -5,7 +5,8 @@ Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
-Require Import Logic.HoareLogic.SequentialSemantics.
+Require Import Logic.HoareLogic.ProgramState.
+Require Import Logic.HoareLogic.BigStepSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
