@@ -9,11 +9,8 @@ Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
 Require Import Logic.HoareLogic.HoareLogic_Sequential.
 
-(* TODO: use lift_join to define this type class. *)
-Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} (BSS: BigStepSemantics P state): Type := {
-  safety_preserve: forall m mf m' c, join m mf m' -> safe m c -> safe m' c;
-  terminate_preserve: forall m mf m' c, join m mf m' -> term_norm m c -> term_norm m' c;
-  frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c (Terminating n') -> exists n, join n mf n' /\ access m c (Terminating n)
+Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (BSS: BigStepSemantics P state): Type := {
+  frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c n' -> exists n nf, Korder nf mf /\ lift_join n (Terminating nf) n' /\ access m c n
 }.
 
 Local Open Scope logic_base.
@@ -33,9 +30,10 @@ Context {P: ProgrammingLanguage}
         {BSS: BigStepSemantics P model}
         {nBSS: NormalBigStepSemantics P model BSS}
         {J: Join model}
+        {kiM: KripkeIntuitionisticModel model}
         {SA_BSS: SABigStepSemantics P model BSS}.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
 
 Lemma hoare_frame_partial_sound: forall c P Q F,
   triple_partial_valid P c Q ->
@@ -43,19 +41,23 @@ Lemma hoare_frame_partial_sound: forall c P Q F,
 Proof.
   intros.
   unfold triple_partial_valid in *.
-  intros s ms ? ?.
+  intros m' _n' ? ?.
   rewrite FlatSemantics.sat_sepcon in H0.
-  destruct H0 as [m [f [? [? ?]]]].
-  assert (safe m c) by exact (H m Error H2).
-  destruct ms as [| | n'].
-  + pose proof safety_preserve _ _ _ c H0.
-    revert H1; apply H5; auto.
+  destruct H0 as [m [mf [? [? ?]]]].
+  assert (SAFE: safe m c) by exact (H m Error H2).
+  destruct (frame_property _ _ _ _ _ H0 SAFE H1) as [_n [nf [? [? ?]]]].
+  destruct _n' as [| | n'].
+  + inversion H5; subst.
+    revert H6; apply SAFE.
   + auto.
-  + destruct (frame_property _ _ _ _ _ H0 H4 H1) as [n [? ?]].
-    rewrite FlatSemantics.sat_sepcon.
-    exists n, f.
-    split; [| split]; auto.
-    apply (H m _ H2 H6).
+  + rewrite FlatSemantics.sat_sepcon.
+    inversion H5; subst.
+    - exfalso; revert H6; apply SAFE.
+    - rename x into n.
+      exists n, nf.
+      split; [| split]; auto.
+      * apply (H m _ H2 H6).
+      * eapply sat_mono; eauto.
 Qed.
 
 Lemma hoare_frame_total_sound: forall c P Q F,
@@ -64,21 +66,26 @@ Lemma hoare_frame_total_sound: forall c P Q F,
 Proof.
   intros.
   unfold triple_partial_valid in *.
-  intros s ms ? ?.
+  intros m' _n' ? ?.
   rewrite FlatSemantics.sat_sepcon in H0.
-  destruct H0 as [m [f [? [? ?]]]].
-  assert (safe m c) by exact (H m Error H2).
-  assert (term_norm m c) by exact (conj (H m Error H2) (H m NonTerminating H2)).
-  destruct ms as [| | n'].
-  + pose proof safety_preserve _ _ _ c H0.
-    revert H1; apply H6; auto.
-  + pose proof terminate_preserve _ _ _ c H0.
-    revert H1; apply H6; auto.
-  + destruct (frame_property _ _ _ _ _ H0 H4 H1) as [n [? ?]].
-    rewrite FlatSemantics.sat_sepcon.
-    exists n, f.
-    split; [| split]; auto.
-    apply (H m _ H2 H7).
+  destruct H0 as [m [mf [? [? ?]]]].
+  assert (SAFE: safe m c) by exact (H m Error H2).
+  assert (TERM: term_norm m c) by exact (conj (H m Error H2) (H m NonTerminating H2)).
+  destruct (frame_property _ _ _ _ _ H0 SAFE H1) as [_n [nf [? [? ?]]]].
+  destruct _n' as [| | n'].
+  + inversion H5; subst.
+    revert H6; apply SAFE.
+  + inversion H5; subst.
+    - revert H6; apply SAFE.
+    - revert H6; apply TERM.
+  + rewrite FlatSemantics.sat_sepcon.
+    inversion H5; subst.
+    - exfalso; revert H6; apply SAFE.
+    - rename x into n.
+      exists n, nf.
+      split; [| split]; auto.
+      * apply (H m _ H2 H6).
+      * eapply sat_mono; eauto.
 Qed.
 
 End soundness.
