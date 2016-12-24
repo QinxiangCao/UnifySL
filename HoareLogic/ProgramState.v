@@ -49,6 +49,16 @@ Inductive lift_join
       join x y z ->
       lift_join (Terminating x) (Terminating y) (Terminating z).
 
+Definition lift_function {A B: Type} (f: A -> B): MetaState A -> MetaState B :=
+  fun ma =>
+  match ma with
+  | NonTerminating => NonTerminating
+  | Error => Error
+  | Terminating a => Terminating (f a)
+  end.
+
+
 (*
 Instance MetaState_SA (state: Type) {SA: SeparationAlgebra state}: SeparationAlgebra (MetaState state).
 *)
+

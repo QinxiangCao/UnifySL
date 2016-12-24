@@ -9,10 +9,6 @@ Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
 Require Import Logic.HoareLogic.HoareLogic_Sequential.
 
-Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (BSS: BigStepSemantics P state): Type := {
-  frame_property: forall m mf m' c n', join m mf m' -> safe m c -> access m' c n' -> exists n nf, Korder nf mf /\ lift_join n (Terminating nf) n' /\ access m c n
-}.
-
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Local Open Scope kripke_model.
@@ -45,7 +41,7 @@ Proof.
   rewrite FlatSemantics.sat_sepcon in H0.
   destruct H0 as [m [mf [? [? ?]]]].
   assert (SAFE: safe m c) by exact (H m Error H2).
-  destruct (frame_property _ _ _ _ _ H0 SAFE H1) as [_n [nf [? [? ?]]]].
+  destruct (frame_property _ _ _ _ _ H0 H1) as [_n [nf [? [? ?]]]].
   destruct _n' as [| | n'].
   + inversion H5; subst.
     revert H6; apply SAFE.
@@ -71,7 +67,7 @@ Proof.
   destruct H0 as [m [mf [? [? ?]]]].
   assert (SAFE: safe m c) by exact (H m Error H2).
   assert (TERM: term_norm m c) by exact (conj (H m Error H2) (H m NonTerminating H2)).
-  destruct (frame_property _ _ _ _ _ H0 SAFE H1) as [_n [nf [? [? ?]]]].
+  destruct (frame_property _ _ _ _ _ H0 H1) as [_n [nf [? [? ?]]]].
   destruct _n' as [| | n'].
   + inversion H5; subst.
     revert H6; apply SAFE.
