@@ -44,6 +44,7 @@ Proof.
   simpl in H1, H2, H3.
   apply not_or_and in H2; destruct H2.
   apply H0.
+  split; auto.
   apply (nat_coinduction
           (fun cs => clos_refl_trans _ lift_step
                        (Terminating (c, s)) (Terminating cs))
@@ -53,6 +54,7 @@ Proof.
     destruct (step_defined (c0, s0)) as [mcs ?].
     destruct mcs as [| | [c1 s1]].
     - exfalso; apply H1.
+      left.
       apply rt_trans with (Terminating (c0, s0)); auto.
       apply rt_step.
       constructor; auto.
@@ -66,3 +68,18 @@ Proof.
       apply rt_step.
       constructor; auto.
 Qed.
+
+Module Partial.
+
+Export SmallStepSemantics.Partial.
+Export BigStepSemantics.Partial.
+
+Instance iBSS_SSS {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {state: Type} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state) {iSSS: ImpSmallStepSemantics P state SSS}: ImpBigStepSemantics P state (BSS_SSS SSS).
+Proof.
+  refine (Build_ImpBigStepSemantics _ _ _ _ _ _ eval_bool_stable _ _ _).
+  + simpl; intros.
+    destruct H.
+    - 
+Abort.
+
+End Partial.
