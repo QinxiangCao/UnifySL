@@ -55,7 +55,7 @@ Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingL
   step_Ssequence: forall c1 c2 s mcs,
     step (Ssequence c1 c2, s) mcs ->
     (exists ms', c1 = Sskip /\ decrease (Terminating s) ms' /\ mcs = lift_function (pair c2) ms') \/
-    (exists mcs', step (c2, s) mcs' /\ mcs = lift_function (fun cs => (Ssequence c1 (fst cs), snd cs)) mcs');
+    (exists mcs', step (c1, s) mcs' /\ mcs = lift_function (fun cs => (Ssequence (fst cs) c2, snd cs)) mcs');
   step_Sifthenelse: forall b c1 c2 s mcs,
     step (Sifthenelse b c1 c2, s) mcs ->
     (eval_bool s b /\ exists ms', decrease (Terminating s) ms' /\ mcs = lift_function (pair c1) ms') \/

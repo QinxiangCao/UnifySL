@@ -1,4 +1,5 @@
 Require Import Coq.Relations.Relation_Operators.
+Require Import Coq.Relations.Operators_Properties.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.NatChoice.
@@ -96,13 +97,14 @@ Proof.
           - clear H3 H4; constructor.
             left; auto.
       } Unfocus.
-      set (p (c: cmd) := exists c1, Ssequence c1 c2 = c).
-      assert (~ p Sskip) by
-        (subst p; simpl; intros [? HH]; apply Ssequence_Sskip in HH; auto).
-      set (c0 := Sskip) in H, H0 |- *. unfold c0 at 1. clearbody c0.
       remember (Terminating (Ssequence c1 c2, s)) eqn:?H.
-      remember (lift_function (pair c0) ms) eqn:?H.
-      revert c0 c1 s ms H0 H1 H2; induction H; intros.
+      remember (lift_function (pair Sskip) ms) eqn:?H.
+      rewrite clos_rt_rt1n_iff in H.
+      revert c1 s H0 H1; induction H; intros.
+      * exfalso.
+        subst.
+        destruct ms; inversion H1; subst.
+        apply Ssequence_Sskip in H0; auto.
       * subst; inversion H; subst; clear H.
         pose proof step_Ssequence _ _ _ _ H2.
         destruct H as [? | ?].
@@ -111,11 +113,30 @@ Proof.
           subst c1.
           split; [| split]; auto.
          -- apply rt_refl.
-         -- destruct ms', ms; inversion H1; inversion H3;
-            subst; apply rt_refl.
+         -- subst.
+            rewrite clos_rt_rt1n_iff; auto.
        ++ destruct H as [ms' [? ?]].
-          destruct ms', ms; inversion H1.
+          destruct ms' as [| | [c' s']].
          -- exists Error, Error.
+            split; [| split].
+           ** apply rt_step; constructor; auto.
+           ** constructor.
+           ** subst.
+              rewrite clos_rt_rt1n_iff; auto.
+         -- exists NonTerminating, NonTerminating.
+            split; [| split].
+           ** apply rt_step; constructor; auto.
+           ** constructor.
+           ** subst.
+              rewrite clos_rt_rt1n_iff; auto.
+         -- destruct (IHclos_refl_trans_1n c' s') as [ms' [ms'' [? [? ?]]]]; auto.
+            exists ms', ms''.
+            split; [| split]; auto.
+            rewrite clos_rt_rt1n_iff.
+            apply (@Relation_Operators.rt1n_trans _ _ _ (Terminating (c', s'))).
+           ** constructor; auto.
+           ** rewrite clos_rt_rt1n_iff in H3; auto.
 Abort.
+
 
 End Partial.
