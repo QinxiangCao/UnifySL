@@ -48,10 +48,12 @@ Proof.
   + inversion H3; subst ms''; clear H3.
     inversion H4; auto.
   + inversion H3; subst.
-    eapply sat_mono in H; [| exact H7].
-    clear H2 H7 H3 s'; rename x into s'.
-    apply (H0 s' ms); auto.
-    inversion H4; auto.
+    - apply lift_relation_forward in H4.
+      subst ms; auto.
+    - eapply sat_mono in H; [| exact H6].
+      clear H2 H6 H3 s'; rename x into s'.
+      apply (H0 s' ms); auto.
+      inversion H4; auto.
 Qed.
 
 Lemma hoare_if_partial_sound: forall b c1 c2 B P1 P2,
@@ -64,11 +66,13 @@ Proof.
   unfold triple_partial_valid in *.
   intros s ms ? ?.
   apply access_Sifthenelse in H3.
-  destruct H3 as [| [[? [s' [? ?]]] | [? [s' [? ?]]]]].
-  + subst; auto.
+  destruct H3 as [[? [s' [? ?]]] | [? [s' [? ?]]]].
   + assert (KRIPKE: s |= P1 && B) by (rewrite sat_andp; firstorder).
-    eapply sat_mono in H6; [| eassumption].
-    apply (H0 s'); auto.
+    inversion H4; subst.
+    - apply lift_relation_forward in H5; subst; auto.
+    - eapply sat_mono in H6; [| eassumption].
+      inversion H5; subst.
+      apply (H0 x); auto.
   + assert (KRIPKE: s |= P1 && ~~ B).
     Focus 1. {
       rewrite sat_andp; split; auto.
@@ -79,8 +83,11 @@ Proof.
       simpl in H7, H8.
       rewrite H8 in H7; exfalso; auto.
     } Unfocus.
-    eapply sat_mono in H6; [| eassumption].
-    apply (H1 s'); auto.
+    inversion H4; subst.
+    - apply lift_relation_forward in H5; subst; auto.
+    - eapply sat_mono in H6; [| eassumption].
+      inversion H5; subst.
+      apply (H1 x); auto.
 Qed.
 
 Lemma hoare_while_partial_sound: forall b c B P,
@@ -95,25 +102,36 @@ Proof.
   inversion H2; subst; clear H2; auto.
 
   induction H3.
-  + eapply sat_mono; [eassumption |].
-    rewrite sat_andp.
-    split; auto.
-    unfold negp.
-    rewrite sat_impp; intros.
-    rewrite H in H5.
-    pose proof eval_bool_stable b _ _ H4.
-    simpl in H5, H6.
-    tauto.
+  + inversion H3.
+    - subst.
+      auto.
+    - subst.
+      eapply sat_mono; [eassumption |].
+      rewrite sat_andp.
+      split; auto.
+      unfold negp.
+      rewrite sat_impp; intros.
+      rewrite H in H6.
+      pose proof eval_bool_stable b _ _ H4.
+      simpl in H6, H7.
+      tauto.
   + assert (KRIPKE: s1 |= P0 && B) by (rewrite sat_andp; firstorder).
-    eapply sat_mono in H5; [| eassumption].
-    specialize (H0 _ _ H5 H4).
-    apply H0.
-  + auto.
+    inversion H3.
+    - subst.
+      apply lift_relation_forward in H4; subst.
+      auto.
+    - subst.
+      eapply sat_mono in H6; [| eassumption].
+      inversion H4; subst.
+      specialize (H0 _ _ H6 H9).
+      destruct H5; subst; auto.
   + apply IHloop_access_fin; clear IHloop_access_fin H6.
     assert (KRIPKE: s1 |= P0 && B) by (rewrite sat_andp; firstorder).
     eapply sat_mono in H6; [| eassumption].
     eapply sat_mono; [eassumption |].
     exact (H0 _ _ H6 H4).
+  + destruct H3.
+    subst; auto.
 Qed.
 
 End partial_soundness.
@@ -149,8 +167,8 @@ Proof.
   + inversion H.
   + inversion H.
   + inversion H3; subst.
-    eapply sat_mono in H; [| exact H7].
-    clear H2 H7 H3 s'; rename x into s'.
+    eapply sat_mono in H; [| exact H6].
+    clear H2 H6 H3 s'; rename x into s'.
     apply (H0 s' ms); auto.
     inversion H4; auto.
 Qed.
@@ -167,8 +185,10 @@ Proof.
   apply access_Sifthenelse in H3.
   destruct H3; destruct H3 as [? [s' [? ?]]].
   + assert (KRIPKE: s |= P1 && B) by (rewrite sat_andp; firstorder).
+    inversion H4; subst.
+    inversion H5; subst.
     eapply sat_mono in H6; [| eassumption].
-    apply (H0 s'); auto.
+    apply (H0 x); auto.
   + assert (KRIPKE: s |= P1 && ~~ B).
     Focus 1. {
       rewrite sat_andp; split; auto.
@@ -179,8 +199,10 @@ Proof.
       simpl in H7, H8.
       tauto.
     } Unfocus.
+    inversion H4; subst.
+    inversion H5; subst.
     eapply sat_mono in H6; [| eassumption].
-    apply (H1 s'); auto.
+    apply (H1 x); auto.
 Qed.
 
 Lemma hoare_while_total_sound:
@@ -201,29 +223,25 @@ Proof.
 
   Focus 1. {
   induction H3.
-  + eapply sat_mono; [eassumption |].
+  + inversion H3; subst.
+    eapply sat_mono; [eassumption |].
     rewrite sat_andp.
     split; auto.
     unfold negp.
     rewrite sat_impp; intros.
-    rewrite H in H5.
+    rewrite H in H6.
     pose proof eval_bool_stable b _ _ H4.
-    simpl in H5, H6.
+    simpl in H6, H7.
     tauto.
-  + assert (KRIPKE: s1 |= P0 && B && EQ (D s2)).
+  + inversion H3; subst.
+    inversion H4; subst.
+    assert (KRIPKE: s1 |= P0 && B && EQ (D x)).
     - rewrite !sat_andp.
-      rewrite H_EQ, H, (H_D _ _ H3).
+      rewrite H_EQ, H, (H_D _ _ H7).
       simpl; tauto.
-    - eapply sat_mono in H5; [| eassumption].
-      specialize (H0 _ _ _ H5 H4).
-      apply H0.
-  + assert (KRIPKE: s1 |= P0 && B && EQ (D s2)).
-    - rewrite !sat_andp.
-      rewrite H_EQ, H, (H_D _ _ H3).
-      simpl; tauto.
-    - eapply sat_mono in H5; [| eassumption].
-      specialize (H0 _ _ _ H5 H4).
-      apply H0.
+    - eapply sat_mono in H6; [| eassumption].
+      specialize (H0 _ _ _ H6 H8).
+      destruct H5; subst; auto.
   + apply IHloop_access_fin; clear IHloop_access_fin H6.
     assert (KRIPKE: s1 |= P0 && B && EQ (D s2)).
     - rewrite !sat_andp.
@@ -236,11 +254,12 @@ Proof.
       tauto.
   } Unfocus.
   Focus 1. {
-    inversion H3; subst; clear H3.
+    destruct H3; subst.
+    inversion H2; subst; clear H2.
     specialize (WF (D (s1 0))).
     set (n := 0) in WF, H1; clearbody n.
     remember (D (s1 n)) as D0 eqn:?H.
-    revert n H1 H3.
+    revert n H1 H2.
     induction WF.
 
     intros.
@@ -248,14 +267,14 @@ Proof.
     assert (KRIPKE: s1 n |= P0 && B && EQ (D (s1 n))).
     - rewrite !sat_andp.
       rewrite H_EQ, H.
-      specialize (H2 n).
+      specialize (H3 n).
       simpl; tauto.
     - eapply sat_mono in H8; [| apply H4].
       specialize (H0 _ _ _ H8 (H5 _)).
       eapply sat_mono in H0; [| apply H6].
       rewrite sat_andp in H0; destruct H0.
       rewrite H_LE in H9; simpl in H9.
-      exact (H3 _ H9 (S n) H0 eq_refl).
+      exact (H2 _ H9 (S n) H0 eq_refl).
   } Unfocus.
 Qed.
 

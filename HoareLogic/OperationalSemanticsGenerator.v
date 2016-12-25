@@ -74,12 +74,48 @@ Module Partial.
 Export SmallStepSemantics.Partial.
 Export BigStepSemantics.Partial.
 
-Instance iBSS_SSS {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {state: Type} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state) {iSSS: ImpSmallStepSemantics P state SSS}: ImpBigStepSemantics P state (BSS_SSS SSS).
+Instance iBSS_SSS {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state) {iSSS: ImpSmallStepSemantics P state SSS}: ImpBigStepSemantics P state (BSS_SSS SSS).
 Proof.
   refine (Build_ImpBigStepSemantics _ _ _ _ _ _ eval_bool_stable _ _ _).
   + simpl; intros.
     destruct H.
-    - 
+    - assert (
+        exists ms' ms'',
+        clos_refl_trans _ lift_step (Terminating (c1, s)) (lift_function (pair Sskip) ms') /\
+        decrease ms' ms'' /\
+        clos_refl_trans _ lift_step (lift_function (pair c2) ms'') (lift_function (pair Sskip) ms)).
+      Focus 2. {
+        destruct H0 as [ms' [ms'' [? [? ?]]]]; exists ms', ms''.
+        split; [| split]; auto.
+        + left; auto.
+        + pose proof clos_refl_trans_lift_relation_forward _ _ _ H2.
+          pose proof lift_function_rev _ _ _ (@eq_refl _ (lift_function (pair Sskip) ms)).
+          destruct ms''; simpl in H3; try rewrite H3 in H4.
+          - subst; constructor.
+          - subst; constructor.
+          - clear H3 H4; constructor.
+            left; auto.
+      } Unfocus.
+      set (p (c: cmd) := exists c1, Ssequence c1 c2 = c).
+      assert (~ p Sskip) by
+        (subst p; simpl; intros [? HH]; apply Ssequence_Sskip in HH; auto).
+      set (c0 := Sskip) in H, H0 |- *. unfold c0 at 1. clearbody c0.
+      remember (Terminating (Ssequence c1 c2, s)) eqn:?H.
+      remember (lift_function (pair c0) ms) eqn:?H.
+      revert c0 c1 s ms H0 H1 H2; induction H; intros.
+      * subst; inversion H; subst; clear H.
+        pose proof step_Ssequence _ _ _ _ H2.
+        destruct H as [? | ?].
+       ++ destruct H as [ms' [? [? ?]]].
+          exists (Terminating s), ms'.
+          subst c1.
+          split; [| split]; auto.
+         -- apply rt_refl.
+         -- destruct ms', ms; inversion H1; inversion H3;
+            subst; apply rt_refl.
+       ++ destruct H as [ms' [? ?]].
+          destruct ms', ms; inversion H1.
+         -- exists Error, Error.
 Abort.
 
 End Partial.

@@ -1,3 +1,4 @@
+Require Import Coq.Relations.Relation_Operators.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 
@@ -10,6 +11,56 @@ Arguments Error {_}.
 Arguments NonTerminating {_}.
 Arguments Terminating {_} _.
 
+Module Type DECREASE.
+
+Parameter decrease: forall {state: Type} {ki_state: KripkeIntuitionisticModel state},
+  MetaState state -> MetaState state -> Prop.
+
+End DECREASE.
+
+Module Partial <: DECREASE.
+
+Inductive decrease'
+          {state: Type}
+          {ki_state: KripkeIntuitionisticModel state}:
+  MetaState state -> MetaState state -> Prop :=
+| decrease_Error:
+    decrease' Error Error
+| decrease_NonTerminating:
+    decrease' NonTerminating NonTerminating
+| decrease_Terminating_NonTerminating:
+    forall x, decrease' (Terminating x) NonTerminating
+| decrease_Terminating:
+    forall x y, Korder x y -> decrease' (Terminating y) (Terminating x).
+
+Definition decrease {state: Type} {ki_state: KripkeIntuitionisticModel state} := decrease'.
+
+End Partial.
+
+Module Total <: DECREASE.
+
+Inductive decrease'
+          {state: Type}
+          {ki_state: KripkeIntuitionisticModel state}:
+  MetaState state -> MetaState state -> Prop :=
+| decrease_Error:
+    decrease' Error Error
+| decrease_NonTerminating:
+    decrease' NonTerminating NonTerminating
+| decrease_Terminating:
+    forall x y, Korder x y -> decrease' (Terminating y) (Terminating x).
+
+Definition decrease {state: Type} {ki_state: KripkeIntuitionisticModel state} := decrease'.
+
+End Total.
+
+Lemma Total2Partial_decrease {state: Type} {ki_state: KripkeIntuitionisticModel state}: forall ms1 ms2,
+  Total.decrease ms1 ms2 -> Partial.decrease ms1 ms2.
+Proof.
+  intros.
+  inversion H; constructor; auto.
+Qed.
+
 Inductive lift_relation {state: Type} (R: state -> MetaState state -> Prop):
   MetaState state-> MetaState state -> Prop :=
 | lift_relation_Error:
@@ -19,16 +70,7 @@ Inductive lift_relation {state: Type} (R: state -> MetaState state -> Prop):
 | lift_relation_Terminating:
     forall s ms, R s ms -> lift_relation R (Terminating s) ms.
 
-Inductive lift_Korder
-          {state: Type}
-          {ki_state: KripkeIntuitionisticModel state}:
-  MetaState state -> MetaState state -> Prop :=
-| lift_Korder_Error:
-    lift_Korder Error Error
-| lift_Korder_NonTerminating:
-    lift_Korder NonTerminating NonTerminating
-| lift_Korder_Terminating:
-    forall x y, Korder x y -> lift_Korder (Terminating x) (Terminating y).
+Definition lift_Korder {state: Type} {ki_state: KripkeIntuitionisticModel state}: MetaState state -> MetaState state -> Prop := Total.decrease.
 
 Inductive lift_join
           {state: Type}
@@ -61,4 +103,45 @@ Definition lift_function {A B: Type} (f: A -> B): MetaState A -> MetaState B :=
 (*
 Instance MetaState_SA (state: Type) {SA: SeparationAlgebra state}: SeparationAlgebra (MetaState state).
 *)
+
+Lemma lift_relation_forward {state: Type} (R: state -> MetaState state -> Prop):
+  forall x y, lift_relation R x y ->
+  match x with
+  | Error => y = Error
+  | NonTerminating => y = NonTerminating
+  | _ => True
+  end.
+Proof.
+  intros.
+  destruct x, y; inversion H; subst; try congruence; auto.
+Qed.
+
+Lemma clos_refl_trans_lift_relation_forward {state: Type} (R: state -> MetaState state -> 
+Prop):
+  forall x y, clos_refl_trans _ (lift_relation R) x y ->
+  match x with
+  | Error => y = Error
+  | NonTerminating => y = NonTerminating
+  | _ => True
+  end.
+Proof.
+  intros.
+  induction H.
+  + apply lift_relation_forward in H; auto.
+  + destruct x; auto.
+  + destruct x; subst; simpl; subst; auto.
+Qed.
+
+Lemma lift_function_rev {A B: Type} (f: A -> B):
+  forall ma mb, lift_function f ma = mb ->
+  match mb with
+  | NonTerminating => ma = NonTerminating
+  | Error => ma = Error
+  | _ => True
+  end.
+Proof.
+  intros.
+  destruct mb, ma; auto; simpl in *; congruence.
+Qed.
+
 
