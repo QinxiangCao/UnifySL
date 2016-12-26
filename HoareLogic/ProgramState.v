@@ -1,4 +1,5 @@
 Require Import Coq.Relations.Relation_Operators.
+Require Import Logic.lib.SigStream.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 

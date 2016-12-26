@@ -1,5 +1,6 @@
 Require Import Coq.Sets.Ensembles.
 Require Import Coq.Lists.List.
+Require Import Coq.omega.Omega.
 
 Lemma fin_subset_match {A B: Type} {P: A -> B -> Prop}: forall (X: Ensemble A) (Y: Ensemble B),
   (forall x, X x -> exists y, P x y /\ Y y) ->
@@ -78,5 +79,43 @@ Proof.
   + constructor; simpl; auto.
     revert IHremove_rel; apply Forall_impl.
     intros; auto.
+Qed.
+
+Definition isSome {A} (o: option A) := match o with Some _ => True | None => False end.
+
+(* These three lemmas are copied from veric/assert_lemmas.v and veric/initial_world.v *)
+Lemma nth_error_in_bounds: forall {A} (l: list A) i, (O <= i < length l)%nat
+  -> exists x, nth_error l i = value x.
+Proof.
+intros until i; intros H.
+revert i l H.
+induction i; destruct l; intros; simpl in *;
+  try solve [eauto | omega].
+apply IHi; omega.
+Qed.
+
+Lemma nth_error_app: forall {T} (al bl : list T) (j: nat),
+     nth_error (al++bl) (length al + j) = nth_error bl j.
+Proof.
+ intros. induction al; simpl; auto.
+Qed.
+
+Lemma nth_error_app1: forall {T} (al bl : list T) (j: nat),
+     (j < length al)%nat ->
+     nth_error (al++bl) j = nth_error al j.
+Proof.
+  intros. revert al H; induction j; destruct al; simpl; intros; auto; try omega.
+   apply IHj. omega.
+Qed.
+
+Lemma nth_error_None_iff: forall {A} (l: list A) n, nth_error l n = None <-> n >= length l.
+Proof.
+  intros.
+  revert n; induction l; intros; destruct n; simpl.
+  + split; [intros _; omega | auto].
+  + split; [intros _; omega | auto].
+  + split; [intros; inversion H | omega].
+  + rewrite IHl.
+    omega.
 Qed.
 
