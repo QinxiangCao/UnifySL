@@ -1,72 +1,72 @@
 Require Import Coq.Relations.Relation_Operators.
-Require Import Logic.lib.SigStream.
+Require Import Logic.lib.Stream.SigStream.
+Require Import Logic.lib.Stream.StreamFunctions.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
+Require Import Logic.HoareLogic.Trace.
 
-Definition trace (state: Type): Type := stream (MetaState state * MetaState state).
-
-Identity Coercion trace_stream: trace >-> stream.
-
-Definition sequential_trace {state: Type} (tr: trace state) : Prop :=
-  forall k ms1 ms2 ms3 ms4,
-    tr k = Some (ms1, ms2) ->
-    tr (S k) = Some (ms3 , ms4) ->
-    ms2 = ms3.
-
-Definition begin_state {state: Type} (tr: trace state) (ms: MetaState state): Prop :=
-  exists ms', tr 0 = Some (ms, ms').
-
-Definition end_state {state: Type} (tr: trace state) (ms: MetaState state): Prop :=
-  (is_inf_stream tr /\ ms = NonTerminating) \/
-  (exists n ms', is_n_stream (S n) tr /\ tr n = Some (ms', ms)).
-
+(* Change the name to local/global trace semantics. *)
 Class SequentialTraceSemantics (P: ProgrammingLanguage) (state: Type): Type := {
-  denote: cmd -> trace state -> Prop
-}.
-
-Class NormalSequentialTraceSemantics (P: ProgrammingLanguage) (state: Type) (STS: SequentialTraceSemantics P state): Type := {
+  denote: cmd -> trace state -> Prop;
   trace_non_empty: forall c tr, denote c tr -> tr 0 <> None;
-  trace_forward_legal: forall c tr n ms ms', denote c tr -> tr n = Some (ms, ms') -> ms <> NonTerminating /\ ms <> Error
+  trace_forward_legal: forall c tr n ms ms', denote c tr -> tr n = Some (ms, ms') -> ms <> NonTerminating /\ ms <> Error;
+  trace_sequential: forall c tr, denote c tr -> sequential_trace tr
 }.
 
 Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {STS: SequentialTraceSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
-  exists tr, denote c tr /\ sequential_trace tr /\ begin_state tr (Terminating s) /\ end_state tr ms.
-(*
+  exists tr, denote c tr /\ begin_state tr (Terminating s) /\ end_state tr ms.
+
 Class SASequentialTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (STS: SequentialTraceSemantics P state): Type := {
   frame_property: forall c tr' m mf m',
     join m mf m' ->
-    has_trace c tr' ->
+    denote c tr' ->
     begin_state tr' (Terminating m') ->
-    exists tr (fs: stream state),
-    has_trace c tr /\
+    exists tr,
+    denote c tr /\
     begin_state tr (Terminating m) /\
-    fs 0 = Some mf /\
-    (forall k m mf m' n',
-       join m mf m' ->
-       tr k = Some (Terminating m) ->
-       tr' k = Some (Terminating m') ->
-       fs k = Some mf ->
-       tr' (S k) = Some n' ->
-       exists n nf,
-       tr (S k) = Some n /\
-       fs (S k) = Some nf /\
-       Korder nf mf /\
-       lift_join n (Terminating nf) n')
+    (end_state tr Error \/
+     exists trf,
+       sequential_trace trf /\
+       begin_state trf (Terminating mf) /\
+       (forall k m' n',
+         tr' k = Some (m', n') ->
+         exists m n mf nf,
+         tr k = Some (m, n) /\
+         trf k = Some (mf, nf) /\
+         lift_Korder nf mf /\
+         lift_join n nf n'))
 }.
 
-Module ImpSequentialTraceSemantics (D: DECREASE).
+Module ImpLocalTraceSemantics (D: DECREASE) (DT: DECREASE_TRACE with Module D := D).
 
 Export D.
+Export DT.
 
+Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (STS: SequentialTraceSemantics P state): Type := {
+  eval_bool: state -> bool_expr -> Prop;
+  eval_bool_stable: forall b, Korder_stable (fun s => eval_bool s b);
+  denote_Ssequence: forall c1 c2 tr,
+    denote (Ssequence c1 c2) tr ->
+    traces_app (denote c1) (traces_app decrease_trace (denote c2)) tr;
+  denote_Sifthenelse: forall b c1 c2 tr,
+    denote (Sifthenelse b c1 c2) tr ->
+    traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (denote c1) tr \/
+    traces_app (decrease_trace_with_test (fun s => ~ eval_bool s b)) (denote c2) tr;
+  denote_Swhile: forall b c tr,
+    denote (Swhile b c) tr ->
+    traces_app (traces_pstar (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (denote c))) (decrease_trace_with_test (fun s => ~ eval_bool s b)) tr \/
+    traces_pomega (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (denote c)) tr
+}.
 
-End ImpBigStepSemantics.
+End ImpLocalTraceSemantics.
 
-Module Total := ImpBigStepSemantics (ProgramState.Total).
+Module Total := ImpLocalTraceSemantics (ProgramState.Total) (Trace.Total).
 
-Module Partial := ImpBigStepSemantics (ProgramState.Partial).
+Module Partial := ImpLocalTraceSemantics (ProgramState.Partial) (Trace.Partial).
 
+(*
 Instance Total2Partial_ImpBigStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} {BSS: BigStepSemantics P state} (iBSS: Total.ImpBigStepSemantics P state BSS): Partial.ImpBigStepSemantics P state BSS.
 Proof.
   refine (Partial.Build_ImpBigStepSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _).

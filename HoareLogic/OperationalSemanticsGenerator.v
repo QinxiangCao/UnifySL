@@ -12,12 +12,9 @@ Require Import Logic.HoareLogic.SimpleSmallStepSemantics.
 Require Import Logic.HoareLogic.SmallStepSemantics.
 Require Import Logic.HoareLogic.BigStepSemantics.
 
-Instance SSS_SimpleSSS {P: ProgrammingLanguage} {state: Type} (SSSS: SimpleSmallStepSemantics P state): SmallStepSemantics P state :=
-  Build_SmallStepSemantics _ _ SimpleSmallStepSemantics.step.
-
-Instance nSSS_SimpleSSS {P: ProgrammingLanguage} {state: Type} (SSSS: SimpleSmallStepSemantics P state): NormalSmallStepSemantics P state (SSS_SimpleSSS SSSS).
+Instance SSS_SimpleSSS {P: ProgrammingLanguage} {state: Type} (SSSS: SimpleSmallStepSemantics P state): SmallStepSemantics P state.
 Proof.
-  constructor.
+  refine (Build_SmallStepSemantics _ _ SimpleSmallStepSemantics.step _).
   intros.
   destruct (classic (exists cs0, simple_step cs cs0)).
   + destruct H as [cs0 ?].
@@ -27,14 +24,11 @@ Proof.
     simpl.
     intros ? ?; apply H; clear H.
     exists cs0; auto.
-Qed.
+Defined.
 
-Instance BSS_SSS {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} (SSS: SmallStepSemantics P state): BigStepSemantics P state :=
-  Build_BigStepSemantics _ _ SmallStepSemantics.access.
-
-Instance nBSS_SSS {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} (SSS: SmallStepSemantics P state) {nSSS: NormalSmallStepSemantics P state SSS}: NormalBigStepSemantics P state (BSS_SSS SSS).
+Instance BSS_SSS {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} (SSS: SmallStepSemantics P state): BigStepSemantics P state.
 Proof.
-  constructor.
+  refine (Build_BigStepSemantics _ _ SmallStepSemantics.access _).
   intros.
   apply NNPP; intro.
   pose proof not_ex_all_not _ _ H.
@@ -68,7 +62,7 @@ Proof.
       apply rt_trans with (Terminating (c0, s0)); auto.
       apply rt_step.
       constructor; auto.
-Qed.
+Defined.
 
 Module Partial.
 

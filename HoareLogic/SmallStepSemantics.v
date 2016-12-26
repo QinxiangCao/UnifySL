@@ -6,7 +6,8 @@ Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 
 Class SmallStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
-  step: cmd * state -> MetaState (cmd * state) -> Prop
+  step: cmd * state -> MetaState (cmd * state) -> Prop;
+  step_defined: forall cs, exists mcs, step cs mcs
 }.
 
 Definition lift_step
@@ -32,10 +33,6 @@ Definition step_term_norm
            (cs: cmd * state):
   Prop :=
   ~ step cs Error /\ ~ step cs NonTerminating.
-
-Class NormalSmallStepSemantics (P: ProgrammingLanguage) (state: Type) (SSS: SmallStepSemantics P state): Type := {
-  step_defined: forall cs, exists mcs, step cs mcs
-}.
 
 Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {SSS: SmallStepSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
   clos_refl_trans _ lift_step (Terminating (c, s)) (lift_function (pair Sskip) ms) \/

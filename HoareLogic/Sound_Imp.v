@@ -27,7 +27,6 @@ Context {P: ProgrammingLanguage}
         {MD: Model}
         {kiM: KripkeIntuitionisticModel model}
         {BSS: BigStepSemantics P model}
-        {nBSS: NormalBigStepSemantics P model BSS}
         {iBSS: ImpBigStepSemantics P model BSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM}.
@@ -146,7 +145,6 @@ Context {P: ProgrammingLanguage}
         {MD: Model}
         {kiM: KripkeIntuitionisticModel model}
         {BSS: BigStepSemantics P model}
-        {nBSS: NormalBigStepSemantics P model BSS}
         {iBSS: ImpBigStepSemantics P model BSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM}.

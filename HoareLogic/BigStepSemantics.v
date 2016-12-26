@@ -5,7 +5,8 @@ Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 
 Class BigStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
-  access: state -> cmd -> MetaState state -> Prop
+  access: state -> cmd -> MetaState state -> Prop;
+  access_defined: forall s c, exists ms, access s c ms
 }.
 
 Definition lift_access
@@ -34,10 +35,6 @@ Definition term_norm
            (c: cmd):
   Prop :=
   ~ access s c Error /\ ~ access s c NonTerminating.
-
-Class NormalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (BSS: BigStepSemantics P state): Type := {
-  access_defined: forall s c, exists ms, access s c ms
-}.
 
 Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (BSS: BigStepSemantics P state): Type := {
   frame_property: forall m mf m' c n', join m mf m' -> access m' c n' -> exists n nf, Korder nf mf /\ lift_join n (Terminating nf) n' /\ access m c n

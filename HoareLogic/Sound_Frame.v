@@ -24,7 +24,6 @@ Existing Instance unit_kMD.
 Context {P: ProgrammingLanguage}
         {MD: Model}
         {BSS: BigStepSemantics P model}
-        {nBSS: NormalBigStepSemantics P model BSS}
         {J: Join model}
         {kiM: KripkeIntuitionisticModel model}
         {SA_BSS: SABigStepSemantics P model BSS}.

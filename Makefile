@@ -13,7 +13,8 @@ DEP_DEMO = -R $(CURRENT_DIR) Logic
 DEP_FLAG = $(DEP_DEMO) 
 
 lib_FILES = \
-  Coqlib.v Bijection.v Countable.v NatChoice.v SigStream.v
+  Coqlib.v Bijection.v Countable.v NatChoice.v \
+  Stream/SigStream.v Stream/StreamFunctions.v
 
 MinimunLogic_FILES = \
   LogicBase.v MinimunLogic.v RewriteClass.v \
@@ -40,7 +41,7 @@ SeparationLogic_FILES = \
   Downwards2Upwards.v Upwards2Downwards.v
 
 HoareLogic_FILES = \
-  ImperativeLanguage.v ProgramState.v \
+  ImperativeLanguage.v ProgramState.v Trace.v \
   SimpleSmallStepSemantics.v SmallStepSemantics.v \
   BigStepSemantics.v ConcurrentSemantics.v OperationalSemanticsGenerator.v \
   HoareLogic_Sequential.v HoareLogic_Concurrent.v \

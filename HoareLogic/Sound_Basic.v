@@ -23,8 +23,7 @@ Existing Instance unit_kMD.
 
 Context {P: ProgrammingLanguage}
         {MD: Model}
-        {BSS: BigStepSemantics P model}
-        {nBSS: NormalBigStepSemantics P model BSS}.
+        {BSS: BigStepSemantics P model}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM}.
 

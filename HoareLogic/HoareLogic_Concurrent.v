@@ -5,7 +5,7 @@ Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
-Require Import Logic.HoareLogic.SequentialSemantics.
+Require Import Logic.HoareLogic.BigStepSemantics.
 Require Import Logic.HoareLogic.ConcurrentSemantics.
 Require Import Logic.HoareLogic.HoareLogic_Sequential.
 
