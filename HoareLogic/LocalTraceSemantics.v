@@ -7,18 +7,17 @@ Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.Trace.
 
-(* Change the name to local/global trace semantics. *)
-Class SequentialTraceSemantics (P: ProgrammingLanguage) (state: Type): Type := {
+Class LocalTraceSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   denote: cmd -> trace state -> Prop;
   trace_non_empty: forall c tr, denote c tr -> tr 0 <> None;
   trace_forward_legal: forall c tr n ms ms', denote c tr -> tr n = Some (ms, ms') -> ms <> NonTerminating /\ ms <> Error;
   trace_sequential: forall c tr, denote c tr -> sequential_trace tr
 }.
 
-Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {STS: SequentialTraceSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
+Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {LTS: LocalTraceSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
   exists tr, denote c tr /\ begin_state tr (Terminating s) /\ end_state tr ms.
 
-Class SASequentialTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (STS: SequentialTraceSemantics P state): Type := {
+Class SALocalTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (LTS: LocalTraceSemantics P state): Type := {
   frame_property: forall c tr' m mf m',
     join m mf m' ->
     denote c tr' ->
@@ -44,7 +43,7 @@ Module ImpLocalTraceSemantics (D: DECREASE) (DT: DECREASE_TRACE with Module D :=
 Export D.
 Export DT.
 
-Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (STS: SequentialTraceSemantics P state): Type := {
+Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (LTS: LocalTraceSemantics P state): Type := {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Korder_stable (fun s => eval_bool s b);
   denote_Ssequence: forall c1 c2 tr,
