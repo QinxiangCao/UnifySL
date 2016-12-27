@@ -65,35 +65,37 @@ Module Total := ImpLocalTraceSemantics (ProgramState.Total) (Trace.Total).
 
 Module Partial := ImpLocalTraceSemantics (ProgramState.Partial) (Trace.Partial).
 
-(*
-Instance Total2Partial_ImpBigStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} {BSS: BigStepSemantics P state} (iBSS: Total.ImpBigStepSemantics P state BSS): Partial.ImpBigStepSemantics P state BSS.
+Instance Total2Partial_ImpLocalTraceSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} {LTS: LocalTraceSemantics P state} (iLTS: Total.ImpLocalTraceSemantics P state LTS): Partial.ImpLocalTraceSemantics P state LTS.
 Proof.
-  refine (Partial.Build_ImpBigStepSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _).
+  refine (Partial.Build_ImpLocalTraceSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _).
   + intros.
-    pose proof Total.access_Ssequence c1 c2 s ms H
-      as [ms' [ms'' [? [? ?]]]].
-    exists ms', ms''; split; [| split]; auto.
-    apply Total2Partial_decrease; auto.
+    pose proof Total.denote_Ssequence c1 c2 tr H.
+    clear H; revert tr H0.
+    apply traces_app_mono; [hnf; intros; auto |].
+    apply traces_app_mono; [| hnf; intros; auto].
+    apply Total2Partial_decrease_trace.
   + intros.
-    pose proof Total.access_Sifthenelse b c1 c2 s ms H
-      as [[? [ms' [? ?]]] | [? [ms' [? ?]]]].
-    - left; split; auto; exists ms'; split; auto.
-      apply Total2Partial_decrease; auto.
-    - right; split; auto; exists ms'; split; auto.
-      apply Total2Partial_decrease; auto.
-  + intros.
-    pose proof Total.access_Swhile b c s ms H.
-    destruct H0 as [? | [? ?]].
+    pose proof Total.denote_Sifthenelse b c1 c2 tr H as [ | ].
     - left.
-      clear H; induction H0.
-      * apply Partial.loop_access_Terminating; auto.
-        apply Total2Partial_decrease; auto.
-      * eapply Partial.loop_access_abnormal; eauto.
-        apply Total2Partial_decrease; auto.
-      * apply (Partial.loop_access_step _ _ s1 s2 s3 s4); eauto.
-    - right; split; auto.
-      clear ms H1 H.
-      inversion H0; subst.
-      econstructor; eauto.
+      clear H; revert tr H0.
+      apply traces_app_mono; [| hnf; intros; auto].
+      apply Total2Partial_decrease_trace_with_test.
+    - right.
+      clear H; revert tr H0.
+      apply traces_app_mono; [| hnf; intros; auto].
+      apply Total2Partial_decrease_trace_with_test.
+  + intros.
+    pose proof Total.denote_Swhile b c tr H as [ | ].
+    - left.
+      clear H; revert tr H0.
+      apply traces_app_mono.
+      * apply traces_pstar_mono.
+        apply traces_app_mono; [| hnf; intros; auto].
+        apply Total2Partial_decrease_trace_with_test.
+      * apply Total2Partial_decrease_trace_with_test.
+    - right.
+      clear H; revert tr H0.
+      apply traces_pomega_mono.
+      apply traces_app_mono; [| hnf; intros; auto].
+      apply Total2Partial_decrease_trace_with_test.
 Defined.
-*)

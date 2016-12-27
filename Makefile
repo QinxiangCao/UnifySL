@@ -43,7 +43,8 @@ SeparationLogic_FILES = \
 HoareLogic_FILES = \
   ImperativeLanguage.v ProgramState.v Trace.v \
   SimpleSmallStepSemantics.v SmallStepSemantics.v \
-  BigStepSemantics.v ConcurrentSemantics.v OperationalSemanticsGenerator.v \
+  BigStepSemantics.v ConcurrentSemantics.v LocalTraceSemantics.v \
+  OperationalSemanticsGenerator.v \
   HoareLogic_Sequential.v HoareLogic_Concurrent.v \
   Sound_Basic.v Sound_Imp.v Sound_Frame.v Sound_Resource.v
 
