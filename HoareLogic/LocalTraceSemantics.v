@@ -9,12 +9,13 @@ Require Import Logic.HoareLogic.Trace.
 
 Class LocalTraceSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   denote: cmd -> trace state -> Prop;
-  trace_non_empty: forall c tr, denote c tr -> tr 0 <> None;
+  denote_defined: forall c s, exists tr, denote c tr /\ begin_state tr (Terminating s);
+  trace_non_empty: forall c tr, denote c tr -> ~ is_empty_stream tr;
   trace_forward_legal: forall c tr n ms ms', denote c tr -> tr n = Some (ms, ms') -> ms <> NonTerminating /\ ms <> Error;
   trace_sequential: forall c tr, denote c tr -> sequential_trace tr
 }.
 
-Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {LTS: LocalTraceSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
+Definition access {P: ProgrammingLanguage} {state: Type} {LTS: LocalTraceSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
   exists tr, denote c tr /\ begin_state tr (Terminating s) /\ end_state tr ms.
 
 Class SALocalTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (LTS: LocalTraceSemantics P state): Type := {

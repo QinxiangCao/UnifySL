@@ -22,6 +22,22 @@ Definition end_state {state: Type} (tr: trace state) (ms: MetaState state): Prop
   (is_inf_stream tr /\ ms = NonTerminating) \/
   (exists n ms', is_n_stream (S n) tr /\ tr n = Some (ms', ms)).
 
+Lemma end_state_exists {state: Type}: forall (tr: trace state) ms, begin_state tr ms -> exists ms', end_state tr ms'.
+Proof.
+  intros.
+  destruct H as [mcs ?].
+  destruct (n_stream_or_inf_stream tr) as [[n ?] | ?].
+  + destruct n; [destruct H0 as [? _]; congruence |].
+    destruct (tr n) eqn:?H; [| pose proof (proj2 H0 n (le_n _)); congruence].
+    destruct p as [ms'' ms'''].
+    exists ms'''.
+    right.
+    exists n, ms''.
+    auto.
+  + exists NonTerminating.
+    left; auto.
+Qed.
+
 Definition traces (state: Type): Type := Ensemble (trace state).
 
 Definition traces_app {state: Type} (d1 d2: traces state): traces state :=

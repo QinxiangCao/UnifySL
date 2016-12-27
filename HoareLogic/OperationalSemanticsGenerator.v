@@ -3,16 +3,23 @@ Require Import Coq.Relations.Operators_Properties.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.NatChoice.
+Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
+Require Import Logic.HoareLogic.Trace.
 Require Import Logic.HoareLogic.SimpleSmallStepSemantics.
 Require Import Logic.HoareLogic.SmallStepSemantics.
+Require Import Logic.HoareLogic.LocalTraceSemantics.
 Require Import Logic.HoareLogic.BigStepSemantics.
 
-Instance SSS_SimpleSSS {P: ProgrammingLanguage} {state: Type} (SSSS: SimpleSmallStepSemantics P state): SmallStepSemantics P state.
+Instance SSS_SimpleSSS
+         {P: ProgrammingLanguage}
+         {state: Type}
+         (SSSS: SimpleSmallStepSemantics P state):
+  SmallStepSemantics P state.
 Proof.
   refine (Build_SmallStepSemantics _ _ SimpleSmallStepSemantics.step _).
   intros.
@@ -26,10 +33,59 @@ Proof.
     exists cs0; auto.
 Defined.
 
-Instance BSS_SSS {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} (SSS: SmallStepSemantics P state): BigStepSemantics P state.
+Instance LTS_SSS
+         {P: ProgrammingLanguage}
+         {iP: ImperativeProgrammingLanguage P}
+         {state: Type}
+         (SSS: SmallStepSemantics P state):
+  LocalTraceSemantics P state.
 Proof.
-  refine (Build_BigStepSemantics _ _ SmallStepSemantics.access _).
+  refine (Build_LocalTraceSemantics _ _ SmallStepSemantics.denote _ _ _ _).
+  + intros.
+    admit.
+  + intros; intro.
+    destruct H0 as [? _].
+    destruct H as [? _ _ [s ?] _ ?].
+    destruct H as [mcs ?].
+    specialize (tr_ctr 0 (Terminating s) (lift_function snd mcs)).
+    assert (tr 0 = Some (Terminating s, lift_function snd mcs));
+      [clear H0 | congruence].
+    apply tr_ctr; clear tr_ctr.
+    exists (Terminating (c, s)), mcs.
+    split; [| split]; auto.
+  + intros.
+    destruct H as [? _ ? _ _ ?].
+    apply tr_ctr in H0; clear tr_ctr.
+    destruct H0 as [mcs [mcs' [? [? _]]]].
+    apply ctr_sound in H.
+    destruct H as [cs [? _]].
+    subst.
+    destruct cs; split; simpl; congruence.
+  + intros.
+    destruct H as [? ? _ _ _ ?].
+    hnf; intros.
+    pose proof (proj1 (tr_ctr k _ _) H) as [mcs1 [mcs2 [? [_ ?]]]].
+    pose proof (proj1 (tr_ctr (S k) _ _) H0) as [mcs3 [mcs4 [? [? _]]]].
+    clear tr_ctr.
+    specialize (ctr_sequential k _ _ _ _ H1 H3).
+    congruence.
+Admitted. (* Defined. *)
+
+Instance BSS_LTS
+         {P: ProgrammingLanguage}
+         {state: Type}
+         (LTS: LocalTraceSemantics P state):
+  BigStepSemantics P state.
+Proof.
+  refine (Build_BigStepSemantics _ _ LocalTraceSemantics.access _).
   intros.
+  pose proof denote_defined c s as [tr [? ?]].
+  destruct (end_state_exists tr (Terminating s) H0) as [ms ?].
+  exists ms, tr.
+  auto.
+Defined.
+(*
+  unfold LocalTraceSemantics.access.
   apply NNPP; intro.
   pose proof not_ex_all_not _ _ H.
   pose proof H0 Error.
@@ -63,7 +119,7 @@ Proof.
       apply rt_step.
       constructor; auto.
 Defined.
-
+*)
 Module Partial.
 
 Export SmallStepSemantics.Partial.

@@ -1,22 +1,16 @@
 Require Import Coq.Relations.Relation_Operators.
+Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.SeparationAlgebraExamples.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
+Require Import Logic.HoareLogic.Trace.
 
 Class SmallStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   step: cmd * state -> MetaState (cmd * state) -> Prop;
   step_defined: forall cs, exists mcs, step cs mcs
 }.
-
-Definition lift_step
-          {P: ProgrammingLanguage}
-          {state: Type}
-          {SSS: SmallStepSemantics P state}
-          (mcs1: MetaState (cmd * state))
-          (mcs2: MetaState (cmd * state)): Prop :=
-  lift_relation (fun cs => step cs) mcs1 mcs2.
 
 Definition step_safe
            {P: ProgrammingLanguage}
@@ -34,9 +28,27 @@ Definition step_term_norm
   Prop :=
   ~ step cs Error /\ ~ step cs NonTerminating.
 
+Record denote
+       {P: ProgrammingLanguage}
+       {iP: ImperativeProgrammingLanguage P} 
+       {state: Type}
+       {SSS: SmallStepSemantics P state}
+       (c: cmd)
+       (tr: trace state): Prop :=
+{
+  ctr: trace (cmd * state);
+  ctr_sequential: sequential_trace ctr;
+  ctr_sound: forall k mcs mcs', ctr k = Some (mcs, mcs') -> exists cs, mcs = Terminating cs /\ step cs mcs';
+  ctr_begin_state: exists s, begin_state ctr (Terminating (c, s));
+  ctr_end_state: exists ms, end_state ctr (lift_function (pair Sskip) ms);
+  tr_ctr: forall (k: nat) ms ms', tr k = Some (ms, ms') <-> (exists mcs mcs', ctr k = Some (mcs, mcs') /\ lift_function snd mcs = ms /\ lift_function snd mcs' = ms')
+}.
+
+(*
 Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {SSS: SmallStepSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
   clos_refl_trans _ lift_step (Terminating (c, s)) (lift_function (pair Sskip) ms) \/
   ms = NonTerminating /\ exists cs: nat -> cmd * state, cs 0 = (c, s) /\ forall k, step (cs k) (Terminating (cs (S k))).
+*)
 
 Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state): Type := {
   frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, Korder (snd nf) (snd mf) /\ @lift_join _ (@prod_Join cmd state (equiv_Join cmd) J) n (Terminating nf) n' /\ step m n
