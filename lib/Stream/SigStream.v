@@ -1,6 +1,7 @@
 Require Import Coq.omega.Omega.
 Require Import Coq.Lists.List.
 Require Export Coq.Logic.Classical.
+Require Export Coq.Logic.Classical_Prop.
 Require Export Coq.Logic.FunctionalExtensionality.
 Require Export Coq.Classes.Equivalence.
 Require Export Coq.Classes.Morphisms.
@@ -47,30 +48,151 @@ Tactic Notation "stream_extensionality" ident(x) :=
      apply stream_extensionality; intro x
   end.
 
+Definition is_n_stream {A: Type} (n: nat) (h: stream A): Prop :=
+  h n = None /\ forall n', n' < n -> h n' <> None.
+
 Definition is_fin_stream {A: Type} (h: stream A): Prop :=
   exists n, h n = None.
 
 Definition is_inf_stream {A: Type} (h: stream A): Prop :=
   forall n, h n <> None.
 
-Definition is_n_stream {A: Type} (n: nat) (h: stream A): Prop :=
-  h n = None /\ forall n', n' < n -> h n' <> None.
-
 Definition is_at_least_n_stream {A: Type} (n: nat) (h: stream A): Prop :=
   forall n', n' < n -> h n' <> None.
+
+Definition is_at_most_n_stream {A: Type} (n: nat) (h: stream A): Prop :=
+  h n = None.
 
 Definition is_empty_stream {A: Type}: stream A -> Prop :=
   is_n_stream 0.
 
-(*
-Definition fstn_stream {A: Type} (n: nat) (h: stream A) : stream A.
-  exists (fun m => if le_lt_dec n m then None else h m).
+Lemma at_most_n_stream_Sn {A: Type}: forall (h: stream A) (n: nat),
+  is_at_most_n_stream (S n) h <->
+  is_at_most_n_stream n h \/ is_n_stream (S n) h.
+Proof.
   intros.
-  destruct (le_lt_dec n x), (le_lt_dec n y); try congruence.
-  + omega.
-  + apply (stream_sound1 h x y); auto; omega.
-Defined.
+  split; [intro | intros [? | ?]].
+  + destruct (h n) eqn:?H.
+    - right.
+      split; auto.
+      intros; intro.
+      rewrite (stream_sound1 h n' n) in H0 by (auto; omega).
+      congruence.
+    - left.
+      auto.
+  + hnf in H |- *.
+    rewrite (stream_sound1 h n (S n)) by (auto; omega).
+    auto.
+  + destruct H; auto.
+Qed.
 
+Lemma at_most_n_stream_0 {A: Type}: forall (h: stream A),
+  is_at_most_n_stream 0 h <-> is_n_stream 0 h.
+Proof.
+  intros; split; intros.
+  + split; auto.
+    intros; omega.
+  + destruct H; auto.
+Qed.
+
+Lemma at_most_n_stream_spec {A: Type}: forall (h: stream A) (n: nat),
+  is_at_most_n_stream n h <->
+  exists m, m <= n /\ is_n_stream m h.
+Proof.
+  intros.
+  induction n.
+  + rewrite at_most_n_stream_0.
+    split; intros.
+    - exists 0; split; [omega | auto].
+    - destruct H as [m [? ?]].
+      replace m with 0 in H0 by omega.
+      auto.
+  + rewrite at_most_n_stream_Sn.
+    rewrite IHn.
+    split; intros.
+    - destruct H as [[m [? ?]] | ?].
+      * exists m; split; [omega | auto].
+      * exists (S n); split; [omega | auto].
+    - destruct H as [m [? ?]].
+      destruct (le_gt_dec m n).
+      * left; exists m; split; auto.
+      * right.
+        replace (S n) with m by omega.
+        auto.
+Qed.
+
+Lemma is_fin_stream_spec {A}: forall (h: stream A),
+  is_fin_stream h <-> exists n, is_n_stream n h.
+Proof.
+  intros.
+  split; intro.
+  + destruct H as [n ?].
+    apply at_most_n_stream_spec in H.
+    destruct H as [m [? ?]].
+    exists m; auto.
+  + destruct H as [n [? ?]].
+    exists n; auto.
+Qed.
+
+Lemma at_most_n_stream_mono {A: Type}: forall (h: stream A) (n m: nat),
+  n <= m ->
+  is_at_most_n_stream n h ->
+  is_at_most_n_stream m h.
+Proof.
+  intros.
+  rewrite at_most_n_stream_spec in H0 |- *.
+  destruct H0 as [m0 [? ?]].
+  exists m0.
+  split; [omega | auto].
+Qed.
+
+Lemma at_most_n_stream_is_fin_stream {A: Type}: forall (h: stream A) (n: nat),
+  is_at_most_n_stream n h ->
+  is_fin_stream h.
+Proof.
+  intros.
+  rewrite at_most_n_stream_spec in H.
+  rewrite is_fin_stream_spec.
+  destruct H as [m [? ?]].
+  exists m; auto.
+Qed.
+
+Lemma n_stream_or_inf_stream {A: Type}: forall (h: stream A),
+  (exists n, is_n_stream n h) \/ is_inf_stream h.
+Proof.
+  intros.
+  destruct (classic (is_fin_stream h)).
+  + left.
+    rewrite is_fin_stream_spec in H.
+    auto.
+  + right.
+    hnf; intros; intro.
+    apply H; clear H.
+    exists n; auto.
+Qed.
+
+Lemma at_least_n_stream_Sn {A: Type}: forall (h: stream A) (n: nat),
+  is_at_least_n_stream n h <->
+  is_at_least_n_stream (S n) h \/ is_n_stream n h.
+Proof.
+  intros.
+  split; [intro | intros [? | ?]].
+  + destruct (h n) eqn:?H.
+    - left.
+      hnf; intros.
+      destruct (lt_dec n' n).
+      * apply H; auto.
+      * replace n' with n by omega.
+        rewrite H0; congruence.
+    - right.
+      split; auto.
+  + hnf; intros.
+    apply H; omega.
+  + destruct H; auto.
+Qed.
+
+
+(*
 Definition stream_coincide {A: Type} (n: nat) (h1 h2: stream A): Prop :=
   forall m, m < n -> h1 m = h2 m.
 
@@ -124,18 +246,6 @@ Proof.
   specialize (H0 m H1); congruence.
 Qed.
 
-Lemma fstn_stream_Some {A: Type}: forall n m (h: stream A), m < n -> (fstn_stream n h) m = h m.
-Proof.
-  intros; simpl.
-  destruct (le_lt_dec n m); auto; omega.
-Qed.
-
-Lemma fstn_stream_None {A: Type}: forall n m (h: stream A), n <= m -> (fstn_stream n h) m = None.
-Proof.
-  intros; simpl.
-  destruct (le_lt_dec n m); auto; omega.
-Qed.
-
 Lemma stream_coincide_weaken {A: Type}: forall n m (h1 h2: stream A),
   n <= m ->
   stream_coincide m h1 h2 ->
@@ -152,20 +262,6 @@ Proof.
   intros.
   destruct H0.
   apply (stream_sound1 h n m); auto.
-Qed.
-
-Lemma fstn_stream_is_n_stream {A: Type}: forall n m (h: stream A),
-  m <= n ->
-  is_n_stream n h ->
-  is_n_stream m (fstn_stream m h).
-Proof.
-  intros.
-  destruct H0.
-  split.
-  + rewrite fstn_stream_None by auto; auto.
-  + intros.
-    rewrite fstn_stream_Some by omega.
-    apply H1; omega.
 Qed.
 
 Lemma fstn_stream_coincide {A: Type}: forall n (h: stream A),

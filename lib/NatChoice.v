@@ -123,3 +123,22 @@ Proof.
       simpl in H1.
       simpl; tauto.
 Qed.
+
+Lemma nat_coinduction' {A: Type}: forall (P: A -> Prop) (R: A -> A -> Prop) a0,
+  P a0 ->
+  (forall a, P a -> exists b, R a b /\ P b) ->
+  exists l: nat -> A, l 0 = a0 /\ (forall k, R (l k) (l (S k))) /\ (forall k, P (l k)).
+Proof.
+  intros.
+  pose (R' := fun (a b: A) => R a b /\ P b).
+  
+  destruct (nat_coinduction P R' a0 H) as [l [? ?]].
+  + simpl; unfold R'; firstorder.
+  + exists l.
+    split; auto.
+    split; [subst R'; firstorder |].
+    intros.
+    destruct k; [subst; auto |].
+    specialize (H2 k).
+    destruct H2; auto.
+Qed.

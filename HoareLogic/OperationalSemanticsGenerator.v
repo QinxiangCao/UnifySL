@@ -1,9 +1,12 @@
+Require Import Coq.omega.Omega.
 Require Import Coq.Relations.Relation_Operators.
 Require Import Coq.Relations.Operators_Properties.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
+Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.NatChoice.
 Require Import Logic.lib.Stream.SigStream.
+Require Import Logic.lib.Stream.StreamFunctions.
 Require Import Logic.MinimunLogic.LogicBase.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
@@ -18,20 +21,10 @@ Require Import Logic.HoareLogic.BigStepSemantics.
 Instance SSS_SimpleSSS
          {P: ProgrammingLanguage}
          {state: Type}
-         (SSSS: SimpleSmallStepSemantics P state):
-  SmallStepSemantics P state.
-Proof.
-  refine (Build_SmallStepSemantics _ _ SimpleSmallStepSemantics.step _).
-  intros.
-  destruct (classic (exists cs0, simple_step cs cs0)).
-  + destruct H as [cs0 ?].
-    exists (Terminating cs0).
-    auto.
-  + exists Error.
-    simpl.
-    intros ? ?; apply H; clear H.
-    exists cs0; auto.
-Defined.
+         (SSSS: SimpleSmallStepSemantics P state)
+         (final_state: cmd * state -> Prop):
+  SmallStepSemantics P state :=
+  Build_SmallStepSemantics _ _ (SimpleSmallStepSemantics.step final_state).
 
 Instance LTS_SSS
          {P: ProgrammingLanguage}
@@ -40,36 +33,116 @@ Instance LTS_SSS
          (SSS: SmallStepSemantics P state):
   LocalTraceSemantics P state.
 Proof.
-  refine (Build_LocalTraceSemantics _ _ SmallStepSemantics.denote _ _ _ _).
+  refine (Build_LocalTraceSemantics _ _ SmallStepSemantics.denote _ _).
   + intros.
-    admit.
-  + intros; intro.
-    destruct H0 as [? _].
-    destruct H as [? _ _ [s ?] _ ?].
-    destruct H as [mcs ?].
-    specialize (tr_ctr 0 (Terminating s) (lift_function snd mcs)).
-    assert (tr 0 = Some (Terminating s, lift_function snd mcs));
-      [clear H0 | congruence].
-    apply tr_ctr; clear tr_ctr.
-    exists (Terminating (c, s)), mcs.
-    split; [| split]; auto.
+    destruct (classic (exists mcs, step (c, s) mcs)).
+    - destruct H as [mcs ?].
+      pose (Q := fun p: option ((cmd * state) *
+                                MetaState (cmd * state)) =>
+                 match p with
+                 | Some (cs, mcs) => step cs mcs
+                 | None => True
+                 end).
+      pose (R := fun p1 p2: option ((cmd * state) *
+                                    MetaState (cmd * state)) =>
+                   match p1, p2 with
+                   | None, Some _ => False
+                   | None, None => True
+                   | Some (_, Error), None => True
+                   | Some (_, NonTerminating), None => True
+                   | Some (_, Terminating cs), None => ~ exists mcs, step cs mcs
+                   | Some (_, mcs), Some (cs, _) => mcs = Terminating cs
+                   end).
+      destruct (nat_coinduction' Q R (Some ((c, s), mcs)) H) as [_ctr [? [? ?]]].
+      * clear c s mcs H.
+        intros [[cs [| | cs']] |] ?.
+       ++ exists None; simpl; auto.
+       ++ exists None; simpl; auto.
+       ++ destruct (classic (exists mcs, step cs' mcs)) as [[mcs ?] | ?].
+         -- exists (Some (cs', mcs)); simpl; auto.
+         -- exists None; simpl; auto.
+       ++ exists None; simpl; auto.
+      * assert (forall k1 k2, k1 < k2 -> _ctr k1 = None -> _ctr k2 = None).
+        Focus 1. {
+          intros.
+          assert (k1 <= k2) by omega; clear H3.
+          induction H5.
+          + auto.
+          + specialize (H1 m).
+            rewrite IHle in H1; simpl in H1.
+            destruct (_ctr (S m)); auto; tauto.
+        } Unfocus.
+        pose (ctr := exist _ _ctr H3: trace (cmd * state)).
+        change _ctr with (stream_get ctr) in H0, H1, H2.
+        clearbody ctr; clear _ctr H3.
+        exists (stream_map (fun p => match p with ((c, s), mcs) => (s, lift_function snd mcs) end) ctr).
+        destruct (n_stream_or_inf_stream ctr) as [[[| k] ?] | ?].
+       ++ exfalso; destruct H3 as [? _]; congruence.
+       ++ destruct (ctr k) eqn:?H; [| pose proof (proj2 H3 k (le_n _)); congruence].
+          destruct p as [cs' mcs'].
+          refine (conj (SmallStepSemantics.Build_denote _ _ _ c _ ctr _ _ s mcs' _ _ eq_refl) _).
+         -- clear k c s mcs cs' mcs' H0 H H3 H4.
+            hnf; intros.
+            specialize (H1 k); subst R; simpl in H1.
+            rewrite H, H0 in H1.
+            destruct ms; tauto.
+         -- clear k c s mcs cs' mcs' H0 H H3 H4.
+            intros.
+            specialize (H2 k); subst Q; simpl in H2.
+            rewrite H in H2; auto.
+         -- eapply begin_end_fin; eauto.
+         -- clear c s mcs H0 H.
+            destruct H3 as [? _].
+            specialize (H1 k); subst R; simpl in H1.
+            rewrite H, H4 in H1.
+            destruct mcs'; auto.
+            destruct p; firstorder.
+         -- destruct cs' as [c' s'].
+            exists (lift_function snd mcs'); eapply begin_end_fin.
+           ** apply stream_map_n_stream; eauto.
+           ** rewrite stream_map_spec, H0.
+              reflexivity.
+           ** rewrite stream_map_spec, H4.
+              reflexivity.
+       ++ refine (conj (SmallStepSemantics.Build_denote _ _ _ c _ ctr _ _ s NonTerminating _ _ eq_refl) _).
+         -- clear c s mcs H0 H H3.
+            hnf; intros.
+            specialize (H1 k); subst R; simpl in H1.
+            rewrite H, H0 in H1.
+            destruct ms; tauto.
+         -- clear c s mcs H0 H H3.
+            intros.
+            specialize (H2 k); subst Q; simpl in H2.
+            rewrite H in H2; auto.
+         -- eapply begin_end_inf; eauto.
+         -- auto.
+         -- exists NonTerminating; eapply begin_end_inf.
+           ** apply stream_map_inf_stream; eauto.
+           ** rewrite stream_map_spec, H0.
+              reflexivity.
+    - exists empty_stream.
+      refine (conj (SmallStepSemantics.Build_denote _ _ _ c empty_stream empty_stream _ _ s (Terminating (c, s)) _ _ _) _).
+      * hnf; intros.
+        rewrite empty_stream_spec in H0; congruence.
+      * intros.
+        rewrite empty_stream_spec in H0; congruence.
+      * apply begin_end_empty.
+      * firstorder.
+      * symmetry; apply stream_map_empty_stream.
+      * exists (Terminating s).
+        apply begin_end_empty.
   + intros.
-    destruct H as [? _ ? _ _ ?].
-    apply tr_ctr in H0; clear tr_ctr.
-    destruct H0 as [mcs [mcs' [? [? _]]]].
-    apply ctr_sound in H.
-    destruct H as [cs [? _]].
-    subst.
-    destruct cs; split; simpl; congruence.
-  + intros.
-    destruct H as [? ? _ _ _ ?].
+    destruct H as [? ? _ _ _ _ _ ?].
     hnf; intros.
-    pose proof (proj1 (tr_ctr k _ _) H) as [mcs1 [mcs2 [? [_ ?]]]].
-    pose proof (proj1 (tr_ctr (S k) _ _) H0) as [mcs3 [mcs4 [? [? _]]]].
-    clear tr_ctr.
-    specialize (ctr_sequential k _ _ _ _ H1 H3).
-    congruence.
-Admitted. (* Defined. *)
+    rewrite tr_ctr, stream_map_spec in H, H0.
+    specialize (ctr_sequential k).
+    destruct (ctr k) as [[[c0 s0] mcs] |]; [| congruence].
+    inversion H; subst s0 ms; clear H.
+    destruct (ctr (S k)) as [[[c'0 s'0] mcs'] |]; [| congruence].
+    inversion H0; subst s'0 ms'; clear H0.
+    specialize (ctr_sequential _ _ _ _ eq_refl eq_refl).
+    subst mcs; auto.
+Defined.
 
 Instance BSS_LTS
          {P: ProgrammingLanguage}
@@ -80,113 +153,37 @@ Proof.
   refine (Build_BigStepSemantics _ _ LocalTraceSemantics.access _).
   intros.
   pose proof denote_defined c s as [tr [? ?]].
-  destruct (end_state_exists tr (Terminating s) H0) as [ms ?].
+  destruct H0 as [ms ?].
   exists ms, tr.
   auto.
 Defined.
-(*
-  unfold LocalTraceSemantics.access.
-  apply NNPP; intro.
-  pose proof not_ex_all_not _ _ H.
-  pose proof H0 Error.
-  pose proof H0 NonTerminating.
-  pose proof (fun s => H0 (Terminating s)).
-  clear H H0.
-  simpl in H1, H2, H3.
-  apply not_or_and in H2; destruct H2.
-  apply H0.
-  split; auto.
-  apply (nat_coinduction
-          (fun cs => clos_refl_trans _ lift_step
-                       (Terminating (c, s)) (Terminating cs))
-          (fun cs1 cs2 => step cs1 (Terminating cs2))).
-  + apply rt_refl.
-  + intros [c0 s0] ?.
-    destruct (step_defined (c0, s0)) as [mcs ?].
-    destruct mcs as [| | [c1 s1]].
-    - exfalso; apply H1.
-      left.
-      apply rt_trans with (Terminating (c0, s0)); auto.
-      apply rt_step.
-      constructor; auto.
-    - exfalso; apply H.
-      apply rt_trans with (Terminating (c0, s0)); auto.
-      apply rt_step.
-      constructor; auto.
-    - exists (c1, s1).
-      split; auto.
-      apply rt_trans with (Terminating (c0, s0)); auto.
-      apply rt_step.
-      constructor; auto.
-Defined.
-*)
+
 Module Partial.
 
 Export SmallStepSemantics.Partial.
+Export LocalTraceSemantics.Partial.
 Export BigStepSemantics.Partial.
 
-Instance iBSS_SSS {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state) {iSSS: ImpSmallStepSemantics P state SSS}: ImpBigStepSemantics P state (BSS_SSS SSS).
+Instance iLTS_SSS {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state) {iSSS: ImpSmallStepSemantics P state SSS}: ImpLocalTraceSemantics P state (LTS_SSS SSS).
 Proof.
-  refine (Build_ImpBigStepSemantics _ _ _ _ _ _ eval_bool_stable _ _ _).
-  + simpl; intros.
-    destruct H.
-    - assert (
-        exists ms' ms'',
-        clos_refl_trans _ lift_step (Terminating (c1, s)) (lift_function (pair Sskip) ms') /\
-        decrease ms' ms'' /\
-        clos_refl_trans _ lift_step (lift_function (pair c2) ms'') (lift_function (pair Sskip) ms)).
-      Focus 2. {
-        destruct H0 as [ms' [ms'' [? [? ?]]]]; exists ms', ms''.
-        split; [| split]; auto.
-        + left; auto.
-        + pose proof clos_refl_trans_lift_relation_forward _ _ _ H2.
-          pose proof lift_function_rev _ _ _ (@eq_refl _ (lift_function (pair Sskip) ms)).
-          destruct ms''; simpl in H3; try rewrite H3 in H4.
-          - subst; constructor.
-          - subst; constructor.
-          - clear H3 H4; constructor.
-            left; auto.
-      } Unfocus.
-      remember (Terminating (Ssequence c1 c2, s)) eqn:?H.
-      remember (lift_function (pair Sskip) ms) eqn:?H.
-      rewrite clos_rt_rt1n_iff in H.
-      revert c1 s H0 H1; induction H; intros.
-      * exfalso.
-        subst.
-        destruct ms; inversion H1; subst.
-        apply Ssequence_Sskip in H0; auto.
-      * subst; inversion H; subst; clear H.
-        pose proof step_Ssequence _ _ _ _ H2.
-        destruct H as [? | ?].
-       ++ destruct H as [ms' [? [? ?]]].
-          exists (Terminating s), ms'.
-          subst c1.
-          split; [| split]; auto.
-         -- apply rt_refl.
-         -- subst.
-            rewrite clos_rt_rt1n_iff; auto.
-       ++ destruct H as [ms' [? ?]].
-          destruct ms' as [| | [c' s']].
-         -- exists Error, Error.
-            split; [| split].
-           ** apply rt_step; constructor; auto.
-           ** constructor.
-           ** subst.
-              rewrite clos_rt_rt1n_iff; auto.
-         -- exists NonTerminating, NonTerminating.
-            split; [| split].
-           ** apply rt_step; constructor; auto.
-           ** constructor.
-           ** subst.
-              rewrite clos_rt_rt1n_iff; auto.
-         -- destruct (IHclos_refl_trans_1n c' s') as [ms' [ms'' [? [? ?]]]]; auto.
-            exists ms', ms''.
-            split; [| split]; auto.
-            rewrite clos_rt_rt1n_iff.
-            apply (@Relation_Operators.rt1n_trans _ _ _ (Terminating (c', s'))).
-           ** constructor; auto.
-           ** rewrite clos_rt_rt1n_iff in H3; auto.
+  refine (Build_ImpLocalTraceSemantics _ _ _ _ _ _ eval_bool_stable _ _ _ _).
+  + intros.
+    destruct H as [ctr _ ? ? mcs' ? _ ?].
+    inversion ctr_begin_end_state.
+    - subst.
+      rewrite stream_map_empty_stream.
+      apply empty_stream_is_empty.
+    - rename ms into mcs.
+      subst.
+      exfalso.
+      pose proof ctr_sound 0 (Sskip, s) mcs H0.
+      rewrite step_Sskip in H2; auto.
+    - rename ms into mcs.
+      subst.
+      exfalso.
+      pose proof ctr_sound 0 (Sskip, s) mcs H0.
+      rewrite step_Sskip in H1; auto.
+  + intros.
 Abort.
-
 
 End Partial.

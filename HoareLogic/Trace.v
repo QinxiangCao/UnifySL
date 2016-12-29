@@ -5,38 +5,33 @@ Require Import Logic.lib.Stream.StreamFunctions.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.HoareLogic.ProgramState.
 
-Definition trace (state: Type): Type := stream (MetaState state * MetaState state).
+Definition trace (state: Type): Type := stream (state * MetaState state).
 
 Identity Coercion trace_stream: trace >-> stream.
 
 Definition sequential_trace {state: Type} (tr: trace state) : Prop :=
-  forall k ms1 ms2 ms3 ms4,
-    tr k = Some (ms1, ms2) ->
-    tr (S k) = Some (ms3 , ms4) ->
-    ms2 = ms3.
+  forall k s ms s' ms',
+    tr k = Some (s, ms) ->
+    tr (S k) = Some (s' , ms') ->
+    ms = Terminating s'.
 
-Definition begin_state {state: Type} (tr: trace state) (ms: MetaState state): Prop :=
-  exists ms', tr 0 = Some (ms, ms').
+Inductive begin_end_state {state: Type}: state -> trace state -> MetaState state -> Prop :=
+| begin_end_empty: forall s, begin_end_state s empty_stream (Terminating s)
+| begin_end_fin: forall s ms s' ms' tr n,
+    is_n_stream (S n) tr ->
+    tr 0 = Some (s, ms) ->
+    tr n = Some (s', ms') ->
+    begin_end_state s tr ms'
+| begin_end_inf: forall s ms tr,
+    is_inf_stream tr ->
+    tr 0 = Some (s, ms) ->
+    begin_end_state s tr NonTerminating.
+
+Definition begin_state {state: Type} (tr: trace state) (s: state): Prop :=
+  exists ms, begin_end_state s tr ms.
 
 Definition end_state {state: Type} (tr: trace state) (ms: MetaState state): Prop :=
-  (is_inf_stream tr /\ ms = NonTerminating) \/
-  (exists n ms', is_n_stream (S n) tr /\ tr n = Some (ms', ms)).
-
-Lemma end_state_exists {state: Type}: forall (tr: trace state) ms, begin_state tr ms -> exists ms', end_state tr ms'.
-Proof.
-  intros.
-  destruct H as [mcs ?].
-  destruct (n_stream_or_inf_stream tr) as [[n ?] | ?].
-  + destruct n; [destruct H0 as [? _]; congruence |].
-    destruct (tr n) eqn:?H; [| pose proof (proj2 H0 n (le_n _)); congruence].
-    destruct p as [ms'' ms'''].
-    exists ms'''.
-    right.
-    exists n, ms''.
-    auto.
-  + exists NonTerminating.
-    left; auto.
-Qed.
+  exists s, begin_end_state s tr ms.
 
 Definition traces (state: Type): Type := Ensemble (trace state).
 
@@ -121,14 +116,10 @@ Module D := D.
 Export D.
 
 Definition decrease_trace {state: Type} {kiM: KripkeIntuitionisticModel state}: traces state :=
-  fun tr => is_fin_stream tr /\ forall n ms ms', tr n = Some (ms, ms') -> decrease ms ms'.
+  fun tr => is_fin_stream tr /\ forall n s ms, tr n = Some (s, ms) -> decrease (Terminating s) ms.
 
 Definition decrease_trace_with_test {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop) : traces state :=
-  fun tr => decrease_trace tr /\ exists ms, begin_state tr ms /\
-    match ms with
-    | Terminating s => P s
-    | _ => False
-    end.
+  fun tr => decrease_trace tr /\ exists s, begin_state tr s /\ P s.
 
 End DecreaseTrace.
 

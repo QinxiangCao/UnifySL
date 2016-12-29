@@ -1,5 +1,6 @@
 Require Import Coq.Relations.Relation_Operators.
 Require Import Logic.lib.Stream.SigStream.
+Require Import Logic.lib.Stream.StreamFunctions.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.SeparationAlgebraExamples.
@@ -8,8 +9,7 @@ Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.Trace.
 
 Class SmallStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
-  step: cmd * state -> MetaState (cmd * state) -> Prop;
-  step_defined: forall cs, exists mcs, step cs mcs
+  step: cmd * state -> MetaState (cmd * state) -> Prop
 }.
 
 Definition step_safe
@@ -30,7 +30,6 @@ Definition step_term_norm
 
 Record denote
        {P: ProgrammingLanguage}
-       {iP: ImperativeProgrammingLanguage P} 
        {state: Type}
        {SSS: SmallStepSemantics P state}
        (c: cmd)
@@ -38,10 +37,16 @@ Record denote
 {
   ctr: trace (cmd * state);
   ctr_sequential: sequential_trace ctr;
-  ctr_sound: forall k mcs mcs', ctr k = Some (mcs, mcs') -> exists cs, mcs = Terminating cs /\ step cs mcs';
-  ctr_begin_state: exists s, begin_state ctr (Terminating (c, s));
-  ctr_end_state: exists ms, end_state ctr (lift_function (pair Sskip) ms);
-  tr_ctr: forall (k: nat) ms ms', tr k = Some (ms, ms') <-> (exists mcs mcs', ctr k = Some (mcs, mcs') /\ lift_function snd mcs = ms /\ lift_function snd mcs' = ms')
+  ctr_sound: forall k cs mcs', ctr k = Some (cs, mcs') -> step cs mcs';
+  s: state;
+  mcs: MetaState (cmd * state);
+  ctr_begin_end_state: begin_end_state (c, s) ctr mcs;
+  end_state_valid: match mcs with
+                   | NonTerminating => True
+                   | Error => True
+                   | Terminating (c', s') => forall mcs'', ~ step (c', s') mcs''
+                   end;
+  tr_ctr: tr = stream_map (fun p => match p with ((c, s), mcs) => (s, lift_function snd mcs) end) ctr
 }.
 
 (*
@@ -61,6 +66,8 @@ Export D.
 Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state): Type := {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Korder_stable (fun s => eval_bool s b);
+  step_defined: forall c s, c <> Sskip -> exists mcs, step (c, s) mcs;
+  step_Sskip: forall s mcs, step (Sskip, s) mcs <-> False;
   step_Ssequence: forall c1 c2 s mcs,
     step (Ssequence c1 c2, s) mcs ->
     (exists ms', c1 = Sskip /\ decrease (Terminating s) ms' /\ mcs = lift_function (pair c2) ms') \/
@@ -83,7 +90,9 @@ Module Total := ImpSmallStepSemantics (ProgramState.Total).
 
 Instance Total2Partial_ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} {SSS: SmallStepSemantics P state} (iSSS: Total.ImpSmallStepSemantics P state SSS): Partial.ImpSmallStepSemantics P state SSS.
 Proof.
-  refine (Partial.Build_ImpSmallStepSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _).
+  refine (Partial.Build_ImpSmallStepSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _ _ _).
+  + apply Total.step_defined.
+  + apply Total.step_Sskip.
   + intros.
     pose proof Total.step_Ssequence c1 c2 s mcs H
       as [[ms' [? [? ?]]] | [ms' [? ?]]].

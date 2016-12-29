@@ -14,7 +14,7 @@ DEP_FLAG = $(DEP_DEMO)
 
 lib_FILES = \
   Coqlib.v Bijection.v Countable.v NatChoice.v \
-  Stream/SigStream.v Stream/StreamFunctions.v
+  Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
 MinimunLogic_FILES = \
   LogicBase.v MinimunLogic.v RewriteClass.v \
