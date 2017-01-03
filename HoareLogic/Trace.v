@@ -15,6 +15,19 @@ Definition sequential_trace {state: Type} (tr: trace state) : Prop :=
     tr (S k) = Some (s' , ms') ->
     ms = Terminating s'.
 
+Definition sound_trace {state: Type} (R: state -> MetaState state -> Prop) (tr: trace state) : Prop :=
+  forall k s ms,
+    tr k = Some (s, ms) ->
+    R s ms.
+
+Lemma trace_app_sequential {state: Type}: forall (tr1 tr2: trace state),
+  sequential_trace (stream_app tr1 tr2) -> sequential_trace tr1 /\ sequential_trace tr2.
+Proof.
+  intros.
+  split; hnf; intros.
+  + specialize (H k s ms s' ms').
+Abort.
+
 Inductive begin_end_state {state: Type}: state -> trace state -> MetaState state -> Prop :=
 | begin_end_empty: forall s, begin_end_state s empty_stream (Terminating s)
 | begin_end_fin: forall s ms s' ms' tr n,
@@ -38,7 +51,7 @@ Definition traces (state: Type): Type := Ensemble (trace state).
 Definition traces_app {state: Type} (d1 d2: traces state): traces state :=
   fun tr =>
     (exists tr1 tr2, d1 tr1 /\ d2 tr2 /\ tr = stream_app tr1 tr2) \/
-    (exists tr1, d1 tr1 /\ (end_state tr1 NonTerminating \/ end_state tr1 Error) /\ tr = tr1).
+  (exists tr1, d1 tr1 /\ (end_state tr1 NonTerminating \/ end_state tr1 Error) /\ tr = tr1).
 
 Fixpoint traces_power {state: Type} (d: traces state) (n: nat): traces state :=
   match n with

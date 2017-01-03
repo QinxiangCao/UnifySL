@@ -66,6 +66,25 @@ Definition is_at_most_n_stream {A: Type} (n: nat) (h: stream A): Prop :=
 Definition is_empty_stream {A: Type}: stream A -> Prop :=
   is_n_stream 0.
 
+Lemma is_n_stream_pf {A: Type}: forall (h: stream A) (n m: nat),
+  is_n_stream m h ->
+  is_n_stream n h ->
+  n = m.
+Proof.
+  intros ?.
+  assert (forall n m, n < m -> is_n_stream m h -> is_n_stream n h -> False).
+  Focus 1. {
+    intros.
+    destruct H0, H1.
+    specialize (H2 n H).
+    congruence.
+  } Unfocus.
+  intros; destruct (lt_eq_lt_dec n m) as [[?H | ?H] | ?H].
+  + specialize (H _ _ H2 H0 H1); contradiction.
+  + auto.
+  + specialize (H _ _ H2 H1 H0); contradiction.
+Qed.
+
 Lemma at_most_n_stream_Sn {A: Type}: forall (h: stream A) (n: nat),
   is_at_most_n_stream (S n) h <->
   is_at_most_n_stream n h \/ is_n_stream (S n) h.
@@ -172,25 +191,99 @@ Proof.
 Qed.
 
 Lemma at_least_n_stream_Sn {A: Type}: forall (h: stream A) (n: nat),
-  is_at_least_n_stream n h <->
-  is_at_least_n_stream (S n) h \/ is_n_stream n h.
+  is_at_least_n_stream (S n) h <->
+  is_at_least_n_stream n h /\ ~ is_n_stream n h.
 Proof.
   intros.
-  split; [intro | intros [? | ?]].
-  + destruct (h n) eqn:?H.
-    - left.
-      hnf; intros.
-      destruct (lt_dec n' n).
-      * apply H; auto.
-      * replace n' with n by omega.
-        rewrite H0; congruence.
-    - right.
-      split; auto.
-  + hnf; intros.
-    apply H; omega.
-  + destruct H; auto.
+  split; [intro | intros [? ?]].
+  + split.
+    - hnf in H |- *.
+      intros; apply H; omega.
+    - intros [? ?].
+      exact (H n (le_n _) H0).
+  + hnf in H |- *.
+    intros; intro.
+    apply H0; clear H0.
+    split.
+    - specialize ((fun HH => H n' HH H2): ~ n' < n).
+      replace n with n' by omega; auto.
+    - intros; apply H; auto.
 Qed.
 
+Lemma at_least_n_stream_0 {A: Type}: forall (h: stream A),
+  is_at_least_n_stream 0 h <-> True.
+Proof.
+  intros.
+  split; auto.
+  intros _.
+  hnf; intros.
+  omega.
+Qed.
+
+Lemma at_least_n_stream_spec {A: Type}: forall (h: stream A) (n: nat),
+  is_at_least_n_stream n h <->
+  (exists m, m >= n /\ is_n_stream m h) \/ is_inf_stream h.
+Proof.
+  intros.
+  induction n.
+  + rewrite at_least_n_stream_0.
+    split; auto; intros _.
+    destruct (n_stream_or_inf_stream h) as [[m ?] | ?].
+    - left; exists m; split; [omega | auto].
+    - right; auto.
+  + rewrite at_least_n_stream_Sn.
+    rewrite IHn.
+    split; intros.
+    - destruct H as [[[m [? ?]] | ?] ?].
+      * left; exists m; split; [| auto].
+        destruct (Nat.eq_dec m n); [subst; tauto | omega].
+      * right; auto.
+    - destruct H as [[m [? ?]] | ?].
+      * split.
+       ++ left; exists m; split; [omega | auto].
+       ++ intro.
+          pose proof (is_n_stream_pf _ _ _ H0 H1).
+          omega.
+      * split.
+       ++ right; auto.
+       ++ intros [? ?].
+          exact (H _ H0).
+Qed.
+
+Lemma is_inf_stream_spec {A}: forall (h: stream A),
+  is_inf_stream h <-> forall n, ~ is_n_stream n h.
+Proof.
+  intros.
+  split; intro.
+  + intros.
+    intros [? ?].
+    exact (H _ H0).
+  + destruct (n_stream_or_inf_stream h) as [[m ?] | ?]; [| auto].
+    exfalso.
+    exact (H _ H0).
+Qed.
+
+Lemma at_least_n_stream_mono {A: Type}: forall (h: stream A) (n m: nat),
+  n <= m ->
+  is_at_least_n_stream m h ->
+  is_at_least_n_stream n h.
+Proof.
+  intros.
+  rewrite at_least_n_stream_spec in H0 |- *.
+  destruct H0 as [[m0 [? ?]] | ?].
+  + left; exists m0.
+    split; [omega | auto].
+  + right; auto.
+Qed.
+
+Lemma inf_stream_is_at_least_n_stream_is_fin_stream {A: Type}: forall (h: stream A) (n: nat),
+  is_inf_stream h ->
+  is_at_least_n_stream n h.
+Proof.
+  intros.
+  rewrite at_least_n_stream_spec.
+  auto.
+Qed.
 
 (*
 Definition stream_coincide {A: Type} (n: nat) (h1 h2: stream A): Prop :=
