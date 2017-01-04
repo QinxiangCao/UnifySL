@@ -57,23 +57,12 @@ Definition monHeap_uSA (addr val: Type):
   @UpwardsClosedSeparationAlgebra (Heap addr val) (Heap_Join addr val) (monHeap_kiM  addr val).
 Proof.
   eapply fun_uSA.
-  hnf; intros.
-  inversion H0; [ | |inversion H1]; subst.
-  - exists n2; inversion H1; subst;
-    inversion H; subst; split;
-    auto; try constructor.
-  - exists n2; inversion H1; subst;
-    inversion H; subst; split;
-    auto; try constructor.
-    hnf. inversion H.
-    inversion H7; subst.
-    inversion H1; subst; auto.
-  - exists (Some b); split; try constructor.
-    inversion H; auto.
-  - 
-    +
-    
-Qed.
+  eapply option_uSA.
+  - eapply ikiM_uSA.
+  - apply equiv_SA.
+  - admit.
+Admitted.
+  
   
 End heaps.
 
@@ -87,7 +76,7 @@ Class SeparationAlgebra_unit (worlds: Type) {J: Join worlds} := {
 (***********************************)
 (* More examples                   *)
 (***********************************)
-
+(*
 Program Definition nat_le_kiM: KripkeIntuitionisticModel nat := 
   Build_KripkeIntuitionisticModel nat (fun a b => a <= b) _.
 Next Obligation.
@@ -121,3 +110,4 @@ Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
            {J: Join worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}:
   @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
 
+*)
