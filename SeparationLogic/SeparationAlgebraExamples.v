@@ -60,9 +60,8 @@ Proof.
   eapply option_uSA.
   - eapply ikiM_uSA.
   - apply equiv_SA.
-  - admit.
-Admitted.
-  
+  - apply equiv_gcSA.
+Qed.
   
 End heaps.
 
