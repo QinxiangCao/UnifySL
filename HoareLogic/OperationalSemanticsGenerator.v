@@ -87,7 +87,7 @@ Proof.
             rewrite H, H0 in H1.
             destruct ms; tauto.
          -- clear k c s mcs cs' mcs' H0 H H3 H4.
-            intros.
+            hnf; intros.
             specialize (H2 k); subst Q; simpl in H2.
             rewrite H in H2; auto.
          -- eapply begin_end_fin; eauto.
@@ -111,7 +111,7 @@ Proof.
             rewrite H, H0 in H1.
             destruct ms; tauto.
          -- clear c s mcs H0 H H3.
-            intros.
+            hnf; intros.
             specialize (H2 k); subst Q; simpl in H2.
             rewrite H in H2; auto.
          -- eapply begin_end_inf; eauto.
@@ -124,7 +124,7 @@ Proof.
       refine (conj (SmallStepSemantics.Build_denote _ _ _ c empty_stream empty_stream _ _ s (Terminating (c, s)) _ _ _) _).
       * hnf; intros.
         rewrite empty_stream_spec in H0; congruence.
-      * intros.
+      * hnf; intros.
         rewrite empty_stream_spec in H0; congruence.
       * apply begin_end_empty.
       * firstorder.

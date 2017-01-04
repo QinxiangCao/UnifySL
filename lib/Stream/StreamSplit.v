@@ -8,6 +8,7 @@ Require Import Logic.lib.Stream.StreamFunctions.
 
 Lemma cut2_exists {A: Type}: forall (h: stream A) (P: A -> Prop),
   (exists h1 h2,
+     is_fin_stream h1 /\
      h = stream_app h1 h2 /\
      (forall n a, h1 n = Some a -> ~ P a) /\
      (exists a, h2 0 = Some a /\ P a)) \/
@@ -21,7 +22,8 @@ Proof.
     destruct H as [n [[? ?] _]].
     destruct H as [a [? ?]].
     exists (fstn_stream n h), (skipn_stream n h).
-    split; [| split].
+    split; [| split; [| split]].
+    - apply fstn_stream_is_fin_stream.
     - symmetry; apply stream_app_fstn_skipn.
     - clear H H1 a.
       intros; intro.

@@ -66,6 +66,16 @@ Definition is_at_most_n_stream {A: Type} (n: nat) (h: stream A): Prop :=
 Definition is_empty_stream {A: Type}: stream A -> Prop :=
   is_n_stream 0.
 
+Lemma n_stream_inf_stream_conflict {A: Type}: forall (h: stream A) (n: nat),
+  is_n_stream n h ->
+  is_inf_stream h ->
+  False.
+Proof.
+  intros.
+  destruct H.
+  exact (H0 _ H).
+Qed.
+
 Lemma is_n_stream_pf {A: Type}: forall (h: stream A) (n m: nat),
   is_n_stream m h ->
   is_n_stream n h ->
@@ -283,6 +293,35 @@ Proof.
   intros.
   rewrite at_least_n_stream_spec.
   auto.
+Qed.
+
+Lemma at_most_n_stream_or_at_least_Sn_stream {A: Type}: forall (h: stream A) (n: nat),
+  is_at_most_n_stream n h \/ is_at_least_n_stream (S n) h.
+Proof.
+  intros.
+  destruct (n_stream_or_inf_stream h) as [[m ?] | ?]; [destruct (lt_dec n m) |].
+  + right.
+    rewrite at_least_n_stream_spec.
+    left; exists m.
+    split; [omega | tauto].
+  + left.
+    rewrite at_most_n_stream_spec.
+    exists m.
+    split; [omega | tauto].
+  + right.
+    rewrite at_least_n_stream_spec.
+    right; auto.
+Qed.
+
+Lemma at_most_n_stream_or_at_least_n_stream {A: Type}: forall (h: stream A) (n: nat),
+  is_at_most_n_stream n h \/ is_at_least_n_stream n h.
+Proof.
+  intros.
+  destruct (at_most_n_stream_or_at_least_Sn_stream h n).
+  + left; auto.
+  + right.
+    eapply at_least_n_stream_mono; [| eassumption].
+    omega.
 Qed.
 
 (*

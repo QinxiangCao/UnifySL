@@ -20,13 +20,58 @@ Definition sound_trace {state: Type} (R: state -> MetaState state -> Prop) (tr: 
     tr k = Some (s, ms) ->
     R s ms.
 
-Lemma trace_app_sequential {state: Type}: forall (tr1 tr2: trace state),
-  sequential_trace (stream_app tr1 tr2) -> sequential_trace tr1 /\ sequential_trace tr2.
+Lemma trace_app_sequential1 {state: Type}: forall (tr1 tr2: trace state),
+  sequential_trace (stream_app tr1 tr2) ->
+  sequential_trace tr1.
 Proof.
   intros.
-  split; hnf; intros.
-  + specialize (H k s ms s' ms').
-Abort.
+  hnf; intros.
+  specialize (H k s ms s' ms').
+  erewrite stream_app_spec1' in H by eauto.
+  erewrite stream_app_spec1' in H by eauto.
+  apply H; auto.
+Qed.
+
+Lemma trace_app_sequential2 {state: Type}: forall (tr1 tr2: trace state),
+  is_fin_stream tr1 ->
+  sequential_trace (stream_app tr1 tr2) ->
+  sequential_trace tr2.
+Proof.
+  intros.
+  hnf; intros.
+  rewrite is_fin_stream_spec in H.
+  destruct H as [n ?].
+  specialize (H0 (k + n) s ms s' ms').
+  change (S (k + n)) with (S k + n) in H0.
+  erewrite stream_app_spec2 in H0 by eauto.
+  erewrite stream_app_spec2 in H0 by eauto.
+  apply H0; auto.
+Qed.
+
+Lemma trace_app_sound1 {state: Type}: forall R (tr1 tr2: trace state),
+  sound_trace R (stream_app tr1 tr2) ->
+  sound_trace R tr1.
+Proof.
+  intros.
+  hnf; intros.
+  specialize (H k s ms).
+  erewrite stream_app_spec1' in H by eauto.
+  apply H; auto.
+Qed.
+
+Lemma trace_app_sound2 {state: Type}: forall R (tr1 tr2: trace state),
+  is_fin_stream tr1 ->
+  sound_trace R (stream_app tr1 tr2) ->
+  sound_trace R tr2.
+Proof.
+  intros.
+  hnf; intros.
+  rewrite is_fin_stream_spec in H.
+  destruct H as [n ?].
+  specialize (H0 (k + n) s ms).
+  erewrite stream_app_spec2 in H0 by eauto.
+  apply H0; auto.
+Qed.
 
 Inductive begin_end_state {state: Type}: state -> trace state -> MetaState state -> Prop :=
 | begin_end_empty: forall s, begin_end_state s empty_stream (Terminating s)

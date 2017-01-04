@@ -37,7 +37,7 @@ Record denote
 {
   ctr: trace (cmd * state);
   ctr_sequential: sequential_trace ctr;
-  ctr_sound: forall k cs mcs', ctr k = Some (cs, mcs') -> step cs mcs';
+  ctr_sound: sound_trace step ctr;
   s: state;
   mcs: MetaState (cmd * state);
   ctr_begin_end_state: begin_end_state (c, s) ctr mcs;
