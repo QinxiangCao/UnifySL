@@ -14,7 +14,7 @@ Section DownwardsClosure.
           {kiM: KripkeIntuitionisticModel worlds}
           {J: Join worlds}
           {SA: SeparationAlgebra worlds}
-          {USA: UnitarySeparationAlgebra worlds}
+          {USA: UnitalSeparationAlgebra worlds}
           {uSA: UpwardsClosedSeparationAlgebra worlds}
           {gcSA: GarbageCollectSeparationAlgebra worlds}.
 
@@ -46,11 +46,11 @@ Proof.
       etransitivity; eauto.
 Defined.
 
-Lemma DownwardsClosure_pre_unit:
-  forall m, @pre_unit _ _ J m <-> @pre_unit _ _ (DownwardsClosure_SA) m.
+Lemma DownwardsClosure_nonpositive:
+  forall m, @nonpositive _ _ J m <-> @nonpositive _ _ (DownwardsClosure_SA) m.
 Proof.
   intros.
-  unfold pre_unit; split; intros.
+  unfold nonpositive; split; intros.
   + destruct H0 as [n0 [? ?]].
     etransitivity; eauto.
   + apply H.
@@ -82,7 +82,7 @@ Proof.
 Defined.
 
 Definition DownwardsClosure_USA:
-  @UnitarySeparationAlgebra worlds _ (DownwardsClosure_SA).
+  @UnitalSeparationAlgebra worlds _ (DownwardsClosure_SA).
 Proof.
   eapply UpwardsClosed_nUSA.
   - apply DownwardsClosure_UpwardsClosed.
@@ -95,7 +95,7 @@ Proof.
     unfold join, DownwardsClosure_SA.
     exists n; split; auto.
     reflexivity.
-    rewrite <- DownwardsClosure_pre_unit; auto.
+    rewrite <- DownwardsClosure_nonpositive; auto.
 Defined.
 
 Definition DownwardsClosure_gcSA:
@@ -118,7 +118,7 @@ Section UpwardsClosure.
           {J: Join worlds}
           {SA: SeparationAlgebra worlds}
           {dSA: DownwardsClosedSeparationAlgebra worlds}
-          {USA: UnitarySeparationAlgebra worlds}
+          {USA: UnitalSeparationAlgebra worlds}
           {gcSA: GarbageCollectSeparationAlgebra worlds}.
 
 
@@ -154,16 +154,16 @@ Proof.
       * reflexivity.
 Defined.
 
-Lemma UpwardsClosure_pre_unit: forall m, @pre_unit _ _ J m <-> @pre_unit _ _ (UpwardsClosure_SA) m.
+Lemma UpwardsClosure_nonpositive: forall m, @nonpositive _ _ J m <-> @nonpositive _ _ (UpwardsClosure_SA) m.
 Proof.
   intros.
   pose proof Korder_PreOrder as H_PreOrder.
-  unfold pre_unit; split; intros.
+  unfold nonpositive; split; intros.
   + destruct H0 as [m0 [n0 [? [? ?]]]].
     pose proof unit_down _ _ H0 H.
-    unfold pre_unit in H3.
+    unfold nonpositive in H3.
     etransitivity; eauto.
-  + unfold pre_unit.
+  + unfold nonpositive.
     intros; apply H.
     exists m, n.
     split; [| split]; auto; reflexivity.
@@ -192,7 +192,7 @@ Proof.
   exists n1', n2'; split; [| split]; auto.
 Qed.
 
-Definition UpwardsClosure_USA: @UnitarySeparationAlgebra worlds _ (UpwardsClosure_SA).
+Definition UpwardsClosure_USA: @UnitalSeparationAlgebra worlds _ (UpwardsClosure_SA).
 Proof.
   constructor.
   - intros.
@@ -202,9 +202,9 @@ Proof.
     exists u; split; auto.
     + exists n'; split; auto.
       exists u, n'; split; [| split]; auto; reflexivity.
-    + rewrite <- UpwardsClosure_pre_unit; auto.
+    + rewrite <- UpwardsClosure_nonpositive; auto.
   - intros.
-    rewrite <- UpwardsClosure_pre_unit in H0 |- *.
+    rewrite <- UpwardsClosure_nonpositive in H0 |- *.
     revert H H0; apply unit_down.
 Defined.
 
