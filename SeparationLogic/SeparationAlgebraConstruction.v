@@ -88,7 +88,7 @@ Proof.
   - apply DownwardsClosure_UpwardsClosed.
   - intros.
     simpl.
-    destruct (unit_exists n) as [u [? ?]].
+    destruct (nonpos_exists n) as [u [? ?]].
     destruct H as [n' [H1 H2]].
     exists u; split; auto.
     exists n'; split; auto.
@@ -160,7 +160,7 @@ Proof.
   pose proof Korder_PreOrder as H_PreOrder.
   unfold nonpositive; split; intros.
   + destruct H0 as [m0 [n0 [? [? ?]]]].
-    pose proof unit_down _ _ H0 H.
+    pose proof nonpos_down _ _ H0 H.
     unfold nonpositive in H3.
     etransitivity; eauto.
   + unfold nonpositive.
@@ -197,7 +197,7 @@ Proof.
   constructor.
   - intros.
     simpl.
-    destruct (unit_exists n) as [u [? ?]].
+    destruct (nonpos_exists n) as [u [? ?]].
     destruct H as [n' [H1 H2]].
     exists u; split; auto.
     + exists n'; split; auto.
@@ -205,7 +205,7 @@ Proof.
     + rewrite <- UpwardsClosure_nonpositive; auto.
   - intros.
     rewrite <- UpwardsClosure_nonpositive in H0 |- *.
-    revert H H0; apply unit_down.
+    revert H H0; apply nonpos_down.
 Defined.
 
 Definition UpwardsClosure_gcSA: @GarbageCollectSeparationAlgebra worlds _ (UpwardsClosure_SA).

@@ -26,7 +26,7 @@ Definition nonpositive
            {J: Join worlds}: worlds -> Prop :=
   fun m => forall n n', join m n n' -> n' <= n.
 
-Definition unit
+Definition unit_element
            {worlds: Type}
            {kiM: KripkeIntuitionisticModel worlds}
            {J: Join worlds}: worlds -> Prop :=
@@ -40,7 +40,7 @@ Lemma disc_nonpos_unit
            {kiM: KripkeIntuitionisticModel worlds}
            {J: Join worlds}:
   IdentityKripkeIntuitionisticModel worlds ->
-  forall e, nonpositive e <-> unit e.
+  forall e, nonpositive e <-> unit_element e.
 Proof.
   intros;
   split; intros; hnf; intros.
@@ -104,10 +104,42 @@ Class ResidualSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel wo
 
 Class UnitalSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds}: Type :=
   {
-    unit_exists: forall n: worlds, exists m, residue n m /\ nonpositive m ;
-    unit_down: forall n m: worlds, n <= m -> nonpositive m -> nonpositive n
+    nonpos_exists: forall n: worlds, exists m, residue n m /\ nonpositive m ;
+    nonpos_down: forall n m: worlds, n <= m -> nonpositive m -> nonpositive n
   }.
 
+(* A unital separation algebra is residual. *)
+Lemma unital_is_residual
+  {worlds: Type}
+    {kiM: KripkeIntuitionisticModel worlds}
+    {J: Join worlds}:
+  UnitalSeparationAlgebra worlds ->
+  ResidualSeparationAlgebra worlds.
+Proof.
+  constructor; intros.
+  destruct (nonpos_exists n) as [m [RES _]].
+  exists m; auto.
+Qed.
+
+(*A nonpositive separation algebras is unital 
+ * iff it is residual.*)
+Lemma nonpos_unital_iff_residual
+  {worlds: Type}
+    {kiM: KripkeIntuitionisticModel worlds}
+    {J: Join worlds} :
+  NonpositiveSeparationAlgebra worlds ->
+  UnitalSeparationAlgebra worlds <->
+  ResidualSeparationAlgebra worlds.
+Proof.
+  intros; split.
+  - apply unital_is_residual; auto.
+  - constructor; intros.
+    + destruct (residue_exists n) as [m RES].
+      exists m; split; auto.
+      apply all_nonpositive.
+    + apply all_nonpositive.
+Qed.
+  
 Class DownwardsClosedSeparationAlgebra(worlds: Type) {J: Join worlds}
       {kiM: KripkeIntuitionisticModel worlds} : Type :=
   join_Korder_down: forall m n m1 m2: worlds,

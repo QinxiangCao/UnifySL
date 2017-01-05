@@ -167,7 +167,7 @@ Proof.
     eapply sat_mono; eauto.
   + rewrite sat_impp; intros.
     rewrite sat_sepcon.
-    destruct (unit_exists n) as [u [? ?]].
+    destruct (nonpos_exists n) as [u [? ?]].
     destruct H1 as [n' [H1 H1']].
     exists n, n', u.
     split; [| split; [| split]]; auto.
