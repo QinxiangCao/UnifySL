@@ -26,18 +26,11 @@ Definition nonpositive
            {J: Join worlds}: worlds -> Prop :=
   fun m => forall n n', join m n n' -> n' <= n.
 
-Definition unit_for
-           {worlds: Type}
-           {kiM: KripkeIntuitionisticModel worlds}
-           {J: Join worlds}: worlds -> worlds -> Prop :=
-  fun m e => forall n, join e m n -> m = n.
-
 Definition unit
            {worlds: Type}
            {kiM: KripkeIntuitionisticModel worlds}
            {J: Join worlds}: worlds -> Prop :=
-  (* fun e => forall n n', join m n n' -> n'= n.*)
-  fun e => forall m, unit_for m e.
+  fun e => forall n n', join e n n' -> n'= n.
 
 (* 
  * In a separation algebra with discrete order, 
@@ -52,9 +45,9 @@ Proof.
   intros;
   split; intros; hnf; intros.
   - hnf; intros.
-    symmetry; apply H.
+    apply H;
     apply H0; auto.
-  - apply H0 in H1; subst.
+  - apply H0 in H1; subst;
     reflexivity.
 Qed.
 
@@ -114,56 +107,6 @@ Class UnitalSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel worl
     unit_exists: forall n: worlds, exists m, residue n m /\ nonpositive m ;
     unit_down: forall n m: worlds, n <= m -> nonpositive m -> nonpositive n
   }.
-
-
-(* In a separation algebra with discrete order
- * and deterministic functional join, 
- * an element has a residue iff it has a unit. *)
-Definition functional_join
-           {worlds: Type}
-           (J: Join worlds):=
-  forall a b c c',
-    join a b c -> join a b c' -> c = c'.
-
-(*
-Lemma disc_unit_residue
-           {worlds: Type}
-           {kiM: KripkeIntuitionisticModel worlds}
-           {J: Join worlds}
-           (m n: worlds):
-  IdentityKripkeIntuitionisticModel worlds ->
-  functional_join J ->
-  forall n e, residue n e <-> unit_for n e.
-Proof.
-  intros; split; intros; hnf; intros.
-  - destruct H1 as [n' [JOIN ORD]].
-    apply H in ORD; subst.
-    eapply H0; eauto.
-  - exists n; split.
-    unfold unit_for in H1.*)
-  
-(* Similarly, the algebra with discrete order is 
- * unital iff residual. *)
-Lemma disc_unital_residual
-           {worlds: Type}
-           {kiM: KripkeIntuitionisticModel worlds}
-           {J: Join worlds}:
-  IdentityKripkeIntuitionisticModel worlds ->
-  ResidualSeparationAlgebra worlds <->
-  UnitalSeparationAlgebra worlds.
-Proof.
-  intros; split; intros; hnf; intros.
-  Focus 2.
-  - constructor.
-    intros.
-    destruct (unit_exists n) as [m RES].
-    
-  - constructor; intros.
-    + destruct (residue_exists n) as [m RES].
-      exists m; split; auto.
-      unfold nonpositive.
-      destruct RES as [N [HH1 HH2]].
-
 
 Class DownwardsClosedSeparationAlgebra(worlds: Type) {J: Join worlds}
       {kiM: KripkeIntuitionisticModel worlds} : Type :=
