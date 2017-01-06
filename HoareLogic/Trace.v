@@ -9,6 +9,16 @@ Definition trace (state: Type): Type := stream (state * MetaState state).
 
 Identity Coercion trace_stream: trace >-> stream.
 
+Definition singleton_trace {state: Type} s ms: trace state :=
+  fin_stream ((s, ms) :: nil).
+
+Lemma singleton_trace_n_stream {state: Type}: forall (s: state) ms,
+  is_n_stream 1 (singleton_trace s ms).
+Proof.
+  intros.
+  apply fin_stream_n_stream; auto.
+Qed.
+
 Definition sequential_trace {state: Type} (tr: trace state) : Prop :=
   forall k s ms s' ms',
     tr k = Some (s, ms) ->
@@ -91,6 +101,42 @@ Definition begin_state {state: Type} (tr: trace state) (s: state): Prop :=
 Definition end_state {state: Type} (tr: trace state) (ms: MetaState state): Prop :=
   exists s, begin_end_state s tr ms.
 
+Definition ctrace2trace
+           {cmd: Type}
+           {state: Type}: trace (cmd * state) -> trace state := 
+  stream_map (fun p => match p with ((c, s), mcs) => (s, lift_function snd mcs) end).
+
+Lemma begin_end_state_ctrace: forall {cmd state: Type} (ctr: trace (cmd * state)) cs mcs,
+  begin_end_state cs ctr mcs ->
+  begin_end_state (snd cs) (ctrace2trace ctr) (lift_function snd mcs).
+Proof.
+  intros.
+  destruct H.
+  + destruct s; simpl.
+    unfold ctrace2trace; rewrite stream_map_empty_stream.
+    apply begin_end_empty; auto.
+  + eapply begin_end_fin.
+    - apply stream_map_n_stream; eassumption.
+    - unfold ctrace2trace; rewrite stream_map_spec.
+      rewrite H0. destruct s; reflexivity.
+    - unfold ctrace2trace; rewrite stream_map_spec.
+      rewrite H1. instantiate (1 := snd s'); destruct s'; reflexivity.
+  + eapply begin_end_inf.
+    - apply stream_map_inf_stream; eassumption.
+    - unfold ctrace2trace; rewrite stream_map_spec.
+      rewrite H0. destruct s; reflexivity.
+Qed.
+
+Lemma begin_end_state_singleton_trace: forall {state: Type} (s: state) ms,
+  begin_end_state s (singleton_trace s ms) ms.
+Proof.
+  intros.
+  apply (begin_end_fin s ms s ms _ 0).
+  + apply singleton_trace_n_stream.
+  + reflexivity.
+  + reflexivity.
+Qed.
+
 Definition traces (state: Type): Type := Ensemble (trace state).
 
 Definition traces_app {state: Type} (d1 d2: traces state): traces state :=
@@ -166,6 +212,15 @@ Parameter decrease_trace: forall {state: Type} {kiM: KripkeIntuitionisticModel s
 
 Parameter decrease_trace_with_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop), traces state.
 
+Axiom singleton_trace_decrease: forall {state: Type} {kiM: KripkeIntuitionisticModel state} s ms,
+  D.decrease (Terminating s) ms ->
+  decrease_trace (singleton_trace s ms).
+
+Axiom singleton_trace_decrease_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: _ -> Prop) s ms,
+  D.decrease (Terminating s) ms ->
+  P s ->
+  decrease_trace_with_test P (singleton_trace s ms).
+
 End DECREASE_TRACE.
 
 Module DecreaseTrace (D: DECREASE) <: DECREASE_TRACE with Module D := D.
@@ -178,6 +233,32 @@ Definition decrease_trace {state: Type} {kiM: KripkeIntuitionisticModel state}: 
 
 Definition decrease_trace_with_test {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop) : traces state :=
   fun tr => decrease_trace tr /\ exists s, begin_state tr s /\ P s.
+
+Lemma singleton_trace_decrease {state: Type} {kiM: KripkeIntuitionisticModel state}: forall s ms,
+  D.decrease (Terminating s) ms ->
+  decrease_trace (singleton_trace s ms).
+Proof.
+  intros.
+  split; [apply fin_stream_fin |].
+  intros.
+  simpl in H0.
+  destruct n.
+  + simpl in H0.
+    inversion H0; subst; auto.
+  + destruct n; inversion H0.
+Qed.
+
+Lemma singleton_trace_decrease_test {state: Type} {kiM: KripkeIntuitionisticModel state}: forall (P: _ -> Prop) s ms,
+  D.decrease (Terminating s) ms ->
+  P s ->
+  decrease_trace_with_test P (singleton_trace s ms).
+Proof.
+  intros.
+  split; [apply singleton_trace_decrease; auto |].
+  exists s; split; auto.
+  exists ms.
+  apply begin_end_state_singleton_trace.
+Qed.
 
 End DecreaseTrace.
 

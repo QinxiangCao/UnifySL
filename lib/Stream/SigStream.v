@@ -334,21 +334,6 @@ Definition stream_app {A: Type} (h1 h2 h: stream A): Prop :=
     stream_coincide n h1 h /\
     (forall m, h (m + n) = h2 m).
 
-Lemma fin_stream_fin {A: Type}: forall l: list A, is_fin_stream (fin_stream l).
-Proof.
-  intros.
-  exists (length l).
-  simpl.
-  rewrite nth_error_None_iff; auto.
-Qed.
-
-Lemma inf_stream_inf {A: Type}: forall f: nat -> A, is_inf_stream (inf_stream f).
-Proof.
-  intros; hnf; intros.
-  simpl.
-  congruence.
-Qed.
-
 Definition prefix_stream {A: Type} (h1 h2: stream A): Prop :=
   forall n, h1 n = None \/ h1 n = h2 n.
 

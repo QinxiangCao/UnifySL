@@ -46,7 +46,7 @@ Record denote
                    | Error => True
                    | Terminating (c', s') => forall mcs'', ~ step (c', s') mcs''
                    end;
-  tr_ctr: tr = stream_map (fun p => match p with ((c, s), mcs) => (s, lift_function snd mcs) end) ctr
+  tr_ctr: tr = ctrace2trace ctr
 }.
 
 (*

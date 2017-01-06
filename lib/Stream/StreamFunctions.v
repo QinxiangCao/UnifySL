@@ -16,6 +16,32 @@ Definition inf_stream {A: Type} (h: nat -> A) : stream A.
   congruence.
 Defined.
 
+Lemma fin_stream_fin {A: Type}: forall l: list A, is_fin_stream (fin_stream l).
+Proof.
+  intros.
+  exists (length l).
+  simpl.
+  rewrite nth_error_None_iff; auto.
+Qed.
+
+Lemma inf_stream_inf {A: Type}: forall f: nat -> A, is_inf_stream (inf_stream f).
+Proof.
+  intros; hnf; intros.
+  simpl.
+  congruence.
+Qed.
+
+Lemma fin_stream_n_stream {A: Type}: forall l: list A, is_n_stream (length l) (fin_stream l).
+Proof.
+  intros.
+  split.
+  + simpl.
+    apply nth_error_None_iff; omega.
+  + intros.
+    simpl.
+    rewrite nth_error_None_iff; omega.
+Qed.
+
 Definition empty_stream {A: Type}: stream A := fin_stream nil.
 
 Definition empty_stream_spec {A: Type}: forall n, @empty_stream A n = None.
@@ -396,6 +422,27 @@ Proof.
       * rewrite skipn_stream_spec.
         f_equal; omega.
       * apply fstn_stream_is_n_stream; auto.
+Qed.
+
+Lemma stream_map_stream_app {A B: Type}: forall (f: A -> B) (h1 h2: stream A),
+  stream_map f (stream_app h1 h2) = stream_app (stream_map f h1) (stream_map f h2).
+Proof.
+  intros.
+  stream_extensionality n.
+  destruct (at_most_n_stream_or_at_least_Sn_stream h1 n).
+  + rewrite at_most_n_stream_spec in H.
+    destruct H as [m [? ?]].
+    replace n with ((n - m) + m) by omega.
+    rewrite stream_map_spec.
+    rewrite stream_app_spec2 by auto.
+    rewrite stream_app_spec2 by (apply stream_map_n_stream; auto).
+    rewrite stream_map_spec.
+    reflexivity.
+  + rewrite stream_app_spec1 by (apply stream_map_at_least_n_stream; auto).
+    rewrite stream_map_spec.
+    rewrite stream_app_spec1 by auto.
+    rewrite stream_map_spec.
+    auto.
 Qed.
 
 Fixpoint partial_stream_clen {A: Type} (h: nat -> stream A) (n: nat): nat * nat :=
