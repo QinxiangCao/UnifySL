@@ -33,6 +33,7 @@ SeparationLogic_FILES = \
   Syntax.v SoundCompleteParameter.v \
   SeparationLogic.v SeparationLogicExtension.v \
   SeparationAlgebra.v SeparationAlgebraConstruction.v \
+  SeparationAlgebraGenerators.v \
   SeparationAlgebraExamples.v \
   Semantics.v \
   Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \

@@ -97,7 +97,7 @@ Module FlatSemantics.
 
 End FlatSemantics.
 
-Class UnitarySemantics
+Class UnitalSemantics
       (L: Language)
       {nL: NormalLanguage L}
       {pL: PropositionalLanguage L}
@@ -110,7 +110,7 @@ Class UnitarySemantics
       {J: Join (Kworlds M)}
       (SM: Semantics L MD)
       {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type :=
-    sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> pre_unit m.
+    sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> nonpositive m.
 
 Module FlatSemanticsModel.
 
@@ -188,9 +188,9 @@ Next Obligation.
 Qed.
 
 Program Definition sem_emp {F: frame}: sem F :=
-  fun m: F => @pre_unit _ (kiM F) (J F) m.
+  fun m: F => @nonpositive _ (kiM F) (J F) m.
 Next Obligation.
-  unfold pre_unit in *.
+  unfold nonpositive in *.
   intros.
   destruct (@join_Korder_up _ _ _ (uSA F) _ _ _ _ n H1 H) as [m' [? ?]].
   + reflexivity.
@@ -259,7 +259,7 @@ Proof.
     simpl; reflexivity.
 Defined.
 
-Instance UsSM (M: Kmodel): UnitarySemantics L MD M SM.
+Instance UsSM (M: Kmodel): UnitalSemantics L MD M SM.
 Proof.
   hnf; intros.
   simpl; reflexivity.
@@ -277,8 +277,8 @@ Definition Kmodel_BranchJoin: Kmodel -> Prop := fun M =>
 Definition Kmodel_GarbageCollect: Kmodel -> Prop := fun M =>
   GarbageCollectSeparationAlgebra (Kworlds M).
 
-Definition Kmodel_Unitary: Kmodel -> Prop := fun M =>
-  UnitarySeparationAlgebra (Kworlds M).
+Definition Kmodel_Unital: Kmodel -> Prop := fun M =>
+  UnitalSeparationAlgebra (Kworlds M).
 
 Require Import Logic.SeparationLogic.SoundCompleteParameter.
 
@@ -287,7 +287,7 @@ Record Kmodel_ParClass (PAR: SA_Parameter) (M: Kmodel): Prop := {
   SA_NB: NB PAR = true -> NoBranchKripkeIntuitionisticModel (Kworlds M);
   SA_BJ: BJ PAR = true -> BranchJoinKripkeIntuitionisticModel (Kworlds M);
   SA_GC: GC PAR = true -> GarbageCollectSeparationAlgebra (Kworlds M);
-  SA_Uni: Uni PAR = true -> UnitarySeparationAlgebra (Kworlds M)
+  SA_Uni: Uni PAR = true -> UnitalSeparationAlgebra (Kworlds M)
 }.
 
 End KripkeSemantics.

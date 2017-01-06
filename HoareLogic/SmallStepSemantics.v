@@ -3,7 +3,7 @@ Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.lib.Stream.StreamFunctions.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
-Require Import Logic.SeparationLogic.SeparationAlgebraExamples.
+Require Import Logic.SeparationLogic.SeparationAlgebraGenerators.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.Trace.
@@ -56,7 +56,7 @@ Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P
 *)
 
 Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state): Type := {
-  frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, Korder (snd nf) (snd mf) /\ @lift_join _ (@prod_Join cmd state (equiv_Join cmd) J) n (Terminating nf) n' /\ step m n
+  frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, Korder (snd nf) (snd mf) /\ @lift_join _ (@prod_Join cmd state (equiv_Join) J) n (Terminating nf) n' /\ step m n
 }.
 
 Module ImpSmallStepSemantics (D: DECREASE).

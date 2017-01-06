@@ -146,7 +146,7 @@ Proof.
   exists m0, m1, m2; auto.
 Qed.
 
-Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {USA: UnitarySeparationAlgebra (Kworlds M)} {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)}{SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {UsSM: UnitarySemantics L MD M SM}:
+Lemma sound_sepcon_emp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {uSL: UnitarySeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {USA: UnitalSeparationAlgebra (Kworlds M)} {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)}{SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {usSM: UpwardsSemantics L MD M SM} {UsSM: UnitalSemantics L MD M SM}:
   forall x: expr,
     forall m, KRIPKE: M, m |= x * emp <--> x.
 Proof.
@@ -161,13 +161,13 @@ Proof.
     destruct H0 as [m'' [m' [u [? [? [? ?]]]]]].
     rewrite sat_emp in H2.
     apply join_comm in H0.
-    unfold pre_unit in H2.
+    unfold nonpositive in H2.
     apply H2 in H0.
     eapply sat_mono; eauto.
     eapply sat_mono; eauto.
   + rewrite sat_impp; intros.
     rewrite sat_sepcon.
-    destruct (unit_exists n) as [u [? ?]].
+    destruct (nonpos_exists n) as [u [? ?]].
     destruct H1 as [n' [H1 H1']].
     exists n, n', u.
     split; [| split; [| split]]; auto.

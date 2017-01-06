@@ -54,7 +54,7 @@ Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M):= FlatSeman
 Instance SM: Semantics L MD := FlatSemanticsModel.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := FlatSemanticsModel.kiSM Var M.
 Instance fsSM (M: Kmodel): FlatSemantics.FlatSemantics L MD M SM := FlatSemanticsModel.fsSM Var M.
-Instance UsSM (M: Kmodel): UnitarySemantics L MD M SM := FlatSemanticsModel.UsSM Var M.
+Instance UsSM (M: Kmodel): UnitalSemantics L MD M SM := FlatSemanticsModel.UsSM Var M.
 
 Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   derivable_closed Phi /\
