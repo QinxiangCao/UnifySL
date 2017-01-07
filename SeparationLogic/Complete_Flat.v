@@ -1,4 +1,5 @@
 Require Import Coq.Logic.Classical_Prop.
+Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
@@ -14,6 +15,9 @@ Require Import Logic.PropositionalLogic.Complete_Kripke.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
+Require Import Logic.PropositionalLogic.WeakClassicalLogic.
+Require Import Logic.PropositionalLogic.GodelDummettLogic.
+Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
 Require Import Logic.PropositionalLogic.RewriteClass.
 Require Import Logic.SeparationLogic.SeparationLogic.
 Require Import Logic.SeparationLogic.SoundCompleteParameter.
@@ -54,8 +58,9 @@ Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M):= FlatSeman
 Instance SM: Semantics L MD := FlatSemanticsModel.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := FlatSemanticsModel.kiSM Var M.
 Instance fsSM (M: Kmodel): FlatSemantics.FlatSemantics L MD M SM := FlatSemanticsModel.fsSM Var M.
+(*
 Instance UsSM (M: Kmodel): UnitalSemantics L MD M SM := FlatSemanticsModel.UsSM Var M.
-
+*)
 Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   derivable_closed Phi /\
   orp_witnessed Phi /\
@@ -459,6 +464,12 @@ Proof.
     - apply H1; auto.
 Defined.
 
+Program Definition canonical_emp {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.sem canonical_frame :=
+  fun a => a (UnitarySeparationLanguage.emp).
+Next Obligation.
+  apply H; auto.
+Qed.
+
 Program Definition canonical_eval {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Var -> FlatSemanticsModel.sem canonical_frame :=
   fun p a => a (UnitarySeparationLanguage.varp p).
 Next Obligation.
@@ -466,7 +477,7 @@ Next Obligation.
 Qed.
 
 Definition canonical_Kmodel {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: @Kmodel MD kMD :=
-  FlatSemanticsModel.Build_Kmodel Var canonical_frame canonical_eval.
+  FlatSemanticsModel.Build_Kmodel Var canonical_frame canonical_emp canonical_eval.
 
 Definition canonical_model {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}(Phi: DCS Gamma) : @model MD :=
   FlatSemanticsModel.Build_model Var canonical_Kmodel Phi.
@@ -599,7 +610,7 @@ Proof.
       rewrite H in H1 |- *.
       rewrite provable_wand_sepcon_modus_ponens1 in H1.
       auto.
-  + admit.
+  + reflexivity.
   + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ Phi.
     split; [intros; tauto | intros].
     rewrite H in H1.
@@ -609,7 +620,238 @@ Proof.
     exfalso; apply H2; auto.
   + simpl.
     reflexivity.
-Admitted.
+Qed.
+
+Lemma classical_canonical_ident {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Identity Var)
+  (canonical_model Psi).
+Proof.
+  intros.
+  unfold canonical_model; constructor.
+  hnf; constructor.
+  intros.
+  change (DCS Gamma) in m, n.
+  rewrite (@DCS_ext Gamma).
+  intros.
+  split; auto; [| apply H].
+  intros.
+  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig m); tauto).
+  assert (~ proj1_sig n (~~ x)) by (intro; apply H0, H; auto).
+  rewrite DCS_negp_iff by (destruct (proj2_sig n); tauto).
+  auto.
+Qed.
+
+Lemma Godel_Dummett_canonical_no_branch {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: GodelDummettPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_NoBranch Var) (canonical_model Psi).
+Proof.
+  intros.
+  unfold canonical_model; constructor.
+  hnf; constructor.
+  intros.
+  destruct (classic (Included _ (proj1_sig m2) (proj1_sig m1))); auto.
+  destruct (classic (Included _ (proj1_sig m1) (proj1_sig m2))); auto.
+  exfalso.
+  unfold Included, Ensembles.In in H, H0, H1, H2.
+  apply not_all_ex_not in H1.
+  apply not_all_ex_not in H2.
+  destruct H1 as [x1 ?], H2 as [x2 ?].
+  pose proof GodelDummettLogic.derivable_impp_choice (proj1_sig n) x1 x2.
+  rewrite <- derivable_closed_element_derivable in H3 by (destruct (proj2_sig n); tauto).
+  pose proof (proj1 (proj2 (proj2_sig n))).
+  apply H4 in H3; clear H4.
+  destruct H3; pose proof H3; apply H in H3; apply H0 in H4.
+  + rewrite derivable_closed_element_derivable in H3 by (destruct (proj2_sig m1); tauto).
+    rewrite derivable_closed_element_derivable in H4 by (destruct (proj2_sig m2); tauto).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H3).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H4).
+    rewrite <- !derivable_closed_element_derivable in H5 by (destruct (proj2_sig m1); tauto).
+    rewrite <- !derivable_closed_element_derivable in H6 by (destruct (proj2_sig m2); tauto).
+    clear - H1 H2 H5 H6.
+    tauto.
+  + rewrite derivable_closed_element_derivable in H3 by (destruct (proj2_sig m1); tauto).
+    rewrite derivable_closed_element_derivable in H4 by (destruct (proj2_sig m2); tauto).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H3).
+    pose proof (fun HH => deduction_modus_ponens _ _ _ HH H4).
+    rewrite <- !derivable_closed_element_derivable in H5 by (destruct (proj2_sig m1); tauto).
+    rewrite <- !derivable_closed_element_derivable in H6 by (destruct (proj2_sig m2); tauto).
+    clear - H1 H2 H5 H6.
+    tauto.
+Qed.
+
+Lemma weak_classical_canonical_branch_join {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: WeakClassicalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_BranchJoin Var) (canonical_model Psi).
+Proof.
+  intros.
+  unfold canonical_model; constructor.
+  hnf; constructor.
+  intros.
+  change (DCS Gamma) in m1, m2, n.
+  destruct (proj2_sig m1) as [? [_ ?]].
+  destruct (proj2_sig m2) as [? [_ ?]].
+  destruct (proj2_sig n) as [? [? ?]].
+  assert (~ (Union _ (proj1_sig m1) (proj1_sig m2)) |-- FF).
+  Focus 1. {
+    intro.
+    apply derivable_closed_union_derivable in H8; [| auto].
+    destruct H8 as [x [? ?]].
+    rewrite derivable_closed_element_derivable in H8 by auto.
+    pose proof WeakClassicalLogic.derivable_weak_excluded_middle (proj1_sig n) x.
+    rewrite <- derivable_closed_element_derivable in H10 by auto.
+    apply (H6 (~~ x)) in H10.
+    destruct H10.
+    + apply H0 in H10; unfold Ensembles.In in H10.
+      rewrite derivable_closed_element_derivable in H10 by auto.
+      pose proof deduction_modus_ponens _ _ _ H8 H10.
+      rewrite consistent_spec in H4; auto.
+    + apply H in H10; unfold Ensembles.In in H10.
+      rewrite derivable_closed_element_derivable in H10 by auto.
+      pose proof deduction_modus_ponens _ _ _ H9 H10.
+      rewrite consistent_spec in H2; auto.
+  } Unfocus.
+  destruct (Lindenbaum_lemma1 _ _ H8) as [m' [? [_ ?]]].
+  set (m := exist _ m' H10: DCS Gamma).
+  change m' with (proj1_sig m) in H9.
+  clearbody m; clear m' H10.
+  exists m.
+  split.
+  + intros ? ?; apply H9; left; auto.
+  + intros ? ?; apply H9; right; auto.
+Qed.
+
+Lemma garbage_collected_canonical_nonpos {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {gcGamma: GarbageCollectSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_GarbageCollect Var) (canonical_model Psi).
+Proof.
+  intros.
+  pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
+  unfold canonical_model; constructor.
+  hnf; constructor.
+  intros.
+  change (DCS Gamma) in m1, m2, m.
+  hnf; unfold Ensembles.In; intros.
+  specialize (H x TT H0).
+  rewrite !ED in H.
+  specialize (H (derivable_impp_refl _ _)).
+  apply deduction_sepcon_elim1 in H.
+  rewrite ED; auto.
+Qed.
+
+Lemma emp_canonical_unital {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {USGamma: UnitarySeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Unital Var) (canonical_model Psi).
+Proof.
+  intros.
+  constructor; clear Psi.
+  pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
+  assert (forall Phi Psi: Kworlds canonical_Kmodel, Korder Phi Psi -> (proj1_sig Phi emp <-> proj1_sig Psi emp)) as HH1.
+  Focus 1. {
+    intros.
+    split; intros; [| apply H, H0].
+    rewrite ED in H0 |- *.
+    pose proof emp_excluded_middle.
+    apply (deduction_weaken0 (proj1_sig Psi)) in H1.
+    rewrite <- ED in H1.
+    apply (proj1 (proj2 (proj2_sig Psi))) in H1.
+    destruct H1; [rewrite ED in H1; auto | exfalso].
+    rewrite <- ED in H0.
+    rewrite <- truth_lemma in H1, H0.
+    exact (H1 _ H H0).
+  } Unfocus.
+  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp -> nonpositive Phi) as HH2a.
+  Focus 1. {
+    intros.
+    hnf; intros Psi Psi' ?.
+    hnf; unfold Ensembles.In; intros.
+    specialize (H0 emp x H H1).
+    rewrite ED in H0 |- *.
+    rewrite sepcon_comm, sepcon_emp in H0; auto.
+  } Unfocus.
+  assert (forall Phi: Kworlds canonical_Kmodel, nonpositive Phi -> proj1_sig Phi emp) as HH2b.
+  Focus 1. {
+    intros.
+    set (Phi1' := Union _ empty_context (Singleton _ emp)).
+    set (Phi2' := context_sepcon (proj1_sig Phi) Phi1').
+    assert (~ Phi2' |-- FF).
+    Focus 1. {
+      intro.
+      apply context_sepcon_derivable in H0.
+      destruct H0 as [x [y [? [? ?]]]].
+      subst Phi1'.
+      rewrite deduction_theorem, <- provable_derivable in H2.
+      rewrite <- H2, sepcon_emp in H0.
+      rewrite H0 in H1.
+      pose proof (proj2 (proj2 (proj2_sig Phi))).
+      rewrite consistent_spec in H3; apply H3.
+      tauto.
+    } Unfocus.
+    destruct (Lindenbaum_lemma1 _ _ H0) as [Phi2'' [? [_ ?]]].
+    set (Phi2 := exist _ Phi2'' H2: DCS Gamma).
+    assert (forall x y, proj1_sig Phi |-- x -> Phi1' |-- y -> proj1_sig Phi2 |-- x * y).
+    Focus 1. {
+      intros.
+      rewrite <- ED.
+      apply H1; exists x, y; auto.
+    } Unfocus.
+    clearbody Phi2; clear Phi2'' H1 H2; subst Phi2'.
+    destruct (Lindenbaum_lemma2_right _ _ _ H3 (proj2_sig Phi2)) as [Phi1'' [? [? ?]]].
+    set (Phi1 := exist _ Phi1'' H4: DCS Gamma).
+    assert (proj1_sig Phi1 emp).
+    Focus 1. {
+      apply H1.
+      subst Phi1'.
+      right.
+      constructor.
+    } Unfocus.
+    change Phi1'' with (proj1_sig Phi1) in H2.
+    clearbody Phi1; clear Phi1'' H4 H3 H0 H1.
+    assert (join Phi Phi1 Phi2).
+    Focus 1. {
+      hnf; intros ? ?.
+      rewrite !ED; auto.
+    } Unfocus.
+    specialize (H Phi1 Phi2 H0); clear H0.
+    pose proof H _ H5; unfold Ensembles.In in *.
+    rewrite ED in H0, H5.
+    pose proof emp_excluded_middle.
+    apply (deduction_weaken0 (proj1_sig Phi)) in H1.
+    rewrite <- ED in H1.
+    apply (proj1 (proj2 (proj2_sig Phi))) in H1.
+    destruct H1; auto; exfalso.
+    rewrite ED in H1.
+    specialize (H2 _ emp H1 H5).
+    rewrite sepcon_emp in H2.
+    pose proof deduction_modus_ponens _ _ _ H0 H2.
+    pose proof (proj2 (proj2 (proj2_sig Phi2))).
+    rewrite consistent_spec in H4; auto.
+  } Unfocus.
+  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp <-> nonpositive Phi) as HH2
+    by (intros; split; [apply HH2a | apply HH2b]; auto).
+  clear HH2a HH2b.
+  constructor; [| constructor].
+  + simpl; intros.
+    rewrite <- HH2.
+    reflexivity.
+  + intros Phi.
+    assert (forall x y, proj1_sig Phi |-- x -> Union _ empty_context (Singleton _ emp) |-- y -> proj1_sig Phi |-- x * y).
+    Focus 1. {
+      intros.
+      rewrite deduction_theorem, <- provable_derivable in H0.
+      rewrite <- H0.
+      rewrite sepcon_emp; auto.
+    } Unfocus.
+    destruct (Lindenbaum_lemma2_right _ _ _ H (proj2_sig Phi))
+      as [Psi' [? [? ?]]].
+    set (Psi := exist _ Psi' H2: DCS Gamma).
+    change Psi' with (proj1_sig Psi) in H0, H1.
+    clearbody Psi; clear Psi' H2.
+    exists Psi.
+    split.
+    - exists Phi.
+      split; [| reflexivity].
+      hnf; intros.
+      rewrite ED, <- sepcon_comm.
+      apply H1; rewrite <- ED; auto.
+    - rewrite <- HH2.
+      apply H0.
+      right; constructor.
+  + intros.
+    rewrite <- !HH2.
+    symmetry.
+    apply (HH1 _ _ H).
+Qed.
 
 End GeneralCanonical.
 

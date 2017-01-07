@@ -375,17 +375,15 @@ Section exponentialSA.
         specialize (HH x); destruct HH as [ _ HH].
         apply HH.
         auto.
-    - hnf; intros.
-      hnf; intros.
-      eapply nonpos_down.
+    - 
+Abort.
+(*  eapply nonpos_stable; auto.
       eapply H0.
     
     unfold residue, nonpositive.
     
     unfold join, fun_Join.
     unfold Korder, fun_kiM.
-Abort.
-(*    
     - destruct (choice (fun )).
     hnf; intros.
     hnf; intros.

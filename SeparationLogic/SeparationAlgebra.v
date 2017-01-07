@@ -105,7 +105,7 @@ Class ResidualSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel wo
 Class UnitalSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds}: Type :=
   {
     nonpos_exists: forall n: worlds, exists m, residue n m /\ nonpositive m ;
-    nonpos_down: forall n m: worlds, n <= m -> nonpositive m -> nonpositive n
+    nonpos_stable: forall n m: worlds, n <= m -> (nonpositive m <-> nonpositive n)
   }.
 
 (* A unital separation algebra is residual. *)
@@ -137,7 +137,7 @@ Proof.
     + destruct (residue_exists n) as [m RES].
       exists m; split; auto.
       apply all_nonpositive.
-    + apply all_nonpositive.
+    + split; intros; apply all_nonpositive.
 Qed.
   
 Class DownwardsClosedSeparationAlgebra(worlds: Type) {J: Join worlds}
@@ -159,17 +159,4 @@ Class UpwardsClosedSeparationAlgebra(worlds: Type) {J: Join worlds}
 
 It is necessary to be this strong, or else sepcon_assoc will be unsound, e.g. the following weaker version causes unsoundness:
   join_Korder: forall M (m1 m2 m n1: Kworlds M), join m1 m2 m -> Korder m1 n1 -> exists n2 n, join n1 n2 n /\ Korder m2 n2 /\ Korder m n;  *)
-
-Definition UpwardsClosed_nUSA(worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds} {uSA: UpwardsClosedSeparationAlgebra worlds}:
-  forall (unit_exists: forall n: worlds, exists m,  residue n m /\ nonpositive m),
-    UnitalSeparationAlgebra worlds .
-Proof.
-  intros; constructor; auto.
-  intros n m ineq preU.
-  pose proof Korder_PreOrder as H_PreOrder.
-  unfold nonpositive in *.
-  intros.
-  destruct (join_Korder_up _ _ _ _ n0 H ineq) as [n'' [? ?]]; [reflexivity |].
-  etransitivity; eauto.
-Qed.
 

@@ -197,8 +197,8 @@ Next Obligation.
   + specialize (H0 _ _ H2).
     etransitivity; eauto.
 Qed.
-  
-Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
+
+Definition denotation {Var: Type} (F: frame) (eval_emp: sem F) (eval: Var -> sem F): expr Var -> sem F :=
   fix denotation (x: expr Var): sem F:=
   match x with
   | andp y z => sem_and (denotation y) (denotation z)
@@ -206,7 +206,7 @@ Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> s
   | impp y z => sem_imp (denotation y) (denotation z)
   | sepcon y z => sem_sepcon (denotation y) (denotation z)
   | wand y z => sem_wand (denotation y) (denotation z)
-  | emp => sem_emp
+  | emp => eval_emp
   | falsep => sem_false
   | varp p => eval p
   end.
@@ -216,6 +216,7 @@ Context (Var: Type).
 
 Record Kmodel : Type := {
   underlying_frame :> frame;
+  Kemp: sem underlying_frame;
   Kvar: Var -> sem underlying_frame
 }.
 
@@ -237,13 +238,13 @@ Existing Instances kiM J SA dSA uSA.
 
 Instance SM: Semantics L MD :=
   Build_Semantics L MD
-   (fun M x => proj1_sig (denotation M (Kvar M) x) (elm M)).
+   (fun M x => proj1_sig (denotation M (Kemp M) (Kvar M) x) (elm M)).
 
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM.
 Proof.
   apply Build_KripkeIntuitionisticSemantics.
   + hnf; simpl; intros.
-    eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
+    eapply (proj2_sig (denotation M (Kemp M) (Kvar M) x)); eauto.
   + split; auto.
   + split; auto.
   + split; auto.
@@ -259,11 +260,13 @@ Proof.
     simpl; reflexivity.
 Defined.
 
+(*
 Instance UsSM (M: Kmodel): UnitalSemantics L MD M SM.
 Proof.
   hnf; intros.
   simpl; reflexivity.
 Defined.
+*)
 
 Definition Kmodel_Identity: Kmodel -> Prop := fun M =>
   IdentityKripkeIntuitionisticModel (Kworlds M).
@@ -274,10 +277,12 @@ Definition Kmodel_NoBranch: Kmodel -> Prop := fun M =>
 Definition Kmodel_BranchJoin: Kmodel -> Prop := fun M =>
   BranchJoinKripkeIntuitionisticModel (Kworlds M).
 
+(* TODO: the name should be nonpositive *)
 Definition Kmodel_GarbageCollect: Kmodel -> Prop := fun M =>
   GarbageCollectSeparationAlgebra (Kworlds M).
 
 Definition Kmodel_Unital: Kmodel -> Prop := fun M =>
+  (forall m: Kworlds M, proj1_sig (Kemp M) m <-> proj1_sig sem_emp m) /\
   UnitalSeparationAlgebra (Kworlds M).
 
 Require Import Logic.SeparationLogic.SoundCompleteParameter.

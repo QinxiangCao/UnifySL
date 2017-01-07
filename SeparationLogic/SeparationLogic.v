@@ -25,6 +25,7 @@ Class SeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLan
   sepcon_mono: forall x1 x2 y1 y2, |-- x1 --> x2 -> |-- y1 --> y2 -> |-- (x1 * y1) --> (x2 * y2)
 }.
 
+(* TODO: change name to EMP *)
 Class UnitarySeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {usL: UnitarySeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
   sepcon_emp: forall x, |-- x * emp <--> x;
   emp_excluded_middle: |-- emp || ~~ emp

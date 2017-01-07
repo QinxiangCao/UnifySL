@@ -84,18 +84,18 @@ Defined.
 Definition DownwardsClosure_USA:
   @UnitalSeparationAlgebra worlds _ (DownwardsClosure_SA).
 Proof.
-  eapply UpwardsClosed_nUSA.
-  - apply DownwardsClosure_UpwardsClosed.
+  constructor.
   - intros.
     simpl.
     destruct (nonpos_exists n) as [u [? ?]].
     destruct H as [n' [H1 H2]].
     exists u; split; auto.
-    exists n'; split; auto.
-    unfold join, DownwardsClosure_SA.
-    exists n; split; auto.
-    reflexivity.
-    rewrite <- DownwardsClosure_nonpositive; auto.
+    + exists n'; split; auto.
+      exists n; split; auto; reflexivity.
+    + rewrite <- DownwardsClosure_nonpositive; auto.
+  - intros.
+    rewrite <- !DownwardsClosure_nonpositive.
+    apply nonpos_stable; auto.
 Defined.
 
 Definition DownwardsClosure_gcSA:
@@ -160,16 +160,15 @@ Proof.
   pose proof Korder_PreOrder as H_PreOrder.
   unfold nonpositive; split; intros.
   + destruct H0 as [m0 [n0 [? [? ?]]]].
-    pose proof nonpos_down _ _ H0 H.
-    unfold nonpositive in H3.
+    pose proof nonpos_stable _ _ H0.
+    apply H3 in H.
+    unfold nonpositive in H.
+    specialize (H _ _ H2).
     etransitivity; eauto.
-  + unfold nonpositive.
-    intros; apply H.
+  + apply H.
     exists m, n.
     split; [| split]; auto; reflexivity.
 Qed.
-
-
 
 Definition UpwardsClosure_UpwardsClosed:
   @UpwardsClosedSeparationAlgebra worlds (UpwardsClosure_SA) _.
@@ -204,8 +203,8 @@ Proof.
       exists u, n'; split; [| split]; auto; reflexivity.
     + rewrite <- UpwardsClosure_nonpositive; auto.
   - intros.
-    rewrite <- UpwardsClosure_nonpositive in H0 |- *.
-    revert H H0; apply nonpos_down.
+    rewrite <- !UpwardsClosure_nonpositive.
+    apply nonpos_stable; auto.
 Defined.
 
 Definition UpwardsClosure_gcSA: @GarbageCollectSeparationAlgebra worlds _ (UpwardsClosure_SA).
