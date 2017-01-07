@@ -384,14 +384,15 @@ Section exponentialSA.
     
     unfold join, fun_Join.
     unfold Korder, fun_kiM.
-    
+Abort.
+(*    
     - destruct (choice (fun )).
     hnf; intros.
     hnf; intros.
     specialize (H x0).
     eapply all_nonpositive; eauto.
   Qed.
-    
+*)    
 End exponentialSA.
 
 Section sumSA.

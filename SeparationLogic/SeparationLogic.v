@@ -26,7 +26,8 @@ Class SeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLan
 }.
 
 Class UnitarySeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {usL: UnitarySeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
-  sepcon_emp: forall x, |-- x * emp <--> x
+  sepcon_emp: forall x, |-- x * emp <--> x;
+  emp_excluded_middle: |-- emp || ~~ emp
 }.
 
 Class GarbageCollectSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
@@ -520,7 +521,8 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
-| sepcon_emp: forall x, provable (x * emp <--> x).
+| sepcon_emp: forall x, provable (x * emp <--> x)
+| emp_excluded_middle: provable (emp || ~~ emp).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
 
@@ -566,7 +568,8 @@ Qed.
 Instance usG: UnitarySeparationLogic L G.
 Proof.
   constructor.
-  apply sepcon_emp.
+  + apply sepcon_emp.
+  + apply emp_excluded_middle.
 Qed.
 
 End OHearnLogic.
@@ -601,6 +604,7 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
 | sepcon_emp: forall x, provable (x * emp <--> x)
+| emp_excluded_middle: provable (emp || ~~ emp)
 | sepcon_elim1: forall x y, provable (x * y --> x).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
@@ -647,7 +651,8 @@ Qed.
 Instance usG: UnitarySeparationLogic L G.
 Proof.
   constructor.
-  apply sepcon_emp.
+  + apply sepcon_emp.
+  + apply emp_excluded_middle.
 Qed.
 
 Instance gcsG: GarbageCollectSeparationLogic L G.
@@ -687,7 +692,8 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
-| sepcon_emp: forall x, provable (x * emp <--> x).
+| sepcon_emp: forall x, provable (x * emp <--> x)
+| emp_excluded_middle: provable (emp || ~~ emp).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
 
@@ -733,7 +739,8 @@ Qed.
 Instance usG: UnitarySeparationLogic L G.
 Proof.
   constructor.
-  apply sepcon_emp.
+  + apply sepcon_emp.
+  + apply emp_excluded_middle.
 Qed.
 
 End LogicOnMSL.
