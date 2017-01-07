@@ -736,21 +736,7 @@ Proof.
   intros.
   constructor; clear Psi.
   pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
-  assert (forall Phi Psi: Kworlds canonical_Kmodel, Korder Phi Psi -> (proj1_sig Phi emp <-> proj1_sig Psi emp)) as HH1.
-  Focus 1. {
-    intros.
-    split; intros; [| apply H, H0].
-    rewrite ED in H0 |- *.
-    pose proof emp_excluded_middle.
-    apply (deduction_weaken0 (proj1_sig Psi)) in H1.
-    rewrite <- ED in H1.
-    apply (proj1 (proj2 (proj2_sig Psi))) in H1.
-    destruct H1; [rewrite ED in H1; auto | exfalso].
-    rewrite <- ED in H0.
-    rewrite <- truth_lemma in H1, H0.
-    exact (H1 _ H H0).
-  } Unfocus.
-  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp -> nonpositive Phi) as HH2a.
+  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp -> nonpositive Phi) as HH1a.
   Focus 1. {
     intros.
     hnf; intros Psi Psi' ?.
@@ -764,65 +750,60 @@ Proof.
     intros.
     set (Phi1' := Union _ empty_context (Singleton _ emp)).
     set (Phi2' := context_sepcon (proj1_sig Phi) Phi1').
-    assert (~ Phi2' |-- FF).
+    assert (Phi2' |-- emp).
     Focus 1. {
+      apply NNPP.
       intro.
-      apply context_sepcon_derivable in H0.
-      destruct H0 as [x [y [? [? ?]]]].
-      subst Phi1'.
-      rewrite deduction_theorem, <- provable_derivable in H2.
-      rewrite <- H2, sepcon_emp in H0.
-      rewrite H0 in H1.
-      pose proof (proj2 (proj2 (proj2_sig Phi))).
-      rewrite consistent_spec in H3; apply H3.
-      tauto.
+      destruct (Lindenbaum_lemma1 _ _ H0) as [Phi2'' [? [? ?]]].
+      set (Phi2 := exist _ Phi2'' H3: DCS Gamma).
+      assert (forall x y, proj1_sig Phi |-- x ->
+                          Phi1' |-- y ->
+                          proj1_sig Phi2 |-- x * y).
+      Focus 1. {
+        intros.
+        rewrite <- ED.
+        apply H1; exists x, y; auto.
+      } Unfocus.
+      change Phi2'' with (proj1_sig Phi2) in H2.
+      clearbody Phi2; clear Phi2'' H0 H1 H3 Phi2'.
+      destruct (Lindenbaum_lemma2_right _ _ _ H4 (proj2_sig Phi2))
+        as [Phi1'' [? [? ?]]].
+      set (Phi1 := exist _ Phi1'' H3: DCS Gamma).
+      assert (proj1_sig Phi1 emp).
+      Focus 1. {
+        apply H0.
+        subst Phi1'.
+        right.
+        constructor.
+      } Unfocus.
+      change Phi1'' with (proj1_sig Phi1) in H1.
+      clearbody Phi1; clear Phi1'' Phi1' H4 H3 H0.
+      assert (join Phi Phi1 Phi2).
+      Focus 1. {
+        hnf; intros ? ?.
+        rewrite !ED; auto.
+      } Unfocus.
+      specialize (H Phi1 Phi2 H0); clear H0.
+      pose proof H _ H5; unfold Ensembles.In in *.
+      rewrite ED in H0.
+      auto.
     } Unfocus.
-    destruct (Lindenbaum_lemma1 _ _ H0) as [Phi2'' [? [_ ?]]].
-    set (Phi2 := exist _ Phi2'' H2: DCS Gamma).
-    assert (forall x y, proj1_sig Phi |-- x -> Phi1' |-- y -> proj1_sig Phi2 |-- x * y).
-    Focus 1. {
-      intros.
-      rewrite <- ED.
-      apply H1; exists x, y; auto.
-    } Unfocus.
-    clearbody Phi2; clear Phi2'' H1 H2; subst Phi2'.
-    destruct (Lindenbaum_lemma2_right _ _ _ H3 (proj2_sig Phi2)) as [Phi1'' [? [? ?]]].
-    set (Phi1 := exist _ Phi1'' H4: DCS Gamma).
-    assert (proj1_sig Phi1 emp).
-    Focus 1. {
-      apply H1.
-      subst Phi1'.
-      right.
-      constructor.
-    } Unfocus.
-    change Phi1'' with (proj1_sig Phi1) in H2.
-    clearbody Phi1; clear Phi1'' H4 H3 H0 H1.
-    assert (join Phi Phi1 Phi2).
-    Focus 1. {
-      hnf; intros ? ?.
-      rewrite !ED; auto.
-    } Unfocus.
-    specialize (H Phi1 Phi2 H0); clear H0.
-    pose proof H _ H5; unfold Ensembles.In in *.
-    rewrite ED in H0, H5.
-    pose proof emp_excluded_middle.
-    apply (deduction_weaken0 (proj1_sig Phi)) in H1.
-    rewrite <- ED in H1.
-    apply (proj1 (proj2 (proj2_sig Phi))) in H1.
-    destruct H1; auto; exfalso.
-    rewrite ED in H1.
-    specialize (H2 _ emp H1 H5).
-    rewrite sepcon_emp in H2.
-    pose proof deduction_modus_ponens _ _ _ H0 H2.
-    pose proof (proj2 (proj2 (proj2_sig Phi2))).
-    rewrite consistent_spec in H4; auto.
+    apply context_sepcon_derivable in H0.
+    destruct H0 as [x [y [? [? ?]]]].
+    subst Phi1'; rewrite deduction_theorem, <- provable_derivable in H2.
+    rewrite <- H2 in H0.
+    apply wand_sepcon_adjoint in H0.
+    rewrite H0 in H1.
+    rewrite <- (sepcon_emp (emp -* emp)) in H1.
+    rewrite provable_wand_sepcon_modus_ponens1, <- ED in H1.
+    auto.
   } Unfocus.
-  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp <-> nonpositive Phi) as HH2
-    by (intros; split; [apply HH2a | apply HH2b]; auto).
-  clear HH2a HH2b.
+  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp <-> nonpositive Phi) as HH
+    by (intros; split; [apply HH1a | apply HH2b]; auto).
+  clear HH1a HH2b.
   constructor; [| constructor].
   + simpl; intros.
-    rewrite <- HH2.
+    rewrite <- HH.
     reflexivity.
   + intros Phi.
     assert (forall x y, proj1_sig Phi |-- x -> Union _ empty_context (Singleton _ emp) |-- y -> proj1_sig Phi |-- x * y).
@@ -844,13 +825,13 @@ Proof.
       hnf; intros.
       rewrite ED, <- sepcon_comm.
       apply H1; rewrite <- ED; auto.
-    - rewrite <- HH2.
+    - rewrite <- HH.
       apply H0.
       right; constructor.
-  + intros.
-    rewrite <- !HH2.
-    symmetry.
-    apply (HH1 _ _ H).
+  + intros ? ? ?.
+    rewrite <- !HH.
+    intros.
+    apply H; auto.
 Qed.
 
 End GeneralCanonical.

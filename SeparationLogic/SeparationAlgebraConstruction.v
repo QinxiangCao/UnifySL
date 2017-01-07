@@ -93,9 +93,9 @@ Proof.
     + exists n'; split; auto.
       exists n; split; auto; reflexivity.
     + rewrite <- DownwardsClosure_nonpositive; auto.
-  - intros.
+  - intros ? ? ?.
     rewrite <- !DownwardsClosure_nonpositive.
-    apply nonpos_stable; auto.
+    apply nonpos_down; auto.
 Defined.
 
 Definition DownwardsClosure_gcSA:
@@ -160,7 +160,7 @@ Proof.
   pose proof Korder_PreOrder as H_PreOrder.
   unfold nonpositive; split; intros.
   + destruct H0 as [m0 [n0 [? [? ?]]]].
-    pose proof nonpos_stable _ _ H0.
+    pose proof nonpos_down _ _ H0.
     apply H3 in H.
     unfold nonpositive in H.
     specialize (H _ _ H2).
@@ -202,9 +202,9 @@ Proof.
     + exists n'; split; auto.
       exists u, n'; split; [| split]; auto; reflexivity.
     + rewrite <- UpwardsClosure_nonpositive; auto.
-  - intros.
+  - intros ? ? ?.
     rewrite <- !UpwardsClosure_nonpositive.
-    apply nonpos_stable; auto.
+    apply nonpos_down; auto.
 Defined.
 
 Definition UpwardsClosure_gcSA: @GarbageCollectSeparationAlgebra worlds _ (UpwardsClosure_SA).
