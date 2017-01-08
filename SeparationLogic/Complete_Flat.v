@@ -731,7 +731,7 @@ Proof.
   rewrite ED; auto.
 Qed.
 
-Lemma emp_canonical_unital {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {USGamma: UnitarySeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Unital Var) (canonical_model Psi).
+Lemma emp_canonical_unital {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {EmpSGamma: EmpSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Unital Var) (canonical_model Psi).
 Proof.
   intros.
   constructor; clear Psi.
@@ -832,6 +832,34 @@ Proof.
     rewrite <- !HH.
     intros.
     apply H; auto.
+Qed.
+
+Lemma ext_canonical_residual {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {ExtSGamma: ExtSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Residual Var) (canonical_model Psi).
+Proof.
+  constructor.
+  constructor.
+  clear Psi.
+  pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
+  intros Phi.
+  change (DCS Gamma) in Phi.
+  assert (forall x y, Union _ empty_context (Singleton _ TT) |-- x ->
+            proj1_sig Phi |-- y -> proj1_sig Phi |-- x * y).
+  Focus 1. {
+    intros.
+    rewrite deduction_theorem, <- provable_derivable in H.
+    rewrite <- H.
+    rewrite <- sepcon_comm, <- sepcon_ext; auto.
+  } Unfocus.
+  destruct (Lindenbaum_lemma2_left _ _ _ H (proj2_sig Phi))
+      as [Psi' [? [? ?]]].
+  set (Psi := exist _ Psi' H2: DCS Gamma).
+  change Psi' with (proj1_sig Psi) in H1.
+  clearbody Psi; clear Psi' H0 H2.
+  exists Psi.
+  exists Phi.
+  split; [| reflexivity].
+  hnf; intros.
+  rewrite ED in H0, H2 |- *; auto.
 Qed.
 
 End GeneralCanonical.

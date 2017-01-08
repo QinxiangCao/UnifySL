@@ -285,6 +285,10 @@ Definition Kmodel_Unital: Kmodel -> Prop := fun M =>
   (forall m: Kworlds M, proj1_sig (Kemp M) m <-> proj1_sig sem_emp m) /\
   UnitalSeparationAlgebra (Kworlds M).
 
+Definition Kmodel_Residual: Kmodel -> Prop := fun M =>
+  ResidualSeparationAlgebra (Kworlds M).
+
+
 Require Import Logic.SeparationLogic.SoundCompleteParameter.
 
 Record Kmodel_ParClass (PAR: SA_Parameter) (M: Kmodel): Prop := {
