@@ -641,7 +641,8 @@ Proof.
     assert (forall n, myz' n = Some short1 <->
                  myz' (S n) = Some short2).
     { intros; split.
-    
+Abort.
+(*    
   @fun_SA _ _ _ (@option_SA _ _ (equiv_SA)).
 
 (** * Discrete heap *)
@@ -696,6 +697,7 @@ Proof.
     reflexivity.
 Qed.
 
+*)
 
 
 
