@@ -828,10 +828,6 @@ Proof.
     - rewrite <- HH.
       apply H0.
       right; constructor.
-  + intros ? ? ?.
-    rewrite <- !HH.
-    intros.
-    apply H; auto.
 Qed.
 
 Lemma ext_canonical_residual {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {ExtSGamma: ExtSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Residual Var) (canonical_model Psi).

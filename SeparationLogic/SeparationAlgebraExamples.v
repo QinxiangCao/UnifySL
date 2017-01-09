@@ -196,10 +196,6 @@ Qed.
       + hnf; intros.
         inversion H; subst; simpl;
         omega.
-    - apply sumAlg_zero_decreasing_only in H0; subst.
-      simpl in H.
-      replace n with 0 by omega.
-      apply sumAlg_zero_decreasing.
   Qed.
   
   (*Residual*)
@@ -526,11 +522,6 @@ Proof.
       hnf; extensionality x.
       specialize (H x).
       inversion H; reflexivity.
-  - hnf; intros.
-    inversion H; subst.
-    apply H0 in H1.
-    inversion H1.
-    reflexivity.
 Qed.
 
 (*Residual*)
@@ -665,11 +656,6 @@ Proof.
       hnf; extensionality x.
       specialize (H x).
       inversion H; reflexivity.
-  - hnf; intros.
-    inversion H; subst.
-    apply H0 in H1.
-    inversion H1.
-    reflexivity.
 Qed.
 
 (*Residual*)

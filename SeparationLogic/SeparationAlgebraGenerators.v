@@ -424,8 +424,7 @@ Section exponentialSA.
         specialize (HH x); destruct HH as [ _ HH].
         apply HH.
         auto.
-    - 
-Abort.
+Qed.
 (*  eapply nonpos_stable; auto.
       eapply H0.
     
@@ -636,46 +635,7 @@ Section productSA.
         apply Ha2 in H0.
         apply Hb2 in H1.
         split; auto.
-    - hnf; intros.
-      destruct m as [ma mb].
-      Require Import ClassicalFacts.
-      pose (Ha:= exists a1 a2, join ma a1 a2).
-      pose (Hb:= exists b1 b2, join mb b1 b2).
-      destruct (classic Ha).
-      destruct (classic Hb).
-      
-      
-      destruct n, n', n0.
-      inversion H1; simpl in *.
-      destruct H.
-      
-      
-      
-      split; simpl;
-      [ eapply nonpos_down | eapply nonpos_down0];
-      eauto.
-      
-      hnf; intros.
-      hnf in H0.
-      destruct H3 as [b' [b'' HHb]].
-      specialize (H0 (n, b') (n', b'')).
-      unfold join  in H1.
-      assert (prod_Join _ _ (ma, mb) (n, b') (n', b'')).
-      { constructor; simpl; auto. }
-      apply H0 in H3. destruct H3. auto.
-
-      hnf; intros.
-      hnf in H0.
-      destruct H2 as [a' [a'' HHa]].
-      specialize (H0 (a', n) (a'', n')).
-      unfold join  in H1.
-      assert (prod_Join _ _ (ma, mb) (a', n) (a'', n')).
-      { constructor; simpl; auto. }
-      apply H0 in H2. destruct H2. auto.
-
-      unfold nonpositive in H0.
-Abort.
-
+Qed.
 
   
 

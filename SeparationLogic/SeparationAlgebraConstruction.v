@@ -93,9 +93,6 @@ Proof.
     + exists n'; split; auto.
       exists n; split; auto; reflexivity.
     + rewrite <- DownwardsClosure_nonpositive; auto.
-  - intros ? ? ?.
-    rewrite <- !DownwardsClosure_nonpositive.
-    apply nonpos_down; auto.
 Defined.
 
 Definition DownwardsClosure_gcSA:
@@ -154,12 +151,14 @@ Proof.
       * reflexivity.
 Defined.
 
+(*
 Lemma UpwardsClosure_nonpositive: forall m, @nonpositive _ _ J m <-> @nonpositive _ _ (UpwardsClosure_SA) m.
 Proof.
   intros.
   pose proof Korder_PreOrder as H_PreOrder.
   unfold nonpositive; split; intros.
   + destruct H0 as [m0 [n0 [? [? ?]]]].
+    
     pose proof nonpos_down _ _ H0.
     apply H3 in H.
     unfold nonpositive in H.
@@ -169,7 +168,7 @@ Proof.
     exists m, n.
     split; [| split]; auto; reflexivity.
 Qed.
-
+*)
 Definition UpwardsClosure_UpwardsClosed:
   @UpwardsClosedSeparationAlgebra worlds (UpwardsClosure_SA) _.
 Proof.
@@ -190,7 +189,7 @@ Proof.
   exists n1, n2; split; [| split]; auto.
   exists n1', n2'; split; [| split]; auto.
 Qed.
-
+(*
 Definition UpwardsClosure_USA: @UnitalSeparationAlgebra worlds _ (UpwardsClosure_SA).
 Proof.
   constructor.
@@ -206,7 +205,7 @@ Proof.
     rewrite <- !UpwardsClosure_nonpositive.
     apply nonpos_down; auto.
 Defined.
-
+*)
 Definition UpwardsClosure_gcSA: @GarbageCollectSeparationAlgebra worlds _ (UpwardsClosure_SA).
 Proof.
   constructor.
