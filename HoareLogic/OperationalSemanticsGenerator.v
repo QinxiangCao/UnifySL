@@ -559,7 +559,16 @@ Proof.
           apply begin_end_state_singleton_trace_rev in H1.
           destruct H1.
           congruence.
-       ++(* rewrite H4 in H1.
+       ++ destruct H4 as [ctr' [? [? [? _]]]].
+          inversion H7; subst.
+         -- symmetry in H11.
+            apply Swhile_Sskip in H11; auto.
+         -- specialize (H6 0 _ _ H9).
+            rewrite step_Sskip in H6; auto.
+    - left.
+      destruct H0 as [ctrs_head [ctrs_tail [? [? [? [? ?]]]]]].
+      set (ctrs := ctrs_head ++ ctrs_tail :: nil) in *.
+(* rewrite H4 in H1.
           apply begin_end_state_singleton_trace_rev in H1.
           destruct H1.
           congruence.

@@ -15,6 +15,14 @@ Definition tl_access
   guard -> state -> cmd -> MetaState state -> Prop :=
   fun g => @access _ _ (guarded_BSS g).
 
+Definition lift_tl_access
+           {P: ProgrammingLanguage}
+           {state: Type}
+           {guard: Type}
+           {TLBSS: ThreadLocalBigStepSemantics P state guard}:
+  guard -> MetaState state -> cmd -> MetaState state -> Prop :=
+  fun g => @lift_access _ _ (guarded_BSS g).
+
 (*
 Class NormalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (BSS: BigStepSemantics P state): Type := {
   access_defined: forall s c, exists ms, access s c ms

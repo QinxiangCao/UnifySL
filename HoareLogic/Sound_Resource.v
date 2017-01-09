@@ -25,25 +25,49 @@ Inductive Inv_cons {resource state: Type} (r: resource) (I: state -> Prop):
    Inv_free r Inv2 ->
    Inv_cons r I (Inv1 ++ Inv2) (Inv1 ++ (r, I) :: Inv2).
 
+Module Resource_BigStepSemantics (D: DECREASE).
+
+Export D.
+
 Class Resource_BigStepSemantics
       (P: ProgrammingLanguage)
+      {cP: ConcurrentProgrammingLanguage P}
       {rcP: Resource_ConcurrentProgrammingLanguage P}
       (state: Type)
       {J: Join state}
+      {kiM: KripkeIntuitionisticModel state}
       (TLBSS: ThreadLocalBigStepSemantics P state
                 (list (resource * (state -> Prop)))): Type :=
 {
+  access_Sparallel:
+    forall (r: resource) (*I: state -> Prop*) Inv
+      c1 c2 (m: state) (n: MetaState state),
+    tl_access Inv m (Sparallel c1 c2) n ->
+    exists (m1 m2: state) (n1' n2' n1 n2: MetaState state),
+    join m1 m2 m /\
+    tl_access Inv m1 c1 n1' /\
+    tl_access Inv m2 c2 n2' /\
+    decrease n1' n1 /\
+    decrease n2' n2 /\
+    strong_lift_join n1 n2 n;
   access_Sresource:
-    forall (r: resource) (I: state -> Prop) Inv Inv'
-      c m1 m_acq m1' m2 m_rel m2',
-    tl_access Inv m1 c (Terminating m2) ->
-    join m1' m_acq m1 ->
-    join m2' m_rel m2 ->
+    forall (r: resource) (I: state -> Prop) Inv Inv' c m n,
     Inv_cons r I Inv Inv' ->
-    I m_acq ->
-    I m_rel ->
-    tl_access Inv' m1' (Sresource r c) (Terminating m2')
+    tl_access Inv' m (Sresource r c) n ->
+    exists m_acq m' n1 m_rel n2 n3,
+    join m' m_acq m /\
+    decrease (Terminating m') n1 /\
+    lift_tl_access Inv n1 c n2 /\
+    decrease n2 n3 /\
+    strong_lift_join n3 (Terminating m_rel) n /\
+    I m_acq /\
+    I m_rel
 }.
+
+End Resource_BigStepSemantics.
+
+Module Partial := Resource_BigStepSemantics (ProgramState.Partial).
+Module Total := Resource_BigStepSemantics (ProgramState.Total).
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -57,9 +81,11 @@ Section soundness.
 
 Existing Instance unit_kMD.
 
-Context {P: ProgrammingLanguage} {rcP: Resource_ConcurrentProgrammingLanguage P} {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
+Import Partial.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
+Context {P: ProgrammingLanguage} {cP: ConcurrentProgrammingLanguage P} {rcP: Resource_ConcurrentProgrammingLanguage P} {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {kiM: KripkeIntuitionisticModel model} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
+
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
 
 (*
 Lemma hoare_resource_partial_sound: forall r I Inv Inv' c P Q F,
