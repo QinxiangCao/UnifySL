@@ -191,6 +191,36 @@ Proof.
     exact (H2 k _ H3).
 Admitted.
 
+Lemma trace_split_omega
+        {P: ProgrammingLanguage}
+        {iP: ImperativeProgrammingLanguage P}
+        {state: Type}:
+  forall R (ctr: trace (cmd * state)) c s mcs,
+    sequential_trace ctr ->
+    sound_trace R ctr ->
+    begin_end_state (c, s) ctr mcs ->
+    ~ is_empty_stream ctr ->
+    (exists ctrs: nat -> trace (cmd * state),
+       (forall n, sequential_trace (ctrs n)) /\
+       (forall n, sound_trace R (ctrs n)) /\
+       (forall n, exists s s', begin_end_state (c, s) (ctrs n) (Terminating (c, s'))) /\
+       (forall n, sound_trace (fun cs _ => fst cs <> c)
+                   (skipn_stream 1 (ctrs n))) /\
+       ctr = stream_capp ctrs) \/
+    (exists (ctrs_head: list (trace (cmd * state)))
+            (ctrs_tail: trace (cmd * state)),
+       let ctrs := ctrs_head ++ ctrs_tail :: nil in
+       (Forall sequential_trace ctrs) /\
+       (Forall (sound_trace R) ctrs) /\
+       (Forall (fun ctr: trace (cmd * state) =>
+                  exists s s', begin_end_state (c, s) ctr (Terminating (c, s'))) ctrs_head) /\
+       (Forall (fun ctr: trace (cmd * state) =>
+                  sound_trace (fun cs _ => fst cs <> c)
+                   (skipn_stream 1 ctr)) ctrs) /\
+       ctr = fold_right stream_app empty_stream ctrs).
+Proof.
+Admitted.
+
 Lemma trace_split_head
         {P: ProgrammingLanguage}
         {iP: ImperativeProgrammingLanguage P}
@@ -392,7 +422,28 @@ Proof.
           rewrite stream_map_stream_app.
           f_equal.
           stream_extensionality k; destruct k as [| [| ]]; auto.
-  + 
+  + intros.
+    destruct H.
+    assert (~ is_empty_stream ctr).
+    Focus 1. {
+      inversion ctr_begin_end_state; subst.
+      + exfalso.
+        pose proof step_defined (Swhile b c) s (Swhile_Sskip _ _).
+        clear - H end_state_valid; firstorder.
+      + intro.
+        pose proof is_n_stream_pf _ _ _ H H2.
+        omega.
+      + intro.
+        apply (n_stream_inf_stream_conflict _ _ H1 H).
+    } Unfocus.
+    destruct (trace_split_omega step ctr (Swhile b c) s mcs
+               ctr_sequential ctr_sound ctr_begin_end_state H); clear H.
+    - right.
+      destruct H0 as [ctrs [? [? [? [? ?]]]]].
+      exists (fun n => ctrace2trace (ctrs n)).
+      split.
+      Focus 1. {
+        subst.
 Abort.
 
 End Partial.

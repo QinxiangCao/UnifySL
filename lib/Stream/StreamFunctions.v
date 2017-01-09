@@ -1,6 +1,7 @@
 Require Import Coq.omega.Omega.
 Require Import Coq.Lists.List.
 Require Import Logic.lib.Coqlib.
+Require Import Logic.lib.StrongInduction.
 Require Import Logic.lib.Stream.SigStream.
 
 Definition fin_stream {A: Type} (h: list A) : stream A.
@@ -563,6 +564,17 @@ Opaque partial_stream_clen.
 Transparent partial_stream_clen.
 Qed.
 
+Lemma partial_stream_clen'_left {A: Type}: forall (h: nat -> stream A) (n: nat),
+  is_at_least_n_stream (S n) (h 0) ->
+  partial_stream_clen' h n = Some (0, n).
+Proof.
+  intros.
+  rewrite at_least_n_stream_spec in H.
+  destruct H as [[m [? ?]] |].
+  + eapply partial_stream_clen'_fin0_left; eauto.
+  + apply partial_stream_clen'_inf0; auto.
+Qed.
+
 Lemma partial_stream_clen_fin0_right {A: Type}: forall (h: nat -> stream A) (n m: nat),
   n > 0 ->
   is_n_stream n (h 0) ->
@@ -632,10 +644,107 @@ Next Obligation.
   destruct (h k n); auto.
 Qed.
 
-Lemma stream_capp_spec {A: Type}: forall (h: nat -> stream A),
+Lemma stream_capp_spec1 {A: Type}: forall (h: nat -> stream A) (m: nat),
+  is_at_least_n_stream (S m) (h 0) ->
+  stream_capp h m = h 0 m.
+Proof.
+  intros.
+  simpl.
+  rewrite partial_stream_clen'_left by auto.
+  auto.
+Qed.
+
+Lemma stream_capp_spec1' {A: Type}: forall (h: nat -> stream A) (m: nat) a,
+  h 0 m = Some a ->
+  stream_capp h m = Some a.
+Proof.
+  intros.
+  rewrite stream_capp_spec1; auto.
+  hnf; intros.
+  intro.
+  rewrite (stream_sound1 (h 0) n' m) in H by (auto; omega).
+  congruence.
+Qed.
+
+Lemma stream_capp_spec2 {A: Type}: forall (h: nat -> stream A) (n m: nat),
+  n > 0 ->
+  is_n_stream n (h 0) ->
+  stream_capp h (m + n) = stream_capp (fun n => h (S n)) m.
+Proof.
+  intros.
+  simpl.
+  rewrite (partial_stream_clen'_fin0_right _ _ m H H0).
+  destruct (partial_stream_clen' (fun n0 : nat => h (S n0)) m) as [[? ?] |]; auto.
+Qed.
+
+Lemma stream_capp_empty0 {A: Type}: forall (h: nat -> stream A),
+  is_empty_stream (h 0) ->
+  is_empty_stream (stream_capp h).
+Proof.
+  intros.
+  split; [| intros; omega].
+  simpl.
+  destruct H as [? _].
+  rewrite H.
+  auto.
+Qed.
+
+Lemma stream_capp_cons {A: Type}: forall (h: nat -> stream A),
   ~ is_empty_stream (h 0) ->
   stream_capp h = stream_app (h 0) (stream_capp (fun n => h (S n))).
 Proof.
   intros.
   stream_extensionality m.
-Admitted.
+  destruct (at_most_n_stream_or_at_least_Sn_stream (h 0) m).
+  + rewrite at_most_n_stream_spec in H0.
+    destruct H0 as [n [? ?]].
+    replace m with (m - n + n) by omega.
+    rewrite stream_capp_spec2;
+      [| destruct (Nat.eq_dec n 0); [subst; tauto | omega] | auto].
+    rewrite stream_app_spec2 by auto.
+    auto.
+  + rewrite stream_capp_spec1 by auto.
+    rewrite stream_app_spec1 by auto.
+    auto.
+Qed.
+
+Lemma stream_map_stream_capp {A B: Type}: forall (f: A -> B) (h: nat -> stream A),
+  stream_map f (stream_capp h) = stream_capp (fun n => stream_map f (h n)).
+Proof.
+  intros.
+  stream_extensionality n.
+  revert h; strong_induction n.
+  intros.
+
+  destruct (classic (is_empty_stream (h 0))).
+  Focus 1. {
+    clear IH.
+    pose proof proj1 (stream_map_n_stream f (h 0) 0) H.
+    apply stream_capp_empty0 in H.
+    apply (stream_map_n_stream f) in H.
+    apply (stream_capp_empty0 (fun n : nat => stream_map f (h n))) in H0.
+    destruct H as [H _], H0 as [H0 _].
+    rewrite (stream_sound1 _ 0 n) by (auto; omega).
+    rewrite (stream_sound1 _ 0 n) by (auto; omega).
+    reflexivity.
+  } Unfocus.
+
+  destruct (at_most_n_stream_or_at_least_Sn_stream (h 0) n).
+  + rewrite at_most_n_stream_spec in H0.
+    destruct H0 as [m [? ?]].
+    replace n with (n - m + m) by omega.
+    rewrite stream_capp_spec2;
+      [| destruct (Nat.eq_dec m 0); [subst; tauto | omega]
+       | apply stream_map_n_stream; auto].
+    rewrite stream_capp_cons by auto.
+    rewrite stream_map_stream_app.
+    rewrite stream_app_spec2 by (apply stream_map_n_stream; auto).
+    apply IH.
+    destruct (Nat.eq_dec m 0); [| omega].
+    subst; tauto.
+  + rewrite stream_capp_cons by auto.
+    rewrite stream_capp_spec1 by (apply stream_map_at_least_n_stream; auto).
+    rewrite stream_map_stream_app.
+    rewrite stream_app_spec1 by (apply stream_map_at_least_n_stream; auto).
+    auto.
+Qed.
