@@ -11,7 +11,7 @@ Require Import Coq.omega.Omega.
 (***********************************)
 (* ALGEBRAS ON NATURALS            *)
 (***********************************)
-
+ 
 Section nat_algs.
 
 Definition nat_kiM: KripkeIntuitionisticModel nat:=
@@ -130,7 +130,7 @@ Qed.
     apply minAlg_nonpositive.
     apply minAlg_residual.
   Qed.
-
+ 
   
 (** *Minimum Algebra on NAT*)
 
