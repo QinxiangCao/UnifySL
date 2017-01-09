@@ -446,6 +446,33 @@ Proof.
     auto.
 Qed.
 
+Lemma stream_app_fstn_stream {A: Type}: forall (h1 h2: stream A) (n: nat),
+  is_n_stream n h1 ->
+  fstn_stream n (stream_app h1 h2) = h1.
+Proof.
+  intros.
+  stream_extensionality m.
+  destruct (lt_dec m n).
+  + rewrite fstn_stream_Some by auto.
+    rewrite stream_app_spec1; auto.
+    rewrite at_least_n_stream_spec; left; exists n.
+    split; [omega | auto].
+  + rewrite fstn_stream_None by omega.
+    destruct H as [? _].
+    rewrite (stream_sound1 h1 n m) by (auto; omega).
+    auto.
+Qed.
+
+Lemma stream_app_skipn_stream {A: Type}: forall (h1 h2: stream A) (n: nat),
+  is_n_stream n h1 ->
+  skipn_stream n (stream_app h1 h2) = h2.
+Proof.
+  intros.
+  stream_extensionality m.
+  rewrite skipn_stream_spec.
+  rewrite stream_app_spec2; auto.
+Qed.
+
 Fixpoint partial_stream_clen {A: Type} (h: nat -> stream A) (n: nat): nat * nat :=
   match n with
   | 0 => (0, 0)

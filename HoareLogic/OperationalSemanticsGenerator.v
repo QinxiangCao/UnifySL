@@ -441,11 +441,70 @@ Proof.
     - right.
       destruct H0 as [ctrs [? [? [? [? ?]]]]].
       exists (fun n => ctrace2trace (ctrs n)).
-      split.
-      Focus 1. {
-        subst.
-Abort.
+      split; [subst; apply stream_map_stream_capp |].
+      intros; clear s mcs ctr_begin_end_state ctr ctr_sequential ctr_sound end_state_valid tr_ctr H3.
+      specialize (H n).
+      specialize (H0 n).
+      specialize (H1 n).
+      specialize (H2 n).
+      destruct H1 as [s [s' ?]].
+      destruct (trace_split_head step (ctrs n) _ _ _ H H0 H1) as [cs [? ?]].
+      apply step_Swhile in H3.
+      destruct H3; [destruct cs as [| | [c0 s0]] | exfalso].
+      * right.
+        destruct H3 as [? [ms [? ?]]].
+        destruct ms; inversion H6; clear H6.
+        exists (singleton_trace s Error).
+        split; [| split].
+       ++ apply singleton_trace_decrease_test; auto.
+       ++ right.
+          exists s.
+          apply begin_end_state_singleton_trace; auto.
+       ++ rewrite H4.
+          stream_extensionality k; destruct k as [| [|]]; auto.
+      * right.
+        destruct H3 as [? [ms [? ?]]].
+        destruct ms; inversion H6; clear H6.
+        exists (singleton_trace s NonTerminating).
+        split; [| split].
+       ++ apply singleton_trace_decrease_test; auto.
+       ++ left.
+          exists s.
+          apply begin_end_state_singleton_trace; auto.
+       ++ rewrite H4.
+          stream_extensionality k; destruct k as [| [|]]; auto.
+      * left.
+        destruct H3 as [? [ms [? ?]]].
+        destruct ms; inversion H6; clear H6. subst c0 s1.
+        destruct H4 as [ctrcd [? [? [? ?]]]].
+        exists (singleton_trace s (Terminating s0)), (ctrace2trace ctrcd).
+        split; [| split].
+       ++ apply singleton_trace_decrease_test; auto.
+       ++ destruct (trace_split2 step ctrcd _ (Ssequence Sskip (Swhile b c)) _ _ H4 H6 H7).
+         -- left.
+            destruct H9 as [ctrc [ctrd [s'' [? [? [? [? [? [? [? ?]]]]]]]]]].
+            exists (ctrace2trace ctrc), (singleton_trace s'' (Terminating s')).
+            assert (ctrd = singleton_trace (Ssequence Sskip (Swhile b c), s'') (Terminating (Swhile b c, s'))).
+            Focus 1. {
+              rewrite H8 in H2.
+              rewrite stream_app_skipn_stream in H2 by (apply singleton_trace_n_stream; auto).
+              rewrite H16 in H2.
+(*
+              
+            split; [| split].
+           ** destruct (Ssequence_fin_left _ _ _ _ (Terminating s'') H9 H10 H12 H11) as [ctrc' [? [? [? ?]]]].
+              apply (SmallStepSemantics.Build_denote _ _ _ _ _ ctrc' H17 H18 _ _ H19); auto.
+              simpl.
+              intros; rewrite step_Sskip; auto.
+           ** apply singleton_trace_decrease; auto.
 
+
+          
+          
+       ++ rewrite H4.
+          stream_extensionality k; destruct k as [| [|]]; auto.
+*)
+Abort.
 End Partial.
 End LTS_SSS.
 

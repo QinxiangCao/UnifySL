@@ -56,8 +56,8 @@ Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgramming
     traces_app (decrease_trace_with_test (fun s => ~ eval_bool s b)) (denote c2) tr;
   denote_Swhile: forall b c tr,
     denote (Swhile b c) tr ->
-    traces_app (traces_pstar (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (denote c))) (decrease_trace_with_test (fun s => ~ eval_bool s b)) tr \/
-    traces_pomega (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (denote c)) tr
+    traces_app (traces_pstar (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (traces_app (denote c) decrease_trace))) (decrease_trace_with_test (fun s => ~ eval_bool s b)) tr \/
+    traces_pomega (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (traces_app (denote c) decrease_trace)) tr
 }.
 
 End ImpLocalTraceSemantics.
@@ -92,12 +92,16 @@ Proof.
       clear H; revert tr H0.
       apply traces_app_mono.
       * apply traces_pstar_mono.
-        apply traces_app_mono; [| hnf; intros; auto].
-        apply Total2Partial_decrease_trace_with_test.
+        apply traces_app_mono; [| apply traces_app_mono].
+       ++ apply Total2Partial_decrease_trace_with_test.
+       ++ hnf; intros; auto.
+       ++ apply Total2Partial_decrease_trace.
       * apply Total2Partial_decrease_trace_with_test.
     - right.
       clear H; revert tr H0.
       apply traces_pomega_mono.
-      apply traces_app_mono; [| hnf; intros; auto].
-      apply Total2Partial_decrease_trace_with_test.
+      apply traces_app_mono; [| apply traces_app_mono].
+      * apply Total2Partial_decrease_trace_with_test.
+      * hnf; intros; auto.
+      * apply Total2Partial_decrease_trace.
 Defined.
