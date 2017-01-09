@@ -476,10 +476,10 @@ Section heaps.
 Definition Heap: Type := addr -> option val.
 
 Instance Heap_Join: Join Heap :=
-  @fun_Join _ _ (@option_Join _ (equiv_Join)).
+  @fun_Join _ _ (@option_Join _ (trivial_Join)).
 
 Instance Heap_SA: SeparationAlgebra Heap :=
-  @fun_SA _ _ _ (@option_SA _ _ (equiv_SA)).
+  @fun_SA _ _ _ (@option_SA _ _ (trivial_SA)).
 
 (** * Discrete heap *)
 Instance discHeap_kiM: KripkeIntuitionisticModel Heap :=
@@ -564,8 +564,8 @@ Proof.
   eapply fun_uSA.
   eapply option_uSA.
   - eapply ikiM_uSA.
-  - apply equiv_SA.
-  - apply equiv_gcSA.
+  - apply trivial_SA.
+  - apply trivial_gcSA.
 Qed.
 
 (* Nonpositive *)
@@ -578,7 +578,7 @@ Proof.
   specialize (H x0).
   inversion H; constructor.
   - reflexivity.
-  - inversion H3. subst; reflexivity.
+  - inversion H3. (*subst; reflexivity.*)
 Qed.
 
 (* Residual *)
@@ -604,6 +604,146 @@ Qed.
   
 End heaps.
 
+    
+(***********************************)
+(* The other nondisjoint HEAPS     *)
+(***********************************)
+
+Section heaps'.
+  Context (addr val: Type).
+
+Definition Heap': Type := addr -> option val.
+
+Instance Heap_Join': Join Heap' :=
+  @fun_Join _ _ (@option_Join _ (equiv_Join)).
+
+Instance Heap_SA': SeparationAlgebra Heap' :=
+  @fun_SA _ _ _ (@option_SA _ _ (equiv_SA)).
+
+(** * Discrete heap *)
+Instance discHeap_kiM': KripkeIntuitionisticModel Heap' :=
+  identity_kiM.
+
+Program Instance discHeap_ikiM': IdentityKripkeIntuitionisticModel Heap'.
+
+(*Downwards-closed*)
+Instance discHeap_dSA':
+  @DownwardsClosedSeparationAlgebra Heap' Heap_Join' discHeap_kiM'.
+Proof.
+  eapply ikiM_dSA.
+Qed.
+
+(*Upwards-closed*)
+Instance discHeap_uSA':
+  @UpwardsClosedSeparationAlgebra Heap' Heap_Join' discHeap_kiM'.
+Proof.
+  eapply ikiM_uSA.
+Qed.
+
+(*Empty heap is decreasing element*)
+Lemma discHeap_empty_decreasing':
+  @nonpositive Heap' discHeap_kiM' Heap_Join' (fun _ => None).
+Proof. hnf; intros.
+       hnf.
+       extensionality x; specialize (H  x).
+       inversion H; reflexivity.
+Qed.
+
+(*Unital*)
+Instance discHeap_unital':
+  @UnitalSeparationAlgebra Heap' discHeap_kiM' Heap_Join'.
+Proof.
+  constructor; intros.
+  - exists (fun _ => None); split.
+    + exists n; split.
+      * hnf; intros.
+        unfold join.
+        destruct (n x); constructor.
+      * hnf; intros.
+        reflexivity.
+    + hnf; intros.
+      hnf; extensionality x.
+      specialize (H x).
+      inversion H; reflexivity.
+  - hnf; intros.
+    inversion H; subst.
+    apply H0 in H1.
+    inversion H1.
+    reflexivity.
+Qed.
+
+(*Residual*)
+Instance discHeap_residual':
+  @ResidualSeparationAlgebra Heap' discHeap_kiM' Heap_Join'.
+Proof. apply unital_is_residual; apply discHeap_unital'. Qed.
+  
+
+(** * Monotonic heap*)
+Instance monHeap_kiM': KripkeIntuitionisticModel Heap' :=
+  @fun_kiM _ _ (@option_kiM _ (identity_kiM)).
+
+Instance identity_ikiM' (A: Type): @IdentityKripkeIntuitionisticModel _ (@identity_kiM A).
+Proof.
+  constructor; intros; auto.
+Qed.
+
+(* Downwards-closed*)
+Instance monHeap_dSA':
+  @DownwardsClosedSeparationAlgebra Heap' Heap_Join' monHeap_kiM'.
+Proof.
+  eapply fun_dSA.
+  eapply option_dSA.
+  eapply ikiM_dSA.
+Qed.  
+
+(*Upwards-closed*)
+Definition monHeap_uSA':
+  @UpwardsClosedSeparationAlgebra Heap' Heap_Join' monHeap_kiM'.
+Proof.
+  eapply fun_uSA.
+  eapply option_uSA.
+  - eapply ikiM_uSA.
+  - apply equiv_SA.
+  - apply equiv_gcSA.
+Qed.
+
+(* Nonpositive *)
+Instance monHeap_nonpositive':
+  @NonpositiveSeparationAlgebra Heap' monHeap_kiM' Heap_Join' .
+Proof.
+  constructor; intros.
+  hnf; intros.
+  hnf; intros.
+  specialize (H x0).
+  inversion H; constructor.
+  - reflexivity.
+  - inversion H3. subst; reflexivity.
+Qed.
+
+(* Residual *)
+Instance monHeap_residual':
+  @ResidualSeparationAlgebra Heap' monHeap_kiM' Heap_Join' .
+Proof.
+  constructor; intros.
+  exists (fun _ => None).
+  hnf; intros.
+  exists n; split.
+  - hnf; intros x; destruct (n x); constructor.
+  - reflexivity.
+Qed.
+
+(* Unital *)
+Instance monHeap_unital':
+  @UnitalSeparationAlgebra Heap' monHeap_kiM' Heap_Join' .
+Proof.
+  apply nonpos_unital_iff_residual.
+  apply monHeap_nonpositive'.
+  apply monHeap_residual'.
+Qed.
+  
+End heaps'.
+
+
 
 (***********************************)
 (* TYPED HEAPS                     *)
@@ -615,21 +755,73 @@ Section typed_heaps.
   |char
   |short1
   |short2.
-  
- Record THeap: Type :=
+
+  Inductive ht_ord: htype -> htype -> Prop :=
+    |htype_refl x: ht_ord x x
+    |htype_sht1 : ht_ord char short1
+    |htype_sht2 : ht_ord char short2.
+
+  Instance ht_preorder: PreOrder ht_ord.
+  Proof.
+    constructor;
+    hnf; intros.
+    - constructor.
+    - inversion H; inversion H0; subst; subst; try solve [constructor].
+  Qed.
+
+  Notation THeap':= (nat -> option htype).
+  Definition THvalid (TH:THeap'):=
+     forall n, TH n = Some short1 <->
+                   TH (S n) = Some short2.
+  Record THeap: Type :=
     { theap:> nat -> option htype;
-      th_wf1: forall n, theap n = Some short1 <->
-                   theap (S n) = Some short2}.
-Instance THeap_Join': Join (nat -> option htype) :=
-  @fun_Join _ _ (@option_Join _ (equiv_Join)).
+      th_wf1: THvalid theap}.
   
-Inductive THeap_Join: Join THeap :=
-| th_join (h1 h2 h3: THeap): THeap_Join' h1 h2 h3 ->
-                             THeap_Join h1 h2 h3.
+  Instance THeap_Join': Join THeap' :=
+    @fun_Join _ _ (@option_Join _ (trivial_Join)).
+  
+  Inductive THeap_Join: Join THeap :=
+  | th_join (h1 h2 h3: THeap): THeap_Join' h1 h2 h3 ->
+                               THeap_Join h1 h2 h3.
 
 Instance THeap_SA': @SeparationAlgebra _ THeap_Join':=
-  @fun_SA _ _ _ (@option_SA _ _ (equiv_SA)).
+  @fun_SA _ _ _ (@option_SA _ _ (trivial_SA)).
 
+Lemma THeap_Join_valid:
+  forall {h1 h2 h3}, THeap_Join' h1 h2 h3 ->
+              THvalid h1 ->
+              THvalid h2 ->
+              THvalid h3.
+Proof.
+  intros; intros n; assert (H' :=  H).
+  specialize (H n); specialize (H' (S n));
+  specialize (H0 n); specialize (H1 n);
+  destruct H0 as [H0 H0']; destruct H1 as [H1 H1'].
+  split; intros HH.
+  - rewrite HH in H.
+    inversion H; subst.
+    + symmetry in H4;
+      rewrite (H1 H4) in H'.
+      inversion H'; try reflexivity; subst.
+      inversion H7; subst; reflexivity.
+    + symmetry in H3;
+      rewrite (H0 H3) in H'.
+      inversion H'; try reflexivity; subst.
+      inversion H7; subst; reflexivity.
+    + inversion H5; subst.
+  - rewrite HH in H'.
+    inversion H'; subst.
+    + symmetry in H4;
+      rewrite (H1' H4) in H.
+      inversion H; try reflexivity; subst.
+      inversion H7; subst; reflexivity.
+    + symmetry in H3;
+      rewrite (H0' H3) in H.
+      inversion H; try reflexivity; subst.
+      inversion H7; subst; reflexivity.
+    + inversion H5; subst.
+Qed.
+    
 Instance THeap_SA: @SeparationAlgebra THeap THeap_Join.
 Proof.
   constructor; intros.
@@ -637,13 +829,336 @@ Proof.
     constructor. apply join_comm; auto.
   - inversion H; inversion H0; subst.
     pose ( join_assoc _ _  _ _ _ H1 H5) as HH.
-    destruct HH as [myz' HH].
+    destruct HH as [myz' [HH1 HH2]].
     assert (forall n, myz' n = Some short1 <->
                  myz' (S n) = Some short2).
-    { intros; split.
-    
-  @fun_SA _ _ _ (@option_SA _ _ (equiv_SA)).
+    { eapply (THeap_Join_valid HH1).
+      apply my.
+      apply mz. }
+    exists (Build_THeap myz' H2); split; constructor; auto.
+Qed.
 
+Inductive THeap_order': THeap' -> THeap' -> Prop:=
+| THeap_ord (h1 h2:THeap'):
+    (forall (n:nat) (c:htype), h2 n = Some c ->
+           exists (c':htype), h1 n = Some c' /\
+                         ht_ord c' c) ->
+THeap_order' h1 h2.
+
+Definition THeap_order (h1 h2: THeap): Prop:=
+  THeap_order' h1 h2.
+
+Instance THeap_preorder': PreOrder THeap_order'.
+constructor.
+- hnf; intros.
+  constructor; intros.
+  exists c; split; auto; constructor.
+- hnf; intros.
+  inversion H;
+    inversion H0; subst.
+  constructor; intros.
+  apply H4 in H2; destruct H2 as [c0 [HH1 HH2]].
+  apply H1 in HH1; destruct HH1 as [c' [HH3 HH4]].
+  exists c'; split; auto.
+  transitivity c0; auto.
+Qed.
+
+Lemma THeap_preorder: PreOrder THeap_order.
+constructor.
+- hnf; intros.
+  hnf; reflexivity.
+- hnf; intros.
+  hnf in H, H0.
+  hnf; transitivity y; auto.
+Qed.
+
+Instance THeap_kiM': KripkeIntuitionisticModel THeap'.
+Proof.
+  apply (@Build_KripkeIntuitionisticModel THeap' THeap_order').
+  eapply THeap_preorder'.
+Defined.
+
+Instance THeap_kiM: KripkeIntuitionisticModel THeap.
+Proof.
+  apply (@Build_KripkeIntuitionisticModel THeap THeap_order).
+  eapply THeap_preorder.
+Defined.
+
+
+(*It is NOT down-closed*)
+Instance THeap_dSA:
+  @DownwardsClosedSeparationAlgebra THeap THeap_Join THeap_kiM.
+Proof.
+  hnf; intros.
+  hnf in H0.
+  exists m1.
+  pose (m2':= (fun n => match m1 n with
+                       Some _ => None
+                     | _ => m n
+                     end)).
+  assert (THvalid m2').
+Abort.
+
+
+(* upwards-closed*)
+Instance THeap_uSA':
+  @UpwardsClosedSeparationAlgebra _ THeap_Join' THeap_kiM'.
+Proof.
+  hnf; intros.
+  inversion H0; inversion H1; subst.
+  exists (fun n => match n1 n with
+           |Some x => Some x
+           |_ => n2 n
+           end); split.
+  - hnf; intros.
+    destruct (n1 x) eqn:AA.
+    + destruct (n2 x) eqn:BB.
+      * specialize (H2 x); specialize (H5 x).
+        apply H2 in AA; destruct AA as [x' [AA1 AA2]].
+        apply H5 in BB; destruct BB as [x'' [BB1 BB2]].
+        specialize (H x).
+        rewrite AA1, BB1 in H.
+        inversion H; subst. inversion H7.
+      * constructor.
+    + destruct (n2 x); constructor.
+  - constructor; intros.
+    destruct (n1 n) eqn:n1n.
+    + apply H2 in n1n; destruct n1n as [c' [HH1 HH2]].
+      exists c';split.
+      * specialize (H n).
+        rewrite HH1 in H.
+        inversion H; subst; try reflexivity.
+        inversion H8.
+      * inversion H3; subst; auto.
+    + apply H5 in H3; destruct H3 as [c' [HH1 HH2]].
+      exists c';split.
+      * specialize (H n).
+        rewrite HH1 in H.
+        inversion H; subst; try reflexivity.
+        inversion H7.
+      * auto.
+Qed.
+  
+Instance THeap_uSA:
+  @UpwardsClosedSeparationAlgebra THeap THeap_Join THeap_kiM.
+Proof.
+  hnf; intros.
+  hnf in H0, H1.
+  inversion H; subst.
+  destruct (THeap_uSA' _ _ _ _ _ H2 H0 H1) as [n [HH1 HH2]].
+  assert (HH: THvalid n).
+  { apply (THeap_Join_valid HH1);
+    first [apply n1 | apply n2]. }
+  exists (Build_THeap n HH); split; auto;
+  constructor; auto.
+Qed.
+
+(*Nonpositive*)
+Instance THeap_nonpositiveSA':
+  @NonpositiveSeparationAlgebra _ THeap_kiM' THeap_Join'.
+Proof.
+  constructor; intros.
+  hnf; intros.
+  constructor; intros.
+  specialize (H n0).
+  rewrite H0 in H; inversion H; subst.
+  - exists c; split; auto; reflexivity.
+  - inversion H4.
+Qed.
+
+Instance THeap_nonpositiveSA:
+  @NonpositiveSeparationAlgebra _ THeap_kiM THeap_Join.
+Proof.
+  constructor; intros.
+  hnf; intros.
+  simpl in *.
+  eapply THeap_nonpositiveSA'; auto.
+  hnf in H; hnf ; intros.
+  inversion H; subst; auto.
+Qed.
+
+(*Residual*)
+Instance THeap_residualSA':
+  @ResidualSeparationAlgebra _ THeap_kiM' THeap_Join'.
+Proof.
+  constructor; intros.
+  exists (fun _ => None).
+  hnf; intros.
+  exists n; split; try reflexivity.
+  hnf; intros.
+  destruct (n x); constructor.
+Qed.
+
+Instance THeap_residualSA:
+  @ResidualSeparationAlgebra _ THeap_kiM THeap_Join.
+Proof.
+  constructor; intros.
+  assert (THvalid (fun _ => None)).
+  { constructor; intros HH; inversion HH. }
+  exists (Build_THeap _ H).
+  exists n; split; try reflexivity.
+  constructor.
+  hnf; intros. destruct (n x); constructor.
+Qed.
+
+(*Unital*)
+Instance THeap_UnitalSA':
+  @UnitalSeparationAlgebra _ THeap_kiM' THeap_Join'.
+Proof.
+  apply nonpos_unital_iff_residual.
+  apply THeap_nonpositiveSA'.
+  apply THeap_residualSA'.
+Qed.
+
+Instance THeap_UnitalSA:
+  @UnitalSeparationAlgebra _ THeap_kiM THeap_Join.
+Proof.
+  apply nonpos_unital_iff_residual.
+  apply THeap_nonpositiveSA.
+  apply THeap_residualSA.
+Qed.
+
+End typed_heaps.
+
+
+(***********************************)
+(* Step-Index                      *)
+(***********************************)
+
+Section step_index.
+
+  
+  Definition StepIndex_kiM (worlds: Type)
+             {kiM: KripkeIntuitionisticModel worlds}:
+    KripkeIntuitionisticModel (nat * worlds) :=
+    @prod_kiM _ _ nat_kiM kiM.
+
+  Definition StepIndex_Join (worlds: Type) {J: Join worlds}: Join (nat * worlds) :=
+    @prod_Join _ _ equiv_Join J.
+
+  Definition StepIndex_SA
+             (worlds: Type)
+             {J: Join worlds}
+             {SA: SeparationAlgebra worlds}:
+    @SeparationAlgebra (nat * worlds)
+                       (StepIndex_Join worlds) := @prod_SA _ _ _ _ equiv_SA SA.
+  
+  Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
+             {J: Join worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}:
+    @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_kiM) dSA.
+
+  Definition StepIndex_Nonpositive
+             (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
+             {J: Join worlds} {npSA: NonpositiveSeparationAlgebra worlds}:
+    @NonpositiveSeparationAlgebra (nat * worlds)
+                                  (StepIndex_kiM worlds)
+                                  (StepIndex_Join worlds).
+  Admitted.
+  (*    := @prod_SA _ _ _ _ _ _ (@identity_dSA _ nat_kiM) npSA.*)
+
+  Definition StepIndex_Unital
+             (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
+             {J: Join worlds} {npSA: UnitalSeparationAlgebra worlds}:
+    @UnitalSeparationAlgebra (nat * worlds)
+                                  (StepIndex_kiM worlds)
+                                  (StepIndex_Join worlds).
+  Admitted.
+
+  Definition StepIndex_Residual
+             (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
+             {J: Join worlds} {npSA: ResidualSeparationAlgebra worlds}:
+    @ResidualSeparationAlgebra (nat * worlds)
+                                  (StepIndex_kiM worlds)
+                                  (StepIndex_Join worlds).
+  Admitted.
+
+  (** *step-indexed HEAPS*)
+  Context (addr val: Type).
+  Notation heap:= (Heap addr val).
+
+  Instance heap_jn: Join heap:= (Heap_Join addr val).
+  
+  Instance SIheap_Join: Join (nat * heap) := StepIndex_Join heap.
+  
+  (** *Monotonic, step-indexed heap *)
+  Definition monSIheap_kiM:= @StepIndex_kiM heap (monHeap_kiM addr val).
+
+  (*Downwards-closed *)
+  Instance monSIheap_dSA:
+    @DownwardsClosedSeparationAlgebra _ SIheap_Join monSIheap_kiM.
+  Proof.
+    eapply StepIndex_dSA.
+    apply monHeap_dSA.
+  Qed.
+
+  (* NOT Upwards-closed *)
+
+  (*Decreasing *)
+  Instance monSIheap_nonpositive:
+    @NonpositiveSeparationAlgebra _ monSIheap_kiM SIheap_Join.
+  Proof.
+    eapply StepIndex_Nonpositive.
+    apply monHeap_nonpositive.
+  Qed.
+
+  (*Unital *)
+  Instance monSIheap_unital:
+    @UnitalSeparationAlgebra _ monSIheap_kiM SIheap_Join.
+  Proof.
+    eapply StepIndex_Unital.
+    apply monHeap_unital.
+  Qed.
+
+  (*Residual *)
+  Instance monSIheap_residual:
+    @ResidualSeparationAlgebra _ monSIheap_kiM SIheap_Join.
+  Proof.
+    eapply StepIndex_Residual.
+    apply monHeap_residual.
+  Qed.
+  
+  (** *Discrete, step-indexed heap *)
+  Definition discSIheap_kiM:= @StepIndex_kiM heap (discHeap_kiM addr val).
+
+  (*Downwards-closed *)
+  Instance discSIheap_dSA:
+    @DownwardsClosedSeparationAlgebra _ SIheap_Join discSIheap_kiM.
+  Proof.
+    eapply StepIndex_dSA.
+    apply discHeap_dSA.
+  Qed.
+
+  (* NOT Upwards-closed *)
+
+  (* NOT Decreasing *)
+
+  (*Unital *)
+  Instance discSIheap_unital:
+    @UnitalSeparationAlgebra _ discSIheap_kiM SIheap_Join.
+  Proof.
+    eapply StepIndex_Unital.
+    apply discHeap_unital.
+  Qed.
+
+  (*Residual *)
+  Instance discSIheap_residual:
+    @ResidualSeparationAlgebra _ discSIheap_kiM SIheap_Join.
+  Proof.
+    eapply StepIndex_Residual.
+    apply discHeap_residual.
+  Qed.
+
+End step_index.
+      
+
+
+(***********************************)
+(* Resource Bounds                 *)
+(***********************************)
+
+
+
+(*
 (** * Discrete heap *)
 Instance discHeap_kiM: KripkeIntuitionisticModel Heap :=
   identity_kiM.
@@ -747,4 +1262,4 @@ Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
            {J: Join worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}:
   @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
 
-*)
+*)*)

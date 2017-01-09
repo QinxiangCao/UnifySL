@@ -3,9 +3,61 @@ Require Import Coq.Logic.ClassicalChoice.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
 
+
+
+Program Definition identity_kiM {worlds}:
+  KripkeIntuitionisticModel worlds :=
+  Build_KripkeIntuitionisticModel worlds (fun a b => a = b) _.
+  Next Obligation.
+    constructor; hnf; intros.
+    + auto.
+    + subst; auto.
+  Qed.
+
 (***********************************)
 (* Separation Algebra Generators   *)
 (***********************************)
+
+Section trivialSA.
+  Context {worlds: Type}.
+  
+  Definition trivial_Join: Join worlds:=  (fun a b c => False).
+
+  Definition trivial_SA: @SeparationAlgebra worlds trivial_Join.
+  Proof.
+    constructor; intuition.
+    inversion H.
+  Qed.
+
+  (* Trivial algebra is downwards closed *)
+  (* Trivial is NOT upwards closed *)
+  Definition trivial_dSA {kiM: KripkeIntuitionisticModel worlds}:
+    @DownwardsClosedSeparationAlgebra worlds (trivial_Join) kiM.
+  Proof.
+    intros until m2; intros.
+    inversion H.
+  Qed.
+  
+  Definition trivial_gcSA: @GarbageCollectSeparationAlgebra
+                           worlds identity_kiM trivial_Join.
+  Proof.
+    constructor; intros.
+    inversion H.
+  Qed.
+
+  (*Nonpositive*)
+  Instance trivial_nonposSA:
+    @NonpositiveSeparationAlgebra worlds identity_kiM (trivial_Join).
+  Proof.
+    constructor; intros; hnf; intros.
+    inversion H.
+  Qed.
+  
+  (*Trivial is NOT necessarily unital*)
+
+  (*Trivial is NOT necessarily residual*)
+  
+End trivialSA.
 
 Section unitSA.
   Definition unit_Join: Join unit:=  (fun _ _ _ => True).
@@ -92,12 +144,6 @@ Section equivSA.
     exists n, n; do 2 split; auto.
   Qed.
   
-  Program Definition identity_kiM: KripkeIntuitionisticModel worlds := Build_KripkeIntuitionisticModel worlds (fun a b => a = b) _.
-  Next Obligation.
-    constructor; hnf; intros.
-    + auto.
-    + subst; auto.
-  Qed.
   
   Definition equiv_gcSA: @GarbageCollectSeparationAlgebra
                            worlds identity_kiM equiv_Join.
@@ -254,7 +300,10 @@ Section optionSA.
   
 
 End optionSA.
-  
+
+
+
+
 Section exponentialSA.
   Definition fun_Join (A B: Type) {J_B: Join B}: Join (A -> B) :=
     (fun a b c => forall x, join (a x) (b x) (c x)).
@@ -515,6 +564,8 @@ Section productSA.
     exists (fst_n, snd_n).
     do 2 split; simpl; auto.
   Qed.
+
+  
 
 End productSA.
 
