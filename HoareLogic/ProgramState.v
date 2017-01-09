@@ -91,6 +91,25 @@ Inductive lift_join
       join x y z ->
       lift_join (Terminating x) (Terminating y) (Terminating z).
 
+Inductive strong_lift_join
+          {state: Type}
+          {J_state: Join state}:
+  MetaState state -> MetaState state -> MetaState state -> Prop :=
+| strong_lift_join_Error1:
+    forall mx, strong_lift_join Error mx Error
+| strong_lift_join_Error2:
+    forall mx, strong_lift_join mx Error Error
+| strong_lift_join_NonTerminating1:
+    forall x, strong_lift_join NonTerminating (Terminating x) NonTerminating
+| strong_lift_join_NonTerminating2:
+    forall x, strong_lift_join (Terminating x) NonTerminating NonTerminating
+| strong_lift_join_NonTerminating3:
+    strong_lift_join NonTerminating NonTerminating NonTerminating
+| strong_lift_join_Terminating:
+    forall x y z,
+      join x y z ->
+      strong_lift_join (Terminating x) (Terminating y) (Terminating z).
+
 Definition lift_function {A B: Type} (f: A -> B): MetaState A -> MetaState B :=
   fun ma =>
   match ma with
