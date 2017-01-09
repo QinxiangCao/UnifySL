@@ -480,30 +480,91 @@ Proof.
         exists (singleton_trace s (Terminating s0)), (ctrace2trace ctrcd).
         split; [| split].
        ++ apply singleton_trace_decrease_test; auto.
-       ++ destruct (trace_split2 step ctrcd _ (Ssequence Sskip (Swhile b c)) _ _ H4 H6 H7).
+       ++ rewrite H8 in H2.
+          rewrite stream_app_skipn_stream in H2 by (apply singleton_trace_n_stream; auto).
+          clear ctrs H H0 H1 H8 n.
+          pose proof conj H2 H6.
+          apply sound_trace_and in H.
+          destruct (trace_split2 _ ctrcd _ (Ssequence Sskip (Swhile b c)) _ _ H4 H H7).
          -- left.
-            destruct H9 as [ctrc [ctrd [s'' [? [? [? [? [? [? [? ?]]]]]]]]]].
-            exists (ctrace2trace ctrc), (singleton_trace s'' (Terminating s')).
+            destruct H0 as [ctrc [ctrd [s'' [? [? [? [? [? [? [? ?]]]]]]]]]].
+            rewrite sound_trace_and in H1, H11.
+            destruct H1 as [_ ?], H11 as [? ?].
             assert (ctrd = singleton_trace (Ssequence Sskip (Swhile b c), s'') (Terminating (Swhile b c, s'))).
             Focus 1. {
-              rewrite H8 in H2.
-              rewrite stream_app_skipn_stream in H2 by (apply singleton_trace_n_stream; auto).
-              rewrite H16 in H2.
-(*
-              
+              inversion H12; subst.
+              + exfalso.
+                apply Ssequence_Swhile in H18; auto.
+              + destruct n.
+                - rewrite H16 in H17; inversion H17; subst.
+                  stream_extensionality m.
+                  destruct m; [rewrite H16; auto |].
+                  destruct H15 as [? _].
+                  rewrite (stream_sound1 ctrd 1 (S m)) by (auto; omega).
+                  destruct m; auto.
+                - destruct (ctrd 1) as [[[?c ?s] ?mcs] |] eqn:?H.
+                  * specialize (H10 0 _ _ _ _ H16 H13).
+                    subst.
+                    specialize (H14 0 _ _ H16).
+                    apply step_Ssequence in H14.
+                    destruct H14.
+                   ++ destruct H10 as [?ms [_ [? ?]]].
+                      destruct ms; inversion H14; subst.
+                      specialize (H11 1 _ _ H13); simpl in H11.
+                      congruence.
+                   ++ destruct H10 as [?mcs [? _]].
+                      rewrite step_Sskip in H10; tauto.
+                  * exfalso.
+                    destruct H15 as [_ ?].
+                    apply (H15 1); auto; omega.
+            } Unfocus.
+            subst ctrd.
+            exists (ctrace2trace ctrc), (singleton_trace s'' (Terminating s')).
             split; [| split].
-           ** destruct (Ssequence_fin_left _ _ _ _ (Terminating s'') H9 H10 H12 H11) as [ctrc' [? [? [? ?]]]].
-              apply (SmallStepSemantics.Build_denote _ _ _ _ _ ctrc' H17 H18 _ _ H19); auto.
+           ** destruct (Ssequence_fin_left _ _ _ _ (Terminating s'') H0 H1 H9 H8) as [ctrc' [? [? [? ?]]]].
+              apply (SmallStepSemantics.Build_denote _ _ _ _ _ ctrc' H15 H16 _ _ H17); auto.
               simpl.
               intros; rewrite step_Sskip; auto.
            ** apply singleton_trace_decrease; auto.
-
-
-          
-          
-       ++ rewrite H4.
-          stream_extensionality k; destruct k as [| [|]]; auto.
-*)
+              specialize (H14 0 _ _ eq_refl).
+              apply step_Ssequence in H14.
+              destruct H14.
+            +++ destruct H14 as [?ms [_ [? ?]]].
+                destruct ms; inversion H15; subst.
+                auto.
+            +++ destruct H14 as [?mcs [? _]].
+                rewrite step_Sskip in H14; tauto.
+           ** rewrite H13.
+              unfold ctrace2trace; rewrite stream_map_stream_app.
+              f_equal.
+              stream_extensionality k; destruct k as [| [| ?]]; auto.
+         -- exfalso.
+            destruct (Ssequence_progress_left ctrcd _ _ _ _ H4 H6 H0 H7) as [? | [? | ?]].
+           ** destruct H1 as [?c [?s ?]].
+              inversion H1; subst.
+              symmetry in H9; apply Ssequence_Swhile in H9; auto.
+           ** inversion H1.
+           ** inversion H1.
+       ++ rewrite H8.
+          unfold ctrace2trace; rewrite stream_map_stream_app.
+          f_equal.
+          stream_extensionality k; destruct k as [| [| ?]]; auto.
+      * destruct H3 as [? [?ms [? ?]]].
+        subst cs; destruct ms as [| | ?s]; simpl in H4.
+       ++ rewrite H4 in H1.
+          apply begin_end_state_singleton_trace_rev in H1.
+          destruct H1.
+          congruence.
+       ++ rewrite H4 in H1.
+          apply begin_end_state_singleton_trace_rev in H1.
+          destruct H1.
+          congruence.
+       ++(* rewrite H4 in H1.
+          apply begin_end_state_singleton_trace_rev in H1.
+          destruct H1.
+          congruence.
+SearchAbout begin_end_state singleton_trace.
+        Locate begin_end_state_singleton_trace.*)
 Abort.
 End Partial.
 End LTS_SSS.

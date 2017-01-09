@@ -30,6 +30,20 @@ Definition sound_trace {state: Type} (R: state -> MetaState state -> Prop) (tr: 
     tr k = Some (s, ms) ->
     R s ms.
 
+Lemma sound_trace_and {state: Type}: forall R1 R2 (tr: trace state),
+  sound_trace (fun s ms => R1 s ms /\ R2 s ms) tr <->
+  sound_trace R1 tr /\ sound_trace R2 tr.
+Proof.
+  intros.
+  split; intros.
+  + split; hnf; intros k H0 m ms;
+    specialize (H k H0 m ms); destruct H; auto.
+  + destruct H.
+    hnf; intros k H1 m ms;
+    specialize (H k H1 m ms);
+    specialize (H0 k H1 m ms); auto.
+Qed.
+
 Lemma trace_app_sequential1 {state: Type}: forall (tr1 tr2: trace state),
   sequential_trace (stream_app tr1 tr2) ->
   sequential_trace tr1.
@@ -135,6 +149,27 @@ Proof.
   + apply singleton_trace_n_stream.
   + reflexivity.
   + reflexivity.
+Qed.
+
+Lemma begin_end_state_singleton_trace_rev: forall {state: Type} (s s': state) ms ms',
+  begin_end_state s' (singleton_trace s ms) ms' ->
+  s = s' /\ ms = ms'.
+Proof.
+  intros.
+  inversion H; subst.
+  + exfalso.
+    match goal with
+    | HH: ?A = ?B |- _ => remember A as A0; remember B as B0;
+                          assert (A0 0 = B0 0) by (rewrite HH; auto); subst
+    end.
+    simpl in H0; inversion H0.
+  + pose proof singleton_trace_n_stream s ms.
+    pose proof is_n_stream_pf _ _ _ H0 H3.
+    inversion H4; subst; clear H4.
+    inversion H1; inversion H2; subst; auto.
+  + pose proof singleton_trace_n_stream s ms.
+    pose proof n_stream_inf_stream_conflict _ _ H2 H0.
+    tauto.
 Qed.
 
 Definition traces (state: Type): Type := Ensemble (trace state).

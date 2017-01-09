@@ -31,7 +31,8 @@ Class NormalImperativeProgrammingLanguage (P: ProgrammingLanguage) {iP: Imperati
   Sifthenelse_inv: forall b c1 c2 b' c1' c2', Sifthenelse b c1 c2 = Sifthenelse b' c1' c2' -> b = b' /\ c1 = c1' /\ c2 = c2';
   Sifthenelse_Sskip: forall b c1 c2, Sifthenelse b c1 c2 <> Sskip;
   Swhile_inv: forall b c b' c', Swhile b c = Swhile b' c' -> b = b' /\ c = c';
-  Swhile_Sskip: forall b c, Swhile b c <> Sskip
+  Swhile_Sskip: forall b c, Swhile b c <> Sskip;
+  Ssequence_Swhile: forall c1 c2 b c, Ssequence c1 c2 <> Swhile b c
 }.
 
 
