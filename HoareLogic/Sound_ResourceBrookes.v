@@ -26,7 +26,13 @@ Inductive Inv_cons {resource state: Type} (r: resource) (I: state -> Prop):
    Inv_free r Inv1 ->
    Inv_free r Inv2 ->
    Inv_cons r I (Inv1 ++ Inv2) (Inv1 ++ (r, I) :: Inv2).
-(*
+
+Record split_hint {state: Type} {J: Join state} (s: state) : Type := {
+  split_piece1: state;
+  split_piece2: state;
+  split_sound: join split_piece1 split_piece2 s
+}.
+
 Module Resource_BigStepSemantics (D: DECREASE).
 
 Export D.
@@ -41,25 +47,34 @@ Class Resource_BigStepSemantics
       (TLBSS: ThreadLocalBigStepSemantics P state
                 (list (resource * (state -> Prop)))): Type :=
 {
+  hint_Sparallel: forall Inv c1 c2,
+    (forall (s: state), split_hint s -> Prop) ->
+    hint Inv c1 ->
+    hint Inv c2 ->
+    hint Inv (Sparallel c1 c2);
+  hint_Sresource: forall Inv Inv' I r c,
+    Inv_cons r I Inv Inv' ->
+    hint Inv c ->
+    hint Inv' (Sresource r c);
   access_Sparallel:
-    forall (r: resource) (*I: state -> Prop*) Inv
-      c1 c2 (m: state) (n: MetaState state),
-    tl_access Inv m (Sparallel c1 c2) n ->
-    exists (m1 m2: state) (n1' n2' n1 n2: MetaState state),
-    join m1 m2 m /\
-    tl_access Inv m1 c1 n1' /\
-    tl_access Inv m2 c2 n2' /\
+    forall Inv
+      c1 c2 hs h1 h2 (m: state) (n: MetaState state),
+    tl_access Inv m (existT _ _ (hint_Sparallel Inv c1 c2 hs h1 h2)) n ->
+    exists (m1 m2: state) H (n1' n2' n1 n2: MetaState state),
+    hs m (Build_split_hint _ _ m m1 m2 H) /\
+    tl_access Inv m1 (existT _ c1 h1) n1' /\
+    tl_access Inv m2 (existT _ c2 h2) n2' /\
     decrease n1' n1 /\
     decrease n2' n2 /\
     strong_lift_join n1 n2 n;
   access_Sresource:
-    forall (I: state -> Prop) Inv Inv' (r: resource) c m n,
-    Inv_cons r I Inv Inv' ->
-    tl_access Inv' m (Sresource r c) n ->
+    forall (I: state -> Prop) Inv Inv' (r: resource) c (h: hint Inv c) m n
+      (H_Inv: Inv_cons r I Inv Inv'),
+    tl_access Inv' m (existT _ _ (hint_Sresource _ _ _ _ _ H_Inv h)) n ->
     exists m_acq m' n1 n2 n3,
     join m_acq m m' /\
     decrease (Terminating m') n1 /\
-    lift_tl_access Inv n1 c n2 /\
+    lift_tl_access Inv n1 (existT _ c h) n2 /\
     decrease n2 n3 /\
     match n3, n with
     | Terminating nn3, Terminating nn => least_cut nn3 I nn
@@ -140,6 +155,8 @@ Lemma hoare_resource_partial_sound: forall
 Proof.
   intros.
   unfold guarded_triple_partial_valid, triple_partial_valid in *.
+  destruct H as [h ?].
+  exists (hint_Sresource _ _ _ _ _ H0 h).
   intros s ms ? ?.
   apply (access_Sresource (fun m => KRIPKE: m |= I) Inv) in H3; auto.
   destruct H3 as [m_acq [m' [n1 [n2 [n3 [? [? [? [? [? ?]]]]]]]]]].
@@ -178,11 +195,21 @@ Lemma hoare_parallel_partial_sound: forall
 Proof.
   intros.
   unfold guarded_triple_partial_valid, triple_partial_valid in *.
+  destruct H as [h1 ?], H0 as [h2 ?].
+  exists (hint_Sparallel Inv c1 c2
+            (fun m sh => KRIPKE: (split_piece1 _ sh) |= P1 /\
+                         KRIPKE: (split_piece2 _ sh) |= P2) h1 h2).
   intros s ms ? ?.
   apply access_Sparallel in H2.
-  destruct H2 as [s1 [s2 [ms1 [ms2 [ms1' [ms2' [? [? [? [? [? ?]]]]]]]]]]].
-  
-    
+  destruct H2 as [s1 [s2 [? [ms1 [ms2 [ms1' [ms2' [? [? [? [? [? ?]]]]]]]]]]]].
+  destruct H2 as [H21 H22]; simpl in H21, H22.
+  specialize (H _ _ H21 H3).
+  specialize (H0 _ _ H22 H4).
+  destruct ms1, ms2; try solve [tauto | inversion H5; inversion H6; inversion H7; subst; congruence].
+  destruct ms1', ms2'; inversion H5; inversion H6; inversion H7; subst; auto.
+  rewrite FlatSemantics.sat_sepcon; exists m1, m2; split; [| split]; auto.
+  + eapply sat_mono; eauto.
+  + eapply sat_mono; eauto.
+Qed.
 
 End soundness.
-*)
