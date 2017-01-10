@@ -29,7 +29,8 @@ Definition guarded_triple_partial_valid
            (c: cmd)
            (Post: expr):
   Prop :=
-  @triple_partial_valid L P MD (guarded_BSS Inv) SM Pre c Post.
+  exists h,
+  @triple_partial_valid L _ MD (guarded_BSS Inv) SM Pre (existT _ c h) Post.
 
 Definition guarded_triple_total_valid
            {L: Language}
@@ -43,7 +44,8 @@ Definition guarded_triple_total_valid
            (c: cmd)
            (Post: expr):
   Prop :=
-  @triple_total_valid L P MD (guarded_BSS Inv) SM Pre c Post.
+  exists h,
+  @triple_total_valid L _ MD (guarded_BSS Inv) SM Pre (existT _ c h) Post.
 
 (***************************************)
 (* Type Classes                        *)

@@ -35,7 +35,7 @@ SeparationLogic_FILES = \
   SeparationAlgebra.v SeparationAlgebraConstruction.v \
   SeparationAlgebraGenerators.v \
   SeparationAlgebraExamples.v \
-  Semantics.v \
+  Semantics.v SemanticsExtension.v \
   Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \
   DownUpSemantics_Fail.v Sound_DownUp_Fail.v \
   Complete_Flat.v \

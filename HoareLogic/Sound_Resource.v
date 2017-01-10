@@ -26,7 +26,7 @@ Inductive Inv_cons {resource state: Type} (r: resource) (I: state -> Prop):
    Inv_free r Inv1 ->
    Inv_free r Inv2 ->
    Inv_cons r I (Inv1 ++ Inv2) (Inv1 ++ (r, I) :: Inv2).
-
+(*
 Module Resource_BigStepSemantics (D: DECREASE).
 
 Export D.
@@ -56,12 +56,17 @@ Class Resource_BigStepSemantics
     forall (I: state -> Prop) Inv Inv' (r: resource) c m n,
     Inv_cons r I Inv Inv' ->
     tl_access Inv' m (Sresource r c) n ->
-    exists m' n1 n2 n3 m_acq,
-    least_cut m I m' /\
+    exists m_acq m' n1 n2 n3,
+    join m_acq m m' /\
     decrease (Terminating m') n1 /\
     lift_tl_access Inv n1 c n2 /\
     decrease n2 n3 /\
-    strong_lift_join n3 (Terminating m_acq) n /\
+    match n3, n with
+    | Terminating nn3, Terminating nn => least_cut nn3 I nn
+    | NonTerminating, NonTerminating => True
+    | Error, Error => True
+    | _, _ => False
+    end /\
     I m_acq
 }.
 
@@ -137,12 +142,47 @@ Proof.
   unfold guarded_triple_partial_valid, triple_partial_valid in *.
   intros s ms ? ?.
   apply (access_Sresource (fun m => KRIPKE: m |= I) Inv) in H3; auto.
-  destruct H3 as [m' [n1 [n2 [m_acq [n3 [? [? [? [? [? ?]]]]]]]]]].
-  destruct ms as [| | ?s].
-  + inversion H7; subst.
+  destruct H3 as [m_acq [m' [n1 [n2 [n3 [? [? [? [? [? ?]]]]]]]]]].
+  assert (KRIPKE: m' |= I * P0).
+  Focus 1. {
+    rewrite FlatSemantics.sat_sepcon.
+    eexists; eexists.
+    split; [| split]; eassumption.
+  } Unfocus.
+  destruct n1 as [| |].
+  + inversion H4.
+  + inversion H5; subst.
     inversion H6; subst.
-    pose proof sem_precise_spec.
-Abort.
+    destruct ms; tauto.
+  + inversion H4; subst.
+    eapply sat_mono in H9; [| eassumption].
+    inversion H5; subst.
+    specialize (H _ _ H9 H11).
+    destruct n2.
+    - tauto.
+    - inversion H6; subst.
+      destruct ms; tauto.
+    - inversion H6; subst.
+      * destruct ms; tauto.
+      * destruct ms; auto.
+        eapply sat_mono in H; [| eassumption].
+        pose proof sem_precise_spec _ _ _ _ H1 H7 H; auto.
+Qed.
+
+Lemma hoare_parallel_partial_sound: forall
+  (Inv: list (resource * (model -> Prop)))
+  c1 c2 P1 P2 Q1 Q2,
+  guarded_triple_partial_valid Inv P1 c1 Q1 ->
+  guarded_triple_partial_valid Inv P2 c2 Q2 ->
+  guarded_triple_partial_valid Inv (P1 * P2) (Sparallel c1 c2) (Q1 * Q2).
+Proof.
+  intros.
+  unfold guarded_triple_partial_valid, triple_partial_valid in *.
+  intros s ms ? ?.
+  apply access_Sparallel in H2.
+  destruct H2 as [s1 [s2 [ms1 [ms2 [ms1' [ms2' [? [? [? [? [? ?]]]]]]]]]]].
+  
     
 
 End soundness.
+*)
