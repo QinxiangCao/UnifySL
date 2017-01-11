@@ -10,19 +10,30 @@ Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
   Sskip: cmd
 }.
 
-Class ConcurrentProgrammingLanguage (P: ProgrammingLanguage): Type := {
+Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := {
   Sparallel: cmd -> cmd -> cmd
 }.
 
-Class Resource_ConcurrentProgrammingLanguage (P: ProgrammingLanguage): Type := {
-  resource: Type;
+Class ConcurrentProgrammingLanguage_resource (P: ProgrammingLanguage): Type := {
+  resource: Type
+}.
+
+Class ConcurrentProgrammingLanguage_Sresource (P: ProgrammingLanguage) {CPr: ConcurrentProgrammingLanguage_resource P}: Type := {
   Sresource: resource -> cmd -> cmd
 }.
 
-Class Lock_ConcurrentProgrammingLanguage (P: ProgrammingLanguage): Type := {
-  lock_expr: Type;
-  Sacquire: lock_expr -> cmd;
-  Srelease: lock_expr -> cmd
+Class ConcurrentProgrammingLanguage_AcqRel_resource (P: ProgrammingLanguage) {CPr: ConcurrentProgrammingLanguage_resource P}: Type := {
+  Sacquire_res: resource -> cmd;
+  Srelease_res: resource -> cmd
+}.
+
+Class ConcurrentProgrammingLanguage_lock (P: ProgrammingLanguage): Type := {
+  lock_expr: Type
+}.
+
+Class ConcurrentProgrammingLanguage_AcqRel_lock (P: ProgrammingLanguage) {CPl: ConcurrentProgrammingLanguage_lock P}: Type := {
+  Sacquire_lock: lock_expr -> cmd;
+  Srelease_lock: lock_expr -> cmd
 }.
 
 Class NormalImperativeProgrammingLanguage (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P}: Type := {

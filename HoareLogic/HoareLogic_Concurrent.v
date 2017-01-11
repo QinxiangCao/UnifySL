@@ -54,11 +54,11 @@ Definition guarded_triple_total_valid
 Class GuardedHoareTriple
       (L: Language)
       (P: ProgrammingLanguage)
-      {rCP: Resource_ConcurrentProgrammingLanguage P}
       (HLan: Language): Type :=
 {
   Assertion := @expr L;
-  triple: (resource -> option Assertion) ->
+  guard: Type;
+  triple: guard ->
           Assertion ->
           cmd ->
           Assertion ->
@@ -68,7 +68,6 @@ Class GuardedHoareTriple
 Definition triple_valid
            {L: Language}
            {P: ProgrammingLanguage}
-           {rCP: Resource_ConcurrentProgrammingLanguage P}
            {HLan: Language}
            {TI: Semantics HLan unit_MD}
            (t: @expr HLan): Prop :=
