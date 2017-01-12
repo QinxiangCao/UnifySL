@@ -1,8 +1,10 @@
 Require Import Coq.Logic.ChoiceFacts.
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.ClassicalChoice.
+Require Import Logic.lib.Coqlib.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
+Require Import Logic.SeparationLogic.SeparationAlgebraConstruction.
 Require Import Logic.SeparationLogic.SeparationAlgebraGenerators.
 
 Require Import Coq.omega.Omega.
@@ -14,32 +16,33 @@ Require Import Coq.omega.Omega.
  
 Section nat_algs.
 
-Definition nat_kiM: KripkeIntuitionisticModel nat:=
-    Build_KripkeIntuitionisticModel _ _ NPeano.Nat.le_preorder.
+Program Definition nat_kiM: KripkeIntuitionisticModel nat:=
+    Build_KripkeIntuitionisticModel _ ge _.
+Next Obligation.
+  constructor.
+  + hnf; intros; omega.
+  + hnf; intros; omega.
+Qed.
 
-(** *Index algebras *)
-  Inductive delta3 {T:Type}: T -> T -> T -> Prop:=
-    |Delta3 a: delta3 a a a.
-
-  Definition indexAlg: @SeparationAlgebra nat delta3.
+  Definition indexAlg: @SeparationAlgebra nat equiv_Join.
   Proof. constructor; intros.
-         - inversion H; constructor.
+         - inversion H; congruence.
          - inversion H; inversion H0; subst.
-           exists mxyz; split; constructor.
+           exists mxyz; split; constructor; auto.
   Defined.
 
-  (* downwards-closed*)
-  Instance IndexAlg_dSA:
-    @DownwardsClosedSeparationAlgebra _ delta3 nat_kiM.
+  (* upwards-closed*)
+  Instance IndexAlg_uSA:
+    @UpwardsClosedSeparationAlgebra _ equiv_Join nat_kiM.
   Proof.
     hnf; intros.
     inversion H; subst.
     exists n, n. repeat split; auto.
   Qed.
 
-  (* Nonpositive*)
-  Instance IndexAlg_nonpositive:
-    @NonpositiveSeparationAlgebra _ nat_kiM  delta3.
+  (* Increasing*)
+  Instance IndexAlg_increasing:
+    @IncreasingSeparationAlgebra _ nat_kiM equiv_Join.
   Proof.
     constructor; intro.
     hnf; intros. inversion H; subst.
@@ -48,26 +51,26 @@ Definition nat_kiM: KripkeIntuitionisticModel nat:=
 
   (*Residual*)
   Instance IndexAlg_residual:
-    @ResidualSeparationAlgebra _ nat_kiM  delta3.
+    @ResidualSeparationAlgebra _ nat_kiM equiv_Join.
   Proof.
     constructor; intro.
-    exists n, n; split.
-    constructor.
+    exists n, n; split;
+    constructor;
     reflexivity.
   Qed.
 
   (* Unital *)
 Instance IndexAlg_unital:
-  @UnitalSeparationAlgebra _ nat_kiM  delta3.
+  @UnitalSeparationAlgebra _ nat_kiM equiv_Join.
 Proof.
-  apply nonpos_unital_iff_residual.
-  apply IndexAlg_nonpositive.
+  apply incr_unital_iff_residual.
+  apply IndexAlg_increasing.
   apply IndexAlg_residual.
 Qed.
 
 (** *Minimum Algebra*)
 Inductive min_Join: nat -> nat -> nat -> Prop:=
-  |min_j x y z: z <= x -> z<= y -> min_Join x y z.
+  | min_j x y z: z <= x -> z <= y -> min_Join x y z.
 
 Definition minAlg: @SeparationAlgebra nat min_Join.
 Proof. constructor; intros.
@@ -82,9 +85,28 @@ Proof. constructor; intros.
              * auto.
 Qed.
 
-  (* downwards-closed*)
-  Instance minAlg_dSA:
-    @DownwardsClosedSeparationAlgebra _ min_Join nat_kiM.
+  (* downwards closure of Index algebra *)
+
+  Lemma min_Join_is_downwards_closure: min_Join = @DownwardsClosure_J _ nat_kiM equiv_Join.
+  Proof.
+    extensionality a.
+    extensionality b.
+    extensionality c.
+    unfold DownwardsClosure_J.
+    apply prop_ext.
+    split; intros.
+    + simpl.
+      inversion H; subst.
+      exists c, c.
+      split; [| split]; hnf; auto.
+    + destruct H as [a' [b' [? [? ?]]]].
+      inversion H1; subst.
+      constructor; auto.
+  Qed.
+
+  (* upwards-closed*)
+  Instance minAlg_uSA:
+    @UpwardsClosedSeparationAlgebra _ min_Join nat_kiM.
   Proof.
     hnf; intros.
     inversion H;  subst.
@@ -93,9 +115,9 @@ Qed.
   Qed.
 
 
-  (* upwards-closed*)
-  Instance minAlg_uSA:
-    @UpwardsClosedSeparationAlgebra _ min_Join nat_kiM.
+  (* downwards-closed*)
+  Instance minAlg_dSA:
+    @DownwardsClosedSeparationAlgebra _ min_Join nat_kiM.
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -104,9 +126,9 @@ Qed.
     - transitivity m2; auto.
   Qed.
 
-  (* Nonpositive*)
-  Instance minAlg_nonpositive:
-    @NonpositiveSeparationAlgebra _ nat_kiM  min_Join.
+  (* Increasing*)
+  Instance minAlg_increasing:
+    @IncreasingSeparationAlgebra _ nat_kiM min_Join.
   Proof.
     constructor; intro.
     hnf; intros. inversion H; subst; auto.
@@ -114,7 +136,7 @@ Qed.
 
   (*Residual*)
   Instance minAlg_residual:
-    @ResidualSeparationAlgebra _ nat_kiM   min_Join.
+    @ResidualSeparationAlgebra _ nat_kiM min_Join.
   Proof.
     constructor; intro.
     exists n, n; split.
@@ -124,15 +146,15 @@ Qed.
 
   (* Unital *)
   Instance minAlg_unital:
-    @UnitalSeparationAlgebra _ nat_kiM  min_Join.
+    @UnitalSeparationAlgebra _ nat_kiM min_Join.
   Proof.
-    apply nonpos_unital_iff_residual.
-    apply minAlg_nonpositive.
+    apply incr_unital_iff_residual.
+    apply minAlg_increasing.
     apply minAlg_residual.
   Qed.
  
   
-(** *Minimum Algebra on NAT*)
+(** *Sum Algebra on NAT*)
 
 Inductive sum_Join: nat -> nat -> nat -> Prop:=
   |sum_j x y z: x + y = z -> sum_Join x y z.
@@ -148,9 +170,9 @@ Proof. constructor; intros.
          omega.
 Qed.
 
-(* downwards-closed*)
-Instance sumAlg_dSA:
-  @DownwardsClosedSeparationAlgebra _ sum_Join nat_kiM.
+(* upwards-closed*)
+Instance sumAlg_uSA:
+  @UpwardsClosedSeparationAlgebra _ sum_Join nat_kiM.
 Proof.
   hnf; intros.
   simpl in H0.
@@ -160,9 +182,9 @@ Proof.
   - exists m1, (n - m1); split; constructor; simpl; try omega.
 Qed.
 
-  (* upwards-closed*)
-  Instance sumAlg_uSA:
-    @UpwardsClosedSeparationAlgebra _ sum_Join nat_kiM.
+  (* downwards-closed*)
+  Instance sumAlg_dSA:
+    @DownwardsClosedSeparationAlgebra _ sum_Join nat_kiM.
   Proof.
     hnf; intros.
     simpl in H0, H1.
@@ -170,20 +192,20 @@ Qed.
     exists (n1 + n2); split; simpl; try constructor; try omega.
   Qed.
   
-  (* The only nonpositive is 0*)
+  (* The only increasing is 0*)
   Lemma sumAlg_zero_decreasing:
-  @nonpositive nat nat_kiM sum_Join 0.
+  @increasing nat nat_kiM sum_Join 0.
   Proof. hnf; intros.
        hnf.
        inversion H; subst; omega.
   Qed.
   Lemma sumAlg_zero_decreasing_only:
     forall x,
-  @nonpositive nat nat_kiM sum_Join x -> x = 0.
+  @increasing nat nat_kiM sum_Join x -> x = 0.
   Proof.
     intros.
     specialize (H 1 (x+1) ltac:(constructor; omega)).
-    simpl in H; omega.
+    simpl in H. omega.
   Qed.
   
   (* Unital *)
@@ -203,7 +225,7 @@ Qed.
     @ResidualSeparationAlgebra _ nat_kiM sum_Join.
   Proof.
     constructor; intro.
-    exists n, 0; split.
+    exists 0, n; split.
     constructor; omega.
     simpl; omega.
   Qed.
@@ -245,18 +267,18 @@ Proof. constructor; intros.
          omega.
 Qed.
 
-(* it is NOT downwards-closed*)
-Instance sumpAlg_dSA:
-  @DownwardsClosedSeparationAlgebra _ sump_Join natPlus_kiM.
+(* it is NOT upwards-closed*)
+Instance sumpAlg_uSA:
+  @UpwardsClosedSeparationAlgebra _ sump_Join natPlus_kiM.
 Proof.
   hnf; intros.
   simpl in H0.
   inversion H;  subst.
 Abort.
  
-(* upwards-closed*)
-Instance sumpAlg_uSA:
-  @UpwardsClosedSeparationAlgebra _ sump_Join natPlus_kiM.
+(* downwards-closed*)
+Instance sumpAlg_dSA:
+  @DownwardsClosedSeparationAlgebra _ sump_Join natPlus_kiM.
 Proof.
   hnf; intros.
   simpl in H0, H1.
@@ -283,14 +305,9 @@ Qed.
 (** *sum Algebra inverted*)
   
 Definition natinv_kiM: KripkeIntuitionisticModel nat.
-Proof. eapply (@Build_KripkeIntuitionisticModel nat ge).
-       constructor.
-       - hnf; intros.
-         apply NPeano.Nat.le_preorder.
-       - hnf; intros.
-         eapply NPeano.Nat.le_preorder; eauto.
+Proof. eapply (@Build_KripkeIntuitionisticModel nat _ NPeano.Nat.le_preorder).
 Defined.
-  
+
 Definition suminvAlg: @SeparationAlgebra _ sum_Join.
 Proof. constructor; intros.
        - inversion H; subst.
@@ -302,9 +319,9 @@ Proof. constructor; intros.
          omega.
 Qed.
 
-(* downwards-closed*)
-Instance suminvAlg_dSA:
-  @DownwardsClosedSeparationAlgebra _ sum_Join natinv_kiM.
+(* upwards-closed*)
+Instance suminvAlg_uSA:
+  @UpwardsClosedSeparationAlgebra _ sum_Join natinv_kiM.
 Proof.
   hnf; intros.
   simpl in H0.
@@ -314,9 +331,9 @@ Proof.
   - exists (n-m2), m2. split; constructor; simpl; try omega.
 Qed.
 
-(* upwards-closed*)
-Instance suminvAlg_uSA:
-  @UpwardsClosedSeparationAlgebra _ sum_Join natinv_kiM.
+(* downwards-closed*)
+Instance suminvAlg_dSA:
+  @DownwardsClosedSeparationAlgebra _ sum_Join natinv_kiM.
 Proof.
   hnf; intros.
   simpl in H0, H1.
@@ -326,8 +343,8 @@ Qed.
 
 
   (*Residual*)
-  Instance suminvAlg_nonpositive:
-    @NonpositiveSeparationAlgebra _ natinv_kiM sum_Join.
+  Instance suminvAlg_increasing:
+    @IncreasingSeparationAlgebra _ natinv_kiM sum_Join.
   Proof.
     constructor; intro.
     hnf; intros.
@@ -350,8 +367,8 @@ Qed.
   Instance suminvAlg_unital:
     @UnitalSeparationAlgebra _ natinv_kiM  sum_Join.
   Proof.
-    apply nonpos_unital_iff_residual.
-    apply suminvAlg_nonpositive.
+    apply incr_unital_iff_residual.
+    apply suminvAlg_increasing.
     apply suminvAlg_residual.
   Qed.
 End nat_algs.
@@ -411,9 +428,9 @@ Proof. constructor; intros.
          apply Qplus_assoc.
 Qed.
 
-(* it is NOT downwards-closed*)
+(* it is NOT upwards-closed*)
 Instance sumqpAlg_dSA:
-  @DownwardsClosedSeparationAlgebra _ sumqp_Join QPlus_kiM.
+  @UpwardsClosedSeparationAlgebra _ sumqp_Join QPlus_kiM.
 Proof.
   hnf; intros.
   simpl in H0.
@@ -436,9 +453,9 @@ Proof.
   - exists bindings_list
 Abort.
  
-(* upwards-closed*)
+(* downwards-closed*)
 Instance sumpAlg_uSA:
-  @UpwardsClosedSeparationAlgebra _ sump_Join natPlus_kiM.
+  @DownwardsClosedSeparationAlgebra _ sump_Join natPlus_kiM.
 Proof.
   hnf; intros.
   simpl in H0, H1.
@@ -483,13 +500,6 @@ Instance discHeap_kiM: KripkeIntuitionisticModel Heap :=
 
 Program Instance discHeap_ikiM: IdentityKripkeIntuitionisticModel Heap.
 
-(*Downwards-closed*)
-Instance discHeap_dSA:
-  @DownwardsClosedSeparationAlgebra Heap Heap_Join discHeap_kiM.
-Proof.
-  eapply ikiM_dSA.
-Qed.
-
 (*Upwards-closed*)
 Instance discHeap_uSA:
   @UpwardsClosedSeparationAlgebra Heap Heap_Join discHeap_kiM.
@@ -497,9 +507,16 @@ Proof.
   eapply ikiM_uSA.
 Qed.
 
-(*Empty heap is decreasing element*)
-Lemma discHeap_empty_decreasing:
-  @nonpositive Heap discHeap_kiM Heap_Join (fun _ => None).
+(*Downwards-closed*)
+Instance discHeap_dSA:
+  @DownwardsClosedSeparationAlgebra Heap Heap_Join discHeap_kiM.
+Proof.
+  eapply ikiM_dSA.
+Qed.
+
+(*Empty heap is increasing element*)
+Lemma discHeap_empty_increasing:
+  @increasing Heap discHeap_kiM Heap_Join (fun _ => None).
 Proof. hnf; intros.
        hnf.
        extensionality x; specialize (H  x).
@@ -539,29 +556,29 @@ Proof.
   constructor; intros; auto.
 Qed.
 
-(* Downwards-closed*)
-Instance monHeap_dSA:
-  @DownwardsClosedSeparationAlgebra Heap Heap_Join monHeap_kiM.
-Proof.
-  eapply fun_dSA.
-  eapply option_dSA.
-  eapply ikiM_dSA.
-Qed.  
-
-(*Upwards-closed*)
-Definition monHeap_uSA:
+(* Upwards-closed*)
+Instance monHeap_uSA:
   @UpwardsClosedSeparationAlgebra Heap Heap_Join monHeap_kiM.
 Proof.
   eapply fun_uSA.
   eapply option_uSA.
-  - eapply ikiM_uSA.
+  eapply ikiM_uSA.
+Qed.  
+
+(*Downwards-closed*)
+Definition monHeap_dSA:
+  @DownwardsClosedSeparationAlgebra Heap Heap_Join monHeap_kiM.
+Proof.
+  eapply fun_dSA.
+  eapply option_dSA.
+  - eapply ikiM_dSA.
   - apply trivial_SA.
   - apply trivial_gcSA.
 Qed.
 
-(* Nonpositive *)
-Instance monHeap_nonpositive:
-  @NonpositiveSeparationAlgebra Heap monHeap_kiM Heap_Join .
+(* Increasing *)
+Instance monHeap_increasing:
+  @IncreasingSeparationAlgebra Heap monHeap_kiM Heap_Join .
 Proof.
   constructor; intros.
   hnf; intros.
@@ -588,8 +605,8 @@ Qed.
 Instance monHeap_unital:
   @UnitalSeparationAlgebra Heap monHeap_kiM Heap_Join .
 Proof.
-  apply nonpos_unital_iff_residual.
-  apply monHeap_nonpositive.
+  apply incr_unital_iff_residual.
+  apply monHeap_increasing.
   apply monHeap_residual.
 Qed.
   
@@ -617,13 +634,6 @@ Instance discHeap_kiM': KripkeIntuitionisticModel Heap' :=
 
 Program Instance discHeap_ikiM': IdentityKripkeIntuitionisticModel Heap'.
 
-(*Downwards-closed*)
-Instance discHeap_dSA':
-  @DownwardsClosedSeparationAlgebra Heap' Heap_Join' discHeap_kiM'.
-Proof.
-  eapply ikiM_dSA.
-Qed.
-
 (*Upwards-closed*)
 Instance discHeap_uSA':
   @UpwardsClosedSeparationAlgebra Heap' Heap_Join' discHeap_kiM'.
@@ -631,9 +641,16 @@ Proof.
   eapply ikiM_uSA.
 Qed.
 
-(*Empty heap is decreasing element*)
-Lemma discHeap_empty_decreasing':
-  @nonpositive Heap' discHeap_kiM' Heap_Join' (fun _ => None).
+(*Downwards-closed*)
+Instance discHeap_dSA':
+  @DownwardsClosedSeparationAlgebra Heap' Heap_Join' discHeap_kiM'.
+Proof.
+  eapply ikiM_dSA.
+Qed.
+
+(*Empty heap is increasing element*)
+Lemma discHeap_empty_increasing':
+  @increasing Heap' discHeap_kiM' Heap_Join' (fun _ => None).
 Proof. hnf; intros.
        hnf.
        extensionality x; specialize (H  x).
@@ -673,29 +690,29 @@ Proof.
   constructor; intros; auto.
 Qed.
 
-(* Downwards-closed*)
-Instance monHeap_dSA':
-  @DownwardsClosedSeparationAlgebra Heap' Heap_Join' monHeap_kiM'.
-Proof.
-  eapply fun_dSA.
-  eapply option_dSA.
-  eapply ikiM_dSA.
-Qed.  
-
-(*Upwards-closed*)
-Definition monHeap_uSA':
+(* Upwards-closed*)
+Instance monHeap_uSA':
   @UpwardsClosedSeparationAlgebra Heap' Heap_Join' monHeap_kiM'.
 Proof.
   eapply fun_uSA.
   eapply option_uSA.
-  - eapply ikiM_uSA.
+  eapply ikiM_uSA.
+Qed.  
+
+(*Downwards-closed*)
+Definition monHeap_dSA':
+  @DownwardsClosedSeparationAlgebra Heap' Heap_Join' monHeap_kiM'.
+Proof.
+  eapply fun_dSA.
+  eapply option_dSA.
+  - eapply ikiM_dSA.
   - apply equiv_SA.
   - apply equiv_gcSA.
 Qed.
 
-(* Nonpositive *)
-Instance monHeap_nonpositive':
-  @NonpositiveSeparationAlgebra Heap' monHeap_kiM' Heap_Join' .
+(* Increasing *)
+Instance monHeap_increasing':
+  @IncreasingSeparationAlgebra Heap' monHeap_kiM' Heap_Join' .
 Proof.
   constructor; intros.
   hnf; intros.
@@ -722,8 +739,8 @@ Qed.
 Instance monHeap_unital':
   @UnitalSeparationAlgebra Heap' monHeap_kiM' Heap_Join' .
 Proof.
-  apply nonpos_unital_iff_residual.
-  apply monHeap_nonpositive'.
+  apply incr_unital_iff_residual.
+  apply monHeap_increasing'.
   apply monHeap_residual'.
 Qed.
   
@@ -829,7 +846,7 @@ Inductive THeap_order': THeap' -> THeap' -> Prop:=
     (forall (n:nat) (c:htype), h2 n = Some c ->
            exists (c':htype), h1 n = Some c' /\
                          ht_ord c' c) ->
-THeap_order' h1 h2.
+THeap_order' h2 h1.
 
 Definition THeap_order (h1 h2: THeap): Prop:=
   THeap_order' h1 h2.
@@ -843,8 +860,8 @@ constructor.
   inversion H;
     inversion H0; subst.
   constructor; intros.
-  apply H4 in H2; destruct H2 as [c0 [HH1 HH2]].
-  apply H1 in HH1; destruct HH1 as [c' [HH3 HH4]].
+  apply H1 in H2; destruct H2 as [c0 [HH1 HH2]].
+  apply H4 in HH1; destruct HH1 as [c' [HH3 HH4]].
   exists c'; split; auto.
   transitivity c0; auto.
 Qed.
@@ -871,9 +888,9 @@ Proof.
 Defined.
 
 
-(*It is NOT down-closed*)
-Instance THeap_dSA:
-  @DownwardsClosedSeparationAlgebra THeap THeap_Join THeap_kiM.
+(*It is NOT up-closed*)
+Instance THeap_uSA:
+  @UpwardsClosedSeparationAlgebra THeap THeap_Join THeap_kiM.
 Proof.
   hnf; intros.
   hnf in H0.
@@ -886,9 +903,9 @@ Proof.
 Abort.
 
 
-(* upwards-closed*)
-Instance THeap_uSA':
-  @UpwardsClosedSeparationAlgebra _ THeap_Join' THeap_kiM'.
+(* downwards-closed*)
+Instance THeap_dSA':
+  @DownwardsClosedSeparationAlgebra _ THeap_Join' THeap_kiM'.
 Proof.
   hnf; intros.
   inversion H0; inversion H1; subst.
@@ -925,13 +942,13 @@ Proof.
       * auto.
 Qed.
   
-Instance THeap_uSA:
-  @UpwardsClosedSeparationAlgebra THeap THeap_Join THeap_kiM.
+Instance THeap_dSA:
+  @DownwardsClosedSeparationAlgebra THeap THeap_Join THeap_kiM.
 Proof.
   hnf; intros.
   hnf in H0, H1.
   inversion H; subst.
-  destruct (THeap_uSA' _ _ _ _ _ H2 H0 H1) as [n [HH1 HH2]].
+  destruct (THeap_dSA' _ _ _ _ _ H2 H0 H1) as [n [HH1 HH2]].
   assert (HH: THvalid n).
   { apply (THeap_Join_valid HH1);
     first [apply n1 | apply n2]. }
@@ -939,9 +956,9 @@ Proof.
   constructor; auto.
 Qed.
 
-(*Nonpositive*)
-Instance THeap_nonpositiveSA':
-  @NonpositiveSeparationAlgebra _ THeap_kiM' THeap_Join'.
+(* Increasing *)
+Instance THeap_increasingSA':
+  @IncreasingSeparationAlgebra _ THeap_kiM' THeap_Join'.
 Proof.
   constructor; intros.
   hnf; intros.
@@ -952,13 +969,13 @@ Proof.
   - inversion H4.
 Qed.
 
-Instance THeap_nonpositiveSA:
-  @NonpositiveSeparationAlgebra _ THeap_kiM THeap_Join.
+Instance THeap_increasingSA:
+  @IncreasingSeparationAlgebra _ THeap_kiM THeap_Join.
 Proof.
   constructor; intros.
   hnf; intros.
   simpl in *.
-  eapply THeap_nonpositiveSA'; auto.
+  eapply THeap_increasingSA'; auto.
   hnf in H; hnf ; intros.
   inversion H; subst; auto.
 Qed.
@@ -991,21 +1008,20 @@ Qed.
 Instance THeap_UnitalSA':
   @UnitalSeparationAlgebra _ THeap_kiM' THeap_Join'.
 Proof.
-  apply nonpos_unital_iff_residual.
-  apply THeap_nonpositiveSA'.
+  apply incr_unital_iff_residual.
+  apply THeap_increasingSA'.
   apply THeap_residualSA'.
 Qed.
 
 Instance THeap_UnitalSA:
   @UnitalSeparationAlgebra _ THeap_kiM THeap_Join.
 Proof.
-  apply nonpos_unital_iff_residual.
-  apply THeap_nonpositiveSA.
+  apply incr_unital_iff_residual.
+  apply THeap_increasingSA.
   apply THeap_residualSA.
 Qed.
 
 End typed_heaps.
-
 
 (***********************************)
 (* Step-Index                      *)
@@ -1029,34 +1045,33 @@ Section step_index.
     @SeparationAlgebra (nat * worlds)
                        (StepIndex_Join worlds) := @prod_SA _ _ _ _ equiv_SA SA.
   
-  Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
-             {J: Join worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}:
-    @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_kiM) dSA.
+  Definition StepIndex_uSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
+             {J: Join worlds} {uSA: UpwardsClosedSeparationAlgebra worlds}:
+    @UpwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_uSA _ _ _ _ _ _ (@identity_uSA _ nat_kiM) uSA.
 
-  Definition StepIndex_Nonpositive
+  Definition StepIndex_Increasing
              (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
-             {J: Join worlds} {npSA: NonpositiveSeparationAlgebra worlds}:
-    @NonpositiveSeparationAlgebra (nat * worlds)
+             {J: Join worlds} {incrSA: IncreasingSeparationAlgebra worlds}:
+    @IncreasingSeparationAlgebra (nat * worlds)
                                   (StepIndex_kiM worlds)
-                                  (StepIndex_Join worlds).
-  Admitted.
-  (*    := @prod_SA _ _ _ _ _ _ (@identity_dSA _ nat_kiM) npSA.*)
+                                  (StepIndex_Join worlds) :=
+    @prod_increasingSA _ _ _ _ _ _ IndexAlg_increasing incrSA.
 
   Definition StepIndex_Unital
              (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
-             {J: Join worlds} {npSA: UnitalSeparationAlgebra worlds}:
+             {J: Join worlds} {USA: UnitalSeparationAlgebra worlds}:
     @UnitalSeparationAlgebra (nat * worlds)
                                   (StepIndex_kiM worlds)
-                                  (StepIndex_Join worlds).
-  Admitted.
+                                  (StepIndex_Join worlds) :=
+    @prod_unitalSA _ _ _ _ _ _ IndexAlg_unital USA.
 
   Definition StepIndex_Residual
              (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
-             {J: Join worlds} {npSA: ResidualSeparationAlgebra worlds}:
+             {J: Join worlds} {rSA: ResidualSeparationAlgebra worlds}:
     @ResidualSeparationAlgebra (nat * worlds)
                                   (StepIndex_kiM worlds)
-                                  (StepIndex_Join worlds).
-  Admitted.
+                                  (StepIndex_Join worlds) :=
+    @prod_residualSA _ _ _ _ _ _ IndexAlg_residual rSA.
 
   (** *step-indexed HEAPS*)
   Context (addr val: Type).
@@ -1069,22 +1084,22 @@ Section step_index.
   (** *Monotonic, step-indexed heap *)
   Definition monSIheap_kiM:= @StepIndex_kiM heap (monHeap_kiM addr val).
 
-  (*Downwards-closed *)
-  Instance monSIheap_dSA:
-    @DownwardsClosedSeparationAlgebra _ SIheap_Join monSIheap_kiM.
+  (*Upwards-closed *)
+  Instance monSIheap_uSA:
+    @UpwardsClosedSeparationAlgebra _ SIheap_Join monSIheap_kiM.
   Proof.
-    eapply StepIndex_dSA.
-    apply monHeap_dSA.
+    eapply StepIndex_uSA.
+    apply monHeap_uSA.
   Qed.
 
-  (* NOT Upwards-closed *)
+  (* NOT Downwards-closed *)
 
-  (*Decreasing *)
-  Instance monSIheap_nonpositive:
-    @NonpositiveSeparationAlgebra _ monSIheap_kiM SIheap_Join.
+  (* Increasing *)
+  Instance monSIheap_increasing:
+    @IncreasingSeparationAlgebra _ monSIheap_kiM SIheap_Join.
   Proof.
-    eapply StepIndex_Nonpositive.
-    apply monHeap_nonpositive.
+    eapply StepIndex_Increasing.
+    apply monHeap_increasing.
   Qed.
 
   (*Unital *)
@@ -1106,15 +1121,15 @@ Section step_index.
   (** *Discrete, step-indexed heap *)
   Definition discSIheap_kiM:= @StepIndex_kiM heap (discHeap_kiM addr val).
 
-  (*Downwards-closed *)
-  Instance discSIheap_dSA:
-    @DownwardsClosedSeparationAlgebra _ SIheap_Join discSIheap_kiM.
+  (*Upwards-closed *)
+  Instance discSIheap_uSA:
+    @UpwardsClosedSeparationAlgebra _ SIheap_Join discSIheap_kiM.
   Proof.
-    eapply StepIndex_dSA.
-    apply discHeap_dSA.
+    eapply StepIndex_uSA.
+    apply discHeap_uSA.
   Qed.
 
-  (* NOT Upwards-closed *)
+  (* NOT Downwards-closed *)
 
   (* NOT Decreasing *)
 
@@ -1151,16 +1166,16 @@ Instance discHeap_kiM: KripkeIntuitionisticModel Heap :=
 
 Program Instance discHeap_ikiM: IdentityKripkeIntuitionisticModel Heap.
 
-(*Downwards-closed*)
+(*Upwards-closed*)
 Instance discHeap_dSA:
-  @DownwardsClosedSeparationAlgebra Heap Heap_Join discHeap_kiM.
+  @UpwardsClosedSeparationAlgebra Heap Heap_Join discHeap_kiM.
 Proof.
   eapply ikiM_dSA.
 Qed.
 
-(*Upwards-closed*)
+(*Downwards-closed*)
 Instance discHeap_uSA:
-  @UpwardsClosedSeparationAlgebra Heap Heap_Join discHeap_kiM.
+  @DownwardsClosedSeparationAlgebra Heap Heap_Join discHeap_kiM.
 Proof.
   eapply ikiM_uSA.
 Qed.
@@ -1245,7 +1260,7 @@ Definition StepIndex_SA (worlds: Type) {J: Join worlds} {SA: SeparationAlgebra w
   @SeparationAlgebra (nat * worlds) (StepIndex_Join worlds) := @prod_SA _ _ _ _ (equiv_SA _) SA.
 
 Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
-           {J: Join worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}:
-  @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
+           {J: Join worlds} {dSA: UpwardsClosedSeparationAlgebra worlds}:
+  @UpwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
 
 *)*)

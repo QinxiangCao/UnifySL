@@ -52,7 +52,7 @@ Proof.
   rewrite sat_impp; intros.
   rewrite sat_impp; intros.
   rewrite sat_impp; intros.
-  assert (Korder n1 n) by (etransitivity; eauto).
+  assert (n <= n1) by (etransitivity; eauto).
 
   rewrite sat_impp in H0.
   specialize (H0 n1 H5 H4).
@@ -184,9 +184,9 @@ Proof.
   apply imply_to_and in H2.
   destruct H1, H2.
   destruct (Korder_no_branch n1 n2 m H H0).
-  + pose proof (sat_mono _ _ y H5).
-    tauto.
   + pose proof (sat_mono _ _ x H5).
+    tauto.
+  + pose proof (sat_mono _ _ y H5).
     tauto.
 Qed.
 

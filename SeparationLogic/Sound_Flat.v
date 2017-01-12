@@ -149,12 +149,12 @@ Proof.
     destruct H0 as [n' [u [? [? ?]]]].
     rewrite sat_emp in H2.
     apply join_comm in H0.
-    unfold nonpositive in H2.
+    unfold increasing in H2.
     specialize (H2 _ _ H0).
     eapply sat_mono; eauto.
   + rewrite sat_impp; intros.
     rewrite sat_sepcon.
-    destruct (nonpos_exists n) as [u [? ?]].
+    destruct (incr_exists n) as [u [? ?]].
     destruct H1 as [n' [H1 H1']].
     exists n', u.
     split; [| split]; auto.

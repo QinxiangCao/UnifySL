@@ -50,7 +50,7 @@ Proof.
     - apply lift_relation_forward in H4.
       subst ms; auto.
     - eapply sat_mono in H; [| exact H6].
-      clear H2 H6 H3 s'; rename x into s'.
+      clear H2 H6 H3 s'; rename y into s'.
       apply (H0 s' ms); auto.
       inversion H4; auto.
 Qed.
@@ -71,7 +71,7 @@ Proof.
     - apply lift_relation_forward in H5; subst; auto.
     - eapply sat_mono in H6; [| eassumption].
       inversion H5; subst.
-      apply (H0 x); auto.
+      apply (H0 y); auto.
   + assert (KRIPKE: s |= P1 && ~~ B).
     Focus 1. {
       rewrite sat_andp; split; auto.
@@ -80,13 +80,13 @@ Proof.
       rewrite H in H7.
       pose proof eval_bool_stable b _ _ H6.
       simpl in H7, H8.
-      rewrite H8 in H7; exfalso; auto.
+      rewrite <- H8 in H7; exfalso; auto.
     } Unfocus.
     inversion H4; subst.
     - apply lift_relation_forward in H5; subst; auto.
     - eapply sat_mono in H6; [| eassumption].
       inversion H5; subst.
-      apply (H1 x); auto.
+      apply (H1 y); auto.
 Qed.
 
 Lemma hoare_while_partial_sound: forall b c B P,
@@ -166,7 +166,7 @@ Proof.
   + inversion H.
   + inversion H3; subst.
     eapply sat_mono in H; [| exact H6].
-    clear H2 H6 H3 s'; rename x into s'.
+    clear H2 H6 H3 s'; rename y into s'.
     apply (H0 s' ms); auto.
     inversion H4; auto.
 Qed.
@@ -186,7 +186,7 @@ Proof.
     inversion H4; subst.
     inversion H5; subst.
     eapply sat_mono in H6; [| eassumption].
-    apply (H0 x); auto.
+    apply (H0 y); auto.
   + assert (KRIPKE: s |= P1 && ~~ B).
     Focus 1. {
       rewrite sat_andp; split; auto.
@@ -200,7 +200,7 @@ Proof.
     inversion H4; subst.
     inversion H5; subst.
     eapply sat_mono in H6; [| eassumption].
-    apply (H1 x); auto.
+    apply (H1 y); auto.
 Qed.
 
 Lemma hoare_while_total_sound:
@@ -213,7 +213,7 @@ Lemma hoare_while_total_sound:
      (forall v, triple_total_valid (P && B && EQ v) c (P && LE v)) ->
      triple_total_valid P (Swhile b c) (P && ~~ B).
 Proof.
-  intros ? ? WF ? ? ? H_EQ H_LE H_D; intros.
+  intros ? ? WF ? ? ? H_EQ H_LE H_F; intros.
   unfold triple_total_valid in *.
   intros s ms ? ?.
   apply access_Swhile in H2.
@@ -233,9 +233,9 @@ Proof.
     tauto.
   + inversion H3; subst.
     inversion H4; subst.
-    assert (KRIPKE: s1 |= P0 && B && EQ (D x)).
+    assert (KRIPKE: s1 |= P0 && B && EQ (D y)).
     - rewrite !sat_andp.
-      rewrite H_EQ, H, (H_D _ _ H7).
+      rewrite H_EQ, H, <- (H_F _ _ H7).
       simpl; tauto.
     - eapply sat_mono in H6; [| eassumption].
       specialize (H0 _ _ _ H6 H8).
@@ -243,7 +243,7 @@ Proof.
   + apply IHloop_access_fin; clear IHloop_access_fin H6.
     assert (KRIPKE: s1 |= P0 && B && EQ (D s2)).
     - rewrite !sat_andp.
-      rewrite H_EQ, H, (H_D _ _ H3).
+      rewrite H_EQ, H, <- (H_F _ _ H3).
       simpl; tauto.
     - eapply sat_mono in H6; [| eassumption].
       eapply sat_mono; [eassumption |].

@@ -1,6 +1,20 @@
 Require Import Coq.Sets.Ensembles.
 Require Import Coq.Lists.List.
 Require Import Coq.omega.Omega.
+Require Import Coq.Logic.ClassicalFacts.
+
+Lemma prop_ext: prop_extensionality.
+Proof.
+  hnf; intros.
+  set (A0 := fun x: unit => A).
+  set (B0 := fun x: unit => B).
+  assert (A0 = B0).
+  + apply Extensionality_Ensembles.
+    split; subst A0 B0; unfold Included, Ensembles.In; intros; tauto.
+  + change A with (A0 tt).
+    change B with (B0 tt).
+    rewrite H0; auto.
+Qed.
 
 Lemma fin_subset_match {A B: Type} {P: A -> B -> Prop}: forall (X: Ensemble A) (Y: Ensemble B),
   (forall x, X x -> exists y, P x y /\ Y y) ->

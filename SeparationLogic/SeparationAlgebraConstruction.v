@@ -9,22 +9,20 @@ Local Open Scope kripke_model.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Section DownwardsClosure.
+Section UpwardsClosure.
   Context {worlds: Type}
           {kiM: KripkeIntuitionisticModel worlds}
           {J: Join worlds}
           {SA: SeparationAlgebra worlds}
-          {USA: UnitalSeparationAlgebra worlds}
-          {uSA: UpwardsClosedSeparationAlgebra worlds}
-          {gcSA: GarbageCollectSeparationAlgebra worlds}.
+          {dSA: DownwardsClosedSeparationAlgebra worlds}.
 
-  (** *Downwards CLosure*)
-Definition DownwardsClosure_SA: Join worlds.
-Proof. intros m1 m2 m; exact (exists n, Korder m n /\ join m1 m2 n).
+  (** *Upwards CLosure*)
+Definition UpwardsClosure_J: Join worlds.
+Proof. intros m1 m2 m; exact (exists n, n <= m /\ join m1 m2 n).
 Defined.
 
-Definition DownwardsClosure_nSA:
-  @SeparationAlgebra worlds (DownwardsClosure_SA).
+Definition UpwardsClosure_SA:
+  @SeparationAlgebra worlds (UpwardsClosure_J).
 Proof.
   constructor.
   + intros.
@@ -36,7 +34,7 @@ Proof.
     rename mx into mx', my into my', mz into mz'.
     destruct H as [mxy' [? ?]].
     destruct H0 as [mxyz' [? ?]].
-    destruct (join_Korder_up _ _ _ _ mz' H2 H) as [mxyz'' [? ?]]; [reflexivity |].
+    destruct (join_Korder_down _ _ _ _ mz' H2 H) as [mxyz'' [? ?]]; [reflexivity |].
     destruct (join_assoc _ _ _ _ _ H1 H3) as [myz' [? ?]].
     exists myz'.
     split.
@@ -46,11 +44,11 @@ Proof.
       etransitivity; eauto.
 Defined.
 
-Lemma DownwardsClosure_nonpositive:
-  forall m, @nonpositive _ _ J m <-> @nonpositive _ _ (DownwardsClosure_SA) m.
+Lemma UpwardsClosure_increasing:
+  forall m, @increasing _ _ J m <-> @increasing _ _ (UpwardsClosure_J) m.
 Proof.
   intros.
-  unfold nonpositive; split; intros.
+  unfold increasing; split; intros.
   + destruct H0 as [n0 [? ?]].
     etransitivity; eauto.
   + apply H.
@@ -59,8 +57,8 @@ Proof.
     reflexivity.
 Qed.
 
-Definition DownwardsClosure_DownwardsClosed:
-  @DownwardsClosedSeparationAlgebra worlds (DownwardsClosure_SA) _.
+Definition UpwardsClosure_UpwardsClosed:
+  @UpwardsClosedSeparationAlgebra worlds (UpwardsClosure_J) _.
 Proof.
   intros until m2; intros.
   exists m1, m2.
@@ -70,33 +68,36 @@ Proof.
   split; auto; etransitivity; eauto.
 Defined.
 
-Definition DownwardsClosure_UpwardsClosed:
-  @UpwardsClosedSeparationAlgebra worlds (DownwardsClosure_SA) _.
+Definition UpwardsClosure_DownwardsClosed:
+  @DownwardsClosedSeparationAlgebra worlds (UpwardsClosure_J) _.
 Proof.
   intros until n2; intros.
   simpl in *.
   destruct H as [n [? ?]].
-  destruct (join_Korder_up _ _ _ _ _ H2 H0 H1) as [n' [? ?]].
+  destruct (join_Korder_down _ _ _ _ _ H2 H0 H1) as [n' [? ?]].
   exists n; split; auto.
   exists n'; split; auto.
 Defined.
 
-Definition DownwardsClosure_USA:
-  @UnitalSeparationAlgebra worlds _ (DownwardsClosure_SA).
+Context   {USA: UnitalSeparationAlgebra worlds}
+          {gcSA: GarbageCollectSeparationAlgebra worlds}.
+
+Definition UpwardsClosure_USA:
+  @UnitalSeparationAlgebra worlds _ (UpwardsClosure_J).
 Proof.
   constructor.
   - intros.
     simpl.
-    destruct (nonpos_exists n) as [u [? ?]].
+    destruct (incr_exists n) as [u [? ?]].
     destruct H as [n' [H1 H2]].
     exists u; split; auto.
     + exists n'; split; auto.
       exists n; split; auto; reflexivity.
-    + rewrite <- DownwardsClosure_nonpositive; auto.
+    + rewrite <- UpwardsClosure_increasing; auto.
 Defined.
 
-Definition DownwardsClosure_gcSA:
-  @GarbageCollectSeparationAlgebra worlds _ (DownwardsClosure_SA).
+Definition UpwardsClosure_gcSA:
+  @GarbageCollectSeparationAlgebra worlds _ (UpwardsClosure_J).
 Proof.
   constructor.
   simpl.
@@ -107,26 +108,23 @@ Proof.
   eapply join_has_order1; eauto.
 Qed.
 
-End DownwardsClosure.
+End UpwardsClosure.
 
-Section UpwardsClosure.
+Section DownwardsClosure.
   Context {worlds : Type}
           {kiM: KripkeIntuitionisticModel worlds}
           {J: Join worlds}
           {SA: SeparationAlgebra worlds}
-          {dSA: DownwardsClosedSeparationAlgebra worlds}
-          {USA: UnitalSeparationAlgebra worlds}
-          {gcSA: GarbageCollectSeparationAlgebra worlds}.
+          {dSA: UpwardsClosedSeparationAlgebra worlds}.
 
+  (** *Downwards CLosure*)
 
-  (** *Upwards CLosure*)
-
-Definition UpwardsClosure_SA: Join worlds.
-Proof. exact (fun m1 m2 m: worlds => exists n1 n2, n1 <= m1 /\ n2 <= m2 /\ join n1 n2 m).
+Definition DownwardsClosure_J: Join worlds.
+Proof. exact (fun m1 m2 m: worlds => exists n1 n2, m1 <= n1 /\ m2 <= n2 /\ join n1 n2 m).
 Defined.
 
-Definition UpwardsClosure_nSA:
-  @SeparationAlgebra worlds (UpwardsClosure_SA).
+Definition DownwardsClosure_SA:
+  @SeparationAlgebra worlds (DownwardsClosure_J).
 Proof.
   constructor.
   + (* join_comm *)
@@ -140,7 +138,7 @@ Proof.
     pose proof Korder_PreOrder as H_PreOrder.
     destruct H as [mx'' [my'' [? [? ?]]]].
     destruct H0 as [mxy' [mz' [? [? ?]]]].
-    destruct (join_Korder_down _ _ _ _ H2 H0) as [mx' [my' [? [? ?]]]].
+    destruct (join_Korder_up _ _ _ _ H2 H0) as [mx' [my' [? [? ?]]]].
     destruct (join_assoc _ _ _ _ _ H5 H4) as [myz' [? ?]].
     exists myz'.
     split.
@@ -152,14 +150,14 @@ Proof.
 Defined.
 
 (*
-Lemma UpwardsClosure_nonpositive: forall m, @nonpositive _ _ J m <-> @nonpositive _ _ (UpwardsClosure_SA) m.
+Lemma DownwardsClosure_nonpositive: forall m, @nonpositive _ _ J m <-> @nonpositive _ _ (DownwardsClosure_SA) m.
 Proof.
   intros.
   pose proof Korder_PreOrder as H_PreOrder.
   unfold nonpositive; split; intros.
   + destruct H0 as [m0 [n0 [? [? ?]]]].
     
-    pose proof nonpos_down _ _ H0.
+    pose proof nonpos_up _ _ H0.
     apply H3 in H.
     unfold nonpositive in H.
     specialize (H _ _ H2).
@@ -169,8 +167,8 @@ Proof.
     split; [| split]; auto; reflexivity.
 Qed.
 *)
-Definition UpwardsClosure_UpwardsClosed:
-  @UpwardsClosedSeparationAlgebra worlds (UpwardsClosure_SA) _.
+Definition DownwardsClosure_DownwardsClosed:
+  @DownwardsClosedSeparationAlgebra worlds (DownwardsClosure_J) _.
 Proof.
   intros until n2; intros.
   exists m.
@@ -180,17 +178,17 @@ Proof.
   split; [| split]; auto; etransitivity; eauto.
 Qed.
 
-Definition UpwardsClosure_DownwardsClosed : @DownwardsClosedSeparationAlgebra worlds (UpwardsClosure_SA) _.
+Definition DownwardsClosure_UpwardsClosed : @UpwardsClosedSeparationAlgebra worlds (DownwardsClosure_J) _.
 Proof.
   intros until m2; intros.
   simpl in *.
   destruct H as [n1 [n2 [? [? ?]]]].
-  destruct (join_Korder_down _ _ _ _ H2 H0) as [n1' [n2' [? [? ?]]]].
+  destruct (join_Korder_up _ _ _ _ H2 H0) as [n1' [n2' [? [? ?]]]].
   exists n1, n2; split; [| split]; auto.
   exists n1', n2'; split; [| split]; auto.
 Qed.
 (*
-Definition UpwardsClosure_USA: @UnitalSeparationAlgebra worlds _ (UpwardsClosure_SA).
+Definition DownwardsClosure_USA: @UnitalSeparationAlgebra worlds _ (DownwardsClosure_SA).
 Proof.
   constructor.
   - intros.
@@ -200,20 +198,25 @@ Proof.
     exists u; split; auto.
     + exists n'; split; auto.
       exists u, n'; split; [| split]; auto; reflexivity.
-    + rewrite <- UpwardsClosure_nonpositive; auto.
+    + rewrite <- DownwardsClosure_nonpositive; auto.
   - intros ? ? ?.
-    rewrite <- !UpwardsClosure_nonpositive.
-    apply nonpos_down; auto.
+    rewrite <- !DownwardsClosure_nonpositive.
+    apply nonpos_up; auto.
 Defined.
 *)
-Definition UpwardsClosure_gcSA: @GarbageCollectSeparationAlgebra worlds _ (UpwardsClosure_SA).
+
+Context   {USA: UnitalSeparationAlgebra worlds}
+          {gcSA: GarbageCollectSeparationAlgebra worlds}.
+
+
+Definition DownwardsClosure_gcSA: @GarbageCollectSeparationAlgebra worlds _ (DownwardsClosure_J).
 Proof.
   constructor.
   simpl.
   intros.
   destruct H as [n1 [n2 [? [? ?]]]].
-  etransitivity; [| eauto].
+  etransitivity; [eauto |].
   eapply join_has_order1; eauto.
 Qed.
 
-End UpwardsClosure.
+End DownwardsClosure.

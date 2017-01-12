@@ -52,8 +52,8 @@ Instance kMD: KripkeModel MD := FlatSemanticsModel.kMD Var.
 Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= FlatSemanticsModel.kiM (FlatSemanticsModel.underlying_frame Var M).
 Instance J (M: Kmodel): Join (Kworlds M):= FlatSemanticsModel.J (FlatSemanticsModel.underlying_frame Var M).
 Instance SA (M: Kmodel): SeparationAlgebra (Kworlds M):= FlatSemanticsModel.SA (FlatSemanticsModel.underlying_frame Var M).
-Instance dSA (M: Kmodel): DownwardsClosedSeparationAlgebra (Kworlds M):= FlatSemanticsModel.dSA (FlatSemanticsModel.underlying_frame Var M).
 Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M):= FlatSemanticsModel.uSA (FlatSemanticsModel.underlying_frame Var M).
+Instance dSA (M: Kmodel): DownwardsClosedSeparationAlgebra (Kworlds M):= FlatSemanticsModel.dSA (FlatSemanticsModel.underlying_frame Var M).
 
 Instance SM: Semantics L MD := FlatSemanticsModel.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := FlatSemanticsModel.kiSM Var M.
@@ -395,7 +395,7 @@ Qed.
 
 Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.frame.
 Proof.
-  refine (FlatSemanticsModel.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _ (fun a b c => forall x y, proj1_sig a x -> proj1_sig b y -> proj1_sig c (x * y)) _ _ _).
+  refine (FlatSemanticsModel.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig a) (proj1_sig b)) _ (fun a b c => forall x y, proj1_sig a x -> proj1_sig b y -> proj1_sig c (x * y)) _ _ _).
   Unshelve.
   Focus 5. shelve.
   Focus 5. shelve.
@@ -450,18 +450,18 @@ Proof.
         rewrite ED in H4, H5 |- *.
         apply H3; auto.
   + hnf; intros.
-    exists m1, m2.
-    split; [| split]; [| reflexivity ..].
-    hnf; intros.
-    apply H0.
-    apply H; auto.
-  + hnf; intros.
     exists m.
     split; [| reflexivity].
     hnf; intros.
     apply H; auto.
     - apply H0; auto.
     - apply H1; auto.
+  + hnf; intros.
+    exists m1, m2.
+    split; [| split]; [| reflexivity ..].
+    hnf; intros.
+    apply H0.
+    apply H; auto.
 Defined.
 
 Program Definition canonical_emp {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.sem canonical_frame :=
@@ -632,11 +632,11 @@ Proof.
   change (DCS Gamma) in m, n.
   rewrite (@DCS_ext Gamma).
   intros.
-  split; auto; [| apply H].
+  split; auto; [apply H |].
   intros.
-  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig m); tauto).
-  assert (~ proj1_sig n (~~ x)) by (intro; apply H0, H; auto).
-  rewrite DCS_negp_iff by (destruct (proj2_sig n); tauto).
+  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig n); tauto).
+  assert (~ proj1_sig m (~~ x)) by (intro; apply H0, H; auto).
+  rewrite DCS_negp_iff by (destruct (proj2_sig m); tauto).
   auto.
 Qed.
 
@@ -736,7 +736,7 @@ Proof.
   intros.
   constructor; clear Psi.
   pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
-  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp -> nonpositive Phi) as HH1a.
+  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp -> increasing Phi) as HH1a.
   Focus 1. {
     intros.
     hnf; intros Psi Psi' ?.
@@ -745,7 +745,7 @@ Proof.
     rewrite ED in H0 |- *.
     rewrite sepcon_comm, sepcon_emp in H0; auto.
   } Unfocus.
-  assert (forall Phi: Kworlds canonical_Kmodel, nonpositive Phi -> proj1_sig Phi emp) as HH2b.
+  assert (forall Phi: Kworlds canonical_Kmodel, increasing Phi -> proj1_sig Phi emp) as HH2b.
   Focus 1. {
     intros.
     set (Phi1' := Union _ empty_context (Singleton _ emp)).
@@ -798,7 +798,7 @@ Proof.
     rewrite provable_wand_sepcon_modus_ponens1, <- ED in H1.
     auto.
   } Unfocus.
-  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp <-> nonpositive Phi) as HH
+  assert (forall Phi: Kworlds canonical_Kmodel, proj1_sig Phi emp <-> increasing Phi) as HH
     by (intros; split; [apply HH1a | apply HH2b]; auto).
   clear HH1a HH2b.
   constructor; [| constructor].

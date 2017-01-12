@@ -19,12 +19,12 @@ Import KripkeModelNotation_Intuitionistic.
 Definition cut {worlds: Type} {J: Join worlds} {kiM: KripkeIntuitionisticModel worlds} (m: worlds) (P: worlds -> Prop) (n: worlds) : Prop :=
   exists m', join m' n m /\ P m'.
 
-Definition least_cut {worlds: Type} {J: Join worlds} {kiM: KripkeIntuitionisticModel worlds} (m: worlds) (P: worlds -> Prop) (n: worlds) : Prop :=
-  cut m P n /\ (forall n', cut m P n' -> n <= n').
+Definition greatest_cut {worlds: Type} {J: Join worlds} {kiM: KripkeIntuitionisticModel worlds} (m: worlds) (P: worlds -> Prop) (n: worlds) : Prop :=
+  cut m P n /\ (forall n', cut m P n' -> n' <= n).
 
 Definition model_precise {worlds: Type} {J: Join worlds} {kiM: KripkeIntuitionisticModel worlds} (P: worlds -> Prop): Prop :=
   forall m n, cut m P n ->
-    exists n, least_cut m P n.
+    exists n, greatest_cut m P n.
 
 Require Import Logic.SeparationLogic.Semantics.
 

@@ -11,51 +11,51 @@ Arguments Error {_}.
 Arguments NonTerminating {_}.
 Arguments Terminating {_} _.
 
-Module Type DECREASE.
+Module Type FORWARD.
 
-Parameter decrease: forall {state: Type} {ki_state: KripkeIntuitionisticModel state},
+Parameter forward: forall {state: Type} {ki_state: KripkeIntuitionisticModel state},
   MetaState state -> MetaState state -> Prop.
 
-End DECREASE.
+End FORWARD.
 
-Module Partial <: DECREASE.
+Module Partial <: FORWARD.
 
-Inductive decrease'
+Inductive forward'
           {state: Type}
           {ki_state: KripkeIntuitionisticModel state}:
   MetaState state -> MetaState state -> Prop :=
-| decrease_Error:
-    decrease' Error Error
-| decrease_NonTerminating:
-    decrease' NonTerminating NonTerminating
-| decrease_Terminating_NonTerminating:
-    forall x, decrease' (Terminating x) NonTerminating
-| decrease_Terminating:
-    forall x y, Korder x y -> decrease' (Terminating y) (Terminating x).
+| forward_Error:
+    forward' Error Error
+| forward_NonTerminating:
+    forward' NonTerminating NonTerminating
+| forward_Terminating_NonTerminating:
+    forall x, forward' (Terminating x) NonTerminating
+| forward_Terminating:
+    forall x y, Korder x y -> forward' (Terminating x) (Terminating y).
 
-Definition decrease {state: Type} {ki_state: KripkeIntuitionisticModel state} := decrease'.
+Definition forward {state: Type} {ki_state: KripkeIntuitionisticModel state} := forward'.
 
 End Partial.
 
-Module Total <: DECREASE.
+Module Total <: FORWARD.
 
-Inductive decrease'
+Inductive forward'
           {state: Type}
           {ki_state: KripkeIntuitionisticModel state}:
   MetaState state -> MetaState state -> Prop :=
-| decrease_Error:
-    decrease' Error Error
-| decrease_NonTerminating:
-    decrease' NonTerminating NonTerminating
-| decrease_Terminating:
-    forall x y, Korder x y -> decrease' (Terminating y) (Terminating x).
+| forward_Error:
+    forward' Error Error
+| forward_NonTerminating:
+    forward' NonTerminating NonTerminating
+| forward_Terminating:
+    forall x y, Korder x y -> forward' (Terminating x) (Terminating y).
 
-Definition decrease {state: Type} {ki_state: KripkeIntuitionisticModel state} := decrease'.
+Definition forward {state: Type} {ki_state: KripkeIntuitionisticModel state} := forward'.
 
 End Total.
 
-Lemma Total2Partial_decrease {state: Type} {ki_state: KripkeIntuitionisticModel state}: forall ms1 ms2,
-  Total.decrease ms1 ms2 -> Partial.decrease ms1 ms2.
+Lemma Total2Partial_forward {state: Type} {ki_state: KripkeIntuitionisticModel state}: forall ms1 ms2,
+  Total.forward ms1 ms2 -> Partial.forward ms1 ms2.
 Proof.
   intros.
   inversion H; constructor; auto.
@@ -70,7 +70,7 @@ Inductive lift_relation {state: Type} (R: state -> MetaState state -> Prop):
 | lift_relation_Terminating:
     forall s ms, R s ms -> lift_relation R (Terminating s) ms.
 
-Definition lift_Korder {state: Type} {ki_state: KripkeIntuitionisticModel state}: MetaState state -> MetaState state -> Prop := Total.decrease.
+Definition lift_Korder {state: Type} {ki_state: KripkeIntuitionisticModel state}: MetaState state -> MetaState state -> Prop := Total.forward.
 
 Inductive lift_join
           {state: Type}

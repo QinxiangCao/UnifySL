@@ -28,19 +28,19 @@ Class IdentityKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisti
 }.
 
 Class NoBranchKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisticModel worlds} : Prop := {
-  Korder_no_branch: forall m1 m2 n: worlds, m1 <= n -> m2 <= n -> m1 <= m2 \/ m2 <= m1
+  Korder_no_branch: forall m1 m2 n: worlds, n <= m1 -> n <= m2 -> m1 <= m2 \/ m2 <= m1
 }.
 
 Class BranchJoinKripkeIntuitionisticModel (worlds: Type) {kiW: KripkeIntuitionisticModel worlds} : Prop := {
-  Korder_branch_join: forall m1 m2 n: worlds, m1 <= n -> m2 <= n -> exists m, m <= m1 /\ m <= m2
+  Korder_branch_join: forall m1 m2 n: worlds, n <= m1 -> n <= m2 -> exists m, m1 <= m /\ m2 <= m
 }.
 
 Definition Korder_stable {worlds: Type} {kiW: KripkeIntuitionisticModel worlds} (P: worlds -> Prop): Prop :=
   forall w1 w2, w1 <= w2 -> (P w1 <-> P w2).
 
 Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiW: KripkeIntuitionisticModel (Kworlds M)} (SM: Semantics L MD) : Type := {
-  sat_mono: forall m n x, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , m |= x;
-  sat_impp: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, n <= m -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
+  sat_mono: forall m n x, m <= n -> KRIPKE: M , m |= x -> KRIPKE: M , n |= x;
+  sat_impp: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y);
   sat_andp: forall m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y);
   sat_orp: forall m x y, KRIPKE: M , m |= x || y <-> (KRIPKE: M , m |= x \/ KRIPKE: M , m |= y);
   sat_falsep: forall m, ~ KRIPKE: M , m |= FF
@@ -60,7 +60,7 @@ Infix "<=" := (Korder _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := sig (fun s: Ensemble f => forall x y, x <= y -> s y -> s x).
+Definition sem (f: frame) := sig (fun s: Ensemble f => forall x y, x <= y -> s x -> s y).
 
 Program Definition sem_and {F: frame} (X: sem F) (Y: sem F): sem F :=
   fun x: F => X x /\ Y x.
@@ -80,11 +80,11 @@ Qed.
 
 Program Definition sem_imp {F: frame} (X: sem F) (Y: sem F): sem F :=
   fun x: F =>
-    forall y: F, y <= x -> X y -> Y y.
+    forall y: F, x <= y -> X y -> Y y.
 Next Obligation.
   revert H2; apply H0.
   pose proof @PreOrder_Transitive _ _ (Korder_preorder F).
-  transitivity x; auto.
+  transitivity y; auto.
 Qed.
 
 Program Definition sem_true {F: frame}: sem F :=

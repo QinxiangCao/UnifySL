@@ -33,7 +33,7 @@ Record split_hint {state: Type} {J: Join state} (s: state) : Type := {
   split_sound: join split_piece1 split_piece2 s
 }.
 
-Module Resource_BigStepSemantics (D: DECREASE).
+Module Resource_BigStepSemantics (D: FORWARD).
 
 Export D.
 
@@ -65,8 +65,8 @@ Class Resource_BigStepSemantics
     hs m (Build_split_hint _ _ m m1 m2 H) /\
     tl_access Inv m1 (existT _ c1 h1) n1' /\
     tl_access Inv m2 (existT _ c2 h2) n2' /\
-    decrease n1' n1 /\
-    decrease n2' n2 /\
+    forward n1' n1 /\
+    forward n2' n2 /\
     strong_lift_join n1 n2 n;
   access_Sresource:
     forall (I: state -> Prop) Inv Inv' (r: resource) c (h: hint Inv c) m n
@@ -74,11 +74,11 @@ Class Resource_BigStepSemantics
     tl_access Inv' m (existT _ _ (hint_Sresource _ _ _ _ _ H_Inv h)) n ->
     exists m_acq m' n1 n2 n3,
     join m_acq m m' /\
-    decrease (Terminating m') n1 /\
+    forward (Terminating m') n1 /\
     lift_tl_access Inv n1 (existT _ c h) n2 /\
-    decrease n2 n3 /\
+    forward n2 n3 /\
     match n3, n with
-    | Terminating nn3, Terminating nn => least_cut nn3 I nn
+    | Terminating nn3, Terminating nn => greatest_cut nn3 I nn
     | NonTerminating, NonTerminating => True
     | Error, Error => True
     | _, _ => False
@@ -123,7 +123,7 @@ Lemma sem_precise_spec
         {fsSM: FlatSemantics.FlatSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}:
   forall m n P Q,
     sem_precise P ->
-    least_cut m (fun m => KRIPKE: m |= P) n ->
+    greatest_cut m (fun m => KRIPKE: m |= P) n ->
     KRIPKE: m |= P * Q ->
     KRIPKE: n |= Q.
 Proof.

@@ -154,7 +154,7 @@ Proof.
 Qed.
 
 Definition canonical_frame {Gamma: ProofTheory L}: KripkeSemantics.frame.
-  refine (KripkeSemantics.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig b) (proj1_sig a)) _).
+  refine (KripkeSemantics.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig a) (proj1_sig b)) _).
   constructor.
   + hnf; intros.
     hnf; intros; auto.
@@ -320,11 +320,11 @@ Proof.
   intros.
   apply DCS_ext.
   intros.
-  split; auto; [| apply H].
+  split; auto; [apply H |].
   intros.
-  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig m); tauto).
-  assert (~ proj1_sig n (~~ x)) by (intro; apply H0, H; auto).
-  rewrite DCS_negp_iff by (destruct (proj2_sig n); tauto).
+  rewrite DCS_negp_iff in H0 by (destruct (proj2_sig n); tauto).
+  assert (~ proj1_sig m (~~ x)) by (intro; apply H0, H; auto).
+  rewrite DCS_negp_iff by (destruct (proj2_sig m); tauto).
   auto.
 Qed.
 

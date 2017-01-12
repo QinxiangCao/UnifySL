@@ -59,7 +59,7 @@ Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state
   frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, Korder (snd nf) (snd mf) /\ @lift_join _ (@prod_Join cmd state (equiv_Join) J) n (Terminating nf) n' /\ step m n
 }.
 
-Module ImpSmallStepSemantics (D: DECREASE).
+Module ImpSmallStepSemantics (D: FORWARD).
 
 Export D.
 
@@ -70,16 +70,16 @@ Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingL
   step_Sskip: forall s mcs, step (Sskip, s) mcs <-> False;
   step_Ssequence: forall c1 c2 s mcs,
     step (Ssequence c1 c2, s) mcs ->
-    (exists ms', c1 = Sskip /\ decrease (Terminating s) ms' /\ mcs = lift_function (pair c2) ms') \/
+    (exists ms', c1 = Sskip /\ forward (Terminating s) ms' /\ mcs = lift_function (pair c2) ms') \/
     (exists mcs', step (c1, s) mcs' /\ mcs = lift_function (fun cs => (Ssequence (fst cs) c2, snd cs)) mcs');
   step_Sifthenelse: forall b c1 c2 s mcs,
     step (Sifthenelse b c1 c2, s) mcs ->
-    (eval_bool s b /\ exists ms', decrease (Terminating s) ms' /\ mcs = lift_function (pair c1) ms') \/
-    (~ eval_bool s b /\ exists ms', decrease (Terminating s) ms' /\ mcs = lift_function (pair c2) ms');
+    (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair c1) ms') \/
+    (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair c2) ms');
   step_Swhile: forall b c s mcs,
     step (Swhile b c, s) mcs ->
-    (eval_bool s b /\ exists ms', decrease (Terminating s) ms' /\ mcs = lift_function (pair (Ssequence c (Swhile b c))) ms') \/
-    (~ eval_bool s b /\ exists ms', decrease (Terminating s) ms' /\ mcs = lift_function (pair Sskip) ms')
+    (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ssequence c (Swhile b c))) ms') \/
+    (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair Sskip) ms')
 }.
 
 End ImpSmallStepSemantics.
@@ -97,24 +97,24 @@ Proof.
     pose proof Total.step_Ssequence c1 c2 s mcs H
       as [[ms' [? [? ?]]] | [ms' [? ?]]].
     - left; exists ms'; split; [| split]; auto.
-      apply Total2Partial_decrease; auto.
+      apply Total2Partial_forward; auto.
     - right; exists ms'; auto.
   + intros.
     pose proof Total.step_Sifthenelse b c1 c2 s mcs H
       as [[? [ms' [? ?]]] | [? [ms' [? ?]]]].
     - left; split; auto.
       exists ms'; split; auto.
-      apply Total2Partial_decrease; auto.
+      apply Total2Partial_forward; auto.
     - right; split; auto.
       exists ms'; split; auto.
-      apply Total2Partial_decrease; auto.
+      apply Total2Partial_forward; auto.
   + intros.
     pose proof Total.step_Swhile b c s mcs H
       as [[? [ms' [? ?]]] | [? [ms' [? ?]]]].
     - left; split; auto.
       exists ms'; split; auto.
-      apply Total2Partial_decrease; auto.
+      apply Total2Partial_forward; auto.
     - right; split; auto.
       exists ms'; split; auto.
-      apply Total2Partial_decrease; auto.
+      apply Total2Partial_forward; auto.
 Qed.

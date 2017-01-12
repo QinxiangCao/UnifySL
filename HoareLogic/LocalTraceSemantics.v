@@ -37,10 +37,10 @@ Class SALocalTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join stat
          lift_join n nf n'))
 }.
 
-Module ImpLocalTraceSemantics (D: DECREASE) (DT: DECREASE_TRACE with Module D := D).
+Module ImpLocalTraceSemantics (F: FORWARD) (FT: FORWARD_TRACE with Module F := F).
 
-Export D.
-Export DT.
+Export F.
+Export FT.
 
 Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (LTS: LocalTraceSemantics P state): Type := {
   eval_bool: state -> bool_expr -> Prop;
@@ -49,15 +49,15 @@ Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgramming
     denote Sskip tr -> is_empty_stream tr;
   denote_Ssequence: forall c1 c2 tr,
     denote (Ssequence c1 c2) tr ->
-    traces_app (denote c1) (traces_app decrease_trace (denote c2)) tr;
+    traces_app (denote c1) (traces_app forward_trace (denote c2)) tr;
   denote_Sifthenelse: forall b c1 c2 tr,
     denote (Sifthenelse b c1 c2) tr ->
-    traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (denote c1) tr \/
-    traces_app (decrease_trace_with_test (fun s => ~ eval_bool s b)) (denote c2) tr;
+    traces_app (forward_trace_with_test (fun s => eval_bool s b)) (denote c1) tr \/
+    traces_app (forward_trace_with_test (fun s => ~ eval_bool s b)) (denote c2) tr;
   denote_Swhile: forall b c tr,
     denote (Swhile b c) tr ->
-    traces_app (traces_pstar (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (traces_app (denote c) decrease_trace))) (decrease_trace_with_test (fun s => ~ eval_bool s b)) tr \/
-    traces_pomega (traces_app (decrease_trace_with_test (fun s => eval_bool s b)) (traces_app (denote c) decrease_trace)) tr
+    traces_app (traces_pstar (traces_app (forward_trace_with_test (fun s => eval_bool s b)) (traces_app (denote c) forward_trace))) (forward_trace_with_test (fun s => ~ eval_bool s b)) tr \/
+    traces_pomega (traces_app (forward_trace_with_test (fun s => eval_bool s b)) (traces_app (denote c) forward_trace)) tr
 }.
 
 End ImpLocalTraceSemantics.
@@ -75,17 +75,17 @@ Proof.
     clear H; revert tr H0.
     apply traces_app_mono; [hnf; intros; auto |].
     apply traces_app_mono; [| hnf; intros; auto].
-    apply Total2Partial_decrease_trace.
+    apply Total2Partial_forward_trace.
   + intros.
     pose proof Total.denote_Sifthenelse b c1 c2 tr H as [ | ].
     - left.
       clear H; revert tr H0.
       apply traces_app_mono; [| hnf; intros; auto].
-      apply Total2Partial_decrease_trace_with_test.
+      apply Total2Partial_forward_trace_with_test.
     - right.
       clear H; revert tr H0.
       apply traces_app_mono; [| hnf; intros; auto].
-      apply Total2Partial_decrease_trace_with_test.
+      apply Total2Partial_forward_trace_with_test.
   + intros.
     pose proof Total.denote_Swhile b c tr H as [ | ].
     - left.
@@ -93,15 +93,15 @@ Proof.
       apply traces_app_mono.
       * apply traces_pstar_mono.
         apply traces_app_mono; [| apply traces_app_mono].
-       ++ apply Total2Partial_decrease_trace_with_test.
+       ++ apply Total2Partial_forward_trace_with_test.
        ++ hnf; intros; auto.
-       ++ apply Total2Partial_decrease_trace.
-      * apply Total2Partial_decrease_trace_with_test.
+       ++ apply Total2Partial_forward_trace.
+      * apply Total2Partial_forward_trace_with_test.
     - right.
       clear H; revert tr H0.
       apply traces_pomega_mono.
       apply traces_app_mono; [| apply traces_app_mono].
-      * apply Total2Partial_decrease_trace_with_test.
+      * apply Total2Partial_forward_trace_with_test.
       * hnf; intros; auto.
-      * apply Total2Partial_decrease_trace.
+      * apply Total2Partial_forward_trace.
 Defined.

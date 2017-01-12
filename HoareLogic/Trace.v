@@ -239,39 +239,39 @@ Proof.
   intros; apply H, H1.
 Qed.
 
-Module Type DECREASE_TRACE.
+Module Type FORWARD_TRACE.
 
-Declare Module D: DECREASE.
+Declare Module F: FORWARD.
 
-Parameter decrease_trace: forall {state: Type} {kiM: KripkeIntuitionisticModel state}, traces state.
+Parameter forward_trace: forall {state: Type} {kiM: KripkeIntuitionisticModel state}, traces state.
 
-Parameter decrease_trace_with_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop), traces state.
+Parameter forward_trace_with_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop), traces state.
 
-Axiom singleton_trace_decrease: forall {state: Type} {kiM: KripkeIntuitionisticModel state} s ms,
-  D.decrease (Terminating s) ms ->
-  decrease_trace (singleton_trace s ms).
+Axiom singleton_trace_forward: forall {state: Type} {kiM: KripkeIntuitionisticModel state} s ms,
+  F.forward (Terminating s) ms ->
+  forward_trace (singleton_trace s ms).
 
-Axiom singleton_trace_decrease_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: _ -> Prop) s ms,
-  D.decrease (Terminating s) ms ->
+Axiom singleton_trace_forward_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: _ -> Prop) s ms,
+  F.forward (Terminating s) ms ->
   P s ->
-  decrease_trace_with_test P (singleton_trace s ms).
+  forward_trace_with_test P (singleton_trace s ms).
 
-End DECREASE_TRACE.
+End FORWARD_TRACE.
 
-Module DecreaseTrace (D: DECREASE) <: DECREASE_TRACE with Module D := D.
+Module ForwardTrace (F: FORWARD) <: FORWARD_TRACE with Module F := F.
 
-Module D := D.
-Export D.
+Module F := F.
+Export F.
 
-Definition decrease_trace {state: Type} {kiM: KripkeIntuitionisticModel state}: traces state :=
-  fun tr => is_fin_stream tr /\ forall n s ms, tr n = Some (s, ms) -> decrease (Terminating s) ms.
+Definition forward_trace {state: Type} {kiM: KripkeIntuitionisticModel state}: traces state :=
+  fun tr => is_fin_stream tr /\ forall n s ms, tr n = Some (s, ms) -> forward (Terminating s) ms.
 
-Definition decrease_trace_with_test {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop) : traces state :=
-  fun tr => decrease_trace tr /\ exists s, begin_state tr s /\ P s.
+Definition forward_trace_with_test {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop) : traces state :=
+  fun tr => forward_trace tr /\ exists s, begin_state tr s /\ P s.
 
-Lemma singleton_trace_decrease {state: Type} {kiM: KripkeIntuitionisticModel state}: forall s ms,
-  D.decrease (Terminating s) ms ->
-  decrease_trace (singleton_trace s ms).
+Lemma singleton_trace_forward {state: Type} {kiM: KripkeIntuitionisticModel state}: forall s ms,
+  F.forward (Terminating s) ms ->
+  forward_trace (singleton_trace s ms).
 Proof.
   intros.
   split; [apply fin_stream_fin |].
@@ -283,45 +283,45 @@ Proof.
   + destruct n; inversion H0.
 Qed.
 
-Lemma singleton_trace_decrease_test {state: Type} {kiM: KripkeIntuitionisticModel state}: forall (P: _ -> Prop) s ms,
-  D.decrease (Terminating s) ms ->
+Lemma singleton_trace_forward_test {state: Type} {kiM: KripkeIntuitionisticModel state}: forall (P: _ -> Prop) s ms,
+  F.forward (Terminating s) ms ->
   P s ->
-  decrease_trace_with_test P (singleton_trace s ms).
+  forward_trace_with_test P (singleton_trace s ms).
 Proof.
   intros.
-  split; [apply singleton_trace_decrease; auto |].
+  split; [apply singleton_trace_forward; auto |].
   exists s; split; auto.
   exists ms.
   apply begin_end_state_singleton_trace.
 Qed.
 
-End DecreaseTrace.
+End ForwardTrace.
 
-Module Partial := DecreaseTrace (ProgramState.Partial).
-Module Total := DecreaseTrace (ProgramState.Total).
+Module Partial := ForwardTrace (ProgramState.Partial).
+Module Total := ForwardTrace (ProgramState.Total).
 
-Lemma Total2Partial_decrease_trace
+Lemma Total2Partial_forward_trace
       {state: Type}
       {kiM: KripkeIntuitionisticModel state}:
-  Included _ Total.decrease_trace Partial.decrease_trace.
+  Included _ Total.forward_trace Partial.forward_trace.
 Proof.
   unfold Included, Ensembles.In; intros tr ?.
   destruct H as [? ?].
   split; auto.
   intros.
-  apply Total2Partial_decrease, (H0 n); auto.
+  apply Total2Partial_forward, (H0 n); auto.
 Qed.
 
-Lemma Total2Partial_decrease_trace_with_test
+Lemma Total2Partial_forward_trace_with_test
       {state: Type}
       {kiM: KripkeIntuitionisticModel state}
       (P: state -> Prop):
   Included _
-   (Total.decrease_trace_with_test P)
-   (Partial.decrease_trace_with_test P).
+   (Total.forward_trace_with_test P)
+   (Partial.forward_trace_with_test P).
 Proof.
   unfold Included, Ensembles.In; intros tr ?.
   destruct H as [? ?].
   split; auto.
-  apply Total2Partial_decrease_trace; auto.
+  apply Total2Partial_forward_trace; auto.
 Qed.

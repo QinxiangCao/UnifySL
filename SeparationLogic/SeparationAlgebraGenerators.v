@@ -1,4 +1,4 @@
-Require Import Coq.Logic.ChoiceFacts.
+Require Import Coq.Logic.ChoiceFacts. 
 Require Import Coq.Logic.ClassicalChoice.
 Require Import Logic.PropositionalLogic.KripkeSemantics.
 Require Import Logic.SeparationLogic.SeparationAlgebra.
@@ -29,10 +29,10 @@ Section trivialSA.
     inversion H.
   Qed.
 
-  (* Trivial algebra is downwards closed *)
-  (* Trivial is NOT upwards closed *)
-  Definition trivial_dSA {kiM: KripkeIntuitionisticModel worlds}:
-    @DownwardsClosedSeparationAlgebra worlds (trivial_Join) kiM.
+  (* Trivial algebra is upwards closed *)
+  (* Trivial is NOT downwards closed *)
+  Definition trivial_uSA {kiM: KripkeIntuitionisticModel worlds}:
+    @UpwardsClosedSeparationAlgebra worlds (trivial_Join) kiM.
   Proof.
     intros until m2; intros.
     inversion H.
@@ -46,8 +46,8 @@ Section trivialSA.
   Qed.
 
   (*Nonpositive*)
-  Instance trivial_nonposSA:
-    @NonpositiveSeparationAlgebra worlds identity_kiM (trivial_Join).
+  Instance trivial_incrSA:
+    @IncreasingSeparationAlgebra worlds identity_kiM (trivial_Join).
   Proof.
     constructor; intros; hnf; intros.
     inversion H.
@@ -76,41 +76,41 @@ Section unitSA.
   Defined.
   
   
-  (* Unit algebra is downwards closed *)
-  Definition unit_dSA:
-    @DownwardsClosedSeparationAlgebra unit (unit_Join) unit_kiM.
+  (* Unit algebra is upwards closed *)
+  Definition unit_uSA:
+    @UpwardsClosedSeparationAlgebra unit (unit_Join) unit_kiM.
   Proof.
     intros; exists tt, tt; intuition.
   Qed.
 
   (* Unit algebra is downwards closed *)
-  Definition unit_uSA:
-    @UpwardsClosedSeparationAlgebra unit (unit_Join) unit_kiM.
+  Definition unit_dSA:
+    @DownwardsClosedSeparationAlgebra unit (unit_Join) unit_kiM.
   Proof.
     intros; exists tt; intuition.
   Qed.
 
   (*Nonpositive*)
-  Instance unit_nonposSA:
-    @NonpositiveSeparationAlgebra unit unit_kiM (unit_Join).
+  Instance unit_incrSA:
+    @IncreasingSeparationAlgebra unit unit_kiM (unit_Join).
   Proof.
     constructor; intros; hnf; intros.
     constructor.
   Qed.
 
-  Instance residual_nonposSA:
+  Instance residual_incrSA:
     @ResidualSeparationAlgebra unit unit_kiM (unit_Join).
   Proof.
     constructor; intros.
     exists tt; exists tt; split; constructor.
   Qed.
   
-  Definition unital_nonposSA:
+  Definition unital_incrSA:
     @UnitalSeparationAlgebra unit unit_kiM (unit_Join).
   Proof.
-    apply nonpos_unital_iff_residual; auto.
-    apply unit_nonposSA.
-    apply residual_nonposSA.
+    apply incr_unital_iff_residual; auto.
+    apply unit_incrSA.
+    apply residual_incrSA.
   Qed.
 
 End unitSA.
@@ -134,10 +134,10 @@ Section equivSA.
       exists mxyz; do 2 split; auto.
   Qed.
 
-  (* Identity algebra is downwards closed *)
-  (* Identity is NOT upwards closed *)
-  Definition identity_dSA {kiM: KripkeIntuitionisticModel worlds}:
-    @DownwardsClosedSeparationAlgebra worlds (equiv_Join) kiM.
+  (* Identity algebra is upwards closed *)
+  (* Identity is NOT downwards closed *)
+  Definition identity_uSA {kiM: KripkeIntuitionisticModel worlds}:
+    @UpwardsClosedSeparationAlgebra worlds (equiv_Join) kiM.
   Proof.
     intros until m2; intros.
     destruct H; subst m1 m2.
@@ -159,7 +159,7 @@ Section equivSA.
     intros; auto.
   Qed.
 
-  Definition ikiM_dSA {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: DownwardsClosedSeparationAlgebra worlds.
+  Definition ikiM_uSA {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: UpwardsClosedSeparationAlgebra worlds.
   Proof.
     intros until m2; intros.
     apply Korder_identity in H0.
@@ -168,7 +168,7 @@ Section equivSA.
     split; [| split]; auto; reflexivity.
   Qed.
 
-  Definition ikiM_uSA {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: UpwardsClosedSeparationAlgebra worlds.
+  Definition ikiM_dSA {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: DownwardsClosedSeparationAlgebra worlds.
   Proof.
     intros until n2; intros.
     apply Korder_identity in H0.
@@ -178,7 +178,7 @@ Section equivSA.
     split; auto; reflexivity.
   Qed.
 
-  (*Identity is NOT necessarily nonpositive*)
+  (*Identity is NOT necessarily increasing*)
 
   (*Identity is NOT necessarily unital*)
 
@@ -227,7 +227,7 @@ Section optionSA.
   Inductive option_order
             {kiM: KripkeIntuitionisticModel worlds}: option worlds -> option worlds -> Prop :=
   | None_None_order: option_order None None
-  | Some_None_order: forall a, option_order (Some a) None
+  | None_Some_order: forall a, option_order None (Some a)
   | Some_Some_order: forall a b, Korder a b -> option_order (Some a) (Some b).
 
   Program Definition option_kiM {kiM: KripkeIntuitionisticModel worlds}: KripkeIntuitionisticModel (option worlds) :=
@@ -243,12 +243,12 @@ Section optionSA.
         etransitivity; eauto.
   Defined.
 
-  (* Downwards closed*)
-  Program Definition option_dSA
+  (* Upwards closed*)
+  Program Definition option_uSA
              {J: Join worlds}
              {kiM: KripkeIntuitionisticModel worlds}
-             (dSA: DownwardsClosedSeparationAlgebra worlds)
-             : @DownwardsClosedSeparationAlgebra (option worlds) (option_Join) (option_kiM).
+             (uSA: UpwardsClosedSeparationAlgebra worlds)
+             : @UpwardsClosedSeparationAlgebra (option worlds) (option_Join) (option_kiM).
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -256,23 +256,23 @@ Section optionSA.
       + exists None, None; repeat split; try constructor.
       + exists (Some a), None; repeat split; try constructor.
     - inversion H0; subst.
-      exists None, (Some a0); repeat split; try constructor; auto.
+      exists None, (Some b); repeat split; try constructor; auto.
     - inversion H0; subst.
-      exists (Some a0), None; repeat split; try constructor; auto.
+      exists (Some b), None; repeat split; try constructor; auto.
     - inversion H0; subst.
       destruct
-        (dSA  _ _ _ _ H1 H4) as [n1 [n2 [HH1 [HH2 HH3]]]].
+        (uSA  _ _ _ _ H1 H3) as [n1 [n2 [HH1 [HH2 HH3]]]].
       exists (Some n1), (Some n2); repeat split; try constructor; auto.
   Qed.
 
-  (* Upwards closed IF the algebra is Nonpositive*)
-  Program Definition option_uSA
+  (* Downwards closed IF the algebra is increasing*)
+  Program Definition option_dSA
              {J: Join worlds}
              {kiM: KripkeIntuitionisticModel worlds}
-             (dSA: UpwardsClosedSeparationAlgebra worlds)
+             (dSA: DownwardsClosedSeparationAlgebra worlds)
              {SA: SeparationAlgebra worlds}
              {gcSA: GarbageCollectSeparationAlgebra worlds}
-    : @UpwardsClosedSeparationAlgebra (option worlds) (option_Join) (option_kiM).
+    : @DownwardsClosedSeparationAlgebra (option worlds) (option_Join) (option_kiM).
   Proof.
     hnf; intros.
     inversion H0; [ | | inversion H1]; subst.
@@ -286,10 +286,10 @@ Section optionSA.
         apply join_has_order1 in H6.
         inversion H1; subst.
         transitivity b; auto.
-    - exists (Some b); split; try constructor.
+    - exists (Some a); split; try constructor.
       inversion H; subst; auto.
-    - exists (Some b); split; try constructor.
-      transitivity (Some a); auto.
+    - exists (Some a); split; try constructor.
+      transitivity (Some b); auto.
       inversion H; subst.
       constructor; eapply join_has_order1. eassumption.
     - inversion H; subst.
@@ -326,7 +326,6 @@ Section exponentialSA.
     - exists myz; firstorder.
   Qed.
 
-  
   Program Definition fun_kiM (A B: Type) {kiM_B: KripkeIntuitionisticModel B}: KripkeIntuitionisticModel (A -> B) :=
     Build_KripkeIntuitionisticModel _ (fun a b => forall x, Korder (a x) (b x)) _.
   Next Obligation.
@@ -337,30 +336,6 @@ Section exponentialSA.
       etransitivity; eauto.
   Qed.
 
-  (* Exponential is downwards closed *)
-  Program Definition fun_dSA 
-             (A B: Type)
-             {J_B: Join B}
-             {kiM_B: KripkeIntuitionisticModel B}
-             (dSA_B: DownwardsClosedSeparationAlgebra B)
-             : @DownwardsClosedSeparationAlgebra (A -> B) (fun_Join A B) (fun_kiM A B).
-  Proof.
-    hnf; intros.
-    unfold join, fun_Join in H.
-    unfold Korder, fun_kiM in H0.
-    destruct (choice (fun x nn => join (fst nn) (snd nn) (n x) /\
-                               Korder (fst nn) (m1 x) /\
-                               Korder (snd nn) (m2 x)))
-      as [nn H1].
-    intros x.
-    destruct (dSA_B (m x) (n x) (m1 x) (m2 x) (H x) (H0 x)) as [x1 [x2 ?]];
-      exists (x1, x2); auto.
-    exists (fun x => fst (nn x)), (fun x => snd (nn x)).
-    simpl; repeat split; intros x; specialize (H1 x); destruct H1 as [H1 [H2 H3]];
-    assumption.
-  Qed.
-
-  
   (* Exponential is upwards closed *)
   Program Definition fun_uSA 
              (A B: Type)
@@ -372,29 +347,53 @@ Section exponentialSA.
     hnf; intros.
     unfold join, fun_Join in H.
     unfold Korder, fun_kiM in H0.
+    destruct (choice (fun x nn => join (fst nn) (snd nn) (n x) /\
+                               Korder (m1 x) (fst nn) /\
+                               Korder (m2 x) (snd nn)))
+      as [nn H1].
+    intros x.
+    destruct (uSA_B (m x) (n x) (m1 x) (m2 x) (H x) (H0 x)) as [x1 [x2 ?]];
+      exists (x1, x2); auto.
+    exists (fun x => fst (nn x)), (fun x => snd (nn x)).
+    simpl; repeat split; intros x; specialize (H1 x); destruct H1 as [H1 [H2 H3]];
+    assumption.
+  Qed.
+
+  
+  (* Exponential is downwards closed *)
+  Program Definition fun_dSA 
+             (A B: Type)
+             {J_B: Join B}
+             {kiM_B: KripkeIntuitionisticModel B}
+             (dSA_B: DownwardsClosedSeparationAlgebra B)
+             : @DownwardsClosedSeparationAlgebra (A -> B) (fun_Join A B) (fun_kiM A B).
+  Proof.
+    hnf; intros.
+    unfold join, fun_Join in H.
+    unfold Korder, fun_kiM in H0.
     destruct (choice (fun x n => join (n1 x) (n2 x) (n) /\
-                               Korder (m x) (n)))
+                               Korder (n) (m x)))
       as [n H2].
     intros x.
-    destruct (uSA_B (m1 x) (m2 x) (m x) (n1 x) (n2 x) (H x) (H0 x)) as [x1 [x2 ?]]; auto;
+    destruct (dSA_B (m1 x) (m2 x) (m x) (n1 x) (n2 x) (H x) (H0 x)) as [x1 [x2 ?]]; auto;
     exists x1; auto.
 
     exists n; split; hnf; intros x; specialize (H2 x); destruct H2; auto.
   Qed.
   
-  (* Exponential is nonpositive *)
-  Program Definition fun_npSA 
+  (* Exponential is increasing *)
+  Program Definition fun_incrSA 
              (A B: Type)
              {J_B: Join B}
              {kiM_B: KripkeIntuitionisticModel B}
-             (np_B: NonpositiveSeparationAlgebra B)
-             : @NonpositiveSeparationAlgebra (A -> B) (fun_kiM A B)  (fun_Join A B).
+             (incr_B: IncreasingSeparationAlgebra B)
+             : @IncreasingSeparationAlgebra (A -> B) (fun_kiM A B)  (fun_Join A B).
   Proof.
     constructor; intros.
     hnf; intros.
     hnf; intros.
     specialize (H x0).
-    eapply all_nonpositive; eauto.
+    eapply all_increasing; eauto.
   Qed.
 
     
@@ -407,9 +406,9 @@ Section exponentialSA.
              : @UnitalSeparationAlgebra (A -> B) (fun_kiM A B)  (fun_Join A B).
   Proof.
     constructor; intros.
-    - destruct (choice (fun x mx => residue (n x) mx /\ nonpositive mx)) as [M HH].
+    - destruct (choice (fun x mx => residue (n x) mx /\ increasing mx)) as [M HH].
       { intros;
-        specialize (nonpos_exists (n x)); intros [y HH];
+        specialize (incr_exists (n x)); intros [y HH];
         exists y; auto. }
       exists M; split.
       + cut (forall x, residue (n x) (M x)).
@@ -418,27 +417,14 @@ Section exponentialSA.
           exists n'; split; hnf; intros x;
           specialize (H x); destruct H; auto.
         * intros x; specialize (HH x); destruct HH; auto.
-      + unfold nonpositive; intros.
+      + unfold increasing; intros.
         unfold join, fun_Join in H.
         hnf; intros x.
         specialize (HH x); destruct HH as [ _ HH].
         apply HH.
         auto.
 Qed.
-(*  eapply nonpos_stable; auto.
-      eapply H0.
-    
-    unfold residue, nonpositive.
-    
-    unfold join, fun_Join.
-    unfold Korder, fun_kiM.
-    - destruct (choice (fun )).
-    hnf; intros.
-    hnf; intros.
-    specialize (H x0).
-    eapply all_nonpositive; eauto.
-  Qed.
-*)    
+
 End exponentialSA.
 
 Section sumSA.
@@ -544,35 +530,35 @@ Section productSA.
       split; etransitivity; eauto.
   Qed.
 
-  Definition prod_dSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {Join_A: Join A} {Join_B: Join B} {dSA_A: DownwardsClosedSeparationAlgebra A} {dSA_B: DownwardsClosedSeparationAlgebra B}: @DownwardsClosedSeparationAlgebra (A * B) (@prod_Join _ _ Join_A Join_B) (@prod_kiM _ _ kiM_A kiM_B).
+  Definition prod_uSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {Join_A: Join A} {Join_B: Join B} {dSA_A: UpwardsClosedSeparationAlgebra A} {dSA_B: UpwardsClosedSeparationAlgebra B}: @UpwardsClosedSeparationAlgebra (A * B) (@prod_Join _ _ Join_A Join_B) (@prod_kiM _ _ kiM_A kiM_B).
   Proof.
     intros until m2; intros.
     destruct H, H0.
-    destruct (join_Korder_down _ _ _ _ H H0) as [fst_n1 [fst_n2 [? [? ?]]]].
-    destruct (join_Korder_down _ _ _ _ H1 H2) as [snd_n1 [snd_n2 [? [? ?]]]].
+    destruct (join_Korder_up _ _ _ _ H H0) as [fst_n1 [fst_n2 [? [? ?]]]].
+    destruct (join_Korder_up _ _ _ _ H1 H2) as [snd_n1 [snd_n2 [? [? ?]]]].
     exists (fst_n1, snd_n1), (fst_n2, snd_n2).
     do 2 split; simpl; auto.
   Qed.
 
-  Definition prod_uSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {Join_A: Join A} {Join_B: Join B} {uSA_A: UpwardsClosedSeparationAlgebra A} {uSA_B: UpwardsClosedSeparationAlgebra B}: @UpwardsClosedSeparationAlgebra (A * B) (@prod_Join _ _ Join_A Join_B) (@prod_kiM _ _ kiM_A kiM_B) .
+  Definition prod_dSA {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {Join_A: Join A} {Join_B: Join B} {uSA_A: DownwardsClosedSeparationAlgebra A} {uSA_B: DownwardsClosedSeparationAlgebra B}: @DownwardsClosedSeparationAlgebra (A * B) (@prod_Join _ _ Join_A Join_B) (@prod_kiM _ _ kiM_A kiM_B) .
   Proof.
     intros until n2; intros.
     destruct H, H0, H1.
-    destruct (join_Korder_up _ _ _ _ _ H H0 H1) as [fst_n [? ?]].
-    destruct (join_Korder_up _ _ _ _ _ H2 H3 H4) as [snd_n [? ?]].
+    destruct (join_Korder_down _ _ _ _ _ H H0 H1) as [fst_n [? ?]].
+    destruct (join_Korder_down _ _ _ _ _ H2 H3 H4) as [snd_n [? ?]].
     exists (fst_n, snd_n).
     do 2 split; simpl; auto.
   Qed.
 
-  Definition prod_nonpositive
+  Definition prod_increasing
              {A B: Type}
              {kiM_A: KripkeIntuitionisticModel A}
              {kiM_B: KripkeIntuitionisticModel B}
              {Join_A: Join A}
              {Join_B: Join B}:
     forall (a: A) (b: B),
-      nonpositive a -> nonpositive b ->
-      @nonpositive _
+      increasing a -> increasing b ->
+      @increasing _
                    (@prod_kiM _ _ kiM_A kiM_B)
                    (@prod_Join _ _ Join_A Join_B)   (a,b).
   Proof.
@@ -584,14 +570,14 @@ Section productSA.
     apply H0; auto.
   Qed.
     
-  Definition prod_nonpositiveSA
+  Definition prod_increasingSA
              {A B: Type} {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B} {Join_A: Join A} {Join_B: Join B}
-             {npSA_A: NonpositiveSeparationAlgebra A}
-             {npSA_B: NonpositiveSeparationAlgebra B}:
-    @NonpositiveSeparationAlgebra (A * B) (@prod_kiM _ _ kiM_A kiM_B) (@prod_Join _ _ Join_A Join_B) .
+             {npSA_A: IncreasingSeparationAlgebra A}
+             {npSA_B: IncreasingSeparationAlgebra B}:
+    @IncreasingSeparationAlgebra (A * B) (@prod_kiM _ _ kiM_A kiM_B) (@prod_Join _ _ Join_A Join_B) .
   Proof.
     constructor; intros.
-    destruct x; apply prod_nonpositive.
+    destruct x; apply prod_increasing.
     apply npSA_A.
     apply npSA_B.
   Qed.
@@ -624,8 +610,8 @@ Section productSA.
     inversion unitalSA_B.
     constructor; intros.
     - destruct n as [a b].
-      destruct (nonpos_exists a) as [a' [Ha1 Ha2]].
-      destruct (nonpos_exists0 b) as [b' [Hb1 Hb2]].
+      destruct (incr_exists a) as [a' [Ha1 Ha2]].
+      destruct (incr_exists0 b) as [b' [Hb1 Hb2]].
       exists (a', b'); split; hnf; intros.
       + destruct Ha1 as [a'' [Ha1 Ha3]].
         destruct Hb1 as [b'' [Hb1 Hb3]].
@@ -706,7 +692,7 @@ Definition StepIndex_SA (worlds: Type) {J: Join worlds} {SA: SeparationAlgebra w
   @SeparationAlgebra (nat * worlds) (StepIndex_Join worlds) := @prod_SA _ _ _ _ (equiv_SA _) SA.
 
 Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
-           {J: Join worlds} {dSA: DownwardsClosedSeparationAlgebra worlds}:
-  @DownwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
+           {J: Join worlds} {dSA: UpwardsClosedSeparationAlgebra worlds}:
+  @UpwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
 
  *)

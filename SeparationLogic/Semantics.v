@@ -16,9 +16,9 @@ Import SeparationLogicNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Module DownwardsSemantics.
+Module UpwardsSemantics.
 
-  Class DownwardsSemantics
+  Class UpwardsSemantics
         (L: Language)
         {nL: NormalLanguage L}
         {pL: PropositionalLanguage L}
@@ -39,15 +39,15 @@ Module DownwardsSemantics.
       sat_wand: forall m x y,
           KRIPKE: M , m |= x -* y <->
                       forall m0 m1 m2,
-                        m0 <= m -> join m0 m1 m2 ->
+                        m <= m0 -> join m0 m1 m2 ->
                         KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
 }.
 
-End DownwardsSemantics.
+End UpwardsSemantics.
 
-Module UpwardsSemantics.
+Module DownwardsSemantics.
 
-  Class UpwardsSemantics
+  Class DownwardsSemantics
         (L: Language)
         {nL: NormalLanguage L}
         {pL: PropositionalLanguage L}
@@ -62,7 +62,7 @@ Module UpwardsSemantics.
     {
       sat_sepcon: forall m x y,
         KRIPKE: M , m |= x * y <->
-                    exists m0 m1 m2, m <= m0 /\
+                    exists m0 m1 m2, m0 <= m /\
                                 join m1 m2 m0 /\ KRIPKE: M , m1 |= x /\ KRIPKE: M, m2 |= y;
       sat_wand: forall m x y,
           KRIPKE: M , m |= x -* y <->
@@ -70,7 +70,7 @@ Module UpwardsSemantics.
                                KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
 }.
 
-End UpwardsSemantics.
+End DownwardsSemantics.
 
 Module FlatSemantics.
 
@@ -110,7 +110,7 @@ Class UnitalSemantics
       {J: Join (Kworlds M)}
       (SM: Semantics L MD)
       {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type :=
-    sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> nonpositive m.
+    sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> increasing m.
 
 Module FlatSemanticsModel.
 
@@ -132,7 +132,7 @@ Infix "<=" := (Korder _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := sig (fun s: Ensemble f => forall x y, x <= y -> s y -> s x).
+Definition sem (f: frame) := sig (fun s: Ensemble f => forall x y, x <= y -> s x -> s y).
 
 Program Definition sem_and {F: frame} (X: sem F) (Y: sem F): sem F :=
   fun x: F => X x /\ Y x.
@@ -152,11 +152,11 @@ Qed.
 
 Program Definition sem_imp {F: frame} (X: sem F) (Y: sem F): sem F :=
   fun x: F =>
-    forall y: F, y <= x -> X y -> Y y.
+    forall y: F, x <= y -> X y -> Y y.
 Next Obligation.
   revert H2; apply H0.
   pose proof @PreOrder_Transitive _ _ (Korder_preorder F).
-  transitivity x; auto.
+  transitivity y; auto.
 Qed.
 
 Program Definition sem_true {F: frame}: sem F :=
@@ -170,7 +170,7 @@ Program Definition sem_sepcon {F: frame} (X: sem F) (Y: sem F): sem F :=
     exists m1 m2, @join _ (J F) m1 m2 m /\ X m1 /\ Y m2.
 Next Obligation.
   rename H0 into y1, H1 into y2.
-  destruct (@join_Korder_down _ _ _ (dSA F) _ _ _ _ H2 H) as [x1 [x2 [? [? ?]]]].
+  destruct (@join_Korder_up _ _ _ (uSA F) _ _ _ _ H2 H) as [x1 [x2 [? [? ?]]]].
   exists x1, x2.
   split; [| split]; auto.
   + eapply (proj2_sig X); eauto.
@@ -181,18 +181,18 @@ Program Definition sem_wand {F: frame} (X: sem F) (Y: sem F): sem F :=
   fun m: F =>
     forall m1 m2, @join _ (J F) m m1 m2 -> X m1 -> Y m2.
 Next Obligation.
-  destruct (@join_Korder_up _ _ _ (uSA F) _ _ _ _ m1 H1 H) as [m [? ?]].
+  destruct (@join_Korder_down _ _ _ (dSA F) _ _ _ _ m1 H1 H) as [m [? ?]].
   + reflexivity.
   + eapply (proj2_sig Y); [eauto |].
     eapply H0; eauto.
 Qed.
 
 Program Definition sem_emp {F: frame}: sem F :=
-  fun m: F => @nonpositive _ (kiM F) (J F) m.
+  fun m: F => @increasing _ (kiM F) (J F) m.
 Next Obligation.
-  unfold nonpositive in *.
+  unfold increasing in *.
   intros.
-  destruct (@join_Korder_up _ _ _ (uSA F) _ _ _ _ n H1 H) as [m' [? ?]].
+  destruct (@join_Korder_down _ _ _ (dSA F) _ _ _ _ n H1 H) as [m' [? ?]].
   + reflexivity.
   + specialize (H0 _ _ H2).
     etransitivity; eauto.

@@ -311,7 +311,7 @@ Proof.
        ++ right.
           exists (singleton_trace s' Error).
           split; [| split].
-         -- apply singleton_trace_decrease; auto.
+         -- apply singleton_trace_forward; auto.
          -- right; exists s'.
             apply begin_end_state_singleton_trace.
          -- subst.
@@ -319,7 +319,7 @@ Proof.
        ++ right.
           exists (singleton_trace s' NonTerminating).
           split; [| split].
-         -- apply singleton_trace_decrease; auto.
+         -- apply singleton_trace_forward; auto.
          -- left; exists s'.
             apply begin_end_state_singleton_trace.
          -- subst.
@@ -328,7 +328,7 @@ Proof.
           left; exists (singleton_trace s' (Terminating s0)), (ctrace2trace ctr2).
           subst ctrd2.
           split; [| split].
-         -- apply singleton_trace_decrease; auto.
+         -- apply singleton_trace_forward; auto.
          -- apply (SmallStepSemantics.Build_denote _ _ _ _ _ ctr2 H7 H8 _ _ H9); auto.
          -- unfold ctrace2trace.
             rewrite stream_map_stream_app.
@@ -369,7 +369,7 @@ Proof.
     - destruct ms; [right | right | left].
       * exists (singleton_trace s Error).
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ right; exists s.
           apply begin_end_state_singleton_trace.
        ++ simpl in H0.
@@ -377,7 +377,7 @@ Proof.
           stream_extensionality k; destruct k as [| [| ]]; auto.
       * exists (singleton_trace s NonTerminating).
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ left; exists s.
           apply begin_end_state_singleton_trace.
        ++ simpl in H0.
@@ -387,7 +387,7 @@ Proof.
         destruct H0 as [ctr' [? [? [? ?]]]].
         exists (singleton_trace s (Terminating s0)), (ctrace2trace ctr').
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ apply (SmallStepSemantics.Build_denote _ _ _ _ _ ctr' H0 H2 _ _ H3); auto.
        ++ subst.
           unfold ctrace2trace.
@@ -397,7 +397,7 @@ Proof.
     - destruct ms; [right | right | left].
       * exists (singleton_trace s Error).
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ right; exists s.
           apply begin_end_state_singleton_trace.
        ++ simpl in H0.
@@ -405,7 +405,7 @@ Proof.
           stream_extensionality k; destruct k as [| [| ]]; auto.
       * exists (singleton_trace s NonTerminating).
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ left; exists s.
           apply begin_end_state_singleton_trace.
        ++ simpl in H0.
@@ -415,7 +415,7 @@ Proof.
         destruct H0 as [ctr' [? [? [? ?]]]].
         exists (singleton_trace s (Terminating s0)), (ctrace2trace ctr').
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ apply (SmallStepSemantics.Build_denote _ _ _ _ _ ctr' H0 H2 _ _ H3); auto.
        ++ subst.
           unfold ctrace2trace.
@@ -456,7 +456,7 @@ Proof.
         destruct ms; inversion H6; clear H6.
         exists (singleton_trace s Error).
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ right.
           exists s.
           apply begin_end_state_singleton_trace; auto.
@@ -467,7 +467,7 @@ Proof.
         destruct ms; inversion H6; clear H6.
         exists (singleton_trace s NonTerminating).
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ left.
           exists s.
           apply begin_end_state_singleton_trace; auto.
@@ -479,7 +479,7 @@ Proof.
         destruct H4 as [ctrcd [? [? [? ?]]]].
         exists (singleton_trace s (Terminating s0)), (ctrace2trace ctrcd).
         split; [| split].
-       ++ apply singleton_trace_decrease_test; auto.
+       ++ apply singleton_trace_forward_test; auto.
        ++ rewrite H8 in H2.
           rewrite stream_app_skipn_stream in H2 by (apply singleton_trace_n_stream; auto).
           clear ctrs H H0 H1 H8 n.
@@ -525,7 +525,7 @@ Proof.
               apply (SmallStepSemantics.Build_denote _ _ _ _ _ ctrc' H15 H16 _ _ H17); auto.
               simpl.
               intros; rewrite step_Sskip; auto.
-           ** apply singleton_trace_decrease; auto.
+           ** apply singleton_trace_forward; auto.
               specialize (H14 0 _ _ eq_refl).
               apply step_Ssequence in H14.
               destruct H14.
