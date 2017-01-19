@@ -17,11 +17,11 @@ lib_FILES = \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
 GeneralLogic_FILES = \
-  Base.v
+  Base.v HenkinCompleteness.v
 
 MinimunLogic_FILES = \
   Syntax.v ProofTheory/Normal.v ProofTheory/Minimun.v ProofTheory/RewriteClass.v \
-  ProofTheory/ContextProperty.v HenkinCompleteness.v
+  ProofTheory/ContextProperty.v
 
 PropositionalLogic_FILES = \
   Syntax.v \
@@ -64,6 +64,15 @@ FILES = \
 $(FILES:%.v=%.vo): %.vo: %.v
 	@echo COQC $*.v
 	@$(COQC) $(COQ_FLAG) $(CURRENT_DIR)/$*.v
+
+lib: \
+  .depend $(lib_FILES:%.v=lib/%.vo)
+
+GeneralLogic: \
+  .depend $(GeneralLogic_FILES:%.v=GeneralLogic/%.vo)
+
+MinimunLogic: \
+  .depend $(MinimunLogic_FILES:%.v=MinimunLogic/%.vo)
 
 all: \
   $(FILES:%.v=%.vo) \

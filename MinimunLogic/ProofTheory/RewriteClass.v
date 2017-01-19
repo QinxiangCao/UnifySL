@@ -2,8 +2,10 @@ Require Import Coq.Classes.Morphisms.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.MinimunLogic.ProofTheory.LogicBase.
-Require Import Logic.MinimunLogic.ProofTheory.MinimunLogic.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.ProofTheory.Normal.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

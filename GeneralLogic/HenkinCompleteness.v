@@ -1,20 +1,7 @@
 Require Import Coq.Logic.Classical_Prop.
-Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.ContextProperty.
-Require Import Omega.
-
-Local Open Scope logic_base.
-
-Lemma contrapositive_strongly_complete {L: Language} {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD) (Gamma: ProofTheory L):
-  (forall Phi x, ~ Phi |-- x -> ~ consequence MC Phi x) ->
-  strongly_complete Gamma SM MC.
-Proof.
-  intros.
-  hnf; intros.
-  specialize (H Phi x).
-  tauto.
-Qed.
+Require Import Coq.Sets.Ensembles.
+Require Export Coq.Lists.List.
+Require Import Coq.omega.Omega.
 
 Definition LindenbaumChain {A: Type} (step: nat -> Ensemble A -> Ensemble A) (init: Ensemble A): nat -> Ensemble A :=
   fix l (n: nat): Ensemble A :=
