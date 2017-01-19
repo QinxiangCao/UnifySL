@@ -25,10 +25,6 @@ Class Semantics (L: Language) (MD: Model): Type := {
 
 Definition ModelClass (MD: Model) := model -> Prop.
 
-Class NormalLanguage (L: Language): Type := {
-  impp: expr -> expr -> expr
-}.
-
 Class KripkeModel (MD: Model): Type := {
   Kmodel: Type;
   Kworlds: Kmodel -> Type;
@@ -73,7 +69,6 @@ Definition strongly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (S
 Notation "m  |=  x" := (satisfies m x) (at level 70, no associativity) : logic_base.
 Notation "|--  x" := (provable x) (at level 71, no associativity) : logic_base.
 Notation "Phi  |--  x" := (derivable Phi x) (at level 70, no associativity) : logic_base.
-Notation "x --> y" := (impp x y) (at level 55, right associativity) : syntax.
 
 Module KripkeModelFamilyNotation.
 Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity) : kripke_model.

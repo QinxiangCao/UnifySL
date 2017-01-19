@@ -1,6 +1,8 @@
 Require Import Logic.lib.Coqlib.
-Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.ProofTheory.Normal.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

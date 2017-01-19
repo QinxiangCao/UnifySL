@@ -6,7 +6,7 @@ COQBIN=
 COQC=$(COQBIN)coqc
 COQDEP=$(COQBIN)coqdep
 
-DIRS = lib MinimunLogic PropositionalLogic SeparationLogic HoareLogic
+DIRS = lib GeneralLogic MinimunLogic PropositionalLogic SeparationLogic HoareLogic
 INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 COQ_FLAG = $(INCLUDE_DEMO)
 DEP_DEMO = -R $(CURRENT_DIR) Logic
@@ -16,9 +16,12 @@ lib_FILES = \
   Coqlib.v Bijection.v Countable.v NatChoice.v StrongInduction.v \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
+GeneralLogic_FILES = \
+  Base.v
+
 MinimunLogic_FILES = \
-  LogicBase.v MinimunLogic.v RewriteClass.v \
-  ContextProperty.v HenkinCompleteness.v
+  Syntax.v ProofTheory/Normal.v ProofTheory/Minimun.v ProofTheory/RewriteClass.v \
+  ProofTheory/ContextProperty.v HenkinCompleteness.v
 
 PropositionalLogic_FILES = \
   Syntax.v \
@@ -52,6 +55,7 @@ HoareLogic_FILES = \
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
+  $(GeneralLogic_FILES:%.v=GeneralLogic/%.v) \
   $(MinimunLogic_FILES:%.v=MinimunLogic/%.v) \
   $(PropositionalLogic_FILES:%.v=PropositionalLogic/%.v) \
   $(SeparationLogic_FILES:%.v=SeparationLogic/%.v) \
