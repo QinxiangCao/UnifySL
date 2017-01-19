@@ -19,18 +19,29 @@ lib_FILES = \
 GeneralLogic_FILES = \
   Base.v HenkinCompleteness.v
 
+MinimunLogic_ProofTheory_FILES = \
+  Normal.v Minimun.v RewriteClass.v ContextProperty.v
+
 MinimunLogic_FILES = \
-  Syntax.v ProofTheory/Normal.v ProofTheory/Minimun.v ProofTheory/RewriteClass.v \
-  ProofTheory/ContextProperty.v
+  Syntax.v $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v)
+
+PropositionalLogic_ProofTheory_FILES = \
+  Classical.v Intuitionistic.v \
+  GodelDummett.v WeakClassical.v
+
+PropositionalLogic_DeepEmbedded_FILES = \
+  PropositionalLanguage.v \
+  IntuitionisticLogic.v WeakClassicalLogic.v
 
 PropositionalLogic_FILES = \
-  Syntax.v \
-  IntuitionisticPropositionalLogic.v ClassicalPropositionalLogic.v \
-  GodelDummettLogic.v WeakClassicalLogic.v \
+  Syntax.v PropositionalLanguage.v \
   RewriteClass.v \
   KripkeSemantics.v TrivialSemantics.v \
   Sound_Classical_Trivial.v Complete_Classical_Trivial.v \
-  Sound_Kripke.v Complete_Kripke.v 
+  Sound_Kripke.v Complete_Kripke.v \
+  $(PropositionalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v)
+
 
 SeparationLogic_FILES = \
   Syntax.v SoundCompleteParameter.v \
@@ -84,7 +95,7 @@ depend:
 	@$(COQDEP) $(DEP_FLAG) $(FILES) > .depend
 
 clean:
-	@rm */*.vo */*.glob
+	@rm */*.vo */*.glob */*/*.vo */*/*.glob
 
 .DEFAULT_GOAL := all
 
