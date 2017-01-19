@@ -26,6 +26,54 @@ Definition orp {worlds: Type} (X: Ensemble worlds) (Y: Ensemble worlds): Ensembl
 
 Definition falsep {worlds: Type}: Ensemble worlds := fun m => False.
 
+Lemma impp_closed {worlds: Type} {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}:
+  forall (X: Ensemble worlds) (Y: Ensemble worlds),
+    upwards_closed_Kdenote X ->
+    upwards_closed_Kdenote Y ->
+    upwards_closed_Kdenote (impp X Y).
+Proof.
+  intros.
+  hnf; intros.
+  hnf in H2 |- *.
+  intros ? ?; apply H2.
+  etransitivity; eauto.
+Qed.
+
+Lemma andp_closed {worlds: Type} {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}:
+  forall (X: Ensemble worlds) (Y: Ensemble worlds),
+    upwards_closed_Kdenote X ->
+    upwards_closed_Kdenote Y ->
+    upwards_closed_Kdenote (andp X Y).
+Proof.
+  intros.
+  hnf; intros.
+  destruct H2.
+  split.
+  + apply (H n); auto.
+  + apply (H0 n); auto.
+Qed.
+
+Lemma orp_closed {worlds: Type} {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}:
+  forall (X: Ensemble worlds) (Y: Ensemble worlds),
+    upwards_closed_Kdenote X ->
+    upwards_closed_Kdenote Y ->
+    upwards_closed_Kdenote (orp X Y).
+Proof.
+  intros.
+  hnf; intros.
+  destruct H2; [left | right].
+  + apply (H n); auto.
+  + apply (H0 n); auto.
+Qed.
+
+Lemma falsep_closed {worlds: Type} {R: Relation worlds}:
+  upwards_closed_Kdenote falsep.
+Proof.
+  intros.
+  hnf; intros.
+  inversion H0.
+Qed.
+
 End Semantics.
 
 Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} (SM: Semantics L MD) : Type := {

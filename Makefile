@@ -34,6 +34,9 @@ PropositionalLogic_ProofTheory_FILES = \
 PropositionalLogic_Semantics_FILES = \
   Kripke.v Trivial.v
 
+PropositionalLogic_Sound_FILES = \
+  Sound_Kripke.v Sound_Classical_Trivial.v
+
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
   IntuitionisticLogic.v WeakClassicalLogic.v \
@@ -43,10 +46,11 @@ PropositionalLogic_DeepEmbedded_FILES = \
 PropositionalLogic_FILES = \
   Syntax.v PropositionalLanguage.v \
   KripkeModel.v \
-  Sound_Classical_Trivial.v Complete_Classical_Trivial.v \
-  Sound_Kripke.v Complete_Kripke.v \
+  Complete_Classical_Trivial.v \
+  Complete_Kripke.v \
   $(PropositionalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(PropositionalLogic_Semantics_FILES:%.v=Semantics/%.v) \
+  $(PropositionalLogic_Sound_FILES:%.v=Sound/%.v) \
   $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v)
 
 
