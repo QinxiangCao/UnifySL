@@ -20,8 +20,11 @@ Class Model: Type := {
 }.
 
 Class Semantics (L: Language) (MD: Model): Type := {
-  satisfies: model -> expr -> Prop
+  denotation: expr -> Ensemble model
 }.
+
+Definition satisfies {L: Language} {MD: Model} {SM: Semantics L MD}: model -> expr -> Prop :=
+  fun (m: model) (x: expr) => denotation x m.
 
 Definition ModelClass (MD: Model) := model -> Prop.
 

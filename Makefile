@@ -13,7 +13,8 @@ DEP_DEMO = -R $(CURRENT_DIR) Logic
 DEP_FLAG = $(DEP_DEMO) 
 
 lib_FILES = \
-  Coqlib.v Bijection.v Countable.v NatChoice.v StrongInduction.v \
+  Coqlib.v Ensembles_ext.v \
+  Bijection.v Countable.v NatChoice.v StrongInduction.v \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
 GeneralLogic_FILES = \
@@ -27,12 +28,17 @@ MinimunLogic_FILES = \
 
 PropositionalLogic_ProofTheory_FILES = \
   Intuitionistic.v WeakClassical.v \
-  GodelDummett.v Classical.v
+  GodelDummett.v Classical.v \
+  RewriteClass.v
+
+PropositionalLogic_Semantics_FILES = \
+  KripkeSemantics.v TrivialSemantics.v
 
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
   IntuitionisticLogic.v WeakClassicalLogic.v \
-  GodelDummettLogic.v ClassicalLogic.v
+  GodelDummettLogic.v ClassicalLogic.v \
+  TrivialSemantics.v
 
 PropositionalLogic_FILES = \
   Syntax.v PropositionalLanguage.v \
@@ -41,6 +47,7 @@ PropositionalLogic_FILES = \
   Sound_Classical_Trivial.v Complete_Classical_Trivial.v \
   Sound_Kripke.v Complete_Kripke.v \
   $(PropositionalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(PropositionalLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v)
 
 
