@@ -32,18 +32,17 @@ PropositionalLogic_ProofTheory_FILES = \
   RewriteClass.v
 
 PropositionalLogic_Semantics_FILES = \
-  KripkeSemantics.v TrivialSemantics.v
+  Kripke.v Trivial.v
 
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
   IntuitionisticLogic.v WeakClassicalLogic.v \
   GodelDummettLogic.v ClassicalLogic.v \
-  TrivialSemantics.v
+  KripkeSemantics.v TrivialSemantics.v
 
 PropositionalLogic_FILES = \
   Syntax.v PropositionalLanguage.v \
-  RewriteClass.v \
-  KripkeSemantics.v TrivialSemantics.v \
+  KripkeModel.v \
   Sound_Classical_Trivial.v Complete_Classical_Trivial.v \
   Sound_Kripke.v Complete_Kripke.v \
   $(PropositionalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \

@@ -34,6 +34,8 @@ Class KripkeModel (MD: Model): Type := {
   build_model: forall M: Kmodel, Kworlds M -> model
 }.
 
+Definition Kdenotation {L: Language} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {SM: Semantics L MD}: expr -> Ensemble (Kworlds M) := fun x m => denotation x (build_model M m).
+
 Definition unit_MD: Model := Build_Model unit.
 
 Definition unit_kMD (MD: Model): KripkeModel MD :=

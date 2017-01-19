@@ -3,7 +3,7 @@ Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.PropositionalLogic.Semantics.TrivialSemantics.
+Require Import Logic.PropositionalLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
 
 Definition model (Var: Type): Type := Var -> Prop.
