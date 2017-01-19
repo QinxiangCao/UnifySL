@@ -26,12 +26,13 @@ MinimunLogic_FILES = \
   Syntax.v $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v)
 
 PropositionalLogic_ProofTheory_FILES = \
-  Classical.v Intuitionistic.v \
-  GodelDummett.v WeakClassical.v
+  Intuitionistic.v WeakClassical.v \
+  GodelDummett.v Classical.v
 
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
-  IntuitionisticLogic.v WeakClassicalLogic.v
+  IntuitionisticLogic.v WeakClassicalLogic.v \
+  GodelDummettLogic.v ClassicalLogic.v
 
 PropositionalLogic_FILES = \
   Syntax.v PropositionalLanguage.v \
