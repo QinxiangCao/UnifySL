@@ -14,7 +14,7 @@ Context {worlds : Type}
         {kiM: KripkeIntuitionisticModel worlds}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}
-        {dSA: UpwardsClosedSeparationAlgebra worlds}.
+        {uSA: UpwardsClosedSeparationAlgebra worlds}.
 
   (** *Downwards CLosure*)
 

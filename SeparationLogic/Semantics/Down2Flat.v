@@ -37,12 +37,12 @@ Context {L: Language}
         {kiM: KripkeIntuitionisticModel (Kworlds M)}
         {J: Join  (Kworlds M)}
         {SA: SeparationAlgebra (Kworlds M)}
-        {uSA: DownwardsClosedSeparationAlgebra (Kworlds M)}
+        {dSA: DownwardsClosedSeparationAlgebra (Kworlds M)}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
         {dsSM: DownwardsSemantics.SeparatingSemantics L MD M SM}.
 
-Definition fsSM: @FlatSemantics.SeparatingSemantics L _ MD _ M _ (UpwardsClosure_J) SM.
+Definition fsSM: @FlatSemantics.SeparatingSemantics L _ MD _ M _ UpwardsClosure_J SM.
 Proof.
   constructor.
   + (* sat_sepcon *)
@@ -74,13 +74,14 @@ Proof.
       reflexivity.
 Qed.
 
-Definition UsSM {s'L: SeparationEmpLanguage L} {USA: UnitalSeparationAlgebra (Kworlds M)} {deSM: DownwardsSemantics.EmpSemantics L MD M SM} : @FlatSemantics.EmpSemantics L _ _ MD _ M _ (UpwardsClosure_J) SM.
+Definition feSM {s'L: SeparationEmpLanguage L} {USA: UnitalSeparationAlgebra (Kworlds M)} {deSM: DownwardsSemantics.EmpSemantics L MD M SM}: @FlatSemantics.EmpSemantics L _ _ MD _ M _ UpwardsClosure_J SM.
 Proof.
   split; intros m; unfold Ensembles.In; unfold WeakSemantics.emp;
   rewrite <- UpwardsClosure_increasing;
   apply DownwardsSemantics.denote_emp.
 Qed.
 
+End Down2Flat.
 End Down2Flat.
 
 (*

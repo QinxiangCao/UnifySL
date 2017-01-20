@@ -64,8 +64,9 @@ SeparationLogic_Model_FILES = \
 SeparationLogic_Semantics_FILES = \
   WeakSemantics.v StrongSemantics.v \
   UpwardsSemantics.v DownwardsSemantics.v FlatSemantics.v \
-  SemanticsExtension.v \
-  DownUpSemantics_Fail.v
+  DownUpSemantics_Fail.v \
+  Down2Flat.v Up2Flat.v \
+  SemanticsExtension.v
 
 SeparationLogic_Sound_FILES = \
   Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \

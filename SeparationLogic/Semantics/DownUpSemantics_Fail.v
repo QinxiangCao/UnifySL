@@ -1,20 +1,79 @@
 Require Import Coq.Logic.Classical_Prop.
+Require Import Coq.Classes.RelationClasses.
+Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.PropositionalLogic.Syntax.
+Require Import Logic.GeneralLogic.Base.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.SeparationLogic.Model.OrderedSA.
+Require Logic.SeparationLogic.Semantics.WeakSemantics.
+Require Logic.SeparationLogic.Semantics.StrongSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Local Open Scope kripke_model.
-Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Class DownUpSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} (SM: Semantics L MD) {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type := {
-  sat_sepcon: forall m x y, KRIPKE: M , m |= x * y <-> exists m0 m1 m2, m <= m0 /\ join m1 m2 m0 /\ KRIPKE: M , m1 |= x /\ KRIPKE: M, m2 |= y;
-  sat_wand: forall m x y, KRIPKE: M , m |= x -* y <-> forall m0 m1 m2, m0 <= m -> join m1 m0 m2 -> KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
+Class SeparatingSemantics
+      (L: Language)
+      {sL: SeparationLanguage L}
+      (MD: Model)
+      {kMD: KripkeModel MD}
+      (M: Kmodel)
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      (SM: Semantics L MD): Type :=
+{
+  denote_sepcon: forall x y, Same_set _ (Kdenotation M (x * y)) (StrongSemantics.sepcon (Kdenotation M x) (Kdenotation M y));
+  denote_wand: forall x y, Same_set _ (Kdenotation M (x -* y)) (StrongSemantics.wand (Kdenotation M x) (Kdenotation M y))
 }.
+
+Lemma sat_sepcon
+      {L: Language}
+      {sL: SeparationLanguage L}
+      {MD: Model}
+      {kMD: KripkeModel MD}
+      {M: Kmodel}
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      {SM: Semantics L MD}
+      {fsSM: SeparatingSemantics L MD M SM}:
+  forall m x y,
+    KRIPKE: M , m |= x * y <->
+    exists m0 m1 m2, m0 <= m /\
+                     join m1 m2 m0 /\
+                     KRIPKE: M , m1 |= x /\
+                     KRIPKE: M, m2 |= y.
+Proof.
+  intros; simpl.
+  unfold satisfies.
+  destruct (denote_sepcon x y).
+  split; [apply H | apply H0].
+Qed.
+
+Lemma sat_wand
+      {L: Language}
+      {sL: SeparationLanguage L}
+      {MD: Model}
+      {kMD: KripkeModel MD}
+      {M: Kmodel}
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      {SM: Semantics L MD}
+      {fsSM: SeparatingSemantics L MD M SM}:
+  forall m x y,
+    KRIPKE: M , m |= x -* y <->
+    forall m0 m1 m2, m <= m0 ->
+                     join m0 m1 m2 ->
+                     KRIPKE: M , m1 |= x ->
+                     KRIPKE: M, m2 |= y.
+Proof.
+  intros; simpl.
+  unfold satisfies.
+  destruct (denote_wand x y).
+  split; [apply H | apply H0].
+Qed.
+
