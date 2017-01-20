@@ -1,4 +1,3 @@
-(* RODO: use Ensemble *)
 Require Import Coq.Sets.Ensembles.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.

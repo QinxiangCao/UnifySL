@@ -1,18 +1,22 @@
+Require Import Coq.Sets.Ensembles.
+Require Import Coq.Logic.Classical_Prop.
+Require Import Coq.Classes.RelationClasses.
+Require Import Coq.Relations.Relation_Definitions.
 Require Import Coq.Logic.ChoiceFacts. 
 Require Import Coq.Logic.ClassicalChoice.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.SeparationLogic.Model.OrderedSA.
 
+Definition identity_R {worlds}: Relation worlds := eq.
 
-
-Program Definition identity_kiM {worlds}:
-  KripkeIntuitionisticModel worlds :=
-  Build_KripkeIntuitionisticModel worlds (fun a b => a = b) _.
-  Next Obligation.
-    constructor; hnf; intros.
-    + auto.
-    + subst; auto.
-  Qed.
+Definition identity_kiM {worlds}:
+  @KripkeIntuitionisticModel worlds identity_R.
+Proof.
+  constructor; hnf; intros; hnf in *.
+  + auto.
+  + subst; auto.
+Qed.
 
 (***********************************)
 (* Separation Algebra Generators   *)
@@ -31,28 +35,22 @@ Section trivialSA.
 
   (* Trivial algebra is upwards closed *)
   (* Trivial is NOT downwards closed *)
-  Definition trivial_uSA {kiM: KripkeIntuitionisticModel worlds}:
-    @UpwardsClosedSeparationAlgebra worlds (trivial_Join) kiM.
+  Definition trivial_uSA {R: Relation worlds}:
+    @UpwardsClosedSeparationAlgebra worlds R (trivial_Join).
   Proof.
     intros until m2; intros.
     inversion H.
   Qed.
-  
-  Definition trivial_gcSA: @GarbageCollectSeparationAlgebra
-                           worlds identity_kiM trivial_Join.
+
+  (*Increasing*)
+  Definition trivial_incrSA: @IncreasingSeparationAlgebra
+                           worlds identity_R trivial_Join.
   Proof.
     constructor; intros.
+    hnf; intros.
     inversion H.
   Qed.
 
-  (*Nonpositive*)
-  Instance trivial_incrSA:
-    @IncreasingSeparationAlgebra worlds identity_kiM (trivial_Join).
-  Proof.
-    constructor; intros; hnf; intros.
-    inversion H.
-  Qed.
-  
   (*Trivial is NOT necessarily unital*)
 
   (*Trivial is NOT necessarily residual*)
@@ -69,48 +67,48 @@ Section unitSA.
     + intros; exists tt; split; constructor.
   Qed.
 
-  Program Definition unit_kiM: KripkeIntuitionisticModel unit:=
-    Build_KripkeIntuitionisticModel unit (fun _ _=> True) _.
-  Next Obligation.
-    constructor; auto.
-  Defined.
-  
+  Definition unit_R: Relation unit:= fun _ _=> True.
+
+  Definition unit_kiM: @KripkeIntuitionisticModel unit unit_R.
+  Proof.
+    constructor; hnf; intros; hnf; auto.
+  Qed.
   
   (* Unit algebra is upwards closed *)
   Definition unit_uSA:
-    @UpwardsClosedSeparationAlgebra unit (unit_Join) unit_kiM.
+    @UpwardsClosedSeparationAlgebra unit unit_R unit_Join.
   Proof.
     intros; exists tt, tt; intuition.
   Qed.
 
   (* Unit algebra is downwards closed *)
   Definition unit_dSA:
-    @DownwardsClosedSeparationAlgebra unit (unit_Join) unit_kiM.
+    @DownwardsClosedSeparationAlgebra unit unit_R unit_Join.
   Proof.
     intros; exists tt; intuition.
   Qed.
 
-  (*Nonpositive*)
+  (*Increasing*)
   Instance unit_incrSA:
-    @IncreasingSeparationAlgebra unit unit_kiM (unit_Join).
+    @IncreasingSeparationAlgebra unit unit_R unit_Join.
   Proof.
     constructor; intros; hnf; intros.
     constructor.
   Qed.
 
-  Instance residual_incrSA:
-    @ResidualSeparationAlgebra unit unit_kiM (unit_Join).
+  Instance unit_residual:
+    @ResidualSeparationAlgebra unit unit_R unit_Join.
   Proof.
     constructor; intros.
     exists tt; exists tt; split; constructor.
   Qed.
-  
-  Definition unital_incrSA:
-    @UnitalSeparationAlgebra unit unit_kiM (unit_Join).
+
+  Definition unit_unital:
+    @UnitalSeparationAlgebra unit unit_R unit_Join.
   Proof.
-    apply incr_unital_iff_residual; auto.
-    apply unit_incrSA.
-    apply residual_incrSA.
+    apply <- (@incr_unital_iff_residual unit unit_R unit_kiM unit_Join); auto.
+    + apply unit_residual.
+    + apply unit_incrSA.
   Qed.
 
 End unitSA.
@@ -136,30 +134,30 @@ Section equivSA.
 
   (* Identity algebra is upwards closed *)
   (* Identity is NOT downwards closed *)
-  Definition identity_uSA {kiM: KripkeIntuitionisticModel worlds}:
-    @UpwardsClosedSeparationAlgebra worlds (equiv_Join) kiM.
+  Definition identity_uSA {R: Relation worlds}:
+    @UpwardsClosedSeparationAlgebra worlds R equiv_Join.
   Proof.
     intros until m2; intros.
     destruct H; subst m1 m2.
     exists n, n; do 2 split; auto.
   Qed.
-  
-  
-  Definition equiv_gcSA: @GarbageCollectSeparationAlgebra
-                           worlds identity_kiM equiv_Join.
+
+  Definition equiv_gcSA: @IncreasingSeparationAlgebra
+                           worlds identity_R equiv_Join.
   Proof.
     constructor; intros.
+    hnf; intros.
     inversion H; subst.
     constructor.
   Qed.
 
-  Instance identity_ikiM: @IdentityKripkeIntuitionisticModel worlds (identity_kiM).
+  Instance identity_ikiM: @IdentityKripkeIntuitionisticModel worlds identity_R.
   Proof.
     constructor.
     intros; auto.
   Qed.
 
-  Definition ikiM_uSA {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: UpwardsClosedSeparationAlgebra worlds.
+  Definition ikiM_uSA {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: UpwardsClosedSeparationAlgebra worlds.
   Proof.
     intros until m2; intros.
     apply Korder_identity in H0.
@@ -168,7 +166,7 @@ Section equivSA.
     split; [| split]; auto; reflexivity.
   Qed.
 
-  Definition ikiM_dSA {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: DownwardsClosedSeparationAlgebra worlds.
+  Definition ikiM_dSA {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: DownwardsClosedSeparationAlgebra worlds.
   Proof.
     intros until n2; intros.
     apply Korder_identity in H0.
@@ -225,12 +223,21 @@ Section optionSA.
   Qed.
 
   Inductive option_order
-            {kiM: KripkeIntuitionisticModel worlds}: option worlds -> option worlds -> Prop :=
+            {R: Relation worlds}
+            {kiM: KripkeIntuitionisticModel worlds}:
+    option worlds -> option worlds -> Prop :=
   | None_None_order: option_order None None
   | None_Some_order: forall a, option_order None (Some a)
-  | Some_Some_order: forall a b, Korder a b -> option_order (Some a) (Some b).
+  | Some_Some_order: forall a b, Krelation a b -> option_order (Some a) (Some b).
 
-  Program Definition option_kiM {kiM: KripkeIntuitionisticModel worlds}: KripkeIntuitionisticModel (option worlds) :=
+  Definition option_R {R: Relation worlds}: Relation (option worlds).
+hnf; intros.
+destruct X.
++ constructor; reflexivity.
+  Lemma option_kiM
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}:
+    KripkeIntuitionisticModel (option worlds) :=
     Build_KripkeIntuitionisticModel (option worlds) (@option_order _) _.
   Next Obligation.
     pose proof Korder_PreOrder as H_PreOrder.
@@ -241,7 +248,7 @@ Section optionSA.
       + inversion H; inversion H0; subst; try first [congruence | constructor].
         inversion H5; subst.
         etransitivity; eauto.
-  Defined.
+  Defined.·
 
   (* Upwards closed*)
   Program Definition option_uSA
