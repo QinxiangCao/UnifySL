@@ -1,6 +1,3 @@
-Require Import Coq.Logic.ProofIrrelevance.
-Require Import Logic.lib.Bijection.
-Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 

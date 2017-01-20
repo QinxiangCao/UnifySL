@@ -57,8 +57,12 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
+SeparationLogic_DeepEmbedded_FILES = \
+  SeparationLanguage.v SeparationEmpLanguage.v
+
 SeparationLogic_FILES = \
   Syntax.v SoundCompleteParameter.v \
+  $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
   SeparationLogic.v SeparationLogicExtension.v \
   SeparationAlgebra.v SeparationAlgebraConstruction.v \
   SeparationAlgebraGenerators.v \
