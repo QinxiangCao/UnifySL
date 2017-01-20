@@ -41,10 +41,11 @@ PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
   IntuitionisticLogic.v WeakClassicalLogic.v \
   GodelDummettLogic.v ClassicalLogic.v \
-  KripkeSemantics.v TrivialSemantics.v
+  KripkeSemantics.v TrivialSemantics.v \
+  Soundness.v
 
 PropositionalLogic_FILES = \
-  Syntax.v PropositionalLanguage.v \
+  Syntax.v\
   KripkeModel.v \
   Complete_Classical_Trivial.v \
   Complete_Kripke.v \

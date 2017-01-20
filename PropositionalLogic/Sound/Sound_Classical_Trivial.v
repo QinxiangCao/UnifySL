@@ -114,23 +114,5 @@ Proof.
   tauto.
 Qed.
 (*
-Theorem sound_classical_trivial (Var: Type): sound (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var) (AllModel _).
-Proof.
-  hnf; intros.
-  intro m.
-  intros _.
-  induction H.
-  + pose proof sound_modus_ponens x y.
-    exact (H1 m IHprovable1 IHprovable2).
-  + apply sound_axiom1.
-  + apply sound_axiom2.
-  + apply sound_andp_intros.
-  + apply sound_andp_elim1. 
-  + apply sound_andp_elim2.
-  + apply sound_orp_intros1.
-  + apply sound_orp_intros2.
-  + apply sound_orp_elim.
-  + apply sound_falsep_elim.
-  + apply sound_excluded_middle.
-Qed.
+
 *)
