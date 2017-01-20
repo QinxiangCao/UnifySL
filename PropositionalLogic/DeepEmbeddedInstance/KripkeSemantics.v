@@ -21,7 +21,7 @@ Infix "<=" := (Krelation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := sig (@upwards_closed_Kdenote f (Krelation f)).
+Definition sem (f: frame) := @sig (_ -> Prop) (@upwards_closed_Kdenote f (Krelation f)).
 
 Program Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
   fix denotation (x: expr Var): sem F:=

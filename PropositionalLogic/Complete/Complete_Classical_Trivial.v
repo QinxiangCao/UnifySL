@@ -1,13 +1,18 @@
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
-Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.ContextProperty.
-Require Import Logic.MinimunLogic.HenkinCompleteness.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.HenkinCompleteness.
+Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
-Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
-Require Import Logic.PropositionalLogic.TrivialSemantics.
+Require Import Logic.MinimunLogic.ProofTheory.Normal.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
+Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.Classical.
+Require Import Logic.PropositionalLogic.Semantics.Trivial.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.ClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.TrivialSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -21,11 +26,11 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance G: ProofTheory L := ClassicalPropositionalLogic.G Var.
-Instance nG: NormalProofTheory L G := ClassicalPropositionalLogic.nG Var.
-Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
-Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogic.ipG Var.
-Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
+Instance G: ProofTheory L := ClassicalLogic.G Var.
+Instance nG: NormalProofTheory L G := ClassicalLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := ClassicalLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalLogic.ipG Var.
+Instance cpG: ClassicalPropositionalLogic L G := ClassicalLogic.cpG Var.
 Instance MD: Model := TrivialSemantics.MD Var.
 Instance SM: Semantics L MD := TrivialSemantics.SM Var.
 
@@ -91,15 +96,15 @@ Proof.
   induction x; try solve [inversion H0].
   + pose proof MCS_andp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
     simpl in *.
-    unfold TrivialSemantics.sem_and.
+    unfold Semantics.andp.
     tauto.
   + pose proof MCS_orp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
     simpl in *.
-    unfold TrivialSemantics.sem_or.
+    unfold Semantics.orp.
     tauto.
   + pose proof MCS_impp_iff (proj1_sig Phi) (proj2_sig Phi) x1 x2.
     simpl in *.
-    unfold TrivialSemantics.sem_imp.
+    unfold Semantics.impp.
     tauto.
   + simpl.
     rewrite H.
@@ -112,7 +117,7 @@ Proof.
     tauto.
 Qed.
 
-Theorem complete_classical_trivial: strongly_complete (ClassicalPropositionalLogic.G Var) (TrivialSemantics.SM Var) (AllModel _).
+Theorem complete_classical_trivial: strongly_complete (ClassicalLogic.G Var) (TrivialSemantics.SM Var) (AllModel _).
 Proof.
   assert (forall Phi, consistent Phi -> satisfiable (AllModel _) Phi).
   + intros.

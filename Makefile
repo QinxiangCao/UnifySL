@@ -44,16 +44,18 @@ PropositionalLogic_DeepEmbedded_FILES = \
   KripkeSemantics.v TrivialSemantics.v \
   Soundness.v
 
+PropositionalLogic_Complete_FILES = \
+  Complete_Classical_Trivial.v \
+  Complete_Kripke.v
+
 PropositionalLogic_FILES = \
   Syntax.v\
   KripkeModel.v \
-  Complete_Classical_Trivial.v \
-  Complete_Kripke.v \
   $(PropositionalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(PropositionalLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(PropositionalLogic_Sound_FILES:%.v=Sound/%.v) \
-  $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v)
-
+  $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
+  $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
 SeparationLogic_FILES = \
   Syntax.v SoundCompleteParameter.v \

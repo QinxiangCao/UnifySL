@@ -6,7 +6,7 @@ Class Language: Type := {
   expr: Type
 }.
 
-Definition context {L: Language}: Type := Ensemble expr.
+Definition context {L: Language}: Type := expr -> Prop. (* better to be (Ensemble model) if Ensemble is polymorphic *)
 
 Definition empty_context {L: Language}: context := Empty_set _.
 
@@ -20,7 +20,7 @@ Class Model: Type := {
 }.
 
 Class Semantics (L: Language) (MD: Model): Type := {
-  denotation: expr -> Ensemble model
+  denotation: expr -> model -> Prop (* better to be (expr -> Ensemble model) if Ensemble is polymorphic *)
 }.
 
 Definition satisfies {L: Language} {MD: Model} {SM: Semantics L MD}: model -> expr -> Prop :=

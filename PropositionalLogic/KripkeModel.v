@@ -1,10 +1,11 @@
+(* RODO: use Ensemble *)
 Require Import Coq.Sets.Ensembles.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 
 Class Relation (worlds: Type): Type :=
-  Krelation: worlds -> worlds -> Prop (* <= *).
+  Krelation: worlds -> Ensemble worlds (* <= *).
 
 Class KripkeIntuitionisticModel (worlds: Type) {R: Relation worlds}: Type :=
   Krelation_Preorder :> PreOrder Krelation.

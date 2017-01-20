@@ -1,18 +1,28 @@
+(* Split it into General proofs and the proof for DeepEmbedded *)
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
-Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.ContextProperty.
-Require Import Logic.MinimunLogic.HenkinCompleteness.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.HenkinCompleteness.
+Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
-Require Import Logic.PropositionalLogic.WeakClassicalLogic.
-Require Import Logic.PropositionalLogic.GodelDummettLogic.
-Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
+Require Import Logic.MinimunLogic.ProofTheory.Normal.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
+Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
+Require Import Logic.PropositionalLogic.ProofTheory.Classical.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.IntuitionisticLogic.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.WeakClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.GodelDummettLogic.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.ClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbeddedInstance.KripkeSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -31,6 +41,7 @@ Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
 Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
@@ -165,6 +176,7 @@ Defined.
 Program Definition canonical_eval {Gamma: ProofTheory L}: Var -> KripkeSemantics.sem canonical_frame :=
   fun p a => a (PropositionalLanguage.varp p).
 Next Obligation.
+  hnf; intros.
   apply H; auto.
 Qed.
 
@@ -222,7 +234,7 @@ Proof.
       rewrite H in H0, H2 |- *.
       eapply deduction_weaken in H0; [| exact H1].
       eapply deduction_modus_ponens; [exact H2 | exact H0].
-  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ Phi.
+  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ _ Phi.
     split; [intros; tauto | intros].
     rewrite H in H1.
     pose proof proj2_sig Phi.
@@ -245,12 +257,13 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance G: ProofTheory L := IntuitionisticPropositionalLogic.G Var.
-Instance nG: NormalProofTheory L G := IntuitionisticPropositionalLogic.nG Var.
-Instance mpG: MinimunPropositionalLogic L G := IntuitionisticPropositionalLogic.mpG Var.
-Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticPropositionalLogic.ipG Var.
+Instance G: ProofTheory L := IntuitionisticLogic.G Var.
+Instance nG: NormalProofTheory L G := IntuitionisticLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := IntuitionisticLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticLogic.ipG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
 Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
@@ -300,13 +313,14 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance G: ProofTheory L := ClassicalPropositionalLogic.G Var.
-Instance nG: NormalProofTheory L G := ClassicalPropositionalLogic.nG Var.
-Instance mpG: MinimunPropositionalLogic L G := ClassicalPropositionalLogic.mpG Var.
-Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalPropositionalLogic.ipG Var.
-Instance cpG: ClassicalPropositionalLogic L G := ClassicalPropositionalLogic.cpG Var.
+Instance G: ProofTheory L := ClassicalLogic.G Var.
+Instance nG: NormalProofTheory L G := ClassicalLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := ClassicalLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := ClassicalLogic.ipG Var.
+Instance cpG: ClassicalPropositionalLogic L G := ClassicalLogic.cpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
 Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M) := KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
@@ -373,13 +387,14 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance G: ProofTheory L := GodelDummettPropositionalLogic.G Var.
-Instance nG: NormalProofTheory L G := GodelDummettPropositionalLogic.nG Var.
-Instance mpG: MinimunPropositionalLogic L G := GodelDummettPropositionalLogic.mpG Var.
-Instance ipG: IntuitionisticPropositionalLogic L G := GodelDummettPropositionalLogic.ipG Var.
-Instance gdG: GodelDummettPropositionalLogic L G := GodelDummettPropositionalLogic.gdG Var.
+Instance G: ProofTheory L := GodelDummettLogic.G Var.
+Instance nG: NormalProofTheory L G := GodelDummettLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := GodelDummettLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := GodelDummettLogic.ipG Var.
+Instance gdG: GodelDummettPropositionalLogic L G := GodelDummettLogic.gdpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
 Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
@@ -403,7 +418,7 @@ Proof.
   apply not_all_ex_not in H1.
   apply not_all_ex_not in H2.
   destruct H1 as [x1 ?], H2 as [x2 ?].
-  pose proof GodelDummettLogic.derivable_impp_choice (proj1_sig n) x1 x2.
+  pose proof GodelDummett.derivable_impp_choice (proj1_sig n) x1 x2.
   rewrite <- derivable_closed_element_derivable in H3 by (destruct (proj2_sig n); tauto).
   pose proof (proj1 (proj2 (proj2_sig n))).
   apply H4 in H3; clear H4.
@@ -469,9 +484,10 @@ Instance G: ProofTheory L := WeakClassicalLogic.G Var.
 Instance nG: NormalProofTheory L G := WeakClassicalLogic.nG Var.
 Instance mpG: MinimunPropositionalLogic L G := WeakClassicalLogic.mpG Var.
 Instance ipG: IntuitionisticPropositionalLogic L G := WeakClassicalLogic.ipG Var.
-Instance wpG: WeakClassicalLogic L G := WeakClassicalLogic.wcG Var.
+Instance wpG: WeakClassicalPropositionalLogic L G := WeakClassicalLogic.wcpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
+Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
 Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
@@ -498,7 +514,7 @@ Proof.
     apply derivable_closed_union_derivable in H8; [| auto].
     destruct H8 as [x [? ?]].
     rewrite derivable_closed_element_derivable in H8 by auto.
-    pose proof WeakClassicalLogic.derivable_weak_excluded_middle (proj1_sig n) x.
+    pose proof WeakClassical.derivable_weak_excluded_middle (proj1_sig n) x.
     rewrite <- derivable_closed_element_derivable in H10 by auto.
     apply (H6 (~~ x)) in H10.
     destruct H10.
