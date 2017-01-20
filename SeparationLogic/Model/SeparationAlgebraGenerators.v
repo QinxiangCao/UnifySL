@@ -222,40 +222,35 @@ Section optionSA.
                     | apply None_Some_join | apply Some_Some_join; eauto].
   Qed.
 
-  Inductive option_order
-            {R: Relation worlds}
-            {kiM: KripkeIntuitionisticModel worlds}:
+  Inductive option_order {R: Relation worlds}:
     option worlds -> option worlds -> Prop :=
   | None_None_order: option_order None None
   | None_Some_order: forall a, option_order None (Some a)
   | Some_Some_order: forall a b, Krelation a b -> option_order (Some a) (Some b).
 
-  Definition option_R {R: Relation worlds}: Relation (option worlds).
-hnf; intros.
-destruct X.
-+ constructor; reflexivity.
+  Definition option_R {R: Relation worlds}: Relation (option worlds) := option_order.
+
   Lemma option_kiM
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}:
-    KripkeIntuitionisticModel (option worlds) :=
-    Build_KripkeIntuitionisticModel (option worlds) (@option_order _) _.
-  Next Obligation.
-    pose proof Korder_PreOrder as H_PreOrder.
+    @KripkeIntuitionisticModel (option worlds) option_R.
+  Proof.
     constructor; hnf; intros.
     + destruct x.
-    - constructor; reflexivity.
-    - constructor.
-      + inversion H; inversion H0; subst; try first [congruence | constructor].
-        inversion H5; subst.
-        etransitivity; eauto.
-  Defined.·
+      - constructor; reflexivity.
+      - constructor.
+    + inversion H; inversion H0; subst; try first [congruence | constructor].
+      inversion H5; subst.
+      etransitivity; eauto.
+  Qed.
 
   (* Upwards closed*)
-  Program Definition option_uSA
-             {J: Join worlds}
-             {kiM: KripkeIntuitionisticModel worlds}
-             (uSA: UpwardsClosedSeparationAlgebra worlds)
-             : @UpwardsClosedSeparationAlgebra (option worlds) (option_Join) (option_kiM).
+  Lemma option_uSA
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        (uSA: UpwardsClosedSeparationAlgebra worlds):
+    @UpwardsClosedSeparationAlgebra (option worlds) option_R option_Join.
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -273,13 +268,14 @@ destruct X.
   Qed.
 
   (* Downwards closed IF the algebra is increasing*)
-  Program Definition option_dSA
-             {J: Join worlds}
-             {kiM: KripkeIntuitionisticModel worlds}
-             (dSA: DownwardsClosedSeparationAlgebra worlds)
-             {SA: SeparationAlgebra worlds}
-             {gcSA: GarbageCollectSeparationAlgebra worlds}
-    : @DownwardsClosedSeparationAlgebra (option worlds) (option_Join) (option_kiM).
+  Lemma option_dSA
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}
+        (dSA: DownwardsClosedSeparationAlgebra worlds)
+        {incrSA: IncreasingSeparationAlgebra worlds}:
+    @DownwardsClosedSeparationAlgebra (option worlds) option_R option_Join.
   Proof.
     hnf; intros.
     inversion H0; [ | | inversion H1]; subst.
@@ -289,27 +285,22 @@ destruct X.
       destruct n2; constructor.
       + inversion H1.
       + inversion H; subst.
-        apply join_comm in H6.
-        apply join_has_order1 in H6.
+        apply all_increasing in H6.
         inversion H1; subst.
         transitivity b; auto.
     - exists (Some a); split; try constructor.
       inversion H; subst; auto.
     - exists (Some a); split; try constructor.
+      pose proof option_kiM.
       transitivity (Some b); auto.
       inversion H; subst.
-      constructor; eapply join_has_order1. eassumption.
+      constructor. eapply all_increasing. apply join_comm; eassumption.
     - inversion H; subst.
       destruct (dSA _ _ _ _ _ H6 H2 H5) as [n [HH1 HH2]].
       exists (Some n); split; constructor; auto.
   Qed.
 
-  
-
 End optionSA.
-
-
-
 
 Section exponentialSA.
   Definition fun_Join (A B: Type) {J_B: Join B}: Join (A -> B) :=
@@ -333,30 +324,34 @@ Section exponentialSA.
     - exists myz; firstorder.
   Qed.
 
-  Program Definition fun_kiM (A B: Type) {kiM_B: KripkeIntuitionisticModel B}: KripkeIntuitionisticModel (A -> B) :=
-    Build_KripkeIntuitionisticModel _ (fun a b => forall x, Korder (a x) (b x)) _.
-  Next Obligation.
-    pose proof Korder_PreOrder as H_PreOrder.
+  Definition fun_R (A B: Type) {R_B: Relation B}: Relation (A -> B) :=
+     fun a b => forall x, Krelation (a x) (b x).
+
+  Lemma fun_kiM (A B: Type) {R: Relation B} {kiM_B: KripkeIntuitionisticModel B}:
+    @KripkeIntuitionisticModel (A -> B) (fun_R A B).
+  Proof.
     constructor; hnf; intros.
-    + reflexivity.
-    + specialize (H x0); specialize (H0 x0).
+    + hnf; intros; reflexivity.
+    + hnf in *; intros.
+      specialize (H x0); specialize (H0 x0).
       etransitivity; eauto.
   Qed.
 
   (* Exponential is upwards closed *)
-  Program Definition fun_uSA 
-             (A B: Type)
-             {J_B: Join B}
-             {kiM_B: KripkeIntuitionisticModel B}
-             (uSA_B: UpwardsClosedSeparationAlgebra B)
-             : @UpwardsClosedSeparationAlgebra (A -> B) (fun_Join A B) (fun_kiM A B).
+  Lemma fun_uSA 
+        (A B: Type)
+        {R_B: Relation B}
+        {kiM_B: KripkeIntuitionisticModel B}
+        {J_B: Join B}
+        (uSA_B: UpwardsClosedSeparationAlgebra B):
+    @UpwardsClosedSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
   Proof.
     hnf; intros.
     unfold join, fun_Join in H.
-    unfold Korder, fun_kiM in H0.
+    unfold Krelation, fun_R in H0.
     destruct (choice (fun x nn => join (fst nn) (snd nn) (n x) /\
-                               Korder (m1 x) (fst nn) /\
-                               Korder (m2 x) (snd nn)))
+                               Krelation (m1 x) (fst nn) /\
+                               Krelation (m2 x) (snd nn)))
       as [nn H1].
     intros x.
     destruct (uSA_B (m x) (n x) (m1 x) (m2 x) (H x) (H0 x)) as [x1 [x2 ?]];
@@ -368,18 +363,19 @@ Section exponentialSA.
 
   
   (* Exponential is downwards closed *)
-  Program Definition fun_dSA 
-             (A B: Type)
-             {J_B: Join B}
-             {kiM_B: KripkeIntuitionisticModel B}
-             (dSA_B: DownwardsClosedSeparationAlgebra B)
-             : @DownwardsClosedSeparationAlgebra (A -> B) (fun_Join A B) (fun_kiM A B).
+  Lemma fun_dSA 
+        (A B: Type)
+        {R_B: Relation B}
+        {kiM_B: KripkeIntuitionisticModel B}
+        {J_B: Join B}
+        (dSA_B: DownwardsClosedSeparationAlgebra B):
+    @DownwardsClosedSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
   Proof.
     hnf; intros.
     unfold join, fun_Join in H.
-    unfold Korder, fun_kiM in H0.
+    unfold Krelation, fun_R in H0.
     destruct (choice (fun x n => join (n1 x) (n2 x) (n) /\
-                               Korder (n) (m x)))
+                               Krelation (n) (m x)))
       as [n H2].
     intros x.
     destruct (dSA_B (m1 x) (m2 x) (m x) (n1 x) (n2 x) (H x) (H0 x)) as [x1 [x2 ?]]; auto;
@@ -387,14 +383,15 @@ Section exponentialSA.
 
     exists n; split; hnf; intros x; specialize (H2 x); destruct H2; auto.
   Qed.
-  
+
   (* Exponential is increasing *)
-  Program Definition fun_incrSA 
-             (A B: Type)
-             {J_B: Join B}
-             {kiM_B: KripkeIntuitionisticModel B}
-             (incr_B: IncreasingSeparationAlgebra B)
-             : @IncreasingSeparationAlgebra (A -> B) (fun_kiM A B)  (fun_Join A B).
+  Lemma fun_incrSA 
+        (A B: Type)
+        {R_B: Relation B}
+        {kiM_B: KripkeIntuitionisticModel B}
+        {J_B: Join B}
+        (incr_B: IncreasingSeparationAlgebra B):
+    @IncreasingSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
   Proof.
     constructor; intros.
     hnf; intros.
@@ -403,14 +400,14 @@ Section exponentialSA.
     eapply all_increasing; eauto.
   Qed.
 
-    
   (* Exponential is Unital*)
-  Program Definition fun_unitSA 
-             (A B: Type)
-             {J_B: Join B}
-             {kiM_B: KripkeIntuitionisticModel B}
-             (np_B: UnitalSeparationAlgebra B)
-             : @UnitalSeparationAlgebra (A -> B) (fun_kiM A B)  (fun_Join A B).
+  Lemma fun_unitSA 
+        (A B: Type)
+        {R_B: Relation B}
+        {kiM_B: KripkeIntuitionisticModel B}
+        {J_B: Join B}
+        (USA_B: UnitalSeparationAlgebra B):
+    @UnitalSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
   Proof.
     constructor; intros.
     - destruct (choice (fun x mx => residue (n x) mx /\ increasing mx)) as [M HH].
@@ -430,11 +427,12 @@ Section exponentialSA.
         specialize (HH x); destruct HH as [ _ HH].
         apply HH.
         auto.
-Qed.
+  Qed.
 
 End exponentialSA.
 
 Section sumSA.
+
   Inductive sum_worlds {worlds1 worlds2}: Type:
     Type:=
   | lw (w:worlds1): sum_worlds
@@ -467,18 +465,25 @@ Section sumSA.
       + exists (rw myz); split; constructor; auto.
   Qed.
 
-  
   (*Disjoint order (parallel composition)*)
   Inductive disjsum_order {A B: Type}
-            {kiM_A: KripkeIntuitionisticModel A}
-            {kiM_B: KripkeIntuitionisticModel B}:
+            {R_A: Relation A}
+            {R_B: Relation B}:
     @sum_worlds A B -> @sum_worlds A B -> Prop:=
   | lordd a1 a2: disjsum_order (lw a1) (lw a2)
   | rordd b1 b2: disjsum_order (rw b1) (rw b2).
 
-  Program Definition disjsum_kiM (A B: Type) {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B}: KripkeIntuitionisticModel (@sum_worlds A B) :=
-    Build_KripkeIntuitionisticModel _ disjsum_order  _.
-  Next Obligation.
+  Definition disjsum_R (A B: Type) {R_A: Relation A} {R_B: Relation B}:
+    Relation (@sum_worlds A B) := @disjsum_order A B _ _.
+
+  Lemma disjsum_kiM
+        (A B: Type)
+        {R_A: Relation A}
+        {kiM_A: KripkeIntuitionisticModel A}
+        {R_B: Relation B}
+        {kiM_B: KripkeIntuitionisticModel B}:
+    @KripkeIntuitionisticModel (@sum_worlds A B) (disjsum_R A B).
+  Proof.
     constructor; hnf; intros.
     - destruct x; constructor.
     - inversion H; subst; inversion H0; subst;
@@ -487,16 +492,24 @@ Section sumSA.
 
   (*Linear order (series composition)*)
   Inductive ordsum_order {A B: Type}
-            {kiM_A: KripkeIntuitionisticModel A}
-            {kiM_B: KripkeIntuitionisticModel B}:
+            {R_A: Relation A}
+            {R_B: Relation B}:
     @sum_worlds A B -> @sum_worlds A B -> Prop:=
   | lordo a1 a2: ordsum_order (lw a1) (lw a2)
   | rordo b1 b2: ordsum_order (rw b1) (rw b2)
   | landr a b: ordsum_order (lw a) (rw b).
 
-  Program Definition ordsum_kiM (A B: Type) {kiM_A: KripkeIntuitionisticModel A} {kiM_B: KripkeIntuitionisticModel B}: KripkeIntuitionisticModel (@sum_worlds A B) :=
-    Build_KripkeIntuitionisticModel _ ordsum_order  _.
-  Next Obligation.
+  Definition ordsum_R (A B: Type) {R_A: Relation A} {R_B: Relation B}:
+    Relation (@sum_worlds A B) := @ordsum_order A B _ _.
+
+  Lemma ordsum_kiM
+        (A B: Type)
+        {R_A: Relation A}
+        {kiM_A: KripkeIntuitionisticModel A}
+        {R_B: Relation B}
+        {kiM_B: KripkeIntuitionisticModel B}:
+    @KripkeIntuitionisticModel (@sum_worlds A B) (ordsum_R A B).
+  Proof.
     constructor; hnf; intros.
     - destruct x; constructor.
     - inversion H; subst; inversion H0; subst;
@@ -506,7 +519,7 @@ Section sumSA.
 End sumSA.
 
 Section productSA.
-  
+
   Definition prod_Join (A B: Type) {Join_A: Join A} {Join_B: Join B}: Join (A * B) :=
     (fun a b c => join (fst a) (fst b) (fst c) /\ join (snd a) (snd b) (snd c)).
 
