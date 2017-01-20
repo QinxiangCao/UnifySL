@@ -119,6 +119,12 @@ GeneralLogic: \
 MinimunLogic: \
   .depend $(MinimunLogic_FILES:%.v=MinimunLogic/%.vo)
 
+PropositionalLogic: \
+  .depend $(PropositionalLogic_FILES:%.v=PropositionalLogic/%.vo)
+
+SeparationLogic: \
+  .depend $(SeparationLogic_FILES:%.v=SeparationLogic/%.vo)
+
 all: \
   $(FILES:%.v=%.vo) \
 
