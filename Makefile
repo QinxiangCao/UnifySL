@@ -58,7 +58,8 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
 SeparationLogic_Model_FILES = \
-  SeparationAlgebra.v OrderedSA.v
+  SeparationAlgebra.v OrderedSA.v \
+  UpwardsClosure.v DownwardsClosure.v
 
 SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v

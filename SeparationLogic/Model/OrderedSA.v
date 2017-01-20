@@ -1,17 +1,14 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.GeneralLogic.Base.
 Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 
 Local Open Scope kripke_model.
-Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
 Definition increasing
            {worlds: Type}
            {R: Relation worlds}
-           {kiM: KripkeIntuitionisticModel worlds}
            {J: Join worlds}: worlds -> Prop :=
   fun m => forall n n', join m n n' -> n <= n'.
 
@@ -38,7 +35,6 @@ Qed.
 Class IncreasingSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
       {J: Join worlds }: Type :=
 {
   all_increasing: forall x: worlds, increasing x
@@ -80,7 +76,6 @@ Qed.
 Definition residue
            {worlds: Type}
            {R: Relation worlds}
-           {kiM: KripkeIntuitionisticModel worlds}
            {J: Join worlds}
            (m n: worlds): Prop :=
   exists n', join n n' m /\ m <= n'.
@@ -88,7 +83,6 @@ Definition residue
 Class ResidualSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
       {J: Join worlds}: Type :=
 {
   residue_exists: forall n: worlds, exists m, residue n m;
@@ -97,7 +91,6 @@ Class ResidualSeparationAlgebra
 Class UnitalSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
       {J: Join worlds}: Type :=
 {
   incr_exists: forall n: worlds, exists m, residue n m /\ increasing m
@@ -139,7 +132,6 @@ Qed.
 Class UpwardsClosedSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
       {J: Join worlds}: Type :=
   join_Korder_up: forall m n m1 m2: worlds,
     join m1 m2 m -> m <= n ->
@@ -148,7 +140,6 @@ Class UpwardsClosedSeparationAlgebra
 Class DownwardsClosedSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
       {J: Join worlds}: Type :=
   join_Korder_down: forall m1 m2 m n1 n2: worlds,
     join m1 m2 m -> n1 <= m1 -> n2 <= m2 ->
