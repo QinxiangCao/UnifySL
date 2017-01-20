@@ -52,7 +52,7 @@ Lemma sat_sepcon
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       {SM: Semantics L MD}
-      {usSM: SeparatingSemantics L MD M SM}:
+      {fsSM: SeparatingSemantics L MD M SM}:
   forall m x y,
     KRIPKE: M , m |= x * y <->
     exists m1 m2, join m1 m2 m /\
@@ -74,7 +74,7 @@ Lemma sat_wand
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       {SM: Semantics L MD}
-      {usSM: SeparatingSemantics L MD M SM}:
+      {fsSM: SeparatingSemantics L MD M SM}:
   forall m x y,
     KRIPKE: M , m |= x -* y <->
     forall m1 m2, join m m1 m2 ->
@@ -97,7 +97,7 @@ Lemma sat_emp
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       {SM: Semantics L MD}
-      {ueSM: EmpSemantics L MD M SM}:
+      {feSM: EmpSemantics L MD M SM}:
   forall (m: Kworlds M), KRIPKE: M, m |= emp <-> increasing m.
 Proof.
   intros; simpl.
