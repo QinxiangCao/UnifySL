@@ -61,20 +61,26 @@ SeparationLogic_Model_FILES = \
   SeparationAlgebra.v OrderedSA.v \
   UpwardsClosure.v DownwardsClosure.v
 
+SeparationLogic_Semantics_FILES = \
+  Semantics.v SemanticsExtension.v \
+  DownUpSemantics_Fail.v
+
+SeparationLogic_Sound_FILES = \
+  Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \
+  Sound_DownUp_Fail.v
+
 SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v
 
 SeparationLogic_FILES = \
   Syntax.v SoundCompleteParameter.v \
   $(SeparationLogic_Model_FILES:%.v=Model/%.v) \
+  $(SeparationLogic_Semantics_FILES:%.v=Semantics/%.v) \
+  $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
   $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
   SeparationLogic.v SeparationLogicExtension.v \
-  SeparationAlgebra.v SeparationAlgebraConstruction.v \
   SeparationAlgebraGenerators.v \
   SeparationAlgebraExamples.v \
-  Semantics.v SemanticsExtension.v \
-  Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \
-  DownUpSemantics_Fail.v Sound_DownUp_Fail.v \
   Complete_Flat.v \
   Downwards2Upwards.v Upwards2Downwards.v
 

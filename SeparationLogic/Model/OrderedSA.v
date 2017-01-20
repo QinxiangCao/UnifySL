@@ -12,6 +12,24 @@ Definition increasing
            {J: Join worlds}: worlds -> Prop :=
   fun m => forall n n', join m n n' -> n <= n'.
 
+Definition increasing'
+           {worlds: Type}
+           {R: Relation worlds}
+           {J: Join worlds}: worlds -> Prop :=
+  fun m => forall n, m <= n -> increasing n.
+
+Lemma incr_incr'
+      {worlds: Type}
+      {R: Relation worlds}
+      {kiM: KripkeIntuitionisticModel worlds}
+      {J: Join worlds}:
+  forall m, increasing' m -> increasing m.
+Proof.
+  intros.
+  apply H.
+  reflexivity.
+Qed.
+
 (* 
  * In a separation algebra with discrete order, 
  * an element is increasing iff it is a unit.*)
@@ -94,6 +112,14 @@ Class UnitalSeparationAlgebra
       {J: Join worlds}: Type :=
 {
   incr_exists: forall n: worlds, exists m, residue n m /\ increasing m
+}.
+
+Class UnitalSeparationAlgebra'
+      (worlds: Type)
+      {R: Relation worlds}
+      {J: Join worlds}: Type :=
+{
+  incr'_exists: forall n: worlds, exists m, residue n m /\ increasing' m
 }.
 
 (* A unital separation algebra is residual. *)

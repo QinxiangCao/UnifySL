@@ -47,24 +47,19 @@ Proof.
       * reflexivity.
 Defined.
 
-(*
-Lemma DownwardsClosure_nonpositive: forall m, @nonpositive _ _ J m <-> @nonpositive _ _ (DownwardsClosure_SA) m.
+Lemma DownwardsClosure_increasing: forall m, @increasing' _ _ J m <-> @increasing _ _ (DownwardsClosure_J) m.
 Proof.
   intros.
-  pose proof Korder_PreOrder as H_PreOrder.
-  unfold nonpositive; split; intros.
+  unfold increasing', increasing; split; intros.
   + destruct H0 as [m0 [n0 [? [? ?]]]].
-    
-    pose proof nonpos_up _ _ H0.
-    apply H3 in H.
-    unfold nonpositive in H.
-    specialize (H _ _ H2).
-    etransitivity; eauto.
+    etransitivity; [eassumption |].
+    eapply H; [| eassumption].
+    auto.
   + apply H.
-    exists m, n.
+    exists n, n0.
     split; [| split]; auto; reflexivity.
 Qed.
-*)
+
 Definition DownwardsClosure_DownwardsClosed:
   @DownwardsClosedSeparationAlgebra worlds _ (DownwardsClosure_J).
 Proof.
@@ -85,25 +80,20 @@ Proof.
   exists n1, n2; split; [| split]; auto.
   exists n1', n2'; split; [| split]; auto.
 Qed.
-(*
-Definition DownwardsClosure_USA {USA: UnitalSeparationAlgebra worlds}: @UnitalSeparationAlgebra worlds _ (DownwardsClosure_SA).
+
+Definition DownwardsClosure_USA {USA': UnitalSeparationAlgebra' worlds}: @UnitalSeparationAlgebra worlds _ (DownwardsClosure_J).
 Proof.
   constructor.
-  - intros.
-    simpl.
-    destruct (nonpos_exists n) as [u [? ?]].
-    destruct H as [n' [H1 H2]].
-    exists u; split; auto.
-    + exists n'; split; auto.
-      exists u, n'; split; [| split]; auto; reflexivity.
-    + rewrite <- DownwardsClosure_nonpositive; auto.
-  - intros ? ? ?.
-    rewrite <- !DownwardsClosure_nonpositive.
-    apply nonpos_up; auto.
+  intros.
+  destruct (incr'_exists n) as [u [? ?]].
+  destruct H as [n' [H1 H2]].
+  exists u; split; auto.
+  + exists n'; split; auto.
+    exists u, n'; split; [| split]; auto; reflexivity.
+  + rewrite <- DownwardsClosure_increasing; auto.
 Defined.
-*)
 
-Definition DownwardsClosure_gcSA {incrSA: IncreasingSeparationAlgebra worlds}: @IncreasingSeparationAlgebra worlds _ (DownwardsClosure_J).
+Definition DownwardsClosure_incrSA {incrSA: IncreasingSeparationAlgebra worlds}: @IncreasingSeparationAlgebra worlds _ (DownwardsClosure_J).
 Proof.
   constructor.
   simpl.
