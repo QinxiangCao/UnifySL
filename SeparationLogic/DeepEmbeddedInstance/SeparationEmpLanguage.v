@@ -36,7 +36,7 @@ Instance pL (Var: Type): PropositionalLanguage (L Var) :=
 Instance sL (Var: Type): SeparationLanguage (L Var) :=
   Build_SeparationLanguage (L Var) sepcon wand.
 
-Instance s'L (Var: Type): UnitarySeparationLanguage (L Var) :=
+Instance s'L (Var: Type): SeparationEmpLanguage (L Var) :=
   Build_SeparationEmpLanguage (L Var) (sL Var) emp.
 
 Definition rank {Var: Type}: expr Var -> nat :=

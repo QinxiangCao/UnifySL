@@ -2,133 +2,37 @@ Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.MinimunLogic.LogicBase.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.SeparationLogic.Model.OrderedSA.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
+Require Import Logic.SeparationLogic.DeepEmbeddedInstance.SeparationEmpLanguage.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Local Open Scope kripke_model.
-Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Module UpwardsSemantics.
-
-  Class UpwardsSemantics
-        (L: Language)
-        {nL: NormalLanguage L}
-        {pL: PropositionalLanguage L}
-        {SL: SeparationLanguage L}
-        (MD: Model)
-        {kMD: KripkeModel MD}
-        (M: Kmodel)
-        {kiM: KripkeIntuitionisticModel (Kworlds M)}
-        {J: Join (Kworlds M)}
-        (SM: Semantics L MD)
-        {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type :=
-    {
-      sat_sepcon: forall m x y,
-        KRIPKE: M , m |= x * y <->
-                    exists m1 m2, join m1 m2 m /\
-                                  KRIPKE: M , m1 |= x /\
-                                  KRIPKE: M, m2 |= y;
-      sat_wand: forall m x y,
-          KRIPKE: M , m |= x -* y <->
-                      forall m0 m1 m2,
-                        m <= m0 -> join m0 m1 m2 ->
-                        KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
-}.
-
-End UpwardsSemantics.
-
-Module DownwardsSemantics.
-
-  Class DownwardsSemantics
-        (L: Language)
-        {nL: NormalLanguage L}
-        {pL: PropositionalLanguage L}
-        {SL: SeparationLanguage L}
-        (MD: Model)
-        {kMD: KripkeModel MD}
-        (M: Kmodel)
-        {kiM: KripkeIntuitionisticModel (Kworlds M)}
-        {J: Join (Kworlds M)}
-        (SM: Semantics L MD)
-        {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type :=
-    {
-      sat_sepcon: forall m x y,
-        KRIPKE: M , m |= x * y <->
-                    exists m0 m1 m2, m0 <= m /\
-                                join m1 m2 m0 /\ KRIPKE: M , m1 |= x /\ KRIPKE: M, m2 |= y;
-      sat_wand: forall m x y,
-          KRIPKE: M , m |= x -* y <->
-                      forall m1 m2, join m m1 m2 ->
-                               KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
-}.
-
-End DownwardsSemantics.
-
-Module FlatSemantics.
-
-  Class FlatSemantics
-        (L: Language)
-        {nL: NormalLanguage L}
-        {pL: PropositionalLanguage L}
-        {SL: SeparationLanguage L}
-        (MD: Model)
-        {kMD: KripkeModel MD}
-        (M: Kmodel)
-        {kiM: KripkeIntuitionisticModel (Kworlds M)}
-        {J: Join (Kworlds M)}
-        (SM: Semantics L MD)
-        {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type :=
-    {
-      sat_sepcon: forall m x y,
-        KRIPKE: M , m |= x * y <->
-                    exists m1 m2, join m1 m2 m /\ KRIPKE: M , m1 |= x /\ KRIPKE: M, m2 |= y;
-      sat_wand: forall m x y, KRIPKE: M , m |= x -* y <->
-                                     forall m1 m2, join m m1 m2 ->
-                                              KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
-}.
-
-End FlatSemantics.
-
-Class UnitalSemantics
-      (L: Language)
-      {nL: NormalLanguage L}
-      {pL: PropositionalLanguage L}
-      {SL: SeparationLanguage L}
-      {uSL: UnitarySeparationLanguage L}
-      (MD: Model)
-      {kMD: KripkeModel MD}
-      (M: Kmodel)
-      {kiM: KripkeIntuitionisticModel (Kworlds M)}
-      {J: Join (Kworlds M)}
-      (SM: Semantics L MD)
-      {kiSM: KripkeIntuitionisticSemantics L MD M SM}: Type :=
-    sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> increasing m.
-
-Module FlatSemanticsModel.
-
-Import UnitarySeparationLanguage.
-
 Record frame: Type := {
   underlying_set:> Type;
-  Korder: relation underlying_set; (* <= *)
-  Korder_preorder: PreOrder Korder;
-  kiM: KripkeIntuitionisticModel underlying_set :=
-         Build_KripkeIntuitionisticModel _ Korder Korder_preorder;
+  Krelation: relation underlying_set; (* <= *)
+  Krelation_Preorder: PreOrder Krelation;
+  R: Relation underlying_set := Krelation;
+  kiM: KripkeIntuitionisticModel underlying_set := Krelation_Preorder;
   J: Join underlying_set;
   SA: SeparationAlgebra underlying_set;
   dSA: DownwardsClosedSeparationAlgebra underlying_set;
   uSA: UpwardsClosedSeparationAlgebra underlying_set
 }.
 
-Infix "<=" := (Korder _): TheKripkeSemantics.
+Infix "<=" := (Krelation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 

@@ -62,7 +62,8 @@ SeparationLogic_Model_FILES = \
   UpwardsClosure.v DownwardsClosure.v
 
 SeparationLogic_Semantics_FILES = \
-  Semantics.v SemanticsExtension.v \
+  UpwardsSemantics.v DownwardsSemantics.v FlatSemantics.v \
+  SemanticsExtension.v \
   DownUpSemantics_Fail.v
 
 SeparationLogic_Sound_FILES = \
