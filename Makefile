@@ -73,10 +73,12 @@ SeparationLogic_Sound_FILES = \
   Sound_DownUp_Fail.v
 
 SeparationLogic_DeepEmbedded_FILES = \
-  SeparationLanguage.v SeparationEmpLanguage.v
+  SeparationLanguage.v SeparationEmpLanguage.v \
+  Parameter.v \
+  ParametricSeparationLogic.v SeparationLogicsInLiteratures.v
 
 SeparationLogic_FILES = \
-  Syntax.v SoundCompleteParameter.v \
+  Syntax.v \
   $(SeparationLogic_Model_FILES:%.v=Model/%.v) \
   $(SeparationLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
