@@ -86,8 +86,7 @@ SeparationLogic_FILES = \
   SeparationLogic.v SeparationLogicExtension.v \
   SeparationAlgebraGenerators.v \
   SeparationAlgebraExamples.v \
-  Complete_Flat.v \
-  Downwards2Upwards.v Upwards2Downwards.v
+  Complete_Flat.v
 
 HoareLogic_FILES = \
   ImperativeLanguage.v ProgramState.v Trace.v \
