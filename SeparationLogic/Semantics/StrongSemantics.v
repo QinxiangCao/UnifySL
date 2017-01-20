@@ -1,24 +1,40 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
+Require Import Coq.Sets.Ensembles.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.GeneralLogic.Base.
-Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 
-Local Open Scope logic_base.
-Local Open Scope syntax.
 Local Open Scope kripke_model.
-Import SeparationLogicNotation.
-Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
+
+Definition sepcon {worlds: Type} {R: Relation worlds} {J: Join worlds} (X: Ensemble worlds) (Y: Ensemble worlds): Ensemble worlds :=
+  fun m => exists m0 m1 m2, m0 <= m /\ join m1 m2 m0 /\ X m1 /\ Y m2.
 
 Definition wand {worlds: Type} {R: Relation worlds} {J: Join worlds} (X: Ensemble worlds) (Y: Ensemble worlds): Ensemble worlds :=
   fun m => forall m0 m1 m2, m <= m0 -> join m0 m1 m2 -> X m1 -> Y m2.
 
 Definition emp {worlds: Type} {R: Relation worlds} {J: Join worlds}: Ensemble worlds := increasing'.
+
+Lemma sepcon_closed
+      {worlds: Type}
+      {R: Relation worlds}
+      {kiM: KripkeIntuitionisticModel worlds}
+      {J: Join worlds}:
+  forall (X: Ensemble worlds) (Y: Ensemble worlds),
+    upwards_closed_Kdenote X ->
+    upwards_closed_Kdenote Y ->
+    upwards_closed_Kdenote (sepcon X Y).
+Proof.
+  intros.
+  hnf; intros.
+  hnf in H2 |- *.
+  destruct H2 as [n0 [n1 [n2 [? [? [? ?]]]]]].
+  exists n0, n1, n2; split; [| split; [| split]]; auto.
+  etransitivity; eauto.
+Qed.
 
 Lemma wand_closed
       {worlds: Type}

@@ -7,6 +7,8 @@ Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
+Require Logic.SeparationLogic.Semantics.WeakSemantics.
+Require Logic.SeparationLogic.Semantics.StrongSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -15,23 +17,18 @@ Import SeparationLogicNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-  Class SeparatingSemantics
-        (L: Language)
-        {sL: SeparationLanguage L}
-        (MD: Model)
-        {kMD: KripkeModel MD}
-        (M: Kmodel)
-        {R: Relation (Kworlds M)}
-        {kiM: KripkeIntuitionisticModel (Kworlds M)}
-        {J: Join (Kworlds M)}
-        (SM: Semantics L MD): Type :=
-    {
-      sat_sepcon: forall m x y,
-        KRIPKE: M , m |= x * y <->
-                    exists m1 m2, join m1 m2 m /\ KRIPKE: M , m1 |= x /\ KRIPKE: M, m2 |= y;
-      sat_wand: forall m x y, KRIPKE: M , m |= x -* y <->
-                                     forall m1 m2, join m m1 m2 ->
-                                              KRIPKE: M , m1 |= x -> KRIPKE: M, m2 |= y
+Class SeparatingSemantics
+      (L: Language)
+      {sL: SeparationLanguage L}
+      (MD: Model)
+      {kMD: KripkeModel MD}
+      (M: Kmodel)
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      (SM: Semantics L MD): Type :=
+{
+  denote_sepcon: forall x y, Same_set _ (Kdenotation M (x * y)) (WeakSemantics.sepcon (Kdenotation M x) (Kdenotation M y));
+  denote_wand: forall x y, Same_set _ (Kdenotation M (x -* y)) (WeakSemantics.wand (Kdenotation M x) (Kdenotation M y))
 }.
 
 Class EmpSemantics
@@ -42,8 +39,69 @@ Class EmpSemantics
       {kMD: KripkeModel MD}
       (M: Kmodel)
       {R: Relation (Kworlds M)}
-      {kiM: KripkeIntuitionisticModel (Kworlds M)}
       {J: Join (Kworlds M)}
       (SM: Semantics L MD): Type :=
-    sat_emp: forall (m: Kworlds M), KRIPKE: M, m |= emp <-> increasing m.
+  denote_emp: Same_set _ (Kdenotation M emp) WeakSemantics.emp.
 
+Lemma sat_sepcon
+      {L: Language}
+      {sL: SeparationLanguage L}
+      {MD: Model}
+      {kMD: KripkeModel MD}
+      {M: Kmodel}
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      {SM: Semantics L MD}
+      {usSM: SeparatingSemantics L MD M SM}:
+  forall m x y,
+    KRIPKE: M , m |= x * y <->
+    exists m1 m2, join m1 m2 m /\
+                  KRIPKE: M , m1 |= x /\
+                  KRIPKE: M, m2 |= y.
+Proof.
+  intros; simpl.
+  unfold satisfies.
+  destruct (denote_sepcon x y).
+  split; [apply H | apply H0].
+Qed.
+
+Lemma sat_wand
+      {L: Language}
+      {sL: SeparationLanguage L}
+      {MD: Model}
+      {kMD: KripkeModel MD}
+      {M: Kmodel}
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      {SM: Semantics L MD}
+      {usSM: SeparatingSemantics L MD M SM}:
+  forall m x y,
+    KRIPKE: M , m |= x -* y <->
+    forall m1 m2, join m m1 m2 ->
+                  KRIPKE: M , m1 |= x ->
+                  KRIPKE: M, m2 |= y.
+Proof.
+  intros; simpl.
+  unfold satisfies.
+  destruct (denote_wand x y).
+  split; [apply H | apply H0].
+Qed.
+
+Lemma sat_emp
+      {L: Language}
+      {sL: SeparationLanguage L}
+      {s'L: SeparationEmpLanguage L}
+      {MD: Model}
+      {kMD: KripkeModel MD}
+      {M: Kmodel}
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      {SM: Semantics L MD}
+      {ueSM: EmpSemantics L MD M SM}:
+  forall (m: Kworlds M), KRIPKE: M, m |= emp <-> increasing m.
+Proof.
+  intros; simpl.
+  unfold satisfies.
+  destruct denote_emp.
+  split; [apply H | apply H0].
+Qed.

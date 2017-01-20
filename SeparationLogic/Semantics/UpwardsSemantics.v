@@ -7,6 +7,8 @@ Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
+Require Logic.SeparationLogic.Semantics.WeakSemantics.
+Require Logic.SeparationLogic.Semantics.StrongSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -14,11 +16,6 @@ Local Open Scope kripke_model.
 Import SeparationLogicNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
-
-Module Semantics.
-
-
-End Semantics.
 
 Class SeparatingSemantics
       (L: Language)
@@ -30,8 +27,8 @@ Class SeparatingSemantics
       {J: Join (Kworlds M)}
       (SM: Semantics L MD): Type :=
 {
-  denote_sepcon: forall x y, Same_set _ (Kdenotation M (x * y)) (Semantics.sepcon (Kdenotation M x) (Kdenotation M y));
-  denote_wand: forall x y, Same_set _ (Kdenotation M (x -* y)) (Semantics.wand (Kdenotation M x) (Kdenotation M y))
+  denote_sepcon: forall x y, Same_set _ (Kdenotation M (x * y)) (WeakSemantics.sepcon (Kdenotation M x) (Kdenotation M y));
+  denote_wand: forall x y, Same_set _ (Kdenotation M (x -* y)) (StrongSemantics.wand (Kdenotation M x) (Kdenotation M y))
 }.
 
 Class EmpSemantics
@@ -44,7 +41,7 @@ Class EmpSemantics
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       (SM: Semantics L MD): Type :=
-  denote_emp: Same_set _ (Kdenotation M emp) Semantics.emp.
+  denote_emp: Same_set _ (Kdenotation M emp) StrongSemantics.emp.
 
 Lemma sat_sepcon
       {L: Language}

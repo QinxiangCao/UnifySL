@@ -62,6 +62,7 @@ SeparationLogic_Model_FILES = \
   UpwardsClosure.v DownwardsClosure.v
 
 SeparationLogic_Semantics_FILES = \
+  WeakSemantics.v StrongSemantics.v \
   UpwardsSemantics.v DownwardsSemantics.v FlatSemantics.v \
   SemanticsExtension.v \
   DownUpSemantics_Fail.v
