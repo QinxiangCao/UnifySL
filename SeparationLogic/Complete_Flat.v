@@ -52,20 +52,20 @@ Instance nG: NormalProofTheory L G := SeparationLogic.nG Var SLP.
 Instance mpG: MinimunPropositionalLogic L G := SeparationLogic.mpG Var SLP.
 Instance ipG: IntuitionisticPropositionalLogic L G := SeparationLogic.ipG Var SLP.
 *)
-Instance MD: Model := FlatSemanticsModel.MD Var.
-Instance kMD: KripkeModel MD := FlatSemanticsModel.kMD Var.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= FlatSemanticsModel.kiM (FlatSemanticsModel.underlying_frame Var M).
-Instance J (M: Kmodel): Join (Kworlds M):= FlatSemanticsModel.J (FlatSemanticsModel.underlying_frame Var M).
-Instance SA (M: Kmodel): SeparationAlgebra (Kworlds M):= FlatSemanticsModel.SA (FlatSemanticsModel.underlying_frame Var M).
-Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M):= FlatSemanticsModel.uSA (FlatSemanticsModel.underlying_frame Var M).
-Instance dSA (M: Kmodel): DownwardsClosedSeparationAlgebra (Kworlds M):= FlatSemanticsModel.dSA (FlatSemanticsModel.underlying_frame Var M).
+Instance MD: Model := FlatSemantics.MD Var.
+Instance kMD: KripkeModel MD := FlatSemantics.kMD Var.
+Instance R (M: Kmodel): Relation (Kworlds M):= FlatSemantics.R Var M.
+Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= FlatSemantics.kiM Var M.
+Instance J (M: Kmodel): Join (Kworlds M):= FlatSemantics.J Var M.
+Instance SA (M: Kmodel): SeparationAlgebra (Kworlds M):= FlatSemantics.SA Var M.
+Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M):= FlatSemantics.uSA Var M.
+Instance dSA (M: Kmodel): DownwardsClosedSeparationAlgebra (Kworlds M):= FlatSemantics.dSA Var M.
 
-Instance SM: Semantics L MD := FlatSemanticsModel.SM Var.
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := FlatSemanticsModel.kiSM Var M.
-Instance fsSM (M: Kmodel): FlatSemantics.FlatSemantics L MD M SM := FlatSemanticsModel.fsSM Var M.
-(*
-Instance UsSM (M: Kmodel): UnitalSemantics L MD M SM := FlatSemanticsModel.UsSM Var M.
-*)
+Instance SM: Semantics L MD := FlatSemantics.SM Var.
+Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := FlatSemantics.kiSM Var M.
+Instance fsSM (M: Kmodel): FlatSemantics.SeparatingSemantics L MD M SM := FlatSemantics.fsSM Var M.
+Instance feSM (M: Kmodel): FlatSemantics.EmpSemantics L MD M SM := FlatSemantics.feSM Var M.
+
 Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   derivable_closed Phi /\
   orp_witnessed Phi /\
@@ -398,94 +398,108 @@ Proof.
     - apply deduction_andp_intros; auto.
 Qed.
 
-Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.frame.
-Proof.
-  refine (FlatSemanticsModel.Build_frame (DCS Gamma) (fun a b => Included _ (proj1_sig a) (proj1_sig b)) _ (fun a b c => forall x y, proj1_sig a x -> proj1_sig b y -> proj1_sig c (x * y)) _ _ _).
-  Unshelve.
-  Focus 5. shelve.
-  Focus 5. shelve.
-  Focus 5. shelve.
-  Focus 4. {
-    constructor.
-    + hnf; intros.
-      hnf; intros; auto.
-    + hnf; intros.
-      hnf; intros; auto.
-  } Unfocus.
-  + pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
-    constructor.
-    - intros; simpl in *.
-      intros x y ? ?.
-      specialize (H y x H1 H0).
-      pose proof proj2_sig m.
-      destruct H2 as [? _].
-      rewrite ED in H |- *.
-      rewrite <- (@sepcon_comm _ _ _ _ _ _ _ _ sGamma y x).
-      auto.
-    - intros.
-      set (Phi := context_sepcon (proj1_sig my) (proj1_sig mz)).
-      assert (forall x yz,
-                proj1_sig mx |-- x ->
-                Phi |-- yz ->
-                proj1_sig mxyz |-- (x * yz)).
-      Focus 1. {
-        intros.
-        destruct (context_sepcon_derivable _ _ _ H2) as [y [z [? [? ?]]]].
-        rewrite <- H3.
-        rewrite (sepcon_assoc x y z).
-        rewrite <- ED in H1, H4, H5.
-        specialize (H _ _ H1 H4).
-        specialize (H0 _ _ H H5).
-        rewrite <- ED; auto.
-      } Unfocus.
-      destruct (Lindenbaum_lemma2_right
-                 (proj1_sig mx) (proj1_sig mxyz) Phi H1 (proj2_sig mxyz))
-        as [Psi [? [? ?]]].
-      set (myz := exist _ Psi H4 : DCS Gamma).
-      change Psi with (proj1_sig myz) in H2, H3;
-      clearbody myz; clear Psi H4.
-      exists myz.
-      split.
-      * hnf; intros.
-        apply H2; unfold Ensembles.In.
-        subst Phi; hnf.
-        rewrite ED in H4, H5.
-        exists x, y; auto.
-      * hnf; intros x yz ? ?.
-        rewrite ED in H4, H5 |- *.
-        apply H3; auto.
-  + hnf; intros.
-    exists m.
-    split; [| reflexivity].
-    hnf; intros.
-    apply H; auto.
-    - apply H0; auto.
-    - apply H1; auto.
-  + hnf; intros.
-    exists m1, m2.
-    split; [| split]; [| reflexivity ..].
-    hnf; intros.
-    apply H0.
-    apply H; auto.
-Defined.
+Instance DCS_R {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Relation (DCS Gamma) := fun a b => Included _ (proj1_sig a) (proj1_sig b).
 
-Program Definition canonical_emp {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.sem canonical_frame :=
-  fun a => a (SeparationEmpLanguage.emp).
-Next Obligation.
+Instance DCS_kiM {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: KripkeIntuitionisticModel (DCS Gamma).
+Proof.
+  constructor.
+  + hnf; intros.
+    hnf; intros; auto.
+  + hnf; intros.
+    hnf; intros; auto.
+Qed.
+
+Instance DCS_J {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Join (DCS Gamma) := (fun a b c => forall x y, proj1_sig a x -> proj1_sig b y -> proj1_sig c (x * y)).
+
+Instance DCS_SA {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: SeparationAlgebra (DCS Gamma).
+Proof.
+  pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
+  constructor.
+  + intros; simpl in *.
+    intros x y ? ?.
+    specialize (H y x H1 H0).
+    pose proof proj2_sig m.
+    destruct H2 as [? _].
+    rewrite ED in H |- *.
+    rewrite <- (@sepcon_comm _ _ _ _ _ _ _ _ sGamma y x).
+    auto.
+  + intros.
+    set (Phi := context_sepcon (proj1_sig my) (proj1_sig mz)).
+    assert (forall x yz,
+              proj1_sig mx |-- x ->
+              Phi |-- yz ->
+              proj1_sig mxyz |-- (x * yz)).
+    Focus 1. {
+      intros.
+      destruct (context_sepcon_derivable _ _ _ H2) as [y [z [? [? ?]]]].
+      rewrite <- H3.
+      rewrite (sepcon_assoc x y z).
+      rewrite <- ED in H1, H4, H5.
+      specialize (H _ _ H1 H4).
+      specialize (H0 _ _ H H5).
+      rewrite <- ED; auto.
+    } Unfocus.
+    destruct (Lindenbaum_lemma2_right
+               (proj1_sig mx) (proj1_sig mxyz) Phi H1 (proj2_sig mxyz))
+      as [Psi [? [? ?]]].
+    set (myz := exist _ Psi H4 : DCS Gamma).
+    change Psi with (proj1_sig myz) in H2, H3;
+    clearbody myz; clear Psi H4.
+    exists myz.
+    split.
+    - hnf; intros.
+      apply H2; unfold Ensembles.In.
+      subst Phi; hnf.
+      rewrite ED in H4, H5.
+      exists x, y; auto.
+    - hnf; intros x yz ? ?.
+      rewrite ED in H4, H5 |- *.
+      apply H3; auto.
+Qed.
+
+Instance DCS_uSA {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: UpwardsClosedSeparationAlgebra (DCS Gamma).
+Proof.
+  hnf; intros.
+  exists m1, m2.
+  split; [| split]; [| reflexivity ..].
+  hnf; intros.
+  apply H0.
   apply H; auto.
 Qed.
 
-Program Definition canonical_eval {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Var -> FlatSemanticsModel.sem canonical_frame :=
+Instance DCS_dSA {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: DownwardsClosedSeparationAlgebra (DCS Gamma).
+Proof.
+  hnf; intros.
+  exists m.
+  split; [| reflexivity].
+  hnf; intros.
+  apply H; auto.
+  + apply H0; auto.
+  + apply H1; auto.
+Qed.
+
+Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemantics.frame :=
+  FlatSemantics.Build_frame (DCS Gamma) DCS_R DCS_kiM DCS_J DCS_SA DCS_dSA DCS_uSA.
+
+Program Definition canonical_emp {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemantics.sem canonical_frame :=
+  fun a => a (SeparationEmpLanguage.emp).
+Next Obligation.
+  hnf; intros.
+  apply H; auto.
+Qed.
+
+Program Definition canonical_eval {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Var -> FlatSemantics.sem canonical_frame :=
   fun p a => a (SeparationEmpLanguage.varp p).
 Next Obligation.
+  hnf; intros.
   apply H; auto.
 Qed.
 
 Definition canonical_Kmodel {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: @Kmodel MD kMD :=
-  FlatSemanticsModel.Build_Kmodel Var canonical_frame canonical_emp canonical_eval.
+  FlatSemantics.Build_Kmodel Var canonical_frame canonical_emp canonical_eval.
 
 Definition canonical_model {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}(Phi: DCS Gamma) : @model MD :=
-  FlatSemanticsModel.Build_model Var canonical_Kmodel Phi.
+  FlatSemantics.Build_model Var canonical_Kmodel Phi.
 
 Lemma truth_lemma {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
   forall Phi x,
@@ -615,7 +629,7 @@ Proof.
       rewrite H in H1 |- *.
       rewrite provable_wand_sepcon_modus_ponens1 in H1.
       auto.
-  + reflexivity.
+  + 
   + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ Phi.
     split; [intros; tauto | intros].
     rewrite H in H1.
@@ -627,7 +641,7 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma classical_canonical_ident {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Identity Var)
+Lemma classical_canonical_ident {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_Identity Var)
   (canonical_model Psi).
 Proof.
   intros.
@@ -645,7 +659,7 @@ Proof.
   auto.
 Qed.
 
-Lemma Godel_Dummett_canonical_no_branch {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: GodelDummettPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_NoBranch Var) (canonical_model Psi).
+Lemma Godel_Dummett_canonical_no_branch {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: GodelDummettPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_NoBranch Var) (canonical_model Psi).
 Proof.
   intros.
   unfold canonical_model; constructor.
@@ -681,7 +695,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma weak_classical_canonical_branch_join {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: WeakClassicalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_BranchJoin Var) (canonical_model Psi).
+Lemma weak_classical_canonical_branch_join {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: WeakClassicalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_BranchJoin Var) (canonical_model Psi).
 Proof.
   intros.
   unfold canonical_model; constructor.
@@ -720,7 +734,7 @@ Proof.
   + intros ? ?; apply H9; right; auto.
 Qed.
 
-Lemma garbage_collected_canonical_nonpos {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {gcGamma: GarbageCollectSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_GarbageCollect Var) (canonical_model Psi).
+Lemma garbage_collected_canonical_nonpos {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {gcGamma: GarbageCollectSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_GarbageCollect Var) (canonical_model Psi).
 Proof.
   intros.
   pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
@@ -736,7 +750,7 @@ Proof.
   rewrite ED; auto.
 Qed.
 
-Lemma emp_canonical_unital {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {EmpSGamma: EmpSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Unital Var) (canonical_model Psi).
+Lemma emp_canonical_unital {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {EmpSGamma: EmpSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_Unital Var) (canonical_model Psi).
 Proof.
   intros.
   constructor; clear Psi.
@@ -835,7 +849,7 @@ Proof.
       right; constructor.
 Qed.
 
-Lemma ext_canonical_residual {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {ExtSGamma: ExtSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemanticsModel.Kmodel_Residual Var) (canonical_model Psi).
+Lemma ext_canonical_residual {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {ExtSGamma: ExtSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_Residual Var) (canonical_model Psi).
 Proof.
   constructor.
   constructor.
