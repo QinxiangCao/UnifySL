@@ -45,7 +45,7 @@ Program Definition denotation {Var: Type} (F: frame) (eval_emp: sem F) (eval: Va
   | impp y z => @Semantics.impp F (Krelation F) (denotation y) (denotation z)
   | sepcon y z => @WeakSemantics.sepcon F (Frame_join F) (denotation y) (denotation z)
   | wand y z => @WeakSemantics.wand F (Frame_join F) (denotation y) (denotation z)
-  | emp => @WeakSemantics.emp F (Krelation F) (Frame_join F)
+  | emp => eval_emp
   | falsep => Semantics.falsep
   | varp p => eval p
   end.
@@ -68,9 +68,6 @@ Defined.
 Next Obligation.
   apply (@WeakSemantics.wand_closed F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_downwards F));
   apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@WeakSemantics.emp_closed F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_downwards F)).
 Defined.
 Next Obligation.
   apply (@Semantics.falsep_closed F (Krelation F)).
@@ -138,10 +135,10 @@ Proof.
   + intros; apply Same_set_refl.
 Defined.
 
-Instance feSM (M: Kmodel): FlatSemantics.EmpSemantics L MD M SM.
+Instance feSM (M: Kmodel): Same_set _ (proj1_sig (Kemp M)) (WeakSemantics.emp) -> FlatSemantics.EmpSemantics L MD M SM.
 Proof.
-  hnf; intros.
-  intros; apply Same_set_refl.
+  intros; hnf; intros.
+  auto.
 Defined.
 
 Definition Kmodel_Identity: Kmodel -> Prop := fun M =>

@@ -64,7 +64,7 @@ Instance dSA (M: Kmodel): DownwardsClosedSeparationAlgebra (Kworlds M):= FlatSem
 Instance SM: Semantics L MD := FlatSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := FlatSemantics.kiSM Var M.
 Instance fsSM (M: Kmodel): FlatSemantics.SeparatingSemantics L MD M SM := FlatSemantics.fsSM Var M.
-Instance feSM (M: Kmodel): FlatSemantics.EmpSemantics L MD M SM := FlatSemantics.feSM Var M.
+Instance feSM (M: Kmodel): Same_set _ _ (WeakSemantics.emp) -> FlatSemantics.EmpSemantics L MD M SM := FlatSemantics.feSM Var M.
 
 Definition DCS (Gamma: ProofTheory L): Type := sig (fun Phi =>
   derivable_closed Phi /\
@@ -629,8 +629,8 @@ Proof.
       rewrite H in H1 |- *.
       rewrite provable_wand_sepcon_modus_ponens1 in H1.
       auto.
-  + 
-  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ Phi.
+  + reflexivity.
+  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ _ Phi.
     split; [intros; tauto | intros].
     rewrite H in H1.
     pose proof proj2_sig Phi.
@@ -659,7 +659,7 @@ Proof.
   auto.
 Qed.
 
-Lemma Godel_Dummett_canonical_no_branch {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: GodelDummettPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_NoBranch Var) (canonical_model Psi).
+Lemma Godel_Dummett_canonical_no_branch {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdpGamma: GodelDummettPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_NoBranch Var) (canonical_model Psi).
 Proof.
   intros.
   unfold canonical_model; constructor.
@@ -672,7 +672,7 @@ Proof.
   apply not_all_ex_not in H1.
   apply not_all_ex_not in H2.
   destruct H1 as [x1 ?], H2 as [x2 ?].
-  pose proof GodelDummettLogic.derivable_impp_choice (proj1_sig n) x1 x2.
+  pose proof GodelDummett.derivable_impp_choice (proj1_sig n) x1 x2.
   rewrite <- derivable_closed_element_derivable in H3 by (destruct (proj2_sig n); tauto).
   pose proof (proj1 (proj2 (proj2_sig n))).
   apply H4 in H3; clear H4.
@@ -695,7 +695,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma weak_classical_canonical_branch_join {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdGamma: WeakClassicalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_BranchJoin Var) (canonical_model Psi).
+Lemma weak_classical_canonical_branch_join {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wcpGamma: WeakClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_BranchJoin Var) (canonical_model Psi).
 Proof.
   intros.
   unfold canonical_model; constructor.
@@ -711,7 +711,7 @@ Proof.
     apply derivable_closed_union_derivable in H8; [| auto].
     destruct H8 as [x [? ?]].
     rewrite derivable_closed_element_derivable in H8 by auto.
-    pose proof WeakClassicalLogic.derivable_weak_excluded_middle (proj1_sig n) x.
+    pose proof WeakClassical.derivable_weak_excluded_middle (proj1_sig n) x.
     rewrite <- derivable_closed_element_derivable in H10 by auto.
     apply (H6 (~~ x)) in H10.
     destruct H10.
@@ -734,15 +734,18 @@ Proof.
   + intros ? ?; apply H9; right; auto.
 Qed.
 
-Lemma garbage_collected_canonical_nonpos {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {gcGamma: GarbageCollectSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_GarbageCollect Var) (canonical_model Psi).
+Lemma garbage_collected_canonical_nonpos {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {gcGamma: GarbageCollectSeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_Increasing Var) (canonical_model Psi).
 Proof.
   intros.
   pose proof (fun Phi: DCS Gamma => derivable_closed_element_derivable (proj1_sig Phi) (proj1 (proj2_sig Phi))) as ED.
   unfold canonical_model; constructor.
   hnf; constructor.
-  intros.
+  intros m.
+  hnf; intros m1 m2.
   change (DCS Gamma) in m1, m2, m.
   hnf; unfold Ensembles.In; intros.
+  hnf; unfold Ensembles.In; intros.
+  apply join_comm in H.
   specialize (H x TT H0).
   rewrite !ED in H.
   specialize (H (derivable_impp_refl _ _)).
