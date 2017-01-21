@@ -112,7 +112,7 @@ Definition sem_precise
         {kiM: KripkeIntuitionisticModel model}
         {SM: Semantics L MD}
         (x: expr): Prop :=
-  model_precise (fun m => KRIPKE: m |= x).
+  Kdenote_precise (fun m => KRIPKE: m |= x).
 
 Lemma sem_precise_spec
         {L: Language}
@@ -121,11 +121,11 @@ Lemma sem_precise_spec
         {SL: SeparationLanguage L}
         {MD: Model}
         {J: Join model}
-        {R: Relation state}
+        {R: Relation model}
         {kiM: KripkeIntuitionisticModel model}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}
-        {fsSM: FlatSemantics.FlatSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}:
+        {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}:
   forall m n P Q,
     sem_precise P ->
     greatest_cut m (fun m => KRIPKE: m |= P) n ->
@@ -149,9 +149,9 @@ Context {P: ProgrammingLanguage}
       {CPr: ConcurrentProgrammingLanguage_resource P}
       {CPP: ConcurrentProgrammingLanguage_Sparallel P}
       {CPR: ConcurrentProgrammingLanguage_Sresource P}
- {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {kiM: KripkeIntuitionisticModel model} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
+ {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R: Relation model} {kiM: KripkeIntuitionisticModel model} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {fsSM: FlatSemantics.FlatSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
 
 Lemma hoare_resource_partial_sound: forall
   (r: resource)
