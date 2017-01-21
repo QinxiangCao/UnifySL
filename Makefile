@@ -59,7 +59,8 @@ PropositionalLogic_FILES = \
 
 SeparationLogic_Model_FILES = \
   SeparationAlgebra.v OrderedSA.v \
-  UpwardsClosure.v DownwardsClosure.v
+  UpwardsClosure.v DownwardsClosure.v \
+  OSAGenerators.v OSAExamples.v
 
 SeparationLogic_Semantics_FILES = \
   WeakSemantics.v StrongSemantics.v \
@@ -84,8 +85,6 @@ SeparationLogic_FILES = \
   $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
   $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
   SeparationLogic.v SeparationLogicExtension.v \
-  SeparationAlgebraGenerators.v \
-  SeparationAlgebraExamples.v \
   Complete_Flat.v
 
 HoareLogic_FILES = \
