@@ -76,6 +76,40 @@ Qed.
 
 End Semantics.
 
+Definition MonoEnsemble (A: Type) {R: Relation A}: Type := @sig (_ -> Prop) (@upwards_closed_Kdenote A R).
+
+Module SemanticsMono.
+
+Program Definition impp {worlds: Type} {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
+  Semantics.impp X Y.
+Next Obligation.
+  apply (@Semantics.impp_closed worlds R kiM);
+  apply (proj2_sig _).
+Defined.
+
+Program Definition andp {worlds: Type} {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
+  Semantics.andp X Y.
+Next Obligation.
+  apply (@Semantics.andp_closed worlds R kiM);
+  apply (proj2_sig _).
+Defined.
+
+Program Definition orp {worlds: Type} {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
+  Semantics.orp X Y.
+Next Obligation.
+  apply (@Semantics.orp_closed worlds R kiM);
+  apply (proj2_sig _).
+Defined.
+
+Program Definition falsep {worlds: Type} {R: Relation worlds}: MonoEnsemble worlds :=
+  Semantics.falsep.
+Next Obligation.
+  apply (@Semantics.falsep_closed worlds R);
+  apply (proj2_sig _).
+Defined.
+
+End SemanticsMono.
+
 Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} (SM: Semantics L MD) : Type := {
   denote_closed: forall x, upwards_closed_Kdenote (Kdenotation M x);
   denote_impp: forall x y, Same_set _ (Kdenotation M (x --> y)) (Semantics.impp (Kdenotation M x) (Kdenotation M y));

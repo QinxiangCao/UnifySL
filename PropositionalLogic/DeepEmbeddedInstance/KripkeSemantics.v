@@ -21,32 +21,17 @@ Infix "<=" := (Krelation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := @sig (_ -> Prop) (@upwards_closed_Kdenote f (Krelation f)).
+Definition sem (f: frame) := @MonoEnsemble (underlying_set f) (Krelation f).
 
-Program Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
+Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
   fix denotation (x: expr Var): sem F:=
   match x with
-  | andp y z => @Semantics.andp F (denotation y) (denotation z)
-  | orp y z => @Semantics.orp F (denotation y) (denotation z)
-  | impp y z => @Semantics.impp F (Krelation F) (denotation y) (denotation z)
-  | falsep => @Semantics.falsep F
+  | andp y z => @SemanticsMono.andp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
+  | orp y z => @SemanticsMono.orp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
+  | impp y z => @SemanticsMono.impp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
+  | falsep => @SemanticsMono.falsep F (Krelation F)
   | varp p => eval p
   end.
-Next Obligation.
-  apply (@Semantics.andp_closed F (Krelation F) (Krelation_Preorder F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@Semantics.orp_closed F (Krelation F) (Krelation_Preorder F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@Semantics.impp_closed F (Krelation F) (Krelation_Preorder F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@Semantics.falsep_closed F (Krelation F)).
-Defined.
 
 Section KripkeSemantics.
 Context (Var: Type).
