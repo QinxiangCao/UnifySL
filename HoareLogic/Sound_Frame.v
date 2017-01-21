@@ -1,9 +1,11 @@
-Require Import Logic.MinimunLogic.LogicBase.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
-Require Import Logic.SeparationLogic.Semantics.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
@@ -25,10 +27,11 @@ Context {P: ProgrammingLanguage}
         {MD: Model}
         {BSS: BigStepSemantics P model}
         {J: Join model}
+        {R: Relation model}
         {kiM: KripkeIntuitionisticModel model}
         {SA_BSS: SABigStepSemantics P model BSS}.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.FlatSemantics L MD tt SM}.
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
 
 Lemma hoare_frame_partial_sound: forall c P Q F,
   triple_partial_valid P c Q ->

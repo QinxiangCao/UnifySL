@@ -1,9 +1,10 @@
-Require Import Logic.MinimunLogic.LogicBase.
+Require Import Logic.GeneralLogic.Base.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
-Require Import Logic.SeparationLogic.Semantics.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.BigStepSemantics.
 Require Import Logic.HoareLogic.ConcurrentSemantics.

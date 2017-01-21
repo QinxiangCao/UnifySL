@@ -1,10 +1,12 @@
-Require Import Logic.MinimunLogic.LogicBase.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
-Require Import Logic.SeparationLogic.Semantics.
-Require Import Logic.SeparationLogic.SemanticsExtension.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
+Require Import Logic.SeparationLogic.Semantics.SemanticsExtension.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
@@ -44,6 +46,7 @@ Class Resource_BigStepSemantics
       {CPR: ConcurrentProgrammingLanguage_Sresource P}
       (state: Type)
       {J: Join state}
+      {R: Relation state}
       {kiM: KripkeIntuitionisticModel state}
       (TLBSS: ThreadLocalBigStepSemantics P state
                 (list (resource * (state -> Prop)))): Type :=
@@ -105,6 +108,7 @@ Definition sem_precise
         {L: Language}
         {MD: Model}
         {J: Join model}
+        {R: Relation model}
         {kiM: KripkeIntuitionisticModel model}
         {SM: Semantics L MD}
         (x: expr): Prop :=
@@ -117,6 +121,7 @@ Lemma sem_precise_spec
         {SL: SeparationLanguage L}
         {MD: Model}
         {J: Join model}
+        {R: Relation state}
         {kiM: KripkeIntuitionisticModel model}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}
