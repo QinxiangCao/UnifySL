@@ -1,8 +1,8 @@
 Require Import Coq.Relations.Relation_Operators.
 Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.lib.Stream.StreamFunctions.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.Trace.
@@ -16,7 +16,7 @@ Class LocalTraceSemantics (P: ProgrammingLanguage) (state: Type): Type := {
 Definition access {P: ProgrammingLanguage} {state: Type} {LTS: LocalTraceSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
   exists tr, denote c tr /\ begin_end_state s tr ms.
 
-Class SALocalTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (LTS: LocalTraceSemantics P state): Type := {
+Class SALocalTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (LTS: LocalTraceSemantics P state): Type := {
   frame_property: forall c tr' m mf m',
     join m mf m' ->
     denote c tr' ->
@@ -33,7 +33,7 @@ Class SALocalTraceSemantics (P: ProgrammingLanguage) (state: Type) {J: Join stat
          exists m n mf nf,
          tr k = Some (m, n) /\
          trf k = Some (mf, nf) /\
-         lift_Korder nf (Terminating mf) /\
+         lift_Krelation nf (Terminating mf) /\
          lift_join n nf n'))
 }.
 
@@ -42,9 +42,9 @@ Module ImpLocalTraceSemantics (F: FORWARD) (FT: FORWARD_TRACE with Module F := F
 Export F.
 Export FT.
 
-Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (LTS: LocalTraceSemantics P state): Type := {
+Class ImpLocalTraceSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} (LTS: LocalTraceSemantics P state): Type := {
   eval_bool: state -> bool_expr -> Prop;
-  eval_bool_stable: forall b, Korder_stable (fun s => eval_bool s b);
+  eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
   denote_Sskip: forall tr,
     denote Sskip tr -> is_empty_stream tr;
   denote_Ssequence: forall c1 c2 tr,
@@ -66,7 +66,7 @@ Module Total := ImpLocalTraceSemantics (ProgramState.Total) (Trace.Total).
 
 Module Partial := ImpLocalTraceSemantics (ProgramState.Partial) (Trace.Partial).
 
-Instance Total2Partial_ImpLocalTraceSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} {LTS: LocalTraceSemantics P state} (iLTS: Total.ImpLocalTraceSemantics P state LTS): Partial.ImpLocalTraceSemantics P state LTS.
+Instance Total2Partial_ImpLocalTraceSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} {LTS: LocalTraceSemantics P state} (iLTS: Total.ImpLocalTraceSemantics P state LTS): Partial.ImpLocalTraceSemantics P state LTS.
 Proof.
   refine (Partial.Build_ImpLocalTraceSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _ _).
   + apply Total.denote_Sskip.

@@ -1,6 +1,9 @@
 Require Import Coq.Relations.Relation_Operators.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+
+Local Open Scope kripke_model.
+Import KripkeModelNotation_Intuitionistic.
 
 Inductive MetaState (state: Type): Type :=
   | Error: MetaState state
@@ -13,7 +16,7 @@ Arguments Terminating {_} _.
 
 Module Type FORWARD.
 
-Parameter forward: forall {state: Type} {ki_state: KripkeIntuitionisticModel state},
+Parameter forward: forall {state: Type} {state_R: Relation state},
   MetaState state -> MetaState state -> Prop.
 
 End FORWARD.
@@ -22,7 +25,7 @@ Module Partial <: FORWARD.
 
 Inductive forward'
           {state: Type}
-          {ki_state: KripkeIntuitionisticModel state}:
+          {state_R: Relation state}:
   MetaState state -> MetaState state -> Prop :=
 | forward_Error:
     forward' Error Error
@@ -31,9 +34,9 @@ Inductive forward'
 | forward_Terminating_NonTerminating:
     forall x, forward' (Terminating x) NonTerminating
 | forward_Terminating:
-    forall x y, Korder x y -> forward' (Terminating x) (Terminating y).
+    forall x y, x <= y -> forward' (Terminating x) (Terminating y).
 
-Definition forward {state: Type} {ki_state: KripkeIntuitionisticModel state} := forward'.
+Definition forward {state: Type} {state_R: Relation state} := forward'.
 
 End Partial.
 
@@ -41,20 +44,20 @@ Module Total <: FORWARD.
 
 Inductive forward'
           {state: Type}
-          {ki_state: KripkeIntuitionisticModel state}:
+          {state_R: Relation state}:
   MetaState state -> MetaState state -> Prop :=
 | forward_Error:
     forward' Error Error
 | forward_NonTerminating:
     forward' NonTerminating NonTerminating
 | forward_Terminating:
-    forall x y, Korder x y -> forward' (Terminating x) (Terminating y).
+    forall x y, x <= y -> forward' (Terminating x) (Terminating y).
 
-Definition forward {state: Type} {ki_state: KripkeIntuitionisticModel state} := forward'.
+Definition forward {state: Type} {state_R: Relation state} := forward'.
 
 End Total.
 
-Lemma Total2Partial_forward {state: Type} {ki_state: KripkeIntuitionisticModel state}: forall ms1 ms2,
+Lemma Total2Partial_forward {state: Type} {state_R: Relation state}: forall ms1 ms2,
   Total.forward ms1 ms2 -> Partial.forward ms1 ms2.
 Proof.
   intros.
@@ -70,7 +73,7 @@ Inductive lift_relation {state: Type} (R: state -> MetaState state -> Prop):
 | lift_relation_Terminating:
     forall s ms, R s ms -> lift_relation R (Terminating s) ms.
 
-Definition lift_Korder {state: Type} {ki_state: KripkeIntuitionisticModel state}: MetaState state -> MetaState state -> Prop := Total.forward.
+Definition lift_Krelation {state: Type} {state_R: Relation state}: MetaState state -> MetaState state -> Prop := Total.forward.
 
 Inductive lift_join
           {state: Type}

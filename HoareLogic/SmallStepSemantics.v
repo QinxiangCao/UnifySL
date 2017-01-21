@@ -1,12 +1,16 @@
 Require Import Coq.Relations.Relation_Operators.
 Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.lib.Stream.StreamFunctions.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
-Require Import Logic.SeparationLogic.SeparationAlgebraGenerators.
+Require Import Coq.Relations.Relation_Operators.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.SeparationLogic.Model.OSAGenerators.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.Trace.
+
+Local Open Scope kripke_model.
+Import KripkeModelNotation_Intuitionistic.
 
 Class SmallStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   step: cmd * state -> MetaState (cmd * state) -> Prop
@@ -55,17 +59,17 @@ Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P
   ms = NonTerminating /\ exists cs: nat -> cmd * state, cs 0 = (c, s) /\ forall k, step (cs k) (Terminating (cs (S k))).
 *)
 
-Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state): Type := {
-  frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, Korder (snd nf) (snd mf) /\ @lift_join _ (@prod_Join cmd state (equiv_Join) J) n (Terminating nf) n' /\ step m n
+Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (SSS: SmallStepSemantics P state): Type := {
+  frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, snd nf <= snd mf /\ @lift_join _ (@prod_Join cmd state (equiv_Join) J) n (Terminating nf) n' /\ step m n
 }.
 
 Module ImpSmallStepSemantics (D: FORWARD).
 
 Export D.
 
-Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state): Type := {
+Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} (SSS: SmallStepSemantics P state): Type := {
   eval_bool: state -> bool_expr -> Prop;
-  eval_bool_stable: forall b, Korder_stable (fun s => eval_bool s b);
+  eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
   step_defined: forall c s, c <> Sskip -> exists mcs, step (c, s) mcs;
   step_Sskip: forall s mcs, step (Sskip, s) mcs <-> False;
   step_Ssequence: forall c1 c2 s mcs,
@@ -88,7 +92,7 @@ Module Partial := ImpSmallStepSemantics (ProgramState.Partial).
 
 Module Total := ImpSmallStepSemantics (ProgramState.Total).
 
-Instance Total2Partial_ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} {SSS: SmallStepSemantics P state} (iSSS: Total.ImpSmallStepSemantics P state SSS): Partial.ImpSmallStepSemantics P state SSS.
+Instance Total2Partial_ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} {SSS: SmallStepSemantics P state} (iSSS: Total.ImpSmallStepSemantics P state SSS): Partial.ImpSmallStepSemantics P state SSS.
 Proof.
   refine (Partial.Build_ImpSmallStepSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _ _ _).
   + apply Total.step_defined.

@@ -1,8 +1,11 @@
 Require Import Coq.Relations.Relation_Operators.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
+
+Local Open Scope kripke_model.
+Import KripkeModelNotation_Intuitionistic.
 
 Class BigStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   access: state -> cmd -> MetaState state -> Prop;
@@ -36,8 +39,8 @@ Definition term_norm
   Prop :=
   ~ access s c Error /\ ~ access s c NonTerminating.
 
-Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {kiM: KripkeIntuitionisticModel state} (BSS: BigStepSemantics P state): Type := {
-  frame_property: forall m mf m' c n', join m mf m' -> access m' c n' -> exists n nf, Korder mf nf /\ lift_join n (Terminating nf) n' /\ access m c n
+Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (BSS: BigStepSemantics P state): Type := {
+  frame_property: forall m mf m' c n', join m mf m' -> access m' c n' -> exists n nf, mf <= nf /\ lift_join n (Terminating nf) n' /\ access m c n
 }.
 
 Module ImpBigStepSemantics (F: FORWARD).
@@ -46,7 +49,7 @@ Export F.
 
 Inductive loop_access_fin
           {state: Type}
-          {kiM: KripkeIntuitionisticModel state}
+          {state_R: Relation state}
           (R: state -> MetaState state -> Prop)
           (test: state -> Prop): state -> MetaState state -> Prop :=
 | loop_access_Terminating:
@@ -64,28 +67,28 @@ Inductive loop_access_fin
 | loop_access_step:
     forall s1 s2 s3 s4 ms,
       test s1 ->
-      Korder s1 s2 ->
+      s1 <= s2 ->
       R s2 (Terminating s3) ->
-      Korder s3 s4 ->
+      s3 <= s4 ->
       loop_access_fin R test s4 ms ->
       loop_access_fin R test s1 ms.
 
 Inductive loop_access_inf
           {state: Type}
-          {kiM: KripkeIntuitionisticModel state}
+          {state_R: Relation state}
           (R: state -> MetaState state -> Prop)
           (test: state -> Prop): state -> Prop :=
 | loop_access_inf_NonTerminating:
     forall (s1 s2 s3: nat -> state),
       (forall n, test (s1 n)) ->
-      (forall n, Korder (s1 n) (s2 n)) ->
+      (forall n, s1 n <= s2 n) ->
       (forall n, R (s2 n) (Terminating (s3 n))) ->
-      (forall n, Korder (s3 n) (s1 (S n))) ->
+      (forall n, s3 n <= s1 (S n)) ->
       loop_access_inf R test (s1 0).
 
-Class ImpBigStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} (BSS: BigStepSemantics P state): Type := {
+Class ImpBigStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} (BSS: BigStepSemantics P state): Type := {
   eval_bool: state -> bool_expr -> Prop;
-  eval_bool_stable: forall b, Korder_stable (fun s => eval_bool s b);
+  eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
   access_Ssequence: forall c1 c2 s ms,
     access s (Ssequence c1 c2) ms ->
     exists ms' ms'',
@@ -106,7 +109,7 @@ Module Total := ImpBigStepSemantics (ProgramState.Total).
 
 Module Partial := ImpBigStepSemantics (ProgramState.Partial).
 
-Instance Total2Partial_ImpBigStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {kiM: KripkeIntuitionisticModel state} {BSS: BigStepSemantics P state} (iBSS: Total.ImpBigStepSemantics P state BSS): Partial.ImpBigStepSemantics P state BSS.
+Instance Total2Partial_ImpBigStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} {BSS: BigStepSemantics P state} (iBSS: Total.ImpBigStepSemantics P state BSS): Partial.ImpBigStepSemantics P state BSS.
 Proof.
   refine (Partial.Build_ImpBigStepSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _).
   + intros.

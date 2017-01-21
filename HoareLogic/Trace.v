@@ -2,7 +2,7 @@ Require Import Coq.Relations.Relation_Operators.
 Require Import Coq.Sets.Ensembles.
 Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.lib.Stream.StreamFunctions.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
+Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.HoareLogic.ProgramState.
 
 Definition trace (state: Type): Type := stream (state * MetaState state).
@@ -243,15 +243,15 @@ Module Type FORWARD_TRACE.
 
 Declare Module F: FORWARD.
 
-Parameter forward_trace: forall {state: Type} {kiM: KripkeIntuitionisticModel state}, traces state.
+Parameter forward_trace: forall {state: Type} {state_R: Relation state}, traces state.
 
-Parameter forward_trace_with_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop), traces state.
+Parameter forward_trace_with_test: forall {state: Type} {state_R: Relation state} (P: state -> Prop), traces state.
 
-Axiom singleton_trace_forward: forall {state: Type} {kiM: KripkeIntuitionisticModel state} s ms,
+Axiom singleton_trace_forward: forall {state: Type} {state_R: Relation state} s ms,
   F.forward (Terminating s) ms ->
   forward_trace (singleton_trace s ms).
 
-Axiom singleton_trace_forward_test: forall {state: Type} {kiM: KripkeIntuitionisticModel state} (P: _ -> Prop) s ms,
+Axiom singleton_trace_forward_test: forall {state: Type} {state_R: Relation state} (P: _ -> Prop) s ms,
   F.forward (Terminating s) ms ->
   P s ->
   forward_trace_with_test P (singleton_trace s ms).
@@ -263,13 +263,13 @@ Module ForwardTrace (F: FORWARD) <: FORWARD_TRACE with Module F := F.
 Module F := F.
 Export F.
 
-Definition forward_trace {state: Type} {kiM: KripkeIntuitionisticModel state}: traces state :=
+Definition forward_trace {state: Type} {state_R: Relation state}: traces state :=
   fun tr => is_fin_stream tr /\ forall n s ms, tr n = Some (s, ms) -> forward (Terminating s) ms.
 
-Definition forward_trace_with_test {state: Type} {kiM: KripkeIntuitionisticModel state} (P: state -> Prop) : traces state :=
+Definition forward_trace_with_test {state: Type} {state_R: Relation state} (P: state -> Prop) : traces state :=
   fun tr => forward_trace tr /\ exists s, begin_state tr s /\ P s.
 
-Lemma singleton_trace_forward {state: Type} {kiM: KripkeIntuitionisticModel state}: forall s ms,
+Lemma singleton_trace_forward {state: Type} {state_R: Relation state}: forall s ms,
   F.forward (Terminating s) ms ->
   forward_trace (singleton_trace s ms).
 Proof.
@@ -283,7 +283,7 @@ Proof.
   + destruct n; inversion H0.
 Qed.
 
-Lemma singleton_trace_forward_test {state: Type} {kiM: KripkeIntuitionisticModel state}: forall (P: _ -> Prop) s ms,
+Lemma singleton_trace_forward_test {state: Type} {state_R: Relation state}: forall (P: _ -> Prop) s ms,
   F.forward (Terminating s) ms ->
   P s ->
   forward_trace_with_test P (singleton_trace s ms).
@@ -302,7 +302,7 @@ Module Total := ForwardTrace (ProgramState.Total).
 
 Lemma Total2Partial_forward_trace
       {state: Type}
-      {kiM: KripkeIntuitionisticModel state}:
+      {state_R: Relation state}:
   Included _ Total.forward_trace Partial.forward_trace.
 Proof.
   unfold Included, Ensembles.In; intros tr ?.
@@ -314,7 +314,7 @@ Qed.
 
 Lemma Total2Partial_forward_trace_with_test
       {state: Type}
-      {kiM: KripkeIntuitionisticModel state}
+      {state_R: Relation state}
       (P: state -> Prop):
   Included _
    (Total.forward_trace_with_test P)
