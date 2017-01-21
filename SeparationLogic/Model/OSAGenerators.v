@@ -142,7 +142,7 @@ Section equivSA.
     exists n, n; do 2 split; auto.
   Qed.
 
-  Definition equiv_gcSA: @IncreasingSeparationAlgebra
+  Definition equiv_incrSA: @IncreasingSeparationAlgebra
                            worlds identity_R equiv_Join.
   Proof.
     constructor; intros.
