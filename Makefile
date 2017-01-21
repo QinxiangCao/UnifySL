@@ -76,7 +76,8 @@ SeparationLogic_Sound_FILES = \
 SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v \
   Parameter.v \
-  ParametricSeparationLogic.v SeparationLogicsInLiteratures.v
+  ParametricSeparationLogic.v SeparationLogicsInLiteratures.v \
+  FlatSemantics.v
 
 SeparationLogic_FILES = \
   Syntax.v \

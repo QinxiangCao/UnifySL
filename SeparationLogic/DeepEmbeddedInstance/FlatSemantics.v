@@ -36,84 +36,46 @@ Infix "<=" := (Krelation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := sig (fun s: Ensemble f => forall x y, x <= y -> s x -> s y).
+Definition sem (f: frame) := @sig (_ -> Prop) (@upwards_closed_Kdenote f (Krelation f)).
 
-Program Definition sem_and {F: frame} (X: sem F) (Y: sem F): sem F :=
-  fun x: F => X x /\ Y x.
-Next Obligation.
-  split.
-  + eapply (proj2_sig X); eauto.
-  + eapply (proj2_sig Y); eauto.
-Qed.
-
-Program Definition sem_or {F: frame} (X: sem F) (Y: sem F): sem F :=
-  fun x: F => X x \/ Y x.
-Next Obligation.
-  destruct H0; [left | right].
-  + eapply (proj2_sig X); eauto.
-  + eapply (proj2_sig Y); eauto.
-Qed.
-
-Program Definition sem_imp {F: frame} (X: sem F) (Y: sem F): sem F :=
-  fun x: F =>
-    forall y: F, x <= y -> X y -> Y y.
-Next Obligation.
-  revert H2; apply H0.
-  pose proof @PreOrder_Transitive _ _ (Korder_preorder F).
-  transitivity y; auto.
-Qed.
-
-Program Definition sem_true {F: frame}: sem F :=
-  fun x: F => True.
-
-Program Definition sem_false {F: frame}: sem F :=
-  fun x: F => False.
-
-Program Definition sem_sepcon {F: frame} (X: sem F) (Y: sem F): sem F :=
-  fun m: F =>
-    exists m1 m2, @join _ (J F) m1 m2 m /\ X m1 /\ Y m2.
-Next Obligation.
-  rename H0 into y1, H1 into y2.
-  destruct (@join_Korder_up _ _ _ (uSA F) _ _ _ _ H2 H) as [x1 [x2 [? [? ?]]]].
-  exists x1, x2.
-  split; [| split]; auto.
-  + eapply (proj2_sig X); eauto.
-  + eapply (proj2_sig Y); eauto.
-Qed.
-
-Program Definition sem_wand {F: frame} (X: sem F) (Y: sem F): sem F :=
-  fun m: F =>
-    forall m1 m2, @join _ (J F) m m1 m2 -> X m1 -> Y m2.
-Next Obligation.
-  destruct (@join_Korder_down _ _ _ (dSA F) _ _ _ _ m1 H1 H) as [m [? ?]].
-  + reflexivity.
-  + eapply (proj2_sig Y); [eauto |].
-    eapply H0; eauto.
-Qed.
-
-Program Definition sem_emp {F: frame}: sem F :=
-  fun m: F => @increasing _ (kiM F) (J F) m.
-Next Obligation.
-  unfold increasing in *.
-  intros.
-  destruct (@join_Korder_down _ _ _ (dSA F) _ _ _ _ n H1 H) as [m' [? ?]].
-  + reflexivity.
-  + specialize (H0 _ _ H2).
-    etransitivity; eauto.
-Qed.
-
-Definition denotation {Var: Type} (F: frame) (eval_emp: sem F) (eval: Var -> sem F): expr Var -> sem F :=
+Program Definition denotation {Var: Type} (F: frame) (eval_emp: sem F) (eval: Var -> sem F): expr Var -> sem F :=
   fix denotation (x: expr Var): sem F:=
   match x with
-  | andp y z => sem_and (denotation y) (denotation z)
-  | orp y z => sem_or (denotation y) (denotation z)
-  | impp y z => sem_imp (denotation y) (denotation z)
-  | sepcon y z => sem_sepcon (denotation y) (denotation z)
-  | wand y z => sem_wand (denotation y) (denotation z)
-  | emp => eval_emp
-  | falsep => sem_false
+  | andp y z => @Semantics.andp F (denotation y) (denotation z)
+  | orp y z => Semantics.orp (denotation y) (denotation z)
+  | impp y z => @Semantics.impp F (Krelation F) (denotation y) (denotation z)
+  | sepcon y z => @WeakSemantics.sepcon F (J F) (denotation y) (denotation z)
+  | wand y z => @WeakSemantics.wand F (J F) (denotation y) (denotation z)
+  | emp => @WeakSemantics.emp F (Krelation F) (J F)
+  | falsep => Semantics.falsep
   | varp p => eval p
   end.
+Next Obligation.
+  apply (@Semantics.andp_closed F (Krelation F) (Krelation_Preorder F));
+  apply (proj2_sig (denotation _)).
+Defined.
+Next Obligation.
+  apply (@Semantics.orp_closed F (Krelation F) (Krelation_Preorder F));
+  apply (proj2_sig (denotation _)).
+Defined.
+Next Obligation.
+  apply (@Semantics.impp_closed F (Krelation F) (Krelation_Preorder F));
+  apply (proj2_sig (denotation _)).
+Defined.
+Next Obligation.
+  apply (@WeakSemantics.sepcon_closed F (Krelation F) (Krelation_Preorder F) (J F) (SA F) (uSA F));
+  apply (proj2_sig (denotation _)).
+Defined.
+Next Obligation.
+  apply (@WeakSemantics.wand_closed F (Krelation F) (Krelation_Preorder F) (J F) (SA F) (dSA F));
+  apply (proj2_sig (denotation _)).
+Defined.
+Next Obligation.
+  apply (@WeakSemantics.emp_closed F (Krelation F) (Krelation_Preorder F) (J F) (SA F) (dSA F)).
+Defined.
+Next Obligation.
+  apply (@Semantics.falsep_closed F (Krelation F)).
+Defined.
 
 Section KripkeSemantics.
 Context (Var: Type).
@@ -129,7 +91,7 @@ Record model: Type := {
   elm: underlying_model
 }.
 
-Instance L: Language := UnitarySeparationLanguage.L Var.
+Instance L: Language := SeparationEmpLanguage.L Var.
 Instance MD: Model := Build_Model model.
 
 Instance kMD: KripkeModel MD :=

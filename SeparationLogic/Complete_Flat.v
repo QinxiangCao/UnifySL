@@ -1,26 +1,31 @@
+(* Split it into General proofs and the proof for DeepEmbedded *)
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
-Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
-Require Import Logic.MinimunLogic.LogicBase.
-Require Import Logic.MinimunLogic.MinimunLogic.
-Require Import Logic.MinimunLogic.ContextProperty.
-Require Import Logic.MinimunLogic.RewriteClass.
-Require Import Logic.MinimunLogic.HenkinCompleteness.
+Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.HenkinCompleteness.
+Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeSemantics.
-Require Import Logic.PropositionalLogic.Complete_Kripke.
-Require Import Logic.SeparationLogic.SeparationAlgebra.
-Require Import Logic.SeparationLogic.Semantics. Import Logic.SeparationLogic.Semantics.FlatSemantics.
-Require Import Logic.PropositionalLogic.IntuitionisticPropositionalLogic.
-Require Import Logic.PropositionalLogic.WeakClassicalLogic.
-Require Import Logic.PropositionalLogic.GodelDummettLogic.
-Require Import Logic.PropositionalLogic.ClassicalPropositionalLogic.
-Require Import Logic.PropositionalLogic.RewriteClass.
+Require Import Logic.MinimunLogic.ProofTheory.Normal.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
+Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
+Require Import Logic.PropositionalLogic.ProofTheory.Classical.
+Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.SeparationLogic.
-Require Import Logic.SeparationLogic.SoundCompleteParameter.
+Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.SeparationLogic.Model.OrderedSA.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
+Require Import Logic.PropositionalLogic.Complete.Complete_Kripke.
+Require Import Logic.SeparationLogic.DeepEmbeddedInstance.Parameter.
+Require Logic.SeparationLogic.DeepEmbeddedInstance.SeparationEmpLanguage.
+Require Logic.SeparationLogic.DeepEmbeddedInstance.FlatSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -36,11 +41,11 @@ Context (Var: Type).
 Context (CV: Countable Var).
 Context (SLP: SL_Parameter).
 
-Instance L: Language := UnitarySeparationLanguage.L Var.
-Instance nL: NormalLanguage L := UnitarySeparationLanguage.nL Var.
-Instance pL: PropositionalLanguage L := UnitarySeparationLanguage.pL Var.
-Instance sL: SeparationLanguage L := UnitarySeparationLanguage.sL Var.
-Instance usL: UnitarySeparationLanguage L := UnitarySeparationLanguage.usL Var.
+Instance L: Language := SeparationEmpLanguage.L Var.
+Instance nL: NormalLanguage L := SeparationEmpLanguage.nL Var.
+Instance pL: PropositionalLanguage L := SeparationEmpLanguage.pL Var.
+Instance sL: SeparationLanguage L := SeparationEmpLanguage.sL Var.
+Instance s'L: SeparationEmpLanguage L := SeparationEmpLanguage.s'L Var.
 (*
 Instance G: ProofTheory L := SeparationLogic.G Var SLP.
 Instance nG: NormalProofTheory L G := SeparationLogic.nG Var SLP.
@@ -93,7 +98,7 @@ Lemma Lindenbaum_lemma1 {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamm
       consistent Psi.
 Proof.
   intros.
-  assert (Countable expr) by (apply UnitarySeparationLanguage.formula_countable; auto).
+  assert (Countable expr) by (apply SeparationEmpLanguage.formula_countable; auto).
   set (step :=
           fun n Phi x0 =>
              Phi x0 \/
@@ -177,7 +182,7 @@ Lemma Lindenbaum_lemma2_right {Gamma: ProofTheory L} {nGamma: NormalProofTheory 
       consistent Psi.
 Proof.
   intros ? ? ? ? [Phi2_DC [Phi2_OW Phi2_C]].
-  assert (Countable expr) by (apply UnitarySeparationLanguage.formula_countable; auto).
+  assert (Countable expr) by (apply SeparationEmpLanguage.formula_countable; auto).
   set (step :=
           fun n Phi x0 =>
              Phi x0 \/
@@ -465,13 +470,13 @@ Proof.
 Defined.
 
 Program Definition canonical_emp {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemanticsModel.sem canonical_frame :=
-  fun a => a (UnitarySeparationLanguage.emp).
+  fun a => a (SeparationEmpLanguage.emp).
 Next Obligation.
   apply H; auto.
 Qed.
 
 Program Definition canonical_eval {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Var -> FlatSemanticsModel.sem canonical_frame :=
-  fun p a => a (UnitarySeparationLanguage.varp p).
+  fun p a => a (SeparationEmpLanguage.varp p).
 Next Obligation.
   apply H; auto.
 Qed.
@@ -494,19 +499,19 @@ Proof.
   + specialize (IHx1 Phi).
     specialize (IHx2 Phi).
     pose proof DCS_andp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) x1 x2.
-    change (UnitarySeparationLanguage.andp x1 x2) with (x1 && x2).
+    change (SeparationEmpLanguage.andp x1 x2) with (x1 && x2).
     rewrite sat_andp.
     tauto.
   + specialize (IHx1 Phi).
     specialize (IHx2 Phi).
     pose proof DCS_orp_iff (proj1_sig Phi) (proj1 (proj2_sig Phi)) (proj1 (proj2 (proj2_sig Phi))) x1 x2.
-    change (UnitarySeparationLanguage.orp x1 x2) with (x1 || x2).
+    change (SeparationEmpLanguage.orp x1 x2) with (x1 || x2).
     rewrite sat_orp.
     tauto.
   + split.
     - intros.
       rewrite H.
-      change (UnitarySeparationLanguage.impp x1 x2) with (x1 --> x2) in *.
+      change (SeparationEmpLanguage.impp x1 x2) with (x1 --> x2) in *.
       apply deduction_theorem.
       apply Classical_Prop.NNPP; intro.
       pose proof Lindenbaum_lemma1 _ _ H1.
@@ -523,14 +528,14 @@ Proof.
       specialize (H Psi x2).
       rewrite H in H0; auto.
     - intros.
-      change (UnitarySeparationLanguage.impp x1 x2) with (x1 --> x2) in *.
+      change (SeparationEmpLanguage.impp x1 x2) with (x1 --> x2) in *.
       rewrite sat_impp; intros Psi ?H.
       rewrite IHx1, IHx2 by eauto.
       intros.
       rewrite H in H0, H2 |- *.
       eapply deduction_weaken in H0; [| exact H1].
       eapply deduction_modus_ponens; [exact H2 | exact H0].
-  + change (UnitarySeparationLanguage.sepcon x1 x2) with (x1 * x2).
+  + change (SeparationEmpLanguage.sepcon x1 x2) with (x1 * x2).
     rewrite sat_sepcon.
     split.
     - intros [Phi1 [Phi2 [? [? ?]]]].
@@ -570,7 +575,7 @@ Proof.
         apply H3; auto.
       * rewrite (IHx1 Phi1); auto.
       * rewrite (IHx2 Phi2); auto.
-  + change (UnitarySeparationLanguage.wand x1 x2) with (x1 -* x2).
+  + change (SeparationEmpLanguage.wand x1 x2) with (x1 -* x2).
     rewrite sat_wand.
     split.
     - intros.
