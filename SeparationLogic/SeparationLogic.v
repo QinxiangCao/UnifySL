@@ -120,14 +120,14 @@ Proof.
   apply derivable_sepcon_elim2.
 Qed.
 
-Instance sepcon_proper {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) sepcon.
+Instance sepcon_proper_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) sepcon.
 Proof.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   apply sepcon_mono; auto.
 Qed.
 
-Instance wand_proper {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) wand.
+Instance wand_proper_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) wand.
 Proof.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
@@ -140,6 +140,38 @@ Proof.
     apply sepcon_mono; [apply provable_impp_refl | apply H].
   + rewrite <- provable_derivable.
     apply wand_sepcon_adjoint.
+    apply provable_impp_refl.
+Qed.
+
+Instance sepcon_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Proper ((fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y)) sepcon.
+Proof.
+  hnf; intros x1 x2 ?.
+  hnf; intros y1 y2 ?.
+  rewrite provable_derivable in H, H0 |- *.
+  pose proof deduction_andp_elim1 _ _ _ H.
+  pose proof deduction_andp_elim2 _ _ _ H.
+  pose proof deduction_andp_elim1 _ _ _ H0.
+  pose proof deduction_andp_elim2 _ _ _ H0.
+  apply deduction_andp_intros; rewrite <- provable_derivable in H1, H2, H3, H4 |- *.
+  + rewrite H1, H3.
+    apply provable_impp_refl.
+  + rewrite H2, H4.
+    apply provable_impp_refl.
+Qed.
+
+Instance wand_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Proper ((fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y)) wand.
+Proof.
+  hnf; intros x1 x2 ?.
+  hnf; intros y1 y2 ?.
+  rewrite provable_derivable in H, H0 |- *.
+  pose proof deduction_andp_elim1 _ _ _ H.
+  pose proof deduction_andp_elim2 _ _ _ H.
+  pose proof deduction_andp_elim1 _ _ _ H0.
+  pose proof deduction_andp_elim2 _ _ _ H0.
+  apply deduction_andp_intros; rewrite <- provable_derivable in H1, H2, H3, H4 |- *.
+  + rewrite H2, H3.
+    apply provable_impp_refl.
+  + rewrite H1, H4.
     apply provable_impp_refl.
 Qed.
 
