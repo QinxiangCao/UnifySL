@@ -44,6 +44,25 @@ Ltac search_expr' x l l0 :=
 
 Ltac search_expr x l := search_expr' x l l.
 
+(*
+Definition rev (l: list nat): list nat :=
+  (fix rev (l: list nat) (cont: list nat -> list nat): list nat :=
+    match l with
+    | nil => cont nil
+    | a :: l0 => rev l0 (fun l => a :: cont l)
+    end) l (fun l => l).
+*)
+
+Ltac tactic_rev_aux l tac :=
+  match l with
+  | @nil ?T => tac (@nil T)
+  | @cons _ ?a ?l0 => let tac' l := let l' := tac l in constr:(cons a l') in tactic_rev_aux l0 tac'
+  end.
+
+Ltac tactic_rev l :=
+  let tac l := constr:(l) in
+  tactic_rev_aux l tac.
+
 Ltac reify_expr' L x l :=
   match x with
   | @impp L _ ?y ?z =>
@@ -63,8 +82,11 @@ Ltac reify_expr' L x l :=
 Ltac reify_expr L x :=
   match reify_expr' L x (pair (@nil (@expr L)) 0) with
   | pair (pair ?tbl _) ?x0 =>
-      assert (reflect L (rev tbl) x0 = x); [try reflexivity |]
+      let tbl' := tactic_rev tbl in
+      assert (reflect L tbl' x0 = x); [try reflexivity |]
   end.
+
+
 
 Section Test.
 
