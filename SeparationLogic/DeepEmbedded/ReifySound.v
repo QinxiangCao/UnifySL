@@ -15,7 +15,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
-Require Import Logic.SeparationLogic.SeparationLogic.
+Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 Require Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
 Require Logic.SeparationLogic.DeepEmbedded.ParametricSeparationLogic.

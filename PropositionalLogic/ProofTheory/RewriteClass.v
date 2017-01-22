@@ -43,6 +43,14 @@ Proof.
     apply derivable_orp_intros2.
 Qed.
 
+Instance negp_proper_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y)) negp.
+Proof.
+  hnf; intros x1 x2 ?.
+  unfold negp.
+  apply impp_proper_impp; auto.
+  apply provable_impp_refl.
+Qed.
+
 Instance provable_iffp_rewrite {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: RewriteRelation (fun x y => |-- x <--> y).
 
 Instance provable_iffp_equiv {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Equivalence (fun x y => |-- x <--> y).
@@ -159,4 +167,10 @@ Proof.
   apply deduction_andp_intros; apply derivable_impp_refl.
 Qed.
 
-
+Instance negp_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) negp.
+Proof.
+  hnf; intros x1 x2 ?.
+  unfold negp.
+  apply impp_proper_iffp; auto.
+  rewrite provable_derivable; apply deduction_andp_intros; apply derivable_impp_refl.
+Qed.

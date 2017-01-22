@@ -16,7 +16,9 @@ Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
-Require Import Logic.SeparationLogic.SeparationLogic.
+Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
+Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
+Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.

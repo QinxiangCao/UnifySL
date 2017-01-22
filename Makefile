@@ -66,6 +66,10 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
+SeparationLogic_ProofTheory_FILES = \
+  SeparationLogic.v SeparationLogicExtension.v \
+  RewriteClass.v DerivedRules.v
+
 SeparationLogic_Model_FILES = \
   SeparationAlgebra.v OrderedSA.v \
   UpwardsClosure.v DownwardsClosure.v \
@@ -92,11 +96,11 @@ SeparationLogic_DeepEmbedded_FILES = \
 
 SeparationLogic_FILES = \
   Syntax.v \
+  $(SeparationLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(SeparationLogic_Model_FILES:%.v=Model/%.v) \
   $(SeparationLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
   $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
-  SeparationLogic.v SeparationLogicExtension.v \
   Complete_Flat.v
 
 HoareLogic_FILES = \
