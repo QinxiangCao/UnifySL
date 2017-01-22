@@ -24,6 +24,74 @@ Inductive expr {Var: Type}: Type :=
 
 Implicit Arguments expr.
 
+Definition expr_eqb {Var: Type} (eqb: Var -> Var -> bool): expr Var -> expr Var -> bool :=
+  fix expr_eqb x1 x2 :=
+    match x1, x2 with
+    | andp y1 z1, andp y2 z2 => andb (expr_eqb y1 y2) (expr_eqb z1 z2)
+    | orp y1 z1, orp y2 z2 => andb (expr_eqb y1 y2) (expr_eqb z1 z2)
+    | impp y1 z1, impp y2 z2 => andb (expr_eqb y1 y2) (expr_eqb z1 z2)
+    | sepcon y1 z1, sepcon y2 z2 => andb (expr_eqb y1 y2) (expr_eqb z1 z2)
+    | wand y1 z1, wand y2 z2 => andb (expr_eqb y1 y2) (expr_eqb z1 z2)
+    | emp, emp => true
+    | falsep, falsep => true
+    | varp p, varp q => eqb p q
+    | _, _ => false
+    end.
+
+Lemma expr_eqb_true {Var: Type} (eqb: Var -> Var -> bool):
+  (forall p q, eqb p q = true <-> p = q) ->
+  (forall x y, expr_eqb eqb x y = true <-> x = y).
+Proof.
+  intros.
+  revert y; induction x; intros; destruct y;
+  try solve [split; intros HH; inversion HH].
+  + simpl; rewrite Bool.andb_true_iff.
+    split; intros.
+    - destruct H0.
+      rewrite IHx1 in H0; rewrite IHx2 in H1.
+      subst; auto.
+    - inversion H0; subst.
+      rewrite IHx1, IHx2.
+      tauto.
+  + simpl; rewrite Bool.andb_true_iff.
+    split; intros.
+    - destruct H0.
+      rewrite IHx1 in H0; rewrite IHx2 in H1.
+      subst; auto.
+    - inversion H0; subst.
+      rewrite IHx1, IHx2.
+      tauto.
+  + simpl; rewrite Bool.andb_true_iff.
+    split; intros.
+    - destruct H0.
+      rewrite IHx1 in H0; rewrite IHx2 in H1.
+      subst; auto.
+    - inversion H0; subst.
+      rewrite IHx1, IHx2.
+      tauto.
+  + simpl; rewrite Bool.andb_true_iff.
+    split; intros.
+    - destruct H0.
+      rewrite IHx1 in H0; rewrite IHx2 in H1.
+      subst; auto.
+    - inversion H0; subst.
+      rewrite IHx1, IHx2.
+      tauto.
+  + simpl; rewrite Bool.andb_true_iff.
+    split; intros.
+    - destruct H0.
+      rewrite IHx1 in H0; rewrite IHx2 in H1.
+      subst; auto.
+    - inversion H0; subst.
+      rewrite IHx1, IHx2.
+      tauto.
+  + simpl; tauto.
+  + simpl; tauto.
+  + simpl.
+    rewrite H.
+    split; intros; congruence.
+Qed.
+
 Instance L (Var: Type): Language :=
   Build_Language (expr Var).
 

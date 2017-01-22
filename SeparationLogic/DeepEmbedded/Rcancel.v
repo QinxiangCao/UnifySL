@@ -57,7 +57,7 @@ Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 Require Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
 Require Logic.SeparationLogic.DeepEmbedded.ParametricSeparationLogic.
 
-Context {Var: Type} {PAR: SL_Parameter}.
+Context {Var: Type} {PAR: SL_Parameter} (Var_eqb: Var -> Var -> bool).
 
 Instance L: Language := SeparationEmpLanguage.L Var.
 Instance nL: NormalLanguage L := SeparationEmpLanguage.nL Var.
@@ -70,11 +70,59 @@ Instance mpG: MinimunPropositionalLogic L G := ParametricSeparationLogic.mpG Var
 Instance ipG: IntuitionisticPropositionalLogic L G := ParametricSeparationLogic.ipG Var PAR.
 Instance sG: SeparationLogic L G := ParametricSeparationLogic.sG Var PAR.
 
+(* Solver *)
 Fixpoint sepcon_flatten (x: @expr L): list (@expr L) :=
   match x with
   | SeparationEmpLanguage.sepcon y z => sepcon_flatten y ++ sepcon_flatten z
   | _ => x :: nil
   end.
+
+Fixpoint wand_flatten' (x: @expr L): list (@expr L) * @expr L :=
+  match x with
+  | SeparationEmpLanguage.wand y z =>
+      match wand_flatten' z with
+      | (ys, z') => (y :: ys, z')
+      end
+  | _ => (nil, x)
+  end.
+
+Definition wand_flatten (x: @expr L): list (@expr L) * list (@expr L) :=
+  match wand_flatten' x with
+  | (ys, y) => (concat (map sepcon_flatten ys), sepcon_flatten y)
+  end.
+
+Definition filter_wand (ws: list (list (@expr L) * list (@expr L))): list (list (@expr L) * list (@expr L)) :=
+  filter (fun w => match fst w with nil => false | _ => true end) ws.
+
+Definition filter_sepcon (ws: list (list (@expr L) * list (@expr L))): list (@expr L) :=
+  concat (map snd (filter (fun w => match fst w with nil => true | _ => false end) ws)).
+
+Definition remove1 {A: Type} (test: A -> bool): list A -> option (list A) :=
+  fix remove1 xs :=
+    match xs with
+    | nil => None
+    | x :: xs0 => if test x then Some xs0 else
+       match remove1 xs0 with
+       | Some xs0' => Some (x :: xs0')
+       | None => None
+       end
+    end.
+
+Definition remove1s {A: Type} (eqb: A -> A -> bool) (orig: list A): list A -> option (list A) :=
+  fold_right
+    (fun a Orig =>
+       match Orig with
+       | Some orig => remove1 (eqb a) orig
+       | None => None
+       end) (Some orig).
+
+Definition replace_sepcon (orig rm subs: list (@expr L)): option (list (@expr L)) :=
+  match remove1s (SeparationEmpLanguage.expr_eqb Var_eqb) orig rm with
+  | Some mid => Some (subs ++ mid)
+  | None => None
+  end.
+
+(* Soundness *)
 
 Lemma sepcon_flatten_not_nil: forall (x: @expr L),
   exists x0 xs, sepcon_flatten x = x0 :: xs.
