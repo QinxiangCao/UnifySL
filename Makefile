@@ -87,7 +87,8 @@ SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v \
   Parameter.v \
   ParametricSeparationLogic.v SeparationLogicsInLiteratures.v \
-  FlatSemantics.v
+  FlatSemantics.v \
+  Reify.v
 
 SeparationLogic_FILES = \
   Syntax.v \
