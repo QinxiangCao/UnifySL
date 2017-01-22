@@ -20,6 +20,15 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
+Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
+  Parametric_WC: WEM PAR = true -> WeakClassicalPropositionalLogic L Gamma;
+  Parametric_GD: IC PAR = true -> GodelDummettPropositionalLogic L Gamma;
+  Parametric_C: EM PAR = true -> ClassicalPropositionalLogic L Gamma;
+  Parametric_GC: SCE PAR = true -> GarbageCollectSeparationLogic L Gamma;
+  Parametric_EMP: EMP PAR = true -> EmpSeparationLogic L Gamma;
+  Parametric_EXT: EXT PAR = true -> ExtSeparationLogic L Gamma
+}.
+
 Section SeparationLogic.
 
 Context (Var: Type).
@@ -43,6 +52,7 @@ Inductive provable: expr -> Prop :=
 | orp_intros2: forall x y, provable (y --> x || y)
 | orp_elim: forall x y z, provable ((x --> z) --> (y --> z) --> (x || y --> z))
 | falsep_elim: forall x, provable (FF --> x)
+| weak_excluded_middle: WEM PAR = true -> forall x, provable (~~ x || ~~ ~~ x)
 | impp_choice: IC PAR = true -> forall x y, provable ((x --> y) || (y --> x))
 | excluded_middle: EM PAR = true -> forall x, provable (x || ~~ x)
 | sepcon_comm: forall x y, provable (x * y --> y * x)
@@ -50,8 +60,9 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
+| sepcon_elim1: SCE PAR = true -> forall x y, provable (x * y --> x)
 | sepcon_emp: EMP PAR = true -> forall x, provable (x * emp <--> x)
-| sepcon_elim1: SCE PAR = true -> forall x y, provable (x * y --> x).
+| sepcon_ext: EXT PAR = true -> forall x, provable (x --> x * TT).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
 
@@ -86,6 +97,23 @@ Proof.
     - apply wand_sepcon_adjoint1.
     - apply wand_sepcon_adjoint2.
   + apply sepcon_mono.
+Qed.
+
+Instance ParG: Parametric_SeparationLogic PAR L G.
+Proof.
+  constructor.
+  + intros; constructor.
+    apply weak_excluded_middle; auto.
+  + intros; constructor.
+    apply impp_choice; auto.
+  + intros; constructor.
+    apply excluded_middle; auto.
+  + intros; constructor.
+    apply sepcon_elim1; auto.
+  + intros; constructor.
+    apply sepcon_emp; auto.
+  + intros; constructor.
+    apply sepcon_ext; auto.
 Qed.
 
 End SeparationLogic.

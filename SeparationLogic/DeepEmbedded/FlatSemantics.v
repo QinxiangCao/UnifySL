@@ -140,12 +140,13 @@ Definition Kmodel_Residual: Kmodel -> Prop := fun M =>
 
 Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 
-Record Kmodel_ParClass (PAR: SA_Parameter) (M: Kmodel): Prop := {
+Record Parametric_Kmodel_Class (PAR: SA_Parameter) (M: Kmodel): Prop := {
   SA_ID: ID PAR = true -> IdentityKripkeIntuitionisticModel (Kworlds M);
   SA_NB: NB PAR = true -> NoBranchKripkeIntuitionisticModel (Kworlds M);
   SA_BJ: BJ PAR = true -> BranchJoinKripkeIntuitionisticModel (Kworlds M);
-  SA_GC: GC PAR = true -> IncreasingSeparationAlgebra (Kworlds M);
-  SA_Uni: Uni PAR = true -> UnitalSeparationAlgebra (Kworlds M)
+  SA_INCR: INCR PAR = true -> IncreasingSeparationAlgebra (Kworlds M);
+  SA_UNI: UNI PAR = true -> UnitalSeparationAlgebra (Kworlds M);
+  SA_RES: RES PAR = true -> ResidualSeparationAlgebra (Kworlds M)
 }.
 
 End KripkeSemantics.
