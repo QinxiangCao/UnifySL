@@ -76,8 +76,6 @@ Qed.
 
 End Semantics.
 
-Definition MonoEnsemble (A: Type) {R: Relation A}: Type := @sig (_ -> Prop) (@upwards_closed_Kdenote A R).
-
 Module SemanticsMono.
 
 Program Definition impp {worlds: Type} {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=

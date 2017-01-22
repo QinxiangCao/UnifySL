@@ -44,6 +44,9 @@ PropositionalLogic_DeepEmbedded_FILES = \
   KripkeSemantics.v TrivialSemantics.v \
   Soundness.v
 
+PropositionalLogic_ShallowEmbedded_FILES = \
+  PredicateAsLang.v MonoPredicateAsLang.v
+
 PropositionalLogic_Complete_FILES = \
   Complete_Classical_Trivial.v \
   Complete_Kripke.v
@@ -55,6 +58,7 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(PropositionalLogic_Sound_FILES:%.v=Sound/%.v) \
   $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
+  $(PropositionalLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
 SeparationLogic_Model_FILES = \
@@ -64,6 +68,7 @@ SeparationLogic_Model_FILES = \
 
 SeparationLogic_Semantics_FILES = \
   WeakSemantics.v StrongSemantics.v \
+  WeakSemanticsMono.v StrongSemanticsMono.v \
   UpwardsSemantics.v DownwardsSemantics.v FlatSemantics.v \
   DownUpSemantics_Fail.v \
   Down2Flat.v Up2Flat.v \

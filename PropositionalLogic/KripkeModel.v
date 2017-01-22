@@ -25,6 +25,8 @@ Definition upwards_closed_Kdenote {worlds: Type} {R: Relation worlds} (d: Ensemb
 Definition Krelation_stable_Kdenote {worlds: Type} {R: Relation worlds} (d: Ensemble worlds): Prop :=
   forall w1 w2, w1 <= w2 -> (d w1 <-> d w2).
 
+Definition MonoEnsemble (A: Type) {R: Relation A}: Type := @sig (_ -> Prop) (@upwards_closed_Kdenote A R).
+
 Class IdentityKripkeIntuitionisticModel (worlds: Type) {R: Relation worlds} : Prop := {
   Korder_identity: forall m n: worlds, m <= n -> m = n
 }.

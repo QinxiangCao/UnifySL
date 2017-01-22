@@ -11,7 +11,8 @@ Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
-Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
+Require Logic.SeparationLogic.Semantics.WeakSemanticsMono.
+Require Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.SeparationLogic.DeepEmbeddedInstance.SeparationEmpLanguage.
 
 Local Open Scope logic_base.
@@ -35,43 +36,20 @@ Infix "<=" := (Krelation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := @sig (_ -> Prop) (@upwards_closed_Kdenote f (Krelation f)).
+Definition sem (f: frame) := @MonoEnsemble (underlying_set f) (Krelation f).
 
-Program Definition denotation {Var: Type} (F: frame) (eval_emp: sem F) (eval: Var -> sem F): expr Var -> sem F :=
+Definition denotation {Var: Type} (F: frame) (eval_emp: sem F) (eval: Var -> sem F): expr Var -> sem F :=
   fix denotation (x: expr Var): sem F:=
   match x with
-  | andp y z => @Semantics.andp F (denotation y) (denotation z)
-  | orp y z => Semantics.orp (denotation y) (denotation z)
-  | impp y z => @Semantics.impp F (Krelation F) (denotation y) (denotation z)
-  | sepcon y z => @WeakSemantics.sepcon F (Frame_join F) (denotation y) (denotation z)
-  | wand y z => @WeakSemantics.wand F (Frame_join F) (denotation y) (denotation z)
+  | andp y z => @SemanticsMono.andp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
+  | orp y z => @SemanticsMono.orp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
+  | impp y z => @SemanticsMono.impp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
+  | sepcon y z => @WeakSemanticsMono.sepcon F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_upwards F) (denotation y) (denotation z)
+  | wand y z => @WeakSemanticsMono.wand F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_downwards F) (denotation y) (denotation z)
   | emp => eval_emp
-  | falsep => Semantics.falsep
+  | falsep => @SemanticsMono.falsep F (Krelation F)
   | varp p => eval p
   end.
-Next Obligation.
-  apply (@Semantics.andp_closed F (Krelation F) (Krelation_Preorder F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@Semantics.orp_closed F (Krelation F) (Krelation_Preorder F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@Semantics.impp_closed F (Krelation F) (Krelation_Preorder F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@WeakSemantics.sepcon_closed F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_upwards F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@WeakSemantics.wand_closed F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_downwards F));
-  apply (proj2_sig (denotation _)).
-Defined.
-Next Obligation.
-  apply (@Semantics.falsep_closed F (Krelation F)).
-Defined.
 
 Section KripkeSemantics.
 Context (Var: Type).
