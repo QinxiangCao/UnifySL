@@ -1,5 +1,5 @@
 Require Import Coq.Sets.Ensembles.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 
 Local Open Scope kripke_model.

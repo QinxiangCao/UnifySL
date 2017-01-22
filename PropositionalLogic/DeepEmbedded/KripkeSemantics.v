@@ -3,11 +3,11 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
-Require Import Logic.PropositionalLogic.KripkeModel.
-Require Import Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
+Require Import Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 
 Import PropositionalLanguage.
 

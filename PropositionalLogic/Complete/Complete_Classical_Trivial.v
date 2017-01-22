@@ -1,3 +1,4 @@
+(* TODO: Probably make this file shallow embedded. *)
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
@@ -10,9 +11,9 @@ Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.ClassicalLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.TrivialSemantics.
+Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
+Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.TrivialSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

@@ -2,7 +2,7 @@ Require Import Coq.Logic.ChoiceFacts.
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.ClassicalChoice.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.UpwardsClosure.
 Require Import Logic.SeparationLogic.Model.DownwardsClosure.

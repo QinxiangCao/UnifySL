@@ -1,4 +1,4 @@
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 
 Local Open Scope kripke_model.
 

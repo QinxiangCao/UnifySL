@@ -6,6 +6,7 @@ Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.HenkinCompleteness.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Normal.
@@ -15,14 +16,13 @@ Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.IntuitionisticLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.WeakClassicalLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.GodelDummettLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.ClassicalLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.KripkeSemantics.
+Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
+Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.WeakClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.GodelDummettLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

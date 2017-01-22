@@ -9,7 +9,7 @@ Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.lib.Stream.StreamFunctions.
 Require Import Logic.lib.Stream.StreamSplit.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.

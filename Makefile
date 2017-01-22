@@ -17,8 +17,13 @@ lib_FILES = \
   Bijection.v Countable.v NatChoice.v StrongInduction.v \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
+GeneralLogic_ShallowEmbedded_FILES = \
+  PredicateAsLang.v MonoPredicateAsLang.v
+
 GeneralLogic_FILES = \
-  Base.v HenkinCompleteness.v
+  Base.v HenkinCompleteness.v \
+  KripkeModel.v \
+  $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) 
 
 MinimunLogic_ProofTheory_FILES = \
   Normal.v Minimun.v RewriteClass.v ContextProperty.v
@@ -45,19 +50,19 @@ PropositionalLogic_DeepEmbedded_FILES = \
   Soundness.v
 
 PropositionalLogic_ShallowEmbedded_FILES = \
-  PredicateAsLang.v MonoPredicateAsLang.v
-
+  PredicatePropositionalLogic.v \
+  MonoPredicatePropositionalLogic.v
+  
 PropositionalLogic_Complete_FILES = \
   Complete_Classical_Trivial.v \
   Complete_Kripke.v
 
 PropositionalLogic_FILES = \
   Syntax.v\
-  KripkeModel.v \
   $(PropositionalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(PropositionalLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(PropositionalLogic_Sound_FILES:%.v=Sound/%.v) \
-  $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
+  $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
   $(PropositionalLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
@@ -89,7 +94,7 @@ SeparationLogic_FILES = \
   $(SeparationLogic_Model_FILES:%.v=Model/%.v) \
   $(SeparationLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
-  $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbeddedInstance/%.v) \
+  $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
   SeparationLogic.v SeparationLogicExtension.v \
   Complete_Flat.v
 

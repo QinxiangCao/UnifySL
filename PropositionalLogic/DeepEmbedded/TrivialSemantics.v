@@ -4,7 +4,7 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
-Require Import Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
+Require Import Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 
 Definition model (Var: Type): Type := Var -> Prop.
 

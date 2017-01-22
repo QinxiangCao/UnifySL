@@ -2,7 +2,7 @@ Require Import Coq.Relations.Relation_Operators.
 Require Import Coq.Sets.Ensembles.
 Require Import Logic.lib.Stream.SigStream.
 Require Import Logic.lib.Stream.StreamFunctions.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.HoareLogic.ProgramState.
 
 Definition trace (state: Type): Type := stream (state * MetaState state).

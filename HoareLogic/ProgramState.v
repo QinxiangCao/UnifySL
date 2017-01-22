@@ -1,5 +1,5 @@
 Require Import Coq.Relations.Relation_Operators.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 
 Local Open Scope kripke_model.

@@ -12,8 +12,8 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.SeparationLogic.
-Require Import Logic.SeparationLogic.DeepEmbeddedInstance.Parameter.
-Require Logic.SeparationLogic.DeepEmbeddedInstance.SeparationEmpLanguage.
+Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
+Require Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

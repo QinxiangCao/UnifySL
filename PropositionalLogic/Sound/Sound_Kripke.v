@@ -3,9 +3,9 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 
 Local Open Scope logic_base.

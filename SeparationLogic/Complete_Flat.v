@@ -17,15 +17,15 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.SeparationLogic.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.PropositionalLogic.Complete.Complete_Kripke.
-Require Import Logic.SeparationLogic.DeepEmbeddedInstance.Parameter.
-Require Logic.SeparationLogic.DeepEmbeddedInstance.SeparationEmpLanguage.
-Require Logic.SeparationLogic.DeepEmbeddedInstance.FlatSemantics.
+Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
+Require Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
+Require Logic.SeparationLogic.DeepEmbedded.FlatSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

@@ -6,7 +6,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
+Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

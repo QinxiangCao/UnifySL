@@ -2,9 +2,9 @@ Require Import Coq.Sets.Ensembles.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
-Require Import Coq.Logic.ChoiceFacts. 
+Require Import Coq.Logic.ChoiceFacts.
 Require Import Coq.Logic.ClassicalChoice.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 

@@ -7,13 +7,13 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Logic.SeparationLogic.Semantics.WeakSemanticsMono.
 Require Logic.SeparationLogic.Semantics.FlatSemantics.
-Require Import Logic.SeparationLogic.DeepEmbeddedInstance.SeparationEmpLanguage.
+Require Import Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -138,7 +138,7 @@ Definition Kmodel_Unital: Kmodel -> Prop := fun M =>
 Definition Kmodel_Residual: Kmodel -> Prop := fun M =>
   ResidualSeparationAlgebra (Kworlds M).
 
-Require Import Logic.SeparationLogic.DeepEmbeddedInstance.Parameter.
+Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 
 Record Kmodel_ParClass (PAR: SA_Parameter) (M: Kmodel): Prop := {
   SA_ID: ID PAR = true -> IdentityKripkeIntuitionisticModel (Kworlds M);

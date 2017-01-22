@@ -1,20 +1,20 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.PropositionalLogic.KripkeModel.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Logic.PropositionalLogic.Sound.Sound_Classical_Trivial.
 Require Logic.PropositionalLogic.Sound.Sound_Kripke.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.PropositionalLanguage.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.IntuitionisticLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.WeakClassicalLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.GodelDummettLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.ClassicalLogic.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.TrivialSemantics.
-Require Logic.PropositionalLogic.DeepEmbeddedInstance.KripkeSemantics.
+Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
+Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.WeakClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.GodelDummettLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.TrivialSemantics.
+Require Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

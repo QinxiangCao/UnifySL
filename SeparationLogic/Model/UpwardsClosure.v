@@ -1,6 +1,6 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
-Require Import Logic.PropositionalLogic.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 
