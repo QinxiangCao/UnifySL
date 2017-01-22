@@ -68,7 +68,7 @@ PropositionalLogic_FILES = \
 
 SeparationLogic_ProofTheory_FILES = \
   SeparationLogic.v SeparationLogicExtension.v \
-  RewriteClass.v DerivedRules.v
+  RewriteClass.v DerivedRules.v MultiSepcon.v 
 
 SeparationLogic_Model_FILES = \
   SeparationAlgebra.v OrderedSA.v \

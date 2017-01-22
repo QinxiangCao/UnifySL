@@ -163,8 +163,7 @@ Proof.
   hnf; intros y1 y2 ?.
   unfold iffp.
   rewrite H, H0.
-  rewrite provable_derivable.
-  apply deduction_andp_intros; apply derivable_impp_refl.
+  apply provable_iffp_refl.
 Qed.
 
 Instance negp_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) negp.
@@ -172,5 +171,5 @@ Proof.
   hnf; intros x1 x2 ?.
   unfold negp.
   apply impp_proper_iffp; auto.
-  rewrite provable_derivable; apply deduction_andp_intros; apply derivable_impp_refl.
+  apply provable_iffp_refl.
 Qed.

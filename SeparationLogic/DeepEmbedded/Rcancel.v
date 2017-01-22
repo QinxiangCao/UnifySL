@@ -16,6 +16,9 @@ Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
+Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
+Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
+Require Import Logic.SeparationLogic.ProofTheory.MultiSepcon.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -67,16 +70,10 @@ Instance mpG: MinimunPropositionalLogic L G := ParametricSeparationLogic.mpG Var
 Instance ipG: IntuitionisticPropositionalLogic L G := ParametricSeparationLogic.ipG Var PAR.
 Instance sG: SeparationLogic L G := ParametricSeparationLogic.sG Var PAR.
 
-Fixpoint sepcon_flatten (x: @SeparationEmpLanguage.expr Var): list (@SeparationEmpLanguage.expr Var) :=
+Fixpoint sepcon_flatten (x: @expr L): list (@expr L) :=
   match x with
   | SeparationEmpLanguage.sepcon y z => sepcon_flatten y ++ sepcon_flatten z
   | _ => x :: nil
-  end.
-
-Definition multi_sepcon (xs: list (@SeparationEmpLanguage.expr Var)): @SeparationEmpLanguage.expr Var :=
-  match xs with
-  | nil => SeparationEmpLanguage.falsep
-  | x :: xs0 => fold_right SeparationEmpLanguage.sepcon x xs0
   end.
 
 Lemma sepcon_flatten_not_nil: forall (x: @expr L),
@@ -92,37 +89,38 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma sepcon_multi_sepcon: forall x y (xs ys: list (@SeparationEmpLanguage.expr Var)),
-  |-- multi_sepcon ((x :: xs) ++ (y :: ys)) <--> multi_sepcon (x :: xs) * multi_sepcon (y :: ys).
-Proof.
-  intros.
-  induction xs.
-  + simpl.
-    destruct provable_iffp_equiv as [HH _ _].
-Abort.
-(*
-Set Printing All.
-Print fold_left.
-    apply (HH _).
-
 Lemma sepcon_flatten_multi_sepcon: forall (x: @expr L),
-  |-- x <--> multi_sepcon (sepcon_flatten x).
+  |-- x <--> multi_sepcon' FF (sepcon_flatten x).
 Proof.
   intros.
   induction x; try (destruct provable_iffp_equiv as [HH _ _]; apply HH).
-  change (@expr L) in x1, x2.
   change (SeparationEmpLanguage.sepcon x1 x2) with (x1 * x2).
-  
-replace (multi_sepcon (sepcon_flatten (x1 * x2))) with FF.
-Set Printing All.
- 
-  generalize sG; intros.
-  rewrite IHx1 at 1.
-, IHx2.
-    destruct H.
-    apply Equivalence_Reflexive.
-reflexivity.
-
-*)
+  simpl sepcon_flatten.
+  pose proof sepcon_flatten_not_nil x1.
+  pose proof sepcon_flatten_not_nil x2.
+  set (xs1 := sepcon_flatten x1) in IHx1, H |- *.
+  set (xs2 := sepcon_flatten x2) in IHx2, H0 |- *.
+  change (SeparationEmpLanguage.expr Var) with (@expr L) in *.
+  clearbody xs1 xs2.
+  revert IHx1 IHx2 H H0.
+  specialize sG.
+  generalize ipG.
+  generalize mpG.
+  generalize nG.
+  generalize G.
+  revert x1 x2 xs1 xs2.
+  generalize sL.
+  generalize pL.
+  generalize nL.
+  generalize L.
+  clear.
+  intros L nL pL sL x1 x2 xs1 xs2 G nG mpG ipG sG.
+  intros.
+  rewrite IHx1, IHx2.
+  destruct H as [y1 [ys1 ?]].
+  destruct H0 as [y2 [ys2 ?]].
+  subst.
+  apply sepcon_multi_sepcon'.
+Qed.
 
 End DeepEmbedded.
