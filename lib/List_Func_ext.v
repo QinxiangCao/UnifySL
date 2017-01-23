@@ -174,3 +174,5 @@ Proof.
     reflexivity.
     Transparent partial_monoid_fold.
 Qed.
+
+End ListFun1'.
