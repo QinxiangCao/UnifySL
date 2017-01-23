@@ -13,7 +13,7 @@ DEP_DEMO = -R $(CURRENT_DIR) Logic
 DEP_FLAG = $(DEP_DEMO) 
 
 lib_FILES = \
-  Coqlib.v Ensembles_ext.v \
+  Coqlib.v Ensembles_ext.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
   Bijection.v Countable.v NatChoice.v StrongInduction.v \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
