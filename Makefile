@@ -26,7 +26,8 @@ GeneralLogic_FILES = \
   $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) 
 
 MinimunLogic_ProofTheory_FILES = \
-  Normal.v Minimun.v RewriteClass.v ContextProperty.v
+  Normal.v Minimun.v Adjoint.v \
+  RewriteClass.v ContextProperty.v
 
 MinimunLogic_FILES = \
   Syntax.v $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v)

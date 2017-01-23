@@ -1,10 +1,12 @@
 (* Copied from RamifyCoq project *)
 
 Require Import Coq.Classes.Morphisms.
+Require Import Coq.Sorting.Permutation.
 Require Export Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Relation_ext.
 Require Import Logic.lib.Equivalence_ext.
 Require Export Coq.Lists.List.
+
 
 Local Open Scope equiv_scope.
 
@@ -38,6 +40,8 @@ Proof.
 Qed.
 
 End ListFun2.
+
+Existing Instance proper_fold_left.
 
 Section ListFun1.
 
@@ -110,7 +114,24 @@ Proof.
   destruct l;intros; simpl in *; congruence.
 Qed.
 
-Definition partial_monoid_fold {A: Type} (default: A) (f: A -> A -> A) (l: list A): A :=
+Lemma eq_nil_dec {A: Type}: forall (l: list A), {l = nil} + {not_nil l}.
+Proof.
+  intros.
+  destruct l; [left | right]; auto.
+  intro; congruence.
+Qed.
+
+Instance Proper_perm_not_nil {A: Type}: Proper (@Permutation A ==> iff) (@not_nil A).
+Proof.
+  hnf; intros.
+  induction H; unfold not_nil in *.
+  + reflexivity.
+  + split; intros ? ?; congruence.
+  + split; intros ? ?; congruence.
+  + tauto.
+Qed.
+
+Definition semi_group_fold {A: Type} (default: A) (f: A -> A -> A) (l: list A): A :=
   match l with
   | nil => default
   | a :: l0 => fold_left f l0 a
@@ -122,11 +143,11 @@ Context {A: Type}.
 Context {RA: relation A}.
 Context {EqRA: Equivalence RA}.
 
-Lemma partial_monoid_fold_app: forall {f} {Proper_f: Proper (equiv ==> equiv ==> equiv) f} (default: A) l l',
+Lemma semi_group_fold_app: forall {f} {Proper_f: Proper (equiv ==> equiv ==> equiv) f} (default: A) l l',
   (forall x y z, f (f x y) z === f x (f y z)) ->
   not_nil l ->
   not_nil l' ->
-  partial_monoid_fold default f (l ++ l') === f (partial_monoid_fold default f l) (partial_monoid_fold default f l').
+  semi_group_fold default f (l ++ l') === f (semi_group_fold default f l) (semi_group_fold default f l').
 Proof.
   intros.
   destruct l as [| a l], l' as [| a' l']; hnf in H0, H1; try congruence; clear H0 H1.
@@ -150,10 +171,10 @@ Proof.
   + exact (IHl (f a0 a)).
 Qed.
 
-Lemma partial_monoid_fold_concat: forall {f} {Proper_f: Proper (equiv ==> equiv ==> equiv) f} (default: A) ls,
+Lemma semi_group_fold_concat: forall {f} {Proper_f: Proper (equiv ==> equiv ==> equiv) f} (default: A) ls,
   (forall x y z, f (f x y) z === f x (f y z)) ->
   Forall not_nil ls ->
-  partial_monoid_fold default f (concat ls) === partial_monoid_fold default f (map (partial_monoid_fold default f) ls).
+  semi_group_fold default f (concat ls) === semi_group_fold default f (map (semi_group_fold default f) ls).
 Proof.
   intros.
   destruct H0; [reflexivity |].
@@ -161,18 +182,45 @@ Proof.
   + simpl.
     rewrite app_nil_r.
     reflexivity.
-  + Opaque partial_monoid_fold.
+  + Opaque semi_group_fold.
     simpl.
-    rewrite partial_monoid_fold_app; auto.
+    rewrite semi_group_fold_app; auto.
       2: apply not_nil_app_l; auto.
     specialize (IHForall x H0).
     simpl in IHForall.
     rewrite IHForall.
-    change (partial_monoid_fold default f x0 :: partial_monoid_fold default f x :: map (partial_monoid_fold default f) l)
-      with ((partial_monoid_fold default f x0 :: nil) ++ partial_monoid_fold default f x :: map (partial_monoid_fold default f) l).
-    rewrite partial_monoid_fold_app by (auto; intro; congruence).
+    change (semi_group_fold default f x0 :: semi_group_fold default f x :: map (semi_group_fold default f) l)
+      with ((semi_group_fold default f x0 :: nil) ++ semi_group_fold default f x :: map (semi_group_fold default f) l).
+    rewrite semi_group_fold_app by (auto; intro; congruence).
     reflexivity.
-    Transparent partial_monoid_fold.
+    Transparent semi_group_fold.
+Qed.
+
+Lemma comm_semi_group_fold_perm: forall {f} {Proper_f: Proper (equiv ==> equiv ==> equiv) f} (default: A) l l',
+  (forall x y, f x y === f y x) ->
+  (forall x y z, f (f x y) z === f x (f y z)) ->
+  Permutation l l' ->
+  semi_group_fold default f l === semi_group_fold default f l'.
+Proof.
+  intros.
+  induction H1.
+  + reflexivity.
+  + destruct (eq_nil_dec l) as [?H | ?H].
+    - subst; apply Permutation_nil in H1; subst.
+      reflexivity.
+    - pose proof H2.
+      rewrite H1 in H3.
+      change (x :: l) with ((x :: nil) ++ l).
+      change (x :: l') with ((x :: nil) ++ l').
+      rewrite semi_group_fold_app by (auto; intro; congruence).
+      rewrite semi_group_fold_app by (auto; intro; congruence).
+      rewrite IHPermutation.
+      reflexivity.
+  + simpl.
+    rewrite <- H.
+    reflexivity.
+  + rewrite IHPermutation1.
+    auto.
 Qed.
 
 End ListFun1'.

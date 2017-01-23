@@ -15,7 +15,7 @@ Definition iter_funcp {L: Language} (funcp: expr -> expr -> expr) (xs: list expr
   fold_right funcp y xs.
 
 Definition iter_prodp {L: Language} (default: expr) (prodp: expr -> expr -> expr) (xs: list expr) :=
-  partial_monoid_fold default prodp xs.
+  semi_group_fold default prodp xs.
 
 Lemma adjoint_iter {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {prodp funcp: expr -> expr -> expr} {adjGamma: AdjointProofTheory L Gamma prodp funcp}:
   forall default x xs y,
