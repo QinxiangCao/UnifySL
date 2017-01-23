@@ -70,7 +70,7 @@ Instance mpG: MinimunPropositionalLogic L G := ParametricSeparationLogic.mpG Var
 Instance ipG: IntuitionisticPropositionalLogic L G := ParametricSeparationLogic.ipG Var PAR.
 Instance sG: SeparationLogic L G := ParametricSeparationLogic.sG Var PAR.
 
-(* Solver *)
+(* Normal Form *)
 Fixpoint sepcon_flatten (x: @expr L): list (@expr L) :=
   match x with
   | SeparationEmpLanguage.sepcon y z => sepcon_flatten y ++ sepcon_flatten z
@@ -97,6 +97,22 @@ Definition filter_wand (ws: list (list (@expr L) * list (@expr L))): list (list 
 Definition filter_sepcon (ws: list (list (@expr L) * list (@expr L))): list (@expr L) :=
   concat (map snd (filter (fun w => match fst w with nil => true | _ => false end) ws)).
 
+(* Solver *)
+
+(* Always try every single one *)
+(* Other choices include: succeed if at least one succeed, like remove1
+                          succeed if every one succeed, like remove1s *)
+Definition general_cancel {A B: Type} (solver: A -> B -> option B): list A -> B -> list A * B :=
+  fix cancel xs y :=
+    match xs with
+    | nil => (nil, y)
+    | x :: xs0 =>
+       match solver x y with
+       | Some y' => cancel xs0 y'
+       | None => let res := cancel xs0 y in (x :: fst res, snd res)
+       end
+    end.
+
 Definition remove1 {A: Type} (test: A -> bool): list A -> option (list A) :=
   fix remove1 xs :=
     match xs with
@@ -120,6 +136,27 @@ Definition replace_sepcon (orig rm subs: list (@expr L)): option (list (@expr L)
   match remove1s (SeparationEmpLanguage.expr_eqb Var_eqb) orig rm with
   | Some mid => Some (subs ++ mid)
   | None => None
+  end.
+
+Definition cancel_wand_nowand (left: list (@expr L) * list (@expr L)) (right: list (@expr L)): option (list (@expr L)) :=
+  replace_sepcon right (snd left) (fst left).
+
+Definition cancel_nowand_nowand (left: @expr L) (right: list (@expr L)): option (list (@expr L)) :=
+  remove1 (SeparationEmpLanguage.expr_eqb Var_eqb left) right.
+
+Definition solve_cancel1 (ws: list (list (@expr L) * list (@expr L))) (ss: list (@expr L)) (orig: list (@expr L)) : list (list (@expr L) * list (@expr L)) * list (@expr L) * list (@expr L) :=
+  let (ws', orig') := general_cancel cancel_wand_nowand ws orig in
+  let (ss', orig'') := general_cancel cancel_nowand_nowand ss orig' in
+  (ws', ss', orig'').
+
+Fixpoint increamental_solver {A: Type} (solver: A -> option A) (fuel: nat) (a: A): A :=
+  match fuel with
+  | 0 => a
+  | S fuel' =>
+     match solver a with
+     | Some a' => increamental_solver solver fuel' a'
+     | None => a
+     end
   end.
 
 (* Soundness *)

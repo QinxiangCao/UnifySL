@@ -7,10 +7,6 @@ Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
-(*
-Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
-Require Import Logic.SeparationLogic.DeepEmbedded.ParametricSeparationLogic.
-*)
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -72,6 +68,20 @@ Ltac reify_expr' L x l :=
       | pair ?l'' ?z0 =>
           constr:(pair l'' (@SeparationEmpLanguage.impp nat y0 z0))
       end end
+  | @sepcon L _ ?y ?z =>
+      match reify_expr' L y l with
+      | pair ?l' ?y0 =>
+      match reify_expr' L z l' with
+      | pair ?l'' ?z0 =>
+          constr:(pair l'' (@SeparationEmpLanguage.sepcon nat y0 z0))
+      end end
+  | @wand L _ ?y ?z =>
+      match reify_expr' L y l with
+      | pair ?l' ?y0 =>
+      match reify_expr' L z l' with
+      | pair ?l'' ?z0 =>
+          constr:(pair l'' (@SeparationEmpLanguage.wand nat y0 z0))
+      end end
   | _ =>
       match search_expr x l with
       | pair ?l' ?n =>
@@ -86,13 +96,11 @@ Ltac reify_expr L x :=
       assert (reflect L tbl' x0 = x); [try reflexivity |]
   end.
 
-
-
 Section Test.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L}.
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {P Q R: expr}.
 Goal False.
-reify_expr L (FF --> TT).
+reify_expr L (P --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q) --> TT * (P -* Q)). (* Very fast *)
 reify_expr L (TT --> (FF --> TT)).
 Abort.
 
