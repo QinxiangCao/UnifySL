@@ -143,6 +143,16 @@ Context {A: Type}.
 Context {RA: relation A}.
 Context {EqRA: Equivalence RA}.
 
+Instance proper_semi_group_fold: forall (f: A -> A -> A) (default: A) {Proper_f: Proper (equiv ==> equiv ==> equiv) f}, Proper (Forall2 equiv ==> equiv) (semi_group_fold default f).
+Proof.
+  intros.
+  hnf; intros.
+  destruct H.
+  + reflexivity.
+  + simpl.
+    apply proper_fold_left; auto.
+Qed.
+
 Lemma semi_group_fold_app: forall {f} {Proper_f: Proper (equiv ==> equiv ==> equiv) f} (default: A) l l',
   (forall x y z, f (f x y) z === f x (f y z)) ->
   not_nil l ->

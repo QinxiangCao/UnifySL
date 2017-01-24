@@ -18,7 +18,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
-Require Import Logic.SeparationLogic.ProofTheory.MultiSepcon.
+Require Import Logic.SeparationLogic.ProofTheory.IterSepcon.
 Require Import Logic.SeparationLogic.DeepEmbedded.SolverBase.
 
 Local Open Scope logic_base.
@@ -86,6 +86,26 @@ Definition filter_wand (ws: list (list (@expr L) * list (@expr L))): list (list 
 Definition filter_sepcon (ws: list (list (@expr L) * list (@expr L))): list (@expr L) :=
   concat (map snd (filter (fun w => match fst w with nil => true | _ => false end) ws)).
 
+Definition NormForm: Type := list (list (@expr L) * list (@expr L)) * list (@expr L) * list (@expr L).
+
+Definition norm (x: @expr L): option NormForm :=
+  match x with
+  | SeparationEmpLanguage.impp y z =>
+      let r := sepcon_flatten z in
+      let l := map wand_flatten (sepcon_flatten y) in
+      Some (filter_wand l, filter_sepcon l, r)
+  | _ => None
+  end.
+
+Definition denorm (n: NormForm) : @expr L :=
+  match n with
+  | (ws, ss, r) =>
+       SeparationEmpLanguage.impp
+         (iter_sepcon (map (fun w => SeparationEmpLanguage.wand
+                                        (iter_sepcon (fst w)) (iter_sepcon (snd w))) ws ++ ss))
+         (iter_sepcon r)
+  end.
+
 (* Solver *)
 
 (* Always try every single one *)
@@ -123,7 +143,7 @@ Definition cancel_nowand_nowand (left: @expr L) (right: list (@expr L)): option 
   remove1 (SeparationEmpLanguage.expr_eqb Var_eqb left) right.
 
 Definition solve_cancel1 (ws: list (list (@expr L) * list (@expr L))) (ss: list (@expr L)) (orig: list (@expr L)) :
-  option (list (list (@expr L) * list (@expr L)) * list (@expr L) * list (@expr L)) :=
+  option NormForm :=
   match general_cancel cancel_wand_nowand ws orig with
   | Some (ws', orig') =>
     match general_cancel cancel_nowand_nowand ss orig' with
@@ -162,10 +182,10 @@ Definition cancel (x: @expr L): @expr L :=
       | (ws, ss, r) =>
           SeparationEmpLanguage.impp
             (SeparationEmpLanguage.sepcon
-               (multi_sepcon (map (fun w => SeparationEmpLanguage.wand
-                                              (multi_sepcon (fst w)) (multi_sepcon (snd w))) ws))
-               (multi_sepcon ss))
-            (multi_sepcon r)
+               (iter_sepcon (map (fun w => SeparationEmpLanguage.wand
+                                              (iter_sepcon (fst w)) (iter_sepcon (snd w))) ws))
+               (iter_sepcon ss))
+            (iter_sepcon r)
       end
   | _ => x
   end.
@@ -185,8 +205,8 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma sepcon_flatten_multi_sepcon: forall (x: @expr L),
-  |-- x <--> multi_sepcon' FF (sepcon_flatten x).
+Lemma sepcon_flatten_sound': forall (default x: @expr L),
+  |-- x <--> iter_sepcon' default (sepcon_flatten x).
 Proof.
   intros.
   induction x; try (destruct provable_iffp_equiv as [HH _ _]; apply HH).
@@ -204,20 +224,67 @@ Proof.
   generalize mpG.
   generalize nG.
   generalize G.
-  revert x1 x2 xs1 xs2.
+  revert default x1 x2 xs1 xs2.
   generalize sL.
   generalize pL.
   generalize nL.
   generalize L.
   clear.
-  intros L nL pL sL x1 x2 xs1 xs2 G nG mpG ipG sG.
+  intros L nL pL sL default x1 x2 xs1 xs2 G nG mpG ipG sG.
   intros.
   rewrite IHx1, IHx2.
   destruct H as [y1 [ys1 ?]].
   destruct H0 as [y2 [ys2 ?]].
   subst.
-  apply sepcon_multi_sepcon'.
+  apply sepcon_iter_sepcon'.
 Qed.
+
+Lemma wand_flatten'_sound: forall (x: @expr L),
+  let wf := wand_flatten' x in
+  |-- x <--> iter_wand (fst wf) (snd wf).
+Proof.
+  intros.
+  subst wf.
+  induction x; try apply (@Equivalence_Reflexive _ _ (@provable_iffp_equiv L nL pL G nG mpG ipG)).
+  simpl iter_wand.
+  destruct (wand_flatten' x2) as [l r].
+  simpl fst in *; simpl snd in *.
+  simpl iter_wand.
+  apply (@wand_proper_iffp L nL pL sL G nG mpG ipG sG); auto.
+  apply (@Equivalence_Reflexive _ _ (@provable_iffp_equiv L nL pL G nG mpG ipG)).
+Qed.
+
+Lemma wand_flatten_sound: forall (default x: @expr L),
+  let wf := wand_flatten x in
+  |-- x <--> iter_wand (fst wf) (iter_sepcon' default (snd wf)).
+Proof.
+  intros.
+  subst wf.
+  eapply (@Equivalence_Transitive _ _ (@provable_iffp_equiv L nL pL G nG mpG ipG)); [apply wand_flatten'_sound |].
+Abort.
+
+Lemma sepcon_flatten_sound: forall (x: @expr L),
+  |-- x <--> iter_sepcon (sepcon_flatten x).
+Proof.
+  intros.
+  apply sepcon_flatten_sound'.
+Qed.
+
+Lemma norm_sound: forall (x: @expr L) (n: NormForm),
+  norm x = Some n ->
+  |-- x <--> denorm n.
+Proof.
+  intros.
+  destruct x; try solve [inversion H].
+  simpl in H.
+  inversion H; clear H; subst n.
+  apply (@impp_proper_iffp L nL pL G nG mpG ipG).
+  + pose proof sepcon_flatten_sound x1.
+    eapply (@Equivalence_Transitive _ _ (@provable_iffp_equiv L nL pL G nG mpG ipG)); [exact H |].
+    set (xs := sepcon_flatten x1).
+    clearbody xs; clear x1 x2 H.
+    eapply (@Equivalence_Transitive _ _ (@provable_iffp_equiv L nL pL G nG mpG ipG)).
+Abort.
 
 End Solver.
 
