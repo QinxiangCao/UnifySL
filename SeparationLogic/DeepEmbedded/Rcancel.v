@@ -19,23 +19,12 @@ Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
 Require Import Logic.SeparationLogic.ProofTheory.MultiSepcon.
+Require Import Logic.SeparationLogic.DeepEmbedded.SolverBase.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
-
-(*
-Lemma cancel_sound {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
-  forall x1 x2 y1 y2 f,
-    |-- x1 <--> x2 ->
-    |-- y1 <--> y2 ->
-    |-- x1 * y1 <--> f x1 * f y1.
-Proof.
-  intros.
-  rewrite H at 1.
-, H0.
-*)
 
 Lemma cancel_sound {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
   forall x1 x2 y1 y2 f1 f2,
@@ -112,25 +101,6 @@ Definition general_cancel {A B: Type} (solver: A -> B -> option B): list A -> B 
        | None => let res := cancel xs0 y in (x :: fst res, snd res)
        end
     end.
-
-Definition remove1 {A: Type} (test: A -> bool): list A -> option (list A) :=
-  fix remove1 xs :=
-    match xs with
-    | nil => None
-    | x :: xs0 => if test x then Some xs0 else
-       match remove1 xs0 with
-       | Some xs0' => Some (x :: xs0')
-       | None => None
-       end
-    end.
-
-Definition remove1s {A: Type} (eqb: A -> A -> bool) (orig: list A): list A -> option (list A) :=
-  fold_right
-    (fun a Orig =>
-       match Orig with
-       | Some orig => remove1 (eqb a) orig
-       | None => None
-       end) (Some orig).
 
 Definition replace_sepcon (orig rm subs: list (@expr L)): option (list (@expr L)) :=
   match remove1s (SeparationEmpLanguage.expr_eqb Var_eqb) orig rm with
