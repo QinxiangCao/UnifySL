@@ -27,3 +27,36 @@ Proof.
   + rewrite <- adjoint.
     apply IHxs.
 Qed.
+
+(*
+
+P * Q -* R <--> P -* Q -* R
+
+P * Q -* R --> P -* Q -* R
+P * (P * Q -* R) --> Q -* R
+Q * P * (P * Q -* R) --> R
+
+
+Lemma curry_iter  {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {prodp funcp: expr -> expr -> expr} {adjGamma: AdjointProofTheory L Gamma prodp funcp}:
+  forall default xs y,
+    not_nil xs ->
+    |-- funcp (iter_prodp default prodp xs) y --> iter_funcp funcp xs y.
+Proof.
+  intros.
+  destruct xs as [| x xs]; [exfalso; apply H; auto |].
+  clear H.
+  revert x; induction xs; intros; simpl in *.
+  + admit.
+  + specialize (IHxs (prodp x a)).
+Qed.
+
+Lemma uncurry_iter  {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {prodp funcp: expr -> expr -> expr} {adjGamma: AdjointProofTheory L Gamma prodp funcp}:
+  forall default xs y,
+    |-- funcp (iter_prodp default prodp xs) y --> iter_funcp funcp xs y.
+
+
+*)
+
+*)
+
+*)
