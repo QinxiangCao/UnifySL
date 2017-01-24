@@ -40,7 +40,7 @@ Proof.
 Qed.
 
 
-Section DeepEmbedded.
+Section Solver.
 
 Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 Require Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
@@ -91,14 +91,22 @@ Definition filter_sepcon (ws: list (list (@expr L) * list (@expr L))): list (@ex
 (* Always try every single one *)
 (* Other choices include: succeed if at least one succeed, like remove1
                           succeed if every one succeed, like remove1s *)
-Definition general_cancel {A B: Type} (solver: A -> B -> option B): list A -> B -> list A * B :=
+Definition general_cancel {A B: Type} (solver: A -> B -> option B): list A -> B -> option (list A * B) :=
   fix cancel xs y :=
     match xs with
-    | nil => (nil, y)
+    | nil => None
     | x :: xs0 =>
-       match solver x y with
-       | Some y' => cancel xs0 y'
-       | None => let res := cancel xs0 y in (x :: fst res, snd res)
+       match cancel xs0 y with
+       | Some (xs0', y') =>
+           match solver x y' with
+           | Some y'' => Some (xs0', y'')
+           | None => Some (x :: xs0', y')
+           end
+       | None =>
+           match solver x y with
+           | Some y' => Some (xs0, y')
+           | None => None
+           end
        end
     end.
 
@@ -114,10 +122,20 @@ Definition cancel_wand_nowand (left: list (@expr L) * list (@expr L)) (right: li
 Definition cancel_nowand_nowand (left: @expr L) (right: list (@expr L)): option (list (@expr L)) :=
   remove1 (SeparationEmpLanguage.expr_eqb Var_eqb left) right.
 
-Definition solve_cancel1 (ws: list (list (@expr L) * list (@expr L))) (ss: list (@expr L)) (orig: list (@expr L)) : list (list (@expr L) * list (@expr L)) * list (@expr L) * list (@expr L) :=
-  let (ws', orig') := general_cancel cancel_wand_nowand ws orig in
-  let (ss', orig'') := general_cancel cancel_nowand_nowand ss orig' in
-  (ws', ss', orig'').
+Definition solve_cancel1 (ws: list (list (@expr L) * list (@expr L))) (ss: list (@expr L)) (orig: list (@expr L)) :
+  option (list (list (@expr L) * list (@expr L)) * list (@expr L) * list (@expr L)) :=
+  match general_cancel cancel_wand_nowand ws orig with
+  | Some (ws', orig') =>
+    match general_cancel cancel_nowand_nowand ss orig' with
+    | Some (ss', orig'') => Some ((ws', ss'), orig'')
+    | None => Some ((ws', ss), orig')
+    end
+  | None =>
+    match general_cancel cancel_nowand_nowand ss orig with
+    | Some (ss', orig') => Some ((ws, ss'), orig')
+    | None => None
+    end
+  end.
 
 Fixpoint increamental_solver {A: Type} (solver: A -> option A) (fuel: nat) (a: A): A :=
   match fuel with
@@ -127,6 +145,29 @@ Fixpoint increamental_solver {A: Type} (solver: A -> option A) (fuel: nat) (a: A
      | Some a' => increamental_solver solver fuel' a'
      | None => a
      end
+  end.
+
+Definition cancel' (state: list (list (@expr L) * list (@expr L)) * list (@expr L) * list (@expr L)): (list (list (@expr L) * list (@expr L)) * list (@expr L) * list (@expr L)) :=
+  increamental_solver (fun s => solve_cancel1 (fst (fst s)) (snd (fst s)) (snd s)) (length (fst (fst state)) + length (snd (fst state))) state.
+
+Definition cancel (x: @expr L): @expr L :=
+  match x with
+  | SeparationEmpLanguage.impp y z =>
+      let r := sepcon_flatten z in
+      let zs := map wand_flatten (sepcon_flatten y) in
+      let ws := filter_wand zs in
+      let ss := filter_sepcon zs in
+      let res := cancel' (ws, ss, r) in
+      match res with
+      | (ws, ss, r) =>
+          SeparationEmpLanguage.impp
+            (SeparationEmpLanguage.sepcon
+               (multi_sepcon (map (fun w => SeparationEmpLanguage.wand
+                                              (multi_sepcon (fst w)) (multi_sepcon (snd w))) ws))
+               (multi_sepcon ss))
+            (multi_sepcon r)
+      end
+  | _ => x
   end.
 
 (* Soundness *)
@@ -178,4 +219,25 @@ Proof.
   apply sepcon_multi_sepcon'.
 Qed.
 
-End DeepEmbedded.
+End Solver.
+
+Section Test.
+
+Require Import Logic.SeparationLogic.DeepEmbedded.Reify.
+
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {P Q R: expr}.
+
+Ltac cancel L x :=
+  match reify_expr' L x (pair (@nil (@expr L)) 0) with
+  | pair (pair ?tbl _) ?x0 =>
+      let tbl' := tactic_rev tbl in
+      assert (reflect L tbl' x0 = x); [try reflexivity |];
+      pose (reflect L tbl' (cancel Nat.eqb x0))
+  end.
+
+Goal False.
+cancel L (P * Q * (Q -* R) --> P * R).
+simpl in e.
+Abort.
+
+End Test.
