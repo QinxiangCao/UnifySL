@@ -10,6 +10,7 @@ Local Open Scope syntax.
 Class AdjointProofTheory (L: Language) {nL: NormalLanguage L} (Gamma: ProofTheory L) (prodp funcp: expr -> expr -> expr) := {
   adjoint: forall x y z, |-- prodp x y --> z <-> |-- x --> (funcp y z);
   assoc1: forall x y z, |-- prodp x (prodp y z) --> prodp (prodp x y) z;
+  prodp_mono: forall x1 y1 x2 y2, |-- x1 --> x2 -> |-- y1 --> y2 -> |-- prodp x1 y1 --> prodp x2 y2;
   assoc2: forall x y z, |-- prodp (prodp x y) z --> prodp x (prodp y z)
 }.
 

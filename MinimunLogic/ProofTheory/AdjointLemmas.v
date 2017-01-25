@@ -22,6 +22,17 @@ Proof.
   apply provable_impp_refl.
 Qed.
 
+Lemma funcp_mono {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {prodp funcp: expr -> expr -> expr} {adjGamma: AdjointProofTheory L Gamma prodp funcp}: forall x1 y1 x2 y2, |-- x2 --> x1 -> |-- y1 --> y2 -> |-- funcp x1 y1 --> funcp x2 y2.
+Proof.
+  intros.
+  apply adjoint.
+  rewrite <- H0.
+  rewrite <- (modus_ponens x1 y1) at 2.
+  apply prodp_mono.
+  + apply provable_impp_refl.
+  + auto.
+Qed.
+
 Lemma curry_iter {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {prodp funcp: expr -> expr -> expr} {adjGamma: AdjointProofTheory L Gamma prodp funcp}:
   forall default xs y,
     not_nil xs ->
@@ -54,6 +65,9 @@ Proof.
     rewrite <- IHxs.
     apply -> adjoint.
     rewrite assoc1.
-Abort.
+    rewrite <- (modus_ponens a (iter_funcp funcp xs y)) at 2.
+    apply prodp_mono; [| apply provable_impp_refl].
+    apply modus_ponens.
+Qed.
 
 End Adjoint.
