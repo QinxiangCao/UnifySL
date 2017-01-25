@@ -92,8 +92,7 @@ SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v \
   Parameter.v \
   ParametricSeparationLogic.v SeparationLogicsInLiteratures.v \
-  FlatSemantics.v \
-  SolverBase.v Reify.v ReifySound.v Rcancel.v
+  FlatSemantics.v
 
 SeparationLogic_FILES = \
   Syntax.v \
