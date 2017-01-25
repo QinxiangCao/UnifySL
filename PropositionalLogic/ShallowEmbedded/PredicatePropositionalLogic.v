@@ -62,3 +62,10 @@ Proof.
   intros x.
   exact (@sound_excluded_middle (Pred_L A) _ _ (Build_Model A) (Pred_SM A) (Pred_tpSM A) x).
 Qed.
+
+Require Import Logic.SeparationLogic.Model.OSAGenerators.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Semantics.SemanticEquiv.
+
+Instance Pred_kiSM (A: Type): @KripkeIntuitionisticSemantics (Pred_L A) (Pred_nL A)  (Pred_pL A) (Build_Model A) (unit_kMD _) tt identity_R identity_kiM (Pred_SM A) :=
+  @Trivial2Kripke _ _ _ _ _ (Pred_tpSM A).

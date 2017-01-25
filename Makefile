@@ -38,7 +38,7 @@ PropositionalLogic_ProofTheory_FILES = \
   RewriteClass.v
 
 PropositionalLogic_Semantics_FILES = \
-  Kripke.v Trivial.v
+  Kripke.v Trivial.v SemanticEquiv.v
 
 PropositionalLogic_Sound_FILES = \
   Sound_Kripke.v Sound_Classical_Trivial.v

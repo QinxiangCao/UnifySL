@@ -175,7 +175,7 @@ Proof.
       auto.
 Qed.
 
-Lemma sound_sepcon_elim {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {incrSA: IncreasingSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics.SeparatingSemantics L MD M SM}:
+Lemma sound_sepcon_elim1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {incrSA: IncreasingSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {dsSM: DownwardsSemantics.SeparatingSemantics L MD M SM}:
   forall x y: expr,
     forall m, KRIPKE: M, m |= x * y --> x.
 Proof.
