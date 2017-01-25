@@ -21,7 +21,6 @@ Instance Pred_sL (A: Type) {J: Join A}: SeparationLanguage (Pred_L A) :=
 
 Instance Pred_s'L (A: Type) {J: Join A}: SeparationEmpLanguage (Pred_L A) := 
   Build_SeparationEmpLanguage (Pred_L A) (Pred_sL A) (@WeakSemantics.emp _ identity_R J).
-Check @FlatSemantics.SeparatingSemantics.
 
 Instance Pred_fsSM (A: Type) {J: Join A}: @FlatSemantics.SeparatingSemantics (Pred_L A) (Pred_sL A) (Build_Model A) (unit_kMD _) tt identity_R J (Pred_SM A).
 Proof.

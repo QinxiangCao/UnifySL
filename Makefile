@@ -94,6 +94,9 @@ SeparationLogic_DeepEmbedded_FILES = \
   ParametricSeparationLogic.v SeparationLogicsInLiteratures.v \
   FlatSemantics.v
 
+SeparationLogic_ShallowEmbedded_FILES = \
+  PredicateSeparationLogic.v MonoPredicateSeparationLogic.v
+
 SeparationLogic_FILES = \
   Syntax.v \
   $(SeparationLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
@@ -101,6 +104,7 @@ SeparationLogic_FILES = \
   $(SeparationLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
   $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
+  $(SeparationLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   Complete_Flat.v
 
 HoareLogic_FILES = \
