@@ -6,7 +6,7 @@ COQBIN=
 COQC=$(COQBIN)coqc
 COQDEP=$(COQBIN)coqdep
 
-DIRS = lib GeneralLogic MinimunLogic PropositionalLogic SeparationLogic HoareLogic
+DIRS = lib GeneralLogic MinimunLogic PropositionalLogic QuantifierLogic SeparationLogic HoareLogic
 INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 COQ_FLAG = $(INCLUDE_DEMO)
 DEP_DEMO = -R $(CURRENT_DIR) Logic
@@ -53,7 +53,7 @@ PropositionalLogic_DeepEmbedded_FILES = \
 PropositionalLogic_ShallowEmbedded_FILES = \
   PredicatePropositionalLogic.v \
   MonoPredicatePropositionalLogic.v
-  
+
 PropositionalLogic_Complete_FILES = \
   Complete_Classical_Trivial.v \
   Complete_Kripke.v
@@ -66,6 +66,21 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
   $(PropositionalLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
+
+QuantifierLogic_ProofTheory = \
+  HighOrderLogic.v
+
+QuantifierLogic_DeepEmbedded_FILES = \
+  FirstOrderLanguage.v FirstOrderLogic.v
+
+QuantifierLogic_ShallowEmbedded_FILES = \
+  PredicateAsBLang.v PredicateQuantifierLogic.v
+
+QuantifierLogic_FILES = \
+  Syntax.v \
+  $(QuantifierLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(QuantifierLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
+  $(QuantifierLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 SeparationLogic_ProofTheory_FILES = \
   SeparationLogic.v SeparationLogicExtension.v \
@@ -121,6 +136,7 @@ FILES = \
   $(GeneralLogic_FILES:%.v=GeneralLogic/%.v) \
   $(MinimunLogic_FILES:%.v=MinimunLogic/%.v) \
   $(PropositionalLogic_FILES:%.v=PropositionalLogic/%.v) \
+  $(QuantifierLogic_FILES:%.v=QuantifierLogic/%.v) \
   $(SeparationLogic_FILES:%.v=SeparationLogic/%.v) \
   $(HoareLogic_FILES:%.v=HoareLogic/%.v)
 
@@ -139,6 +155,9 @@ MinimunLogic: \
 
 PropositionalLogic: \
   .depend $(PropositionalLogic_FILES:%.v=PropositionalLogic/%.vo)
+
+QuantifierLogic: \
+  .depend $(QuantifierLogic_FILES:%.v=QuantifierLogic/%.vo)
 
 SeparationLogic: \
   .depend $(SeparationLogic_FILES:%.v=SeparationLogic/%.vo)
