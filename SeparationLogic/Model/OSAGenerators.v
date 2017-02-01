@@ -315,6 +315,35 @@ Section optionSA.
       exists (Some n); split; constructor; auto.
   Qed.
 
+  Lemma option_ord_incr_None
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}:
+    @increasing (option worlds) option_ord_R option_Join None.
+  Proof.
+    hnf; intros.
+    inversion H; subst.
+    + constructor.
+    + constructor.
+      reflexivity.
+  Qed.
+
+  Lemma option_ord_res_None
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}:
+    forall n, @residue (option worlds) option_ord_R option_Join n None.
+  Proof.
+    hnf; intros.
+    exists n.
+    split.
+    + destruct n; constructor.
+    + destruct n; constructor.
+      reflexivity.
+  Qed.
+
   Lemma option_ord_USA
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}
@@ -326,17 +355,8 @@ Section optionSA.
     intros.
     exists None.
     split.
-    + hnf; intros.
-      exists n.
-      split.
-      - destruct n; constructor.
-      - destruct n; constructor.
-        reflexivity.
-    + hnf; intros.
-      inversion H; subst.
-      - constructor.
-      - constructor.
-        reflexivity.
+    + apply option_ord_res_None.
+    + apply option_ord_incr_None.
   Qed.
 
   (* Disjoint option Upwards closed*)
@@ -381,6 +401,35 @@ Section optionSA.
       exists (Some n); split; constructor; auto.
   Qed.
 
+  Lemma option_disj_incr_None
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}:
+    @increasing (option worlds) option_disj_R option_Join None.
+  Proof.
+    hnf; intros.
+    inversion H; subst.
+    + constructor.
+    + constructor.
+      reflexivity.
+  Qed.
+
+  Lemma option_disj_res_None
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}:
+    forall n, @residue (option worlds) option_disj_R option_Join n None.
+  Proof.
+    hnf; intros.
+    exists n.
+    split.
+    + destruct n; constructor.
+    + destruct n; constructor.
+      reflexivity.
+  Qed.
+
   Lemma option_disj_USA
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}
@@ -392,17 +441,25 @@ Section optionSA.
     intros.
     exists None.
     split.
-    + hnf; intros.
-      exists n.
-      split.
-      - destruct n; constructor.
-      - destruct n; constructor.
-        reflexivity.
+    + apply option_disj_res_None.
+    + apply option_disj_incr_None.
+  Qed.
+
+  Lemma option_disj_USA'
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}:
+    @UnitalSeparationAlgebra' (option worlds) option_disj_R option_Join.
+  Proof.
+    constructor.
+    intros.
+    exists None.
+    split.
+    + apply option_disj_res_None.
     + hnf; intros.
       inversion H; subst.
-      - constructor.
-      - constructor.
-        reflexivity.
+      apply option_disj_incr_None.
   Qed.
 
 End optionSA.
@@ -515,23 +572,51 @@ Section exponentialSA.
     @UnitalSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
   Proof.
     constructor; intros.
-    - destruct (choice (fun x mx => residue (n x) mx /\ increasing mx)) as [M HH].
-      { intros;
-        specialize (incr_exists (n x)); intros [y HH];
-        exists y; auto. }
-      exists M; split.
-      + cut (forall x, residue (n x) (M x)).
-        * clear; unfold residue; intros.
-          apply choice in H; destruct H as [n' H].
-          exists n'; split; hnf; intros x;
-          specialize (H x); destruct H; auto.
-        * intros x; specialize (HH x); destruct HH; auto.
-      + unfold increasing; intros.
-        unfold join, fun_Join in H.
-        hnf; intros x.
-        specialize (HH x); destruct HH as [ _ HH].
-        apply HH.
-        auto.
+    destruct (choice (fun x mx => residue (n x) mx /\ increasing mx)) as [M HH].
+    { intros;
+      specialize (incr_exists (n x)); intros [y HH];
+      exists y; auto. }
+    exists M; split.
+    + cut (forall x, residue (n x) (M x)).
+      - clear; unfold residue; intros.
+        apply choice in H; destruct H as [n' H].
+        exists n'; split; hnf; intros x;
+        specialize (H x); destruct H; auto.
+      - intros x; specialize (HH x); destruct HH; auto.
+    + unfold increasing; intros.
+      unfold join, fun_Join in H.
+      hnf; intros x.
+      specialize (HH x); destruct HH as [ _ HH].
+      apply HH.
+      auto.
+  Qed.
+
+  (* Exponential is Unital' *)
+  Lemma fun_unitSA' 
+        (A B: Type)
+        {R_B: Relation B}
+        {kiM_B: KripkeIntuitionisticModel B}
+        {J_B: Join B}
+        (USA'_B: UnitalSeparationAlgebra' B):
+    @UnitalSeparationAlgebra' (A -> B) (fun_R A B) (fun_Join A B).
+  Proof.
+    constructor; intros.
+    destruct (choice (fun x mx => residue (n x) mx /\ increasing' mx)) as [M HH].
+    { intros;
+      specialize (incr'_exists (n x)); intros [y HH];
+      exists y; auto. }
+    exists M; split.
+    + cut (forall x, residue (n x) (M x)).
+      - clear; unfold residue; intros.
+        apply choice in H; destruct H as [n' H].
+        exists n'; split; hnf; intros x;
+        specialize (H x); destruct H; auto.
+      - intros x; specialize (HH x); destruct HH; auto.
+    + unfold increasing', increasing; intros.
+      unfold join, fun_Join in H.
+      hnf; intros x.
+      specialize (HH x); destruct HH as [ _ HH].
+      eapply (HH _); eauto.
   Qed.
 
 End exponentialSA.
