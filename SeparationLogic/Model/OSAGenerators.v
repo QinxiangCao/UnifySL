@@ -222,18 +222,19 @@ Section optionSA.
                     | apply None_Some_join | apply Some_Some_join; eauto].
   Qed.
 
-  Inductive option_order {R: Relation worlds}:
-    option worlds -> option worlds -> Prop :=
-  | None_None_order: option_order None None
-  | None_Some_order: forall a, option_order None (Some a)
-  | Some_Some_order: forall a b, Krelation a b -> option_order (Some a) (Some b).
+  Inductive option_ord_R {R: Relation worlds}: Relation (option worlds):=
+  | None_None_ord: option_ord_R None None
+  | None_Some_ord: forall a, option_ord_R None (Some a)
+  | Some_Some_ord: forall a b, Krelation a b -> option_ord_R (Some a) (Some b).
 
-  Definition option_R {R: Relation worlds}: Relation (option worlds) := option_order.
+  Inductive option_disj_R {R: Relation worlds}: Relation (option worlds):=
+  | None_None_disj: option_disj_R None None
+  | Some_Some_disj: forall a b, Krelation a b -> option_disj_R (Some a) (Some b).
 
-  Lemma option_kiM
+  Lemma option_ord_kiM
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}:
-    @KripkeIntuitionisticModel (option worlds) option_R.
+    @KripkeIntuitionisticModel (option worlds) option_ord_R.
   Proof.
     constructor; hnf; intros.
     + destruct x.
@@ -244,13 +245,27 @@ Section optionSA.
       etransitivity; eauto.
   Qed.
 
-  (* Upwards closed*)
-  Lemma option_uSA
+  Lemma option_disj_kiM
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}:
+    @KripkeIntuitionisticModel (option worlds) option_disj_R.
+  Proof.
+    constructor; hnf; intros.
+    + destruct x.
+      - constructor; reflexivity.
+      - constructor.
+    + inversion H; inversion H0; subst; try first [congruence | constructor].
+      inversion H5; subst.
+      etransitivity; eauto.
+  Qed.
+
+  (* Ordered option Upwards closed *)
+  Lemma option_ord_uSA
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}
         {J: Join worlds}
         (uSA: UpwardsClosedSeparationAlgebra worlds):
-    @UpwardsClosedSeparationAlgebra (option worlds) option_R option_Join.
+    @UpwardsClosedSeparationAlgebra (option worlds) option_ord_R option_Join.
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -268,14 +283,14 @@ Section optionSA.
   Qed.
 
   (* Downwards closed IF the algebra is increasing*)
-  Lemma option_dSA
+  Lemma option_ord_dSA
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}
         (dSA: DownwardsClosedSeparationAlgebra worlds)
         {incrSA: IncreasingSeparationAlgebra worlds}:
-    @DownwardsClosedSeparationAlgebra (option worlds) option_R option_Join.
+    @DownwardsClosedSeparationAlgebra (option worlds) option_ord_R option_Join.
   Proof.
     hnf; intros.
     inversion H0; [ | | inversion H1]; subst.
@@ -291,10 +306,52 @@ Section optionSA.
     - exists (Some a); split; try constructor.
       inversion H; subst; auto.
     - exists (Some a); split; try constructor.
-      pose proof option_kiM.
+      pose proof option_ord_kiM.
       transitivity (Some b); auto.
       inversion H; subst.
       constructor. eapply all_increasing. apply join_comm; eassumption.
+    - inversion H; subst.
+      destruct (dSA _ _ _ _ _ H6 H2 H5) as [n [HH1 HH2]].
+      exists (Some n); split; constructor; auto.
+  Qed.
+
+  (* Disjoint option Upwards closed*)
+  Lemma option_disj_uSA
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        (uSA: UpwardsClosedSeparationAlgebra worlds):
+    @UpwardsClosedSeparationAlgebra (option worlds) option_disj_R option_Join.
+  Proof.
+    hnf; intros.
+    inversion H; subst.
+    - inversion H0; subst.
+      exists None, None; repeat split; try constructor.
+    - inversion H0; subst.
+      exists None, (Some b); repeat split; try constructor; auto.
+    - inversion H0; subst.
+      exists (Some b), None; repeat split; try constructor; auto.
+    - inversion H0; subst.
+      destruct
+        (uSA  _ _ _ _ H1 H3) as [n1 [n2 [HH1 [HH2 HH3]]]].
+      exists (Some n1), (Some n2); repeat split; try constructor; auto.
+  Qed.
+
+  (* Disjointed option Downwards *)
+  Lemma option_disj_dSA
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}
+        (dSA: DownwardsClosedSeparationAlgebra worlds):
+    @DownwardsClosedSeparationAlgebra (option worlds) option_disj_R option_Join.
+  Proof.
+    hnf; intros.
+    inversion H0; [ | inversion H1]; subst.
+    - exists n2; inversion H; subst; split; auto;
+      destruct n2; constructor.
+    - exists (Some a); split; try constructor.
+      inversion H; subst; auto.
     - inversion H; subst.
       destruct (dSA _ _ _ _ _ H6 H2 H5) as [n [HH1 HH2]].
       exists (Some n); split; constructor; auto.
@@ -744,7 +801,7 @@ Instance mfHeap_kiM (addr val: Type): KripkeIntuitionisticModel (Heap addr val) 
   identity_kiM _.
 
 Instance gcHeap_kiM (addr val: Type): KripkeIntuitionisticModel (Heap addr val) :=
-  @fun_kiM _ _ (@option_kiM _ (identity_kiM _)).
+  @fun_kiM _ _ (@option_ord_kiM _ (identity_kiM _)).
 
 Definition Stack (LV val: Type): Type := LV -> val.
 

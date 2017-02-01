@@ -556,10 +556,10 @@ Proof. apply unital_is_residual; apply discHeap_unital. Qed.
 (** * Monotonic heap*)
 
 Instance monHeap_R: Relation Heap :=
-  @fun_R _ _ (@option_R _ (identity_R)).
+  @fun_R _ _ (@option_ord_R _ (identity_R)).
 
 Instance monHeap_kiM: @KripkeIntuitionisticModel Heap monHeap_R :=
-  @fun_kiM _ _ _ (@option_kiM _ _ (identity_kiM)).
+  @fun_kiM _ _ _ (@option_ord_kiM _ _ (identity_kiM)).
 
 Instance identity_ikiM (A: Type): @IdentityKripkeIntuitionisticModel _ (@identity_R A).
 Proof.
@@ -570,8 +570,8 @@ Qed.
 Instance monHeap_uSA:
   @UpwardsClosedSeparationAlgebra Heap monHeap_R Heap_Join.
 Proof.
-  apply fun_uSA; [apply option_kiM, identity_kiM |].
-  apply option_uSA; [apply identity_kiM |].
+  apply fun_uSA; [apply option_ord_kiM, identity_kiM |].
+  apply option_ord_uSA; [apply identity_kiM |].
   apply (@ikiM_uSA val identity_R identity_kiM (identity_ikiM _)).
 Qed.
 
@@ -579,8 +579,8 @@ Qed.
 Definition monHeap_dSA:
   @DownwardsClosedSeparationAlgebra Heap monHeap_R Heap_Join.
 Proof.
-  eapply fun_dSA; [apply option_kiM, identity_kiM |].
-  eapply option_dSA.
+  eapply fun_dSA; [apply option_ord_kiM, identity_kiM |].
+  eapply option_ord_dSA.
   - apply identity_kiM.
   - apply trivial_SA.
   - apply (@ikiM_dSA val identity_R identity_kiM (identity_ikiM _)).
@@ -695,10 +695,10 @@ Proof. apply unital_is_residual; apply discHeap_unital'. Qed.
 
 (** * Monotonic heap*)
 Instance monHeap_R': Relation Heap' :=
-  @fun_R _ _ (@option_R _ (identity_R)).
+  @fun_R _ _ (@option_ord_R _ (identity_R)).
 
 Instance monHeap_kiM': @KripkeIntuitionisticModel Heap' monHeap_R' :=
-  @fun_kiM _ _ _ (@option_kiM _ _ (identity_kiM)).
+  @fun_kiM _ _ _ (@option_ord_kiM _ _ (identity_kiM)).
 
 Instance identity_ikiM' (A: Type): @IdentityKripkeIntuitionisticModel _ (@identity_R A).
 Proof.
@@ -709,8 +709,8 @@ Qed.
 Instance monHeap_uSA':
   @UpwardsClosedSeparationAlgebra Heap' monHeap_R' Heap_Join'.
 Proof.
-  eapply fun_uSA; [apply option_kiM, identity_kiM |].
-  eapply option_uSA; [apply identity_kiM |].
+  eapply fun_uSA; [apply option_ord_kiM, identity_kiM |].
+  eapply option_ord_uSA; [apply identity_kiM |].
   apply (@ikiM_uSA val identity_R identity_kiM (identity_ikiM _)).
 Qed.
 
@@ -718,8 +718,8 @@ Qed.
 Definition monHeap_dSA':
   @DownwardsClosedSeparationAlgebra Heap' monHeap_R' Heap_Join'.
 Proof.
-  eapply fun_dSA; [apply option_kiM, identity_kiM |].
-  eapply option_dSA.
+  eapply fun_dSA; [apply option_ord_kiM, identity_kiM |].
+  eapply option_ord_dSA.
   - apply identity_kiM.
   - apply equiv_SA.
   - apply (@ikiM_dSA val identity_R identity_kiM (identity_ikiM _)).
