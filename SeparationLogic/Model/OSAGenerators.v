@@ -319,35 +319,24 @@ Section optionSA.
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}
         {J: Join worlds}
-        {SA: SeparationAlgebra worlds}
-        (dSA: DownwardsClosedSeparationAlgebra worlds)
-        {USA: UnitalSeparationAlgebra worlds}:
+        {SA: SeparationAlgebra worlds}:
     @UnitalSeparationAlgebra (option worlds) option_ord_R option_Join.
   Proof.
     constructor.
     intros.
-    destruct n.
-    + destruct (incr_exists w) as [v [? ?]].
-      exists (Some v).
+    exists None.
+    split.
+    + hnf; intros.
+      exists n.
       split.
-      - hnf in H |- *.
-        destruct H as [u [? ?]]; exists (Some u).
-        split; constructor; auto.
-      - hnf in H0 |- *.
-        intros.
-        inversion H1; subst.
-        * constructor.
-        * constructor.
-          apply H0; auto.
-    + exists None.
-      split.
-      - hnf.
-        exists None; split; constructor.
-      - hnf; intros.
-        inversion H; subst.
-        * constructor.
-        * constructor.
-          reflexivity.
+      - destruct n; constructor.
+      - destruct n; constructor.
+        reflexivity.
+    + hnf; intros.
+      inversion H; subst.
+      - constructor.
+      - constructor.
+        reflexivity.
   Qed.
 
   (* Disjoint option Upwards closed*)
@@ -396,35 +385,24 @@ Section optionSA.
         {R: Relation worlds}
         {kiM: KripkeIntuitionisticModel worlds}
         {J: Join worlds}
-        {SA: SeparationAlgebra worlds}
-        (dSA: DownwardsClosedSeparationAlgebra worlds)
-        {USA: UnitalSeparationAlgebra worlds}:
+        {SA: SeparationAlgebra worlds}:
     @UnitalSeparationAlgebra (option worlds) option_disj_R option_Join.
   Proof.
     constructor.
     intros.
-    destruct n.
-    + exists None.
+    exists None.
+    split.
+    + hnf; intros.
+      exists n.
       split.
-      - hnf.
-        exists (Some w).
-        split; constructor; auto.
+      - destruct n; constructor.
+      - destruct n; constructor.
         reflexivity.
-      - hnf.
-        intros.
-        inversion H; subst.
-        * constructor.
-        * constructor.
-          reflexivity.
-    + exists None.
-      split.
-      - hnf.
-        exists None; split; constructor.
-      - hnf; intros.
-        inversion H; subst.
-        * constructor.
-        * constructor.
-          reflexivity.
+    + hnf; intros.
+      inversion H; subst.
+      - constructor.
+      - constructor.
+        reflexivity.
   Qed.
 
 End optionSA.
