@@ -315,6 +315,41 @@ Section optionSA.
       exists (Some n); split; constructor; auto.
   Qed.
 
+  Lemma option_ord_USA
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}
+        (dSA: DownwardsClosedSeparationAlgebra worlds)
+        {USA: UnitalSeparationAlgebra worlds}:
+    @UnitalSeparationAlgebra (option worlds) option_ord_R option_Join.
+  Proof.
+    constructor.
+    intros.
+    destruct n.
+    + destruct (incr_exists w) as [v [? ?]].
+      exists (Some v).
+      split.
+      - hnf in H |- *.
+        destruct H as [u [? ?]]; exists (Some u).
+        split; constructor; auto.
+      - hnf in H0 |- *.
+        intros.
+        inversion H1; subst.
+        * constructor.
+        * constructor.
+          apply H0; auto.
+    + exists None.
+      split.
+      - hnf.
+        exists None; split; constructor.
+      - hnf; intros.
+        inversion H; subst.
+        * constructor.
+        * constructor.
+          reflexivity.
+  Qed.
+
   (* Disjoint option Upwards closed*)
   Lemma option_disj_uSA
         {R: Relation worlds}
@@ -355,6 +390,41 @@ Section optionSA.
     - inversion H; subst.
       destruct (dSA _ _ _ _ _ H6 H2 H5) as [n [HH1 HH2]].
       exists (Some n); split; constructor; auto.
+  Qed.
+
+  Lemma option_disj_USA
+        {R: Relation worlds}
+        {kiM: KripkeIntuitionisticModel worlds}
+        {J: Join worlds}
+        {SA: SeparationAlgebra worlds}
+        (dSA: DownwardsClosedSeparationAlgebra worlds)
+        {USA: UnitalSeparationAlgebra worlds}:
+    @UnitalSeparationAlgebra (option worlds) option_disj_R option_Join.
+  Proof.
+    constructor.
+    intros.
+    destruct n.
+    + exists None.
+      split.
+      - hnf.
+        exists (Some w).
+        split; constructor; auto.
+        reflexivity.
+      - hnf.
+        intros.
+        inversion H; subst.
+        * constructor.
+        * constructor.
+          reflexivity.
+    + exists None.
+      split.
+      - hnf.
+        exists None; split; constructor.
+      - hnf; intros.
+        inversion H; subst.
+        * constructor.
+        * constructor.
+          reflexivity.
   Qed.
 
 End optionSA.
