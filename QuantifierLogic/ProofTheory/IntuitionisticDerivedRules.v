@@ -1,4 +1,5 @@
 Require Import Logic.lib.Coqlib.
+Require Import Logic.lib.SublistT.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
@@ -8,6 +9,7 @@ Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.QuantifierLogic.ProofTheory.QuantifierLogic.
 
 Local Open Scope logic_base.
@@ -16,8 +18,8 @@ Import PropositionalLanguageNotation.
 
 Lemma allp_K
       (BL: BinderLanguage)
-      {nL: forall ts, NormalLanguage (binded_L ts)}
-      {pL: forall ts, PropositionalLanguage (binded_L ts)}
+      {nBL: NormalBinderLanguage BL}
+      {pBL: PropositionalBinderLanguage BL}
       {qL: QuantifierLanguage BL}
       (BGamma: BindedProofTheory BL)
       {nGamma: forall ts, NormalProofTheory (binded_L ts) (binded_Gamma ts)}
@@ -37,6 +39,8 @@ Proof.
       apply derivable_assum1.
   + apply deduction_weaken0.
     eapply allp_gen.
+    rewrite lift_andp, !lift_allp.
+    rewrite !(allp_elim _ _ _ var_term).
 Abort.
 
 Lemma allp_intros

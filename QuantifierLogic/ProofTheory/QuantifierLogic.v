@@ -1,4 +1,5 @@
 Require Import Logic.lib.Coqlib.
+Require Import Logic.lib.SublistT.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.QuantifierLogic.Syntax.
@@ -22,15 +23,15 @@ Class QuantifierLogic
       {nGamma: forall ts, NormalProofTheory (binded_L ts) (binded_Gamma ts)}
       {mpGamma: forall ts, MinimunPropositionalLogic (binded_L ts) (binded_Gamma ts)} :=
 {
-  allp_elim: forall (t: type) (ts: list type) (x: binded_expr (t :: ts)) (e: term t),
-    |-- allp x --> expr_instantiate x e;
+  allp_elim: forall (t: type) (ts: list type) (x: binded_expr (t :: ts)) (e: binded_term ts t),
+    |-- allp x --> ins_expr x e;
   allp_gen: forall (t: type) (ts: list type) (x: binded_expr ts) (y: binded_expr (t :: ts)),
-    |-- (lift t x) --> y ->
+    |-- lift_expr (sublistT_cons t (sublistT_refl ts)) x --> y ->
     |-- x --> allp y;
-  exp_intros: forall (t: type) (ts: list type) (x: binded_expr (t :: ts)) (e: term t),
-    |-- expr_instantiate x e --> exp x;
+  exp_intros: forall (t: type) (ts: list type) (x: binded_expr (t :: ts)) (e: binded_term ts t),
+    |-- ins_expr x e --> exp x;
   exp_gen: forall (t: type) (ts: list type) (x: binded_expr (t :: ts)) (y: binded_expr ts),
-    |-- x --> lift t y ->
+    |-- x --> lift_expr (sublistT_cons t (sublistT_refl ts)) y ->
     |-- exp x --> y
 }.
 
