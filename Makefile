@@ -67,8 +67,8 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
-QuantifierLogic_ProofTheory = \
-  HighOrderLogic.v
+QuantifierLogic_ProofTheory_FILES = \
+  QuantifierLogic.v
 
 QuantifierLogic_DeepEmbedded_FILES = \
   FirstOrderLanguage.v FirstOrderLogic.v
