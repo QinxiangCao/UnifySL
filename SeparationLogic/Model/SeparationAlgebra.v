@@ -1,7 +1,3 @@
-Require Import Logic.GeneralLogic.KripkeModel.
-
-Local Open Scope kripke_model.
-
 Class Join (worlds: Type): Type := join: worlds -> worlds -> worlds -> Prop.
 
 Class SeparationAlgebra (worlds: Type) {SA: Join worlds}: Type :=

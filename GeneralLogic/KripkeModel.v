@@ -3,8 +3,14 @@ Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 
+Module KI.
+
 Class Relation (worlds: Type): Type :=
   Krelation: worlds -> Ensemble worlds (* <= *).
+
+End KI.
+
+Export KI.
 
 Class KripkeIntuitionisticModel (worlds: Type) {R: Relation worlds}: Type :=
   Krelation_Preorder :> PreOrder Krelation.

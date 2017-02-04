@@ -72,9 +72,21 @@ ModalLogic_ProofTheory_FILES = \
   ModalLogic.v RewriteClass.v \
   ClassicalDerivedRules.v IntuitionisticDerivedRules.v
 
+ModalLogic_Model_FILES = \
+  KripkeModel.v OrderedKripkeModel.v
+
+ModalLogic_Semantics_FILES = \
+  Kripke.v Flat.v
+
+ModalLogic_Sound_FILES = \
+  Sound_Kripke.v Sound_Flat.v
+
 ModalLogic_FILES = \
   Syntax.v \
-  $(ModalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v)
+  $(ModalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(ModalLogic_Model_FILES:%.v=Model/%.v) \
+  $(ModalLogic_Semantics_FILES:%.v=Semantics/%.v) \
+  $(ModalLogic_Sound_FILES:%.v=Sound/%.v)
 
 QuantifierLogic_ProofTheory_FILES = \
   QuantifierLogic.v

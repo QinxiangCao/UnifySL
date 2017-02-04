@@ -1,4 +1,3 @@
-Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
