@@ -1,3 +1,5 @@
+Require Import Coq.Classes.Morphisms.
+Require Import Coq.Classes.RelationClasses.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
@@ -12,15 +14,13 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.ModalLogic.ProofTheory.ModalLogic.
-Require Import Logic.ModalLogic.ProofTheory.RewriteClass.
-Require Import Logic.ModalLogic.ProofTheory.IntuitionisticDerivedRules.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import ModalLanguageNotation.
 
-Section ClassicalderivedRules.
+Section RewriteClass.
 
 Context {L: Language}
         {nL: NormalLanguage L}
@@ -30,21 +30,53 @@ Context {L: Language}
         {nGamma: NormalProofTheory L Gamma}
         {mpGamma: MinimunPropositionalLogic L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {cpGamma: ClassicalPropositionalLogic L Gamma}
         {KmGamma: SystemK L Gamma}.
 
-Lemma diamondp_orp: forall x y, |-- diamondp (x || y) <--> (diamondp x || diamondp y).
+Instance boxp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) boxp.
 Proof.
-  intros.
+  hnf; intros x y ?.
   rewrite provable_derivable.
-  apply deduction_andp_intros; [| rewrite <- provable_derivable; apply orp_diamondp].
-  unfold diamondp.
-  rewrite <- demorgan_negp_andp.
-  apply deduction_contrapositivePP.
+  apply deduction_axiom_K.
   rewrite <- provable_derivable.
-  rewrite <- boxp_andp.
-  rewrite demorgan_negp_orp.
+  apply rule_N; auto.
+Qed.
+
+Instance boxp_proper_iffp: Proper ((fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y)) boxp.
+Proof.
+  hnf; intros x y ?.
+  rewrite provable_derivable.
+  apply deduction_andp_intros;
+  apply deduction_axiom_K.
+  + rewrite <- provable_derivable.
+    apply rule_N.
+    rewrite provable_derivable.
+    eapply deduction_andp_elim1.
+    rewrite <- provable_derivable.
+    eauto.
+  + rewrite <- provable_derivable.
+    apply rule_N.
+    rewrite provable_derivable.
+    eapply deduction_andp_elim2.
+    rewrite <- provable_derivable.
+    eauto.
+Qed.
+
+Instance diamondp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) diamondp.
+Proof.
+  hnf; intros x y ?.
+  unfold diamondp.
+  rewrite H.
   apply provable_impp_refl.
 Qed.
 
-End ClassicalderivedRules.
+Instance diamondp_proper_iffp: Proper ((fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y)) diamondp.
+Proof.
+  hnf; intros x y ?.
+  unfold diamondp.
+  rewrite H.
+  apply provable_iffp_refl.
+Qed.
+
+End RewriteClass.
+
+Existing Instances boxp_proper_impp boxp_proper_iffp diamondp_proper_impp diamondp_proper_iffp.

@@ -12,6 +12,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.ModalLogic.ProofTheory.ModalLogic.
+Require Import Logic.ModalLogic.ProofTheory.RewriteClass.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -35,18 +36,12 @@ Proof.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
-  + rewrite <- deduction_theorem.
+  + rewrite <- deduction_theorem;
     apply deduction_andp_intros.
-    - rewrite -> deduction_theorem.
-      apply deduction_axiom_K.
-      rewrite <- provable_derivable.
-      apply rule_N.
-      apply andp_elim1.
-    - rewrite -> deduction_theorem.
-      apply deduction_axiom_K.
-      rewrite <- provable_derivable.
-      apply rule_N.
-      apply andp_elim2.
+    - rewrite <- (andp_elim1 x y) at 2.
+      apply derivable_assum1.
+    - rewrite <- (andp_elim2 x y) at 2.
+      apply derivable_assum1.
   + rewrite <- deduction_theorem.
     pose proof derivable_assum1 empty_context (boxp x && boxp y).
     pose proof deduction_andp_elim1 _ _ _ H.
@@ -98,14 +93,7 @@ Proof.
   rewrite <- deduction_theorem.
   apply deduction_contrapositivePP.
   apply deduction_axiom_K.
-  pose proof derivable_assum1 empty_context (boxp (x --> y)).
-  eapply deduction_modus_ponens; eauto.
-  apply deduction_axiom_K.
-  apply deduction_weaken0.
-  apply rule_N.
-  rewrite provable_derivable.
-  rewrite <- deduction_theorem.
-  apply deduction_contrapositivePP.
+  rewrite <- contrapositivePP.
   apply derivable_assum1.
 Qed.
 

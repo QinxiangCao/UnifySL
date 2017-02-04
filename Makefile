@@ -69,7 +69,8 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
 
 ModalLogic_ProofTheory_FILES = \
-  ModalLogic.v ClassicalDerivedRules.v IntuitionisticDerivedRules.v
+  ModalLogic.v RewriteClass.v \
+  ClassicalDerivedRules.v IntuitionisticDerivedRules.v
 
 ModalLogic_FILES = \
   Syntax.v \
