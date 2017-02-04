@@ -10,7 +10,7 @@ Require Logic.PropositionalLogic.Sound.Sound_Classical_Trivial.
 Require Logic.PropositionalLogic.Sound.Sound_Kripke.
 Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.WeakClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.DeMorganLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.GodelDummettLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.TrivialSemantics.
@@ -32,7 +32,7 @@ Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
 
 Instance Intuitionistic_G: ProofTheory L := IntuitionisticLogic.G Var.
-Instance WeakClassical_G: ProofTheory L := WeakClassicalLogic.G Var.
+Instance DeMorgan_G: ProofTheory L := DeMorganLogic.G Var.
 Instance GodelDummett_G: ProofTheory L := GodelDummettLogic.G Var.
 Instance Classical_G: ProofTheory L := ClassicalLogic.G Var.
 Instance Trivial_MD: Model := TrivialSemantics.MD Var.
@@ -96,7 +96,7 @@ Proof.
   + apply sound_falsep_elim.
 Qed.
 
-Theorem sound_weak_classical_Kripke_branch_join: sound WeakClassical_G Kripke_SM (KripkeModelClass _ (KripkeSemantics.Kmodel_BranchJoin Var)).
+Theorem sound_weak_classical_Kripke_branch_join: sound DeMorgan_G Kripke_SM (KripkeModelClass _ (KripkeSemantics.Kmodel_BranchJoin Var)).
 Proof.
   hnf; intros.
   intros m ?.

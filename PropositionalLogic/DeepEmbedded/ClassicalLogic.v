@@ -4,7 +4,7 @@ Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
@@ -62,18 +62,6 @@ Instance cpG: ClassicalPropositionalLogic L G.
 Proof.
   constructor.
   apply excluded_middle.
-Qed.
-
-Instance gdpG: GodelDummettPropositionalLogic L G.
-Proof.
-  constructor.
-  apply impp_choice.
-Qed.
-
-Instance wcpG: WeakClassicalPropositionalLogic L G.
-Proof.
-  constructor.
-  apply weak_excluded_middle.
 Qed.
 
 End ClassicalPropositionalLogic.

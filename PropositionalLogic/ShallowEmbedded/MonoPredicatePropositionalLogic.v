@@ -6,7 +6,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
@@ -68,7 +68,7 @@ Proof.
   exact (@sound_impp_choice_no_branch (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R kiM nkiM (MonoPred_SM A) (MonoPred_kiSM A) x y).
 Qed.
 
-Instance MonoPred_wcpGamma (A: Type) {R: Relation A} {kiM: KripkeIntuitionisticModel A} {bkiM: BranchJoinKripkeIntuitionisticModel A}: WeakClassicalPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
+Instance MonoPred_dmpGamma (A: Type) {R: Relation A} {kiM: KripkeIntuitionisticModel A} {bkiM: BranchJoinKripkeIntuitionisticModel A}: DeMorganPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   intros x.

@@ -4,14 +4,14 @@ Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
-Section WeakClassicalLogic.
+Section DeMorganLogic.
 
 Context (Var: Type).
 
@@ -56,10 +56,10 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance wcpG: WeakClassicalPropositionalLogic L G.
+Instance dmpG: DeMorganPropositionalLogic L G.
 Proof.
   constructor.
   apply weak_excluded_middle.
 Qed.
 
-End WeakClassicalLogic.
+End DeMorganLogic.

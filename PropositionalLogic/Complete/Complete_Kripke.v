@@ -13,13 +13,13 @@ Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.WeakClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.DeMorganLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.GodelDummettLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
@@ -480,11 +480,11 @@ Context (CV: Countable Var).
 Instance L: Language := PropositionalLanguage.L Var.
 Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
 Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
-Instance G: ProofTheory L := WeakClassicalLogic.G Var.
-Instance nG: NormalProofTheory L G := WeakClassicalLogic.nG Var.
-Instance mpG: MinimunPropositionalLogic L G := WeakClassicalLogic.mpG Var.
-Instance ipG: IntuitionisticPropositionalLogic L G := WeakClassicalLogic.ipG Var.
-Instance wpG: WeakClassicalPropositionalLogic L G := WeakClassicalLogic.wcpG Var.
+Instance G: ProofTheory L := DeMorganLogic.G Var.
+Instance nG: NormalProofTheory L G := DeMorganLogic.nG Var.
+Instance mpG: MinimunPropositionalLogic L G := DeMorganLogic.mpG Var.
+Instance ipG: IntuitionisticPropositionalLogic L G := DeMorganLogic.ipG Var.
+Instance dmpG: DeMorganPropositionalLogic L G := DeMorganLogic.dmpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
 Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
@@ -514,7 +514,7 @@ Proof.
     apply derivable_closed_union_derivable in H8; [| auto].
     destruct H8 as [x [? ?]].
     rewrite derivable_closed_element_derivable in H8 by auto.
-    pose proof WeakClassical.derivable_weak_excluded_middle (proj1_sig n) x.
+    pose proof DeMorgan.derivable_weak_excluded_middle (proj1_sig n) x.
     rewrite <- derivable_closed_element_derivable in H10 by auto.
     apply (H6 (~~ x)) in H10.
     destruct H10.

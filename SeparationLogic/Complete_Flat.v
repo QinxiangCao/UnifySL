@@ -12,7 +12,7 @@ Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
@@ -697,7 +697,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma weak_classical_canonical_branch_join {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wcpGamma: WeakClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_BranchJoin Var) (canonical_model Psi).
+Lemma weak_classical_canonical_branch_join {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {dmpGamma: DeMorganPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall Psi: DCS Gamma, KripkeModelClass _ (FlatSemantics.Kmodel_BranchJoin Var) (canonical_model Psi).
 Proof.
   intros.
   unfold canonical_model; constructor.
@@ -713,7 +713,7 @@ Proof.
     apply derivable_closed_union_derivable in H8; [| auto].
     destruct H8 as [x [? ?]].
     rewrite derivable_closed_element_derivable in H8 by auto.
-    pose proof WeakClassical.derivable_weak_excluded_middle (proj1_sig n) x.
+    pose proof DeMorgan.derivable_weak_excluded_middle (proj1_sig n) x.
     rewrite <- derivable_closed_element_derivable in H10 by auto.
     apply (H6 (~~ x)) in H10.
     destruct H10.

@@ -7,7 +7,7 @@ Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
@@ -21,7 +21,7 @@ Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
 Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
-  Parametric_WC: WEM PAR = true -> WeakClassicalPropositionalLogic L Gamma;
+  Parametric_WC: WEM PAR = true -> DeMorganPropositionalLogic L Gamma;
   Parametric_GD: IC PAR = true -> GodelDummettPropositionalLogic L Gamma;
   Parametric_C: EM PAR = true -> ClassicalPropositionalLogic L Gamma;
   Parametric_GC: SCE PAR = true -> GarbageCollectSeparationLogic L Gamma;

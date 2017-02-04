@@ -9,7 +9,7 @@ Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -27,7 +27,7 @@ Proof.
   apply deduction_weaken0; auto.
 Qed.
 
-Instance GodelDummett2WeakClassical (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdpGamma: GodelDummettPropositionalLogic L Gamma}: WeakClassicalPropositionalLogic L Gamma.
+Instance GodelDummett2DeMorgan (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdpGamma: GodelDummettPropositionalLogic L Gamma}: DeMorganPropositionalLogic L Gamma.
 Proof.
   constructor.
   intros.

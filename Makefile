@@ -34,7 +34,7 @@ MinimunLogic_FILES = \
   Syntax.v $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v)
 
 PropositionalLogic_ProofTheory_FILES = \
-  Intuitionistic.v WeakClassical.v \
+  Intuitionistic.v DeMorgan.v \
   GodelDummett.v Classical.v \
   RewriteClass.v
 
@@ -46,7 +46,7 @@ PropositionalLogic_Sound_FILES = \
 
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
-  IntuitionisticLogic.v WeakClassicalLogic.v \
+  IntuitionisticLogic.v DeMorganLogic.v \
   GodelDummettLogic.v ClassicalLogic.v \
   KripkeSemantics.v TrivialSemantics.v \
   Soundness.v
