@@ -95,31 +95,20 @@ Proof.
 Qed.
 
 (*
-Lemma contrapositivePP: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
+Lemma contrapositiveNN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
   Phi |-- ~~ y --> ~~ x ->
   Phi |-- x --> y.
 Proof.
   intros.
   apply deduction_theorem.
-  apply (derivable_weaken1 _ x) in H.
+  apply (deduction_weaken1 _ x) in H.
   pose proof derivable_assum1 Phi x.
-  apply (derivable_add_imp_left _ _ (~~ y)) in H0.
-  pose proof axiom3_derivable (Union expr Phi (Singleton expr x)) y x.
+SearchAbout derivable (_ --> _).
+  apply (deduction_left_impp_intros _ _ (~~ y)) in H0.
+  pose proof deduction_axiom3 (Union expr Phi (Singleton expr x)) y x.
   pose proof derivable_modus_ponens _ _ _ H0 H1.
   pose proof derivable_modus_ponens _ _ _ H H2.
   auto.
-Qed.
-
-Lemma contrapositiveNN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
-  Phi |-- y --> x ->
-  Phi |-- ~~ x --> ~~ y.
-Proof.
-  intros.
-  apply contrapositivePP.
-  apply deduction_theorem.
-  eapply derivable_modus_ponens; [| apply double_negp_elim].
-  apply derivable_modus_ponens with y; [apply deduction_theorem, double_negp_add |].
-  apply derivable_weaken1; eauto.
 Qed.
 
 Lemma contrapositiveNP: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
@@ -132,18 +121,8 @@ Proof.
   eapply derivable_modus_ponens; [| apply double_negp_elim].
   apply deduction_theorem; auto.
 Qed.
-
-Lemma contrapositivePN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
-  Phi |-- y --> ~~ x ->
-  Phi |-- x --> ~~ y.
-Proof.
-  intros.
-  apply contrapositivePP.
-  apply deduction_theorem.
-  apply derivable_modus_ponens with y; [apply deduction_theorem, double_negp_add |].
-  apply derivable_weaken1; auto.
-Qed.
-
+*)
+(*
 Lemma assum_exclude_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- ~~ x --> y ->
   Phi |-- x --> y ->

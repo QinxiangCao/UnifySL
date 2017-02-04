@@ -6,7 +6,7 @@ COQBIN=
 COQC=$(COQBIN)coqc
 COQDEP=$(COQBIN)coqdep
 
-DIRS = lib GeneralLogic MinimunLogic PropositionalLogic QuantifierLogic SeparationLogic HoareLogic
+DIRS = lib GeneralLogic MinimunLogic PropositionalLogic ModalLogic QuantifierLogic SeparationLogic HoareLogic
 INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 COQ_FLAG = $(INCLUDE_DEMO)
 DEP_DEMO = -R $(CURRENT_DIR) Logic
@@ -67,6 +67,13 @@ PropositionalLogic_FILES = \
   $(PropositionalLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
   $(PropositionalLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   $(PropositionalLogic_Complete_FILES:%.v=Complete/%.v)
+
+ModalLogic_ProofTheory_FILES = \
+  ModalLogic.v ClassicalDerivedRules.v IntuitionisticDerivedRules.v
+
+ModalLogic_FILES = \
+  Syntax.v \
+  $(ModalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v)
 
 QuantifierLogic_ProofTheory_FILES = \
   QuantifierLogic.v
@@ -137,6 +144,7 @@ FILES = \
   $(GeneralLogic_FILES:%.v=GeneralLogic/%.v) \
   $(MinimunLogic_FILES:%.v=MinimunLogic/%.v) \
   $(PropositionalLogic_FILES:%.v=PropositionalLogic/%.v) \
+  $(ModalLogic_FILES:%.v=ModalLogic/%.v) \
   $(QuantifierLogic_FILES:%.v=QuantifierLogic/%.v) \
   $(SeparationLogic_FILES:%.v=SeparationLogic/%.v) \
   $(HoareLogic_FILES:%.v=HoareLogic/%.v)
@@ -156,6 +164,9 @@ MinimunLogic: \
 
 PropositionalLogic: \
   .depend $(PropositionalLogic_FILES:%.v=PropositionalLogic/%.vo)
+
+ModalLogic: \
+  .depend $(ModalLogic_FILES:%.v=ModalLogic/%.vo)
 
 QuantifierLogic: \
   .depend $(QuantifierLogic_FILES:%.v=QuantifierLogic/%.vo)

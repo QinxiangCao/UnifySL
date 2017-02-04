@@ -200,6 +200,27 @@ Proof.
   apply derivable_iffp_refl.
 Qed.
 
+Lemma contrapositivePP: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} Phi (x y: expr),
+  Phi |-- y --> x ->
+  Phi |-- ~~ x --> ~~ y.
+Proof.
+  intros.
+  eapply deduction_modus_ponens; eauto.
+  apply deduction_weaken0.
+  eapply modus_ponens; [apply provable_impp_arg_switch |].
+  apply aux_minimun_theorem00.
+Qed.
+
+Lemma contrapositivePN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} Phi (x y: expr),
+  Phi |-- y --> ~~ x ->
+  Phi |-- x --> ~~ y.
+Proof.
+  intros.
+  eapply deduction_modus_ponens; eauto.
+  apply deduction_weaken0.
+  apply provable_impp_arg_switch.
+Qed.
+
 Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).
