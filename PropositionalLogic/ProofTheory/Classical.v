@@ -94,6 +94,15 @@ Proof.
   apply derivable_weak_excluded_middle.
 Qed.
 
+Lemma demorgan_negp_andp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (x y: expr),
+  |-- ~~ (x && y) <--> (~~ x || ~~ y).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros; [| rewrite <- provable_derivable; apply demorgan_orp_negp].
+  
+Abort.
+
 (*
 Lemma contrapositiveNN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
   Phi |-- ~~ y --> ~~ x ->

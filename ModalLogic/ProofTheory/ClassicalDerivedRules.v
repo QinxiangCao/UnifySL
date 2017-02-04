@@ -32,4 +32,13 @@ Context {L: Language}
         {cpGamma: ClassicalPropositionalLogic L Gamma}
         {KmGamma: SystemK L Gamma}.
 
+Lemma diamondp_orp: forall x y, |-- diamondp (x || y) <--> (diamondp x || diamondp y).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros; [| rewrite <- provable_derivable; apply orp_diamondp].
+  
+Qed.
+
+
 End ClassicalderivedRules.

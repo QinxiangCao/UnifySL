@@ -75,6 +75,90 @@ Proof.
     apply orp_intros2.
 Qed.
 
+Lemma boxp_TT: |-- boxp TT.
+Proof.
+  apply rule_N.
+  apply provable_impp_refl.
+Qed.
+
+Lemma not_diamondp_FF: |-- ~~ diamondp FF.
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_double_negp_intros.
+  rewrite <- provable_derivable.
+  apply rule_N.
+  apply provable_impp_refl.
+Qed.
+
+Lemma impp_diamondp: forall x y, |-- boxp (x --> y) --> (diamondp x --> diamondp y).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  rewrite <- deduction_theorem.
+  apply contrapositivePP.
+  apply deduction_axiom_K.
+  pose proof derivable_assum1 empty_context (boxp (x --> y)).
+  eapply deduction_modus_ponens; eauto.
+  apply deduction_axiom_K.
+  apply deduction_weaken0.
+  apply rule_N.
+  rewrite provable_derivable.
+  rewrite <- deduction_theorem.
+  apply contrapositivePP.
+  apply derivable_assum1.
+Qed.
+
+Lemma derivable_impp_diamondp: forall Phi x y, Phi |-- boxp (x --> y) --> (diamondp x --> diamondp y).
+Proof.
+  intros.
+  apply deduction_weaken0.
+  apply impp_diamondp.
+Qed.
+
+Lemma deduction_impp_diamondp: forall Phi x y,
+  Phi |-- boxp (x --> y) ->
+  Phi |-- (diamondp x --> diamondp y).
+Proof.
+  intros.
+  eapply deduction_modus_ponens; eauto.
+  apply derivable_impp_diamondp.
+Qed.
+
+Lemma diamondp_andp: forall x y, |-- diamondp (x && y) --> (diamondp x && diamondp y).
+Proof.
+  intros.
+  intros.
+  rewrite provable_derivable.
+  rewrite <- deduction_theorem.
+  apply deduction_andp_intros.
+  + rewrite -> deduction_theorem.
+    apply deduction_impp_diamondp.
+    rewrite <- provable_derivable.
+    apply rule_N.
+    apply andp_elim1.
+  + rewrite -> deduction_theorem.
+    apply deduction_impp_diamondp.
+    rewrite <- provable_derivable.
+    apply rule_N.
+    apply andp_elim2.
+Qed.
+
+Lemma orp_diamondp: forall x y, |-- diamondp x || diamondp y --> diamondp (x || y).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_orp_elim.
+  + apply deduction_impp_diamondp.
+    rewrite <- provable_derivable.
+    apply rule_N.
+    apply orp_intros1.
+  + apply deduction_impp_diamondp.
+    rewrite <- provable_derivable.
+    apply rule_N.
+    apply orp_intros2.
+Qed.
+
 Lemma P_diamondp_P {TmGamma: SystemT L Gamma}: forall x, |-- x --> diamondp x.
 Proof.
   intros.
