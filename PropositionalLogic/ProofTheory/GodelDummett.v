@@ -9,6 +9,7 @@ Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -26,10 +27,14 @@ Proof.
   apply deduction_weaken0; auto.
 Qed.
 
-Lemma derivable_weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wpGamma: GodelDummettPropositionalLogic L Gamma} (Phi: context) (x: expr),
-  Phi |-- ~~ x || ~~ ~~ x.
+Instance GodelDummett2WeakClassical (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdpGamma: GodelDummettPropositionalLogic L Gamma}: WeakClassicalPropositionalLogic L Gamma.
 Proof.
+  constructor.
   intros.
+  rewrite provable_derivable.
+  set (Phi := empty_context).
+  clearbody Phi.
+ 
   pose proof derivable_impp_choice Phi x (~~ x).
   
   assert (Phi |-- (x --> ~~ x) --> (x --> FF)).
@@ -63,12 +68,4 @@ Proof.
   pose proof deduction_orp_elim _ _ _ _ H0 H1.
   pose proof deduction_modus_ponens _ _ _ H H2.
   auto.
-Qed.
-
-Lemma weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wpGamma: GodelDummettPropositionalLogic L Gamma} (x: expr),
-  |-- ~~ x || ~~ ~~ x.
-Proof.
-  intros.
-  rewrite provable_derivable.
-  apply derivable_weak_excluded_middle.
 Qed.

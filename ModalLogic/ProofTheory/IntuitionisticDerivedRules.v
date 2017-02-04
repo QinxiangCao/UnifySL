@@ -6,10 +6,10 @@ Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
-Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
+Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.ModalLogic.ProofTheory.ModalLogic.
 
@@ -96,7 +96,7 @@ Proof.
   intros.
   rewrite provable_derivable.
   rewrite <- deduction_theorem.
-  apply contrapositivePP.
+  apply deduction_contrapositivePP.
   apply deduction_axiom_K.
   pose proof derivable_assum1 empty_context (boxp (x --> y)).
   eapply deduction_modus_ponens; eauto.
@@ -105,7 +105,7 @@ Proof.
   apply rule_N.
   rewrite provable_derivable.
   rewrite <- deduction_theorem.
-  apply contrapositivePP.
+  apply deduction_contrapositivePP.
   apply derivable_assum1.
 Qed.
 
@@ -163,7 +163,7 @@ Lemma P_diamondp_P {TmGamma: SystemT L Gamma}: forall x, |-- x --> diamondp x.
 Proof.
   intros.
   rewrite provable_derivable.
-  apply contrapositivePN.
+  apply deduction_contrapositivePN.
   apply derivable_axiom_T.
 Qed.
 

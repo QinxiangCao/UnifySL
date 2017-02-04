@@ -6,10 +6,10 @@ Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
-Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
-Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.WeakClassical.
+Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
+Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.ModalLogic.ProofTheory.ModalLogic.
 Require Import Logic.ModalLogic.ProofTheory.IntuitionisticDerivedRules.
@@ -37,8 +37,6 @@ Proof.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros; [| rewrite <- provable_derivable; apply orp_diamondp].
-  
-Qed.
-
+Abort.
 
 End ClassicalderivedRules.

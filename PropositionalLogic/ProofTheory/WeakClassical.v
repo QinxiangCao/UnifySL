@@ -22,3 +22,27 @@ Proof.
   pose proof weak_excluded_middle x.
   apply deduction_weaken0; auto.
 Qed.
+
+Lemma demorgan_negp_andp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wcpGamma: WeakClassicalPropositionalLogic L Gamma} (x y: expr),
+  |-- ~~ (x && y) <--> (~~ x || ~~ y).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros; [| rewrite <- provable_derivable; apply demorgan_orp_negp].
+  rewrite <- deduction_theorem.
+  apply (deduction_modus_ponens _ (~~ x || ~~ ~~ x)); [apply derivable_weak_excluded_middle |].
+  apply deduction_orp_elim.
+  + apply deduction_weaken0.
+    apply orp_intros1.
+  + rewrite <- deduction_theorem.
+    apply deduction_orp_intros2.
+    unfold negp at 4.
+    rewrite <- deduction_theorem.
+    apply (deduction_modus_ponens _ (x --> FF)).
+    - rewrite <- deduction_theorem.
+      apply (deduction_modus_ponens _ (x && y)).
+      * apply deduction_andp_intros; [| apply deduction_weaken1]; apply derivable_assum1.
+      * do 3 apply deduction_weaken1; apply derivable_assum1.
+    - apply deduction_weaken1; apply derivable_assum1.
+Qed.
+

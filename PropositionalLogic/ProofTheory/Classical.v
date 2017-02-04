@@ -8,6 +8,7 @@ Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -53,10 +54,13 @@ Proof.
   + apply derivable_double_negp_elim.
 Qed.
 
-Lemma derivable_impp_choice: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x y: expr),
-  Phi |-- (x --> y) || (y --> x).
+Instance Classical2GodelDummett {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma}: GodelDummettPropositionalLogic L Gamma.
 Proof.
+  constructor.
   intros.
+  rewrite provable_derivable.
+  set (Phi := empty_context).
+  clearbody Phi.
   pose proof derivable_excluded_middle Phi x.
   eapply deduction_modus_ponens; [exact H |].
   apply deduction_orp_elim.
@@ -70,38 +74,6 @@ Proof.
     apply deduction_impp_arg_switch.
     apply derivable_contradiction_elim.
 Qed.
-
-Lemma derivable_weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
-  Phi |-- ~~ x || ~~ ~~ x.
-Proof.
-  intros.
-  apply derivable_excluded_middle.
-Qed.
-
-Lemma impp_choice: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (x y: expr),
-  |-- (x --> y) || (y --> x).
-Proof.
-  intros.
-  rewrite provable_derivable.
-  apply derivable_impp_choice.
-Qed.
-
-Lemma weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (x: expr),
-  |-- ~~ x || ~~ ~~ x.
-Proof.
-  intros.
-  rewrite provable_derivable.
-  apply derivable_weak_excluded_middle.
-Qed.
-
-Lemma demorgan_negp_andp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (x y: expr),
-  |-- ~~ (x && y) <--> (~~ x || ~~ y).
-Proof.
-  intros.
-  rewrite provable_derivable.
-  apply deduction_andp_intros; [| rewrite <- provable_derivable; apply demorgan_orp_negp].
-  
-Abort.
 
 (*
 Lemma contrapositiveNN: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} Phi (x y: expr),
