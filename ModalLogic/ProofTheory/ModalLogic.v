@@ -43,8 +43,7 @@ Class System5 (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}
 }.
 
 Class PropositionalTransparentModality (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
-  boxp_orp: forall x y, |-- boxp (x || y) <--> boxp x || boxp y;
-  boxp_impp: forall x y, |-- boxp (x --> y) <--> (boxp x --> boxp y);
+  boxp_orp: forall x y, |-- boxp (x || y) <--> boxp x || boxp y
 }.
 
 Section ModalLogic.

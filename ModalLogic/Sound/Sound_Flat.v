@@ -1,3 +1,5 @@
+Require Import Coq.Logic.Classical_Prop.
+Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
@@ -44,3 +46,35 @@ Proof.
   rewrite sat_boxp.
   intros; apply H; auto.
 Qed.
+
+Lemma sound_boxp_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {Pf_kmM: KripkeModalModel_PFunctional (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
+  forall x y (m: Kworlds M),
+    KRIPKE: M, m |= boxp (x || y) <--> (boxp x || boxp y).
+Proof.
+  intros.
+  unfold iffp.
+  rewrite sat_andp, !sat_impp.
+  split; intros ? ?.
+  + clear m H.
+    rewrite sat_orp.
+    rewrite !sat_boxp.
+    intros; apply NNPP.
+    intro.
+    apply not_or_and in H0; destruct H0.
+    apply not_all_ex_not in H0; destruct H0 as [n1 ?].
+    apply not_all_ex_not in H1; destruct H1 as [n2 ?].
+    apply imply_to_and in H0; destruct H0.
+    apply imply_to_and in H1; destruct H1.
+    pose proof Krelation_pfunc _ _ _ H0 H1.
+    subst n2; clear H1.
+    specialize (H _ H0).
+    rewrite sat_orp in H.
+    tauto.
+  + rewrite sat_orp, !sat_boxp.
+    intros; rewrite sat_orp.
+    destruct H0; [left | right]; auto.
+Qed.
+
+(* (boxp x --> boxp y) --> (boxp (x --> y)) is not sound in non-classical transparent modal logic *)
+(* e.g. (boxp (x |--> 1) --> boxp (x |--> 1 * y |--> 1)) -->                                      *)
+(*         boxp (x |--> 1 --> x |--> 1 * y |--> 1) is not valid on monotonic heap                 *) 

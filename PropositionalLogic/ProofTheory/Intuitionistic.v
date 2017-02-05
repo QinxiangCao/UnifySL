@@ -158,6 +158,14 @@ Proof.
   apply derivable_modus_ponens.
 Qed.
 
+Lemma double_negp_intros: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (x: expr),
+  |-- x --> ~~ ~~ x.
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply derivable_double_negp_intros.
+Qed.
+
 Lemma deduction_double_negp_intros: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- x ->
   Phi |-- ~~ ~~ x.

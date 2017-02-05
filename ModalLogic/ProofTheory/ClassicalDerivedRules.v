@@ -47,4 +47,26 @@ Proof.
   apply provable_impp_refl.
 Qed.
 
+Lemma boxp_impp {tmGamma: PropositionalTransparentModality L Gamma}: forall x y, |-- boxp (x --> y) <--> (boxp x --> boxp y).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros; [apply derivable_axiom_K |].
+  rewrite (impp2orp x y), (impp2orp (boxp x) (boxp y)).
+  rewrite boxp_orp.
+  apply deduction_orp_elim; [| apply derivable_orp_intros2].
+  rewrite <- deduction_theorem.
+  apply deduction_orp_intros1.
+  apply (deduction_modus_ponens _ (boxp (x || ~~ x))).
+  + apply deduction_weaken0.
+    apply rule_N.
+    apply excluded_middle.
+  + rewrite boxp_orp.
+    apply deduction_orp_elim; [| apply derivable_impp_refl].
+    rewrite <- deduction_theorem.
+    apply deduction_falsep_elim.
+    rewrite -> deduction_theorem.
+    apply derivable_assum1.
+Qed.
+
 End ClassicalderivedRules.
