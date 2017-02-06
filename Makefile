@@ -6,7 +6,10 @@ COQBIN=
 COQC=$(COQBIN)coqc
 COQDEP=$(COQBIN)coqdep
 
-DIRS = lib GeneralLogic MinimunLogic PropositionalLogic ModalLogic QuantifierLogic SeparationLogic Extention HoareLogic
+DIRS = \
+  lib GeneralLogic MinimunLogic PropositionalLogic ModalLogic SeparationLogic \
+  QuantifierLogic Extensions HoareLogic
+
 INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 COQ_FLAG = $(INCLUDE_DEMO)
 DEP_DEMO = -R $(CURRENT_DIR) Logic
@@ -144,7 +147,7 @@ SeparationLogic_FILES = \
   Complete_Flat.v
 
 Extentions_ProofTheory_FILES = \
-  Stable.v
+  Stable.v ModalSeparation.v Corable.v
 
 Extentions_FILES = \
   $(Extentions_ProofTheory_FILES:%.v=ProofTheory/%.v) 

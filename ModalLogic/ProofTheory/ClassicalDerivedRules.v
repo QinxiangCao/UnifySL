@@ -47,8 +47,9 @@ Proof.
   apply provable_impp_refl.
 Qed.
 
-Lemma boxp_impp {tmGamma: PropositionalTransparentModality L Gamma}: forall x y, |-- boxp (x --> y) <--> (boxp x --> boxp y).
+Instance PropositionalTransparentModality2StrongPropositionalTransparentModality {pmGamma: PropositionalTransparentModality L Gamma}: StrongPropositionalTransparentModality L Gamma.
 Proof.
+  constructor.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros; [apply derivable_axiom_K |].

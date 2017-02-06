@@ -299,6 +299,94 @@ Proof.
       apply derivable_assum1.
 Qed.
 
+Lemma andp_comm: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (x y: expr),
+  |-- x && y <--> y && x.
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + rewrite <- deduction_theorem.
+    apply deduction_andp_intros.
+    - eapply deduction_andp_elim2.
+      apply derivable_assum1.
+    - eapply deduction_andp_elim1.
+      apply derivable_assum1.
+  + rewrite <- deduction_theorem.
+    apply deduction_andp_intros.
+    - eapply deduction_andp_elim2.
+      apply derivable_assum1.
+    - eapply deduction_andp_elim1.
+      apply derivable_assum1.
+Qed.
+
+Lemma andp_assoc: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (x y z: expr),
+  |-- x && y && z <--> x && (y && z).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + rewrite <- deduction_theorem.
+    apply deduction_andp_intros; [| apply deduction_andp_intros].
+    - eapply deduction_andp_elim1.
+      eapply deduction_andp_elim1.
+      apply derivable_assum1.
+    - eapply deduction_andp_elim2.
+      eapply deduction_andp_elim1.
+      apply derivable_assum1.
+    - eapply deduction_andp_elim2.
+      apply derivable_assum1.
+  + rewrite <- deduction_theorem.
+    apply deduction_andp_intros; [apply deduction_andp_intros |].
+    - eapply deduction_andp_elim1.
+      apply derivable_assum1.
+    - eapply deduction_andp_elim1.
+      eapply deduction_andp_elim2.
+      apply derivable_assum1.
+    - eapply deduction_andp_elim2.
+      eapply deduction_andp_elim2.
+      apply derivable_assum1.
+Qed.
+
+Lemma orp_comm: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (x y: expr),
+  |-- x || y <--> y || x.
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + apply deduction_orp_elim; rewrite <- provable_derivable.
+    - apply orp_intros2.
+    - apply orp_intros1.
+  + apply deduction_orp_elim; rewrite <- provable_derivable.
+    - apply orp_intros2.
+    - apply orp_intros1.
+Qed.
+
+Lemma orp_assoc: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (x y z: expr),
+  |-- x || y || z <--> x || (y || z).
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + apply deduction_orp_elim; [apply deduction_orp_elim |]; rewrite <- deduction_theorem.
+    - apply deduction_orp_intros1.
+      apply derivable_assum1.
+    - apply deduction_orp_intros2.
+      apply deduction_orp_intros1.
+      apply derivable_assum1.
+    - apply deduction_orp_intros2.
+      apply deduction_orp_intros2.
+      apply derivable_assum1.
+  + apply deduction_orp_elim; [| apply deduction_orp_elim]; rewrite <- deduction_theorem.
+    - apply deduction_orp_intros1.
+      apply deduction_orp_intros1.
+      apply derivable_assum1.
+    - apply deduction_orp_intros1.
+      apply deduction_orp_intros2.
+      apply derivable_assum1.
+    - apply deduction_orp_intros2.
+      apply derivable_assum1.
+Qed.
+
 Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).
