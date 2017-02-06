@@ -92,6 +92,32 @@ Proof.
   apply corable_sepcon_andp1; auto.
 Qed.
 
+Lemma corable_sepcon_imply_andp: forall x y, corable x -> corable y -> |-- x * y --> x && y.
+Proof.
+  intros.
+  rewrite <- (andp_truep y) at 1.
+  rewrite corable_sepcon_andp1 by auto.
+  rewrite <- (andp_truep x) at 1.
+  rewrite corable_andp_sepcon1 by auto.
+  rewrite <- andp_assoc.
+  rewrite (andp_comm x y).
+  apply andp_elim1.
+Qed.
+
+Lemma corable_sepcon_is_andp {ExtsGamma: ExtSeparationLogic L Gamma}: forall x y, corable x -> corable y -> |-- x * y <--> x && y.
+Proof.
+  intros.
+  rewrite <- (andp_truep y) at 1.
+  rewrite corable_sepcon_andp1 by auto.
+  rewrite <- (andp_truep x) at 1.
+  rewrite corable_andp_sepcon1 by auto.
+  rewrite <- andp_assoc.
+  rewrite (andp_comm x y).
+  rewrite provable_truep_sepcon_truep.
+  rewrite andp_truep.
+  apply provable_iffp_refl.
+Qed.
+
 End Corable.
 
 
