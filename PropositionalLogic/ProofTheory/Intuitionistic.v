@@ -437,6 +437,27 @@ Proof.
   + apply derivable_orp_intros1.
 Qed.
 
+Lemma andp_dup: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (x: expr),
+  |-- x && x <--> x.
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + apply derivable_andp_elim1.
+  + rewrite <- deduction_theorem.
+    apply deduction_andp_intros; apply derivable_assum1.
+Qed.
+
+Lemma orp_dup: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (x: expr),
+  |-- x || x <--> x.
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + apply deduction_orp_elim; apply derivable_impp_refl.
+  + apply derivable_orp_intros1.
+Qed.
+
 Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).

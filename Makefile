@@ -147,9 +147,10 @@ SeparationLogic_FILES = \
   Complete_Flat.v
 
 Extentions_ProofTheory_FILES = \
-  Stable.v ModalSeparation.v Corable.v
+  Stable.v ModalSeparation.v Corable.v CoreTransit.v
 
 Extentions_FILES = \
+  Syntax_CoreTransit.v \
   $(Extentions_ProofTheory_FILES:%.v=ProofTheory/%.v) 
 
 HoareLogic_FILES = \

@@ -120,6 +120,4 @@ Qed.
 
 End Corable.
 
-
-
-
+Existing Instance corable_proper_iff.

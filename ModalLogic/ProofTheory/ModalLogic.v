@@ -42,11 +42,11 @@ Class System5 (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}
   axiom_5: forall x, |-- diamondp x --> boxp (diamondp x)
 }.
 
-Class PropositionalTransparentModality (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
+Class PropositionalTransparentModality (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
   boxp_orp: forall x y, |-- boxp (x || y) <--> boxp x || boxp y
 }.
 
-Class StrongPropositionalTransparentModality (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {pmGamma: PropositionalTransparentModality L Gamma} := {
+Class StrongPropositionalTransparentModality (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {pmGamma: PropositionalTransparentModality L Gamma} := {
   boxp_impp: forall x y, |-- boxp (x --> y) <--> (boxp x --> boxp y)
 }.
 
