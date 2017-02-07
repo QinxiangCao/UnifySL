@@ -149,9 +149,17 @@ SeparationLogic_FILES = \
 Extentions_ProofTheory_FILES = \
   Stable.v ModalSeparation.v Corable.v CoreTransit.v
 
+Extentions_Semantics_FILES = \
+  SemanticStable.v
+
+Extentions_Sound_FILES = \
+  StableSound.v
+
 Extentions_FILES = \
   Syntax_CoreTransit.v \
-  $(Extentions_ProofTheory_FILES:%.v=ProofTheory/%.v) 
+  $(Extentions_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(Extentions_Semantics_FILES:%.v=Semantics/%.v) \
+  $(Extentions_Sound_FILES:%.v=Sound/%.v)
 
 HoareLogic_FILES = \
   ImperativeLanguage.v ProgramState.v Trace.v \
