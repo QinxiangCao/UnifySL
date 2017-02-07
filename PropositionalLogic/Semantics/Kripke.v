@@ -107,7 +107,7 @@ Defined.
 
 End SemanticsMono.
 
-Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} (SM: Semantics L MD) : Type := {
+Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
   denote_closed: forall x, upwards_closed_Kdenote (Kdenotation M x);
   denote_impp: forall x y, Same_set _ (Kdenotation M (x --> y)) (Semantics.impp (Kdenotation M x) (Kdenotation M y));
   denote_andp: forall x y, Same_set _ (Kdenotation M (x && y)) (Semantics.andp (Kdenotation M x) (Kdenotation M y));
@@ -115,14 +115,14 @@ Class KripkeIntuitionisticSemantics (L: Language) {nL: NormalLanguage L} {pL: Pr
   denote_falsep: Same_set _ (Kdenotation M FF) Semantics.falsep
 }.
 
-Lemma sat_mono {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m n x, m <= n -> KRIPKE: M , m |= x -> KRIPKE: M , n |= x.
+Lemma sat_mono {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m n x, m <= n -> KRIPKE: M , m |= x -> KRIPKE: M , n |= x.
 Proof.
   intros ? ? ? ?.
   unfold satisfies.
   apply (denote_closed x); auto.
 Qed.
 
-Lemma sat_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y).
+Lemma sat_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y).
 Proof.
   intros; simpl.
   unfold satisfies.
@@ -130,7 +130,7 @@ Proof.
   split; [apply H | apply H0].
 Qed.
 
-Lemma sat_andp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y).
+Lemma sat_andp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y).
 Proof.
   intros; simpl.
   unfold satisfies.
@@ -138,7 +138,7 @@ Proof.
   split; [apply H | apply H0].
 Qed.
 
-Lemma sat_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x || y <-> (KRIPKE: M , m |= x \/ KRIPKE: M , m |= y).
+Lemma sat_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x || y <-> (KRIPKE: M , m |= x \/ KRIPKE: M , m |= y).
 Proof.
   intros; simpl.
   unfold satisfies.
@@ -146,7 +146,7 @@ Proof.
   split; [apply H | apply H0].
 Qed.
 
-Lemma sat_falsep {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m, KRIPKE: M , m |= FF <-> False.
+Lemma sat_falsep {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kSM: KripkeIntuitionisticSemantics L MD M SM}: forall m, KRIPKE: M , m |= FF <-> False.
 Proof.
   intros; simpl.
   unfold satisfies.

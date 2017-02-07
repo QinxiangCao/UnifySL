@@ -632,7 +632,7 @@ Proof.
       rewrite provable_wand_sepcon_modus_ponens1 in H1.
       auto.
   + reflexivity.
-  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ _ Phi.
+  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ Phi.
     split; [intros; tauto | intros].
     rewrite H in H1.
     pose proof proj2_sig Phi.

@@ -234,7 +234,7 @@ Proof.
       rewrite H in H0, H2 |- *.
       eapply deduction_weaken in H0; [| exact H1].
       eapply deduction_modus_ponens; [exact H2 | exact H0].
-  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ _ Phi.
+  + pose proof @sat_falsep _ _ _ MD kMD canonical_Kmodel _ _ _ Phi.
     split; [intros; tauto | intros].
     rewrite H in H1.
     pose proof proj2_sig Phi.
