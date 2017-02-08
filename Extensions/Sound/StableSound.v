@@ -282,4 +282,41 @@ Proof.
     tauto.
 Qed.
 
+Lemma sound_stable_andp_sepcon1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAabs: SeparationAlgebraAbsorbStable (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+  forall x y z, semantic_stable x ->
+    forall m: Kworlds M, KRIPKE: M, m |= (x && y) * z <--> x && (y * z).
+Proof.
+  intros.
+  unfold iffp.
+  rewrite sat_andp, !sat_impp.
+  split; intros.
+  + clear m H0.
+    rewrite sat_andp, sat_sepcon.
+    rewrite sat_sepcon in H1.
+    destruct H1 as [n1 [n2 [? [? ?]]]].
+    rewrite sat_andp in H1.
+    destruct H1.
+    destruct (SA_absorb_stable _ _ _ H0) as [m1 [m2 [? [? [? [? ?]]]]]].
+    apply (sat_mono _ _ _ H7) in H1.
+    apply (sat_mono _ _ _ H7) in H3.
+    apply (sat_mono _ _ _ H8) in H2.
+    rewrite denote_stable in H.
+    rewrite (H _ _ H5) in H1.
+    split; auto.
+    exists m1, m2; auto.
+  + clear m H0.
+    rewrite sat_sepcon.
+    rewrite sat_andp, sat_sepcon in H1.
+    destruct H1 as [? [n1 [n2 [? [? ?]]]]].
+    destruct (SA_absorb_stable _ _ _ H1) as [m1 [m2 [? [? [? [? ?]]]]]].
+    apply (sat_mono _ _ _ H7) in H2.
+    apply (sat_mono _ _ _ H8) in H3.
+    rewrite denote_stable in H.
+    rewrite <- (H _ _ H5) in H0.
+    exists m1, m2.
+    split; [| split]; auto.
+    rewrite sat_andp.
+    auto.
+Qed.
+
 End Sound_KripkeIntuitionistic.

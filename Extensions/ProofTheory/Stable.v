@@ -33,6 +33,10 @@ Class SeparationStable (L: Language) {nL: NormalLanguage L} {sL: SeparationLangu
   wand_stable: forall x y, stable x -> stable y -> stable (x -* y)
 }.
 
+Class SeparationAbsorbStable (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) (stable: expr -> Prop) := {
+  stable_andp_sepcon1: forall x y z, stable x -> |-- (x && y) * z <--> x && (y * z)
+}.
+
 Lemma iffp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {stable: expr -> Prop} {pstable: PropositionalStable L Gamma stable}:
   forall x y, stable x -> stable y -> stable (x <--> y).
 Proof.

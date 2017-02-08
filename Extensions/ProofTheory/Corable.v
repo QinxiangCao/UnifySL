@@ -27,7 +27,7 @@ Class Corable (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}
   corable: expr -> Prop;
   corable_pstable: PropositionalStable L Gamma corable;
   corable_sstable: SeparationStable L Gamma corable;
-  corable_andp_sepcon1: forall x y z, corable x -> |-- (x && y) * z <--> x && (y * z)
+  corable_sabs: SeparationAbsorbStable L Gamma corable
 }.
 
 Section Corable.
@@ -69,6 +69,9 @@ Proof. intros. apply (@wand_stable L _ _ Gamma corable corable_sstable); auto. Q
 
 Instance corable_proper_iff: Proper ((fun x y => |-- x <--> y) ==> iff) corable.
 Proof. apply (@stable_proper_iffp L _ _ Gamma corable corable_pstable); auto. Qed.
+
+Lemma corable_andp_sepcon1: forall x y z, corable x -> |-- (x && y) * z <--> x && (y * z).
+Proof. intros. apply (@stable_andp_sepcon1 L _ _ _ Gamma corable corable_sabs); auto. Qed.
 
 Lemma corable_andp_sepcon2: forall x y z, corable y -> |-- (x && y) * z <--> y && (x * z).
 Proof.
