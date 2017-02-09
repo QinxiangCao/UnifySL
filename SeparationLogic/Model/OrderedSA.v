@@ -155,6 +155,20 @@ Proof.
     apply all_increasing.
 Qed.
 
+Class IncreasingJoinSelfSeparationAlgebra
+      (worlds: Type)
+      {R: Relation worlds}
+      {J: Join worlds}: Type :=
+  incr_join_self:
+    forall m, increasing m -> join m m m.
+
+Class IncreasingSplitSmallerSeparationAlgebra
+      (worlds: Type)
+      {R: Relation worlds}
+      {J: Join worlds}: Type :=
+  incr_split_smaller:
+    forall m1 m2 m, increasing m -> join m1 m2 m -> m1 <= m.
+
 Class UpwardsClosedSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}

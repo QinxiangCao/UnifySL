@@ -161,6 +161,33 @@ Proof.
     - rewrite sat_emp; auto.
 Qed.
 
+Lemma sound_emp_sepcon_elim1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)}  {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {ISSSA: IncreasingSplitSmallerSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM} {feSM: EmpSemantics L MD M SM}:
+  forall x y: expr,
+    forall m, KRIPKE: M, m |= x * y && emp --> x.
+Proof.
+  intros.
+  rewrite sat_impp; intros.
+  rewrite sat_andp, sat_sepcon, sat_emp in H0.
+  clear m H.
+  destruct H0 as [[n1 [n2 [? [? ?]]]] ?].
+  eapply incr_split_smaller in H2; [| exact H].
+  eapply sat_mono; eauto.
+Qed.
+
+Lemma sound_emp_dup {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)}  {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {IJSSA: IncreasingJoinSelfSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM} {feSM: EmpSemantics L MD M SM}:
+  forall x y: expr,
+    forall m, KRIPKE: M, m |= x && emp --> x * x.
+Proof.
+  intros.
+  rewrite sat_impp; intros.
+  rewrite sat_andp, sat_emp in H0.
+  rewrite sat_sepcon.
+  clear m H.
+  destruct H0.
+  pose proof incr_join_self n H0.
+  exists n, n; auto.
+Qed.
+
 Lemma sound_sepcon_elim1 {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)}  {kiM: KripkeIntuitionisticModel (Kworlds M)} {J: Join (Kworlds M)} {SA: SeparationAlgebra (Kworlds M)} {incrSA: IncreasingSeparationAlgebra (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM}:
   forall x y: expr,
     forall m, KRIPKE: M, m |= x * y --> x.
