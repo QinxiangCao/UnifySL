@@ -84,12 +84,17 @@ ModalLogic_Semantics_FILES = \
 ModalLogic_Sound_FILES = \
   Sound_Kripke.v Sound_Flat.v
 
+ModalLogic_ShallowEmbedded_FILES = \
+  PredicateModalLogic.v \
+  MonoPredicateModalLogic.v
+
 ModalLogic_FILES = \
   Syntax.v \
   $(ModalLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(ModalLogic_Model_FILES:%.v=Model/%.v) \
   $(ModalLogic_Semantics_FILES:%.v=Semantics/%.v) \
-  $(ModalLogic_Sound_FILES:%.v=Sound/%.v)
+  $(ModalLogic_Sound_FILES:%.v=Sound/%.v) \
+  $(ModalLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 QuantifierLogic_ProofTheory_FILES = \
   QuantifierLogic.v
@@ -155,11 +160,15 @@ Extentions_Semantics_FILES = \
 Extentions_Sound_FILES = \
   StableSound.v
 
+Extentions_ShallowEmbedded_FILES = \
+  MonoPredicateStable.v
+
 Extentions_FILES = \
   Syntax_CoreTransit.v \
   $(Extentions_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(Extentions_Semantics_FILES:%.v=Semantics/%.v) \
-  $(Extentions_Sound_FILES:%.v=Sound/%.v)
+  $(Extentions_Sound_FILES:%.v=Sound/%.v) \
+  $(Extentions_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 HoareLogic_FILES = \
   ImperativeLanguage.v ProgramState.v Trace.v \

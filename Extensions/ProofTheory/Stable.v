@@ -24,7 +24,7 @@ Class ModalStable (L: Language) {nL: NormalLanguage L} {mL: ModalLanguage L} (Ga
   boxp_stable: forall x, stable x -> stable (boxp x)
 }.
 
-Class ModalAborbStable (L: Language) {nL: NormalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) (stable: expr -> Prop) := {
+Class ModalAbsorbStable (L: Language) {nL: NormalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) (stable: expr -> Prop) := {
   boxp_absorb_stable: forall x, stable x -> |-- x --> boxp x
 }.
 

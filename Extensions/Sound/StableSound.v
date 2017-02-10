@@ -88,6 +88,28 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma sound_stable_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: SS.Relation (Kworlds M)} {SM: Semantics L MD} {trSM: TrivialPropositionalSemantics L MD SM} {stableSM: SemanticStable L MD M SM}:
+  forall x y,
+    (forall m, KRIPKE: M, m |= x <--> y) ->
+    (semantic_stable x <-> semantic_stable y).
+Proof.
+  intros.
+  rewrite !denote_stable.
+  unfold Semantics.stable.
+  assert (forall m, Kdenotation M x m <-> Kdenotation M y m).
+  + intros m.
+    specialize (H m).
+    unfold iffp in H; rewrite sat_andp, !sat_impp in H.
+    destruct H.
+    tauto.
+  + split; intros HH ? ? H1;
+    specialize (HH _ _ H1).
+    - rewrite !H0 in HH.
+      auto.
+    - rewrite !H0.
+      auto.
+Qed.
+
 Lemma sound_boxp_stable {L: Language} {nL: NormalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KM.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {KMbis: KripkeModalBisStable (Kworlds M)} {SM: Semantics L MD} {kmSM: KripkeModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x: expr,
     semantic_stable x -> semantic_stable (boxp x).
@@ -208,6 +230,32 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma sound_stable_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {R2: SS.Relation (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+  forall x y,
+    (forall m, KRIPKE: M, m |= x <--> y) ->
+    (semantic_stable x <-> semantic_stable y).
+Proof.
+  intros.
+  rewrite !denote_stable.
+  unfold Semantics.stable.
+  assert (forall m, Kdenotation M x m <-> Kdenotation M y m).
+  + intros m.
+    specialize (H m).
+    unfold iffp in H; rewrite sat_andp, !sat_impp in H.
+    destruct H.
+    split; intros.
+    - apply (H m); auto.
+      reflexivity.
+    - apply (H0 m); auto.
+      reflexivity.
+  + split; intros HH ? ? H1;
+    specialize (HH _ _ H1).
+    - rewrite !H0 in HH.
+      auto.
+    - rewrite !H0.
+      auto.
+Qed.
+
 Lemma sound_boxp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {R3: SS.Relation (Kworlds M)} {KMbis: KripkeModalBisStable (Kworlds M)} {SM: Semantics L MD} {fmSM: FlatModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x: expr,
     semantic_stable x -> semantic_stable (boxp x).
@@ -279,6 +327,36 @@ Proof.
     exists m1, m2.
     specialize (H _ _ H6).
     specialize (H0 _ _ H7).
+    tauto.
+Qed.
+
+Lemma sound_wand_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAbis: SeparationAlgebraBisStable (Kworlds M)} {SM: Semantics L MD} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+  forall x y: expr,
+    semantic_stable x -> semantic_stable y -> semantic_stable (x -* y).
+Proof.
+  intros.
+  rewrite denote_stable in H, H0 |- *.
+  unfold Semantics.stable in *.
+  intros.
+  rewrite !(app_same_set (denote_wand _ _)).
+  unfold WeakSemantics.wand; simpl.
+  pose proof extend_bis_stable _ _ H1.
+  split.
+  + intros ? n1 n2 ? ?.
+    destruct H2 as [_ ?].
+    specialize (H2 _ _ H4).
+    destruct H2 as [m1 [m2 [? [? ?]]]].
+    specialize (H3 _ _ H2).
+    specialize (H0 _ _ H7).
+    specialize (H _ _ H6).
+    tauto.
+  + intros ? m1 m2 ? ?.
+    destruct H2 as [? _].
+    specialize (H2 _ _ H4).
+    destruct H2 as [n1 [n2 [? [? ?]]]].
+    specialize (H3 _ _ H2).
+    specialize (H0 _ _ H7).
+    specialize (H _ _ H6).
     tauto.
 Qed.
 

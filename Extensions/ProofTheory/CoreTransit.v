@@ -37,7 +37,7 @@ Class CoreTransitSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: Propo
   core_tr_STransparent1: @SeparationTransparentModality1 L nL pL (ct_mL L) sL Gamma nGamma mpGamma ipGamma core_tr_SystemK sGamma;
   core_tr_STransparent2: @SeparationTransparentModality2 L nL pL (ct_mL L) sL Gamma nGamma mpGamma ipGamma core_tr_SystemK sGamma;
   core_tr_andp_sepcon: forall x y, |-- core_tr (x && y) --> core_tr (x * y);
-  coreAbsorb: @ModalAborbStable L nL (ct_mL L) Gamma corable
+  coreAbsorb: @ModalAbsorbStable L nL (ct_mL L) Gamma corable
 }.
 
 Section CoreTransit.
