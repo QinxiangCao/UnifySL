@@ -26,24 +26,6 @@ Definition stable {worlds: Type} {R: Relation worlds} (X: Ensemble worlds): Prop
 
 End Semantics.
 
-Class KripkeIntuitionisticBisStable (worlds: Type) {R1: KI.Relation worlds} {R2: Relation worlds}: Type := {
-  KI_bis_stable:
-    forall m n, R2 m n ->
-      (forall m', m <= m' -> exists n', n <= n' /\ R2 m' n') /\
-       (forall n', n <= n' -> exists m', m <= m' /\ R2 m' n')
-}.
-
-Class KripkeModalBisStable (worlds: Type) {R1: KM.Relation worlds} {R2: Relation worlds}: Type := {
-  KM_bis_stable:
-    forall m n, R2 m n ->
-      (forall m', KM.Krelation m m' -> exists n', KM.Krelation n n' /\ R2 m' n') /\
-       (forall n', KM.Krelation n n' -> exists m', KM.Krelation m m' /\ R2 m' n')
-}.
-
-Class KripkeModalAbsorbStable (worlds: Type) {R1: KM.Relation worlds} {R2: Relation worlds}: Type := {
-  KM_absorb_stable: forall m n, R1 m n -> R2 m n
-}.
-
 Class SeparationAlgebraBisStable (worlds: Type) {J: Join worlds} {R: Relation worlds}: Type := {
   split_bis_stable:
     forall m n, R m n ->

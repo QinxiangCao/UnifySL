@@ -264,3 +264,6 @@ Proof.
   rewrite H0.
   auto.
 Qed.
+
+Class Inclusion {A: Type} (R1 R2: relation A) : Prop :=
+  including: forall a b, R1 a b -> R2 a b.

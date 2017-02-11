@@ -49,6 +49,17 @@ Proof.
     exists (m1', m2'); auto.
 Qed.
 
+Instance RelProd_Inclusion:
+  forall {A B : Type} (RA1 RA2: relation A) (RB1 RB2 : relation B),
+  Inclusion RA1 RA2 -> Inclusion RB1 RB2 -> Inclusion (RelProd RA1 RB1) (RelProd RA2 RB2).
+Proof.
+  intros.
+  hnf; intros.
+  destruct H1; split.
+  + eapply H; eauto.
+  + eapply H0; eauto.
+Qed.
+
 Instance pointwise_preorder:
   forall A {B : Type} (RB : relation B),
   PreOrder RB -> PreOrder (pointwise_relation A RB).

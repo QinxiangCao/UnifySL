@@ -4,6 +4,7 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Classes.Equivalence.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Ensembles_ext.
+Require Import Logic.lib.Bisimulation.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.ModalLogic.Model.KripkeModel.
@@ -110,7 +111,7 @@ Proof.
       auto.
 Qed.
 
-Lemma sound_boxp_stable {L: Language} {nL: NormalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KM.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {KMbis: KripkeModalBisStable (Kworlds M)} {SM: Semantics L MD} {kmSM: KripkeModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_boxp_stable {L: Language} {nL: NormalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KM.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {R1_bis: Bisimulation SS.Krelation KM.Krelation} {SM: Semantics L MD} {kmSM: KripkeModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x: expr,
     semantic_stable x -> semantic_stable (boxp x).
 Proof.
@@ -120,16 +121,16 @@ Proof.
   intros.
   rewrite !(app_same_set (denote_boxp _)).
   unfold Semantics.boxp; simpl.
-  pose proof KM_bis_stable _ _ H0.
-  split; intros.
-  + destruct H1 as [_ ?].
+  split.
+  + pose proof bis_r _ _ H0.
+    intros.
     specialize (H1 _ H3).
     destruct H1 as [m0 [? ?]].
     specialize (H2 _ H1).
     specialize (H _ _ H4).
     tauto.
-  + rename n0 into m0.
-    destruct H1 as [? _].
+  + pose proof bis_l _ _ H0.
+    intros; rename n0 into m0.
     specialize (H1 _ H3).
     destruct H1 as [n0 [? ?]].
     specialize (H2 _ H1).
@@ -137,7 +138,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma sound_boxp_absorb_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KM.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {KMabs: KripkeModalAbsorbStable (Kworlds M)} {SM: Semantics L MD} {trSM: TrivialPropositionalSemantics L MD SM} {kmSM: KripkeModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_boxp_absorb_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KM.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {R1_incl: Inclusion KM.Krelation SS.Krelation} {SM: Semantics L MD} {trSM: TrivialPropositionalSemantics L MD SM} {kmSM: KripkeModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x: expr,
     semantic_stable x ->
     (forall (m: Kworlds M), KRIPKE: M, m |= x --> boxp x).
@@ -147,7 +148,7 @@ Proof.
   intros.
   rewrite denote_stable in H.
   unfold Semantics.stable in H.
-  apply KM_absorb_stable in H1.
+  apply including in H1.
   specialize (H _ _ H1).
   tauto.
 Qed.
@@ -160,7 +161,7 @@ Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.ModalLogic.Semantics.Flat.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 
-Lemma sound_impp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {KIbis: KripkeIntuitionisticBisStable (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_impp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {R1_bis: Bisimulation SS.Krelation KI.Krelation} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x y: expr,
     semantic_stable x -> semantic_stable y -> semantic_stable (x --> y).
 Proof.
@@ -170,17 +171,18 @@ Proof.
   intros.
   rewrite !(app_same_set (denote_impp _ _)).
   unfold Semantics.impp; simpl.
-  pose proof KI_bis_stable _ _ H1.
-  split; intros.
-  + destruct H2 as [_ ?].
+  split.
+  + pose proof bis_r _ _ H1.
+    intros.
     specialize (H2 _ H4).
     destruct H2 as [m0 [? ?]].
     specialize (H3 _ H2).
     specialize (H _ _ H6).
     specialize (H0 _ _ H6).
     tauto.
-  + rename n0 into m0.
-    destruct H2 as [? _].
+  + pose proof bis_l _ _ H1.
+    intros.
+    rename n0 into m0.
     specialize (H2 _ H4).
     destruct H2 as [n0 [? ?]].
     specialize (H3 _ H2).
@@ -256,7 +258,7 @@ Proof.
       auto.
 Qed.
 
-Lemma sound_boxp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {R3: SS.Relation (Kworlds M)} {KMbis: KripkeModalBisStable (Kworlds M)} {SM: Semantics L MD} {fmSM: FlatModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_boxp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {R3: SS.Relation (Kworlds M)} {R2_bis: Bisimulation SS.Krelation KM.Krelation} {SM: Semantics L MD} {fmSM: FlatModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x: expr,
     semantic_stable x -> semantic_stable (boxp x).
 Proof.
@@ -266,16 +268,17 @@ Proof.
   intros.
   rewrite !(app_same_set (denote_boxp _)).
   unfold Semantics.boxp; simpl.
-  pose proof KM_bis_stable _ _ H0.
-  split; intros.
-  + destruct H1 as [_ ?].
+  split.
+  + pose proof bis_r _ _ H0.
+    intros.
     specialize (H1 _ H3).
     destruct H1 as [m0 [? ?]].
     specialize (H2 _ H1).
     specialize (H _ _ H4).
     tauto.
-  + rename n0 into m0.
-    destruct H1 as [? _].
+  + pose proof bis_l _ _ H0.
+    intros.
+    rename n0 into m0.
     specialize (H1 _ H3).
     destruct H1 as [n0 [? ?]].
     specialize (H2 _ H1).
@@ -283,7 +286,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma sound_boxp_absorb_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {R3: SS.Relation (Kworlds M)} {KMabs: KripkeModalAbsorbStable (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_boxp_absorb_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {R3: SS.Relation (Kworlds M)} {R2_incl: Inclusion KM.Krelation SS.Krelation} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x: expr,
     semantic_stable x ->
     (forall (m: Kworlds M), KRIPKE: M, m |= x --> boxp x).
@@ -295,7 +298,7 @@ Proof.
   intros.
   rewrite denote_stable in H.
   unfold Semantics.stable in H.
-  apply KM_absorb_stable in H2.
+  apply including in H2.
   specialize (H _ _ H2).
   tauto.
 Qed.
