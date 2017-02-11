@@ -21,7 +21,7 @@ Definition increasing'
 Lemma incr_incr'
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}:
   forall m, increasing' m -> increasing m.
 Proof.
@@ -36,7 +36,7 @@ Qed.
 Lemma disc_incr_unit
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}:
   IdentityKripkeIntuitionisticModel worlds ->
   forall e, increasing e <-> unit_element e.
@@ -126,7 +126,7 @@ Class UnitalSeparationAlgebra'
 Lemma unital_is_residual
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}:
   UnitalSeparationAlgebra worlds ->
   ResidualSeparationAlgebra worlds.
@@ -141,7 +141,7 @@ Qed.
 Lemma incr_unital_iff_residual
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}:
   IncreasingSeparationAlgebra worlds ->
   UnitalSeparationAlgebra worlds <->

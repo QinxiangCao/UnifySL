@@ -230,7 +230,7 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma sound_stable_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {kiM: KripkeIntuitionisticModel (Kworlds M)} {R2: SS.Relation (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_stable_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R: PreOrder KI.Krelation} {R2: SS.Relation (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x y,
     (forall m, KRIPKE: M, m |= x <--> y) ->
     (semantic_stable x <-> semantic_stable y).

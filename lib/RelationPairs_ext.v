@@ -1,7 +1,18 @@
+Require Export Coq.Relations.Relations.
 Require Export Coq.Classes.RelationPairs.
-Require Import SetoidList.
-Require Import Relations Morphisms.
-Require Import Equivalence.
+Require Import Coq.Classes.Morphisms.
+Require Import Coq.Classes.Equivalence.
+
+Instance RelProd_Preorder:
+  forall {A B : Type} (RA: relation A) (RB : relation B),
+  PreOrder RA -> PreOrder RB -> PreOrder (RelProd RA RB).
+Proof.
+  intros.
+  destruct H, H0.
+  constructor.
+  + apply RelProd_Reflexive; auto.
+  + apply RelProd_Transitive; auto.
+Qed.
 
 Instance pointwise_preorder:
   forall A {B : Type} (RB : relation B),
@@ -13,6 +24,9 @@ Proof.
   + apply pointwise_reflexive; auto.
   + apply pointwise_transitive; auto.
 Qed.
+
+Instance eq_preorder (A: Type): PreOrder (@eq A) :=
+  Build_PreOrder _ (eq_Reflexive) (eq_Transitive).
 
 Inductive option00_relation {A: Type} (R: relation A): relation (option A):=
 | None_None_option00: option00_relation R None None

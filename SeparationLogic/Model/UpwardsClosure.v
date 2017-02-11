@@ -11,7 +11,7 @@ Section UpwardsClosure.
 
 Context {worlds: Type}
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}
         {dSA: DownwardsClosedSeparationAlgebra worlds}.

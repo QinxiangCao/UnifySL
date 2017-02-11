@@ -15,16 +15,16 @@ Require Import Logic.ModalLogic.Sound.Sound_Flat.
 Require Import Logic.GeneralLogic.ShallowEmbedded.MonoPredicateAsLang.
 Require Import Logic.PropositionalLogic.ShallowEmbedded.MonoPredicatePropositionalLogic.
 
-Instance MonoPred_mL (A: Type) {R1: KI.Relation A} {kiM: KripkeIntuitionisticModel A} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A} : ModalLanguage (MonoPred_L A) :=
+Instance MonoPred_mL (A: Type) {R1: KI.Relation A} {po_R: PreOrder KI.Krelation} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A} : ModalLanguage (MonoPred_L A) :=
   Build_ModalLanguage (MonoPred_L A) SemanticsMono.boxp.
 
-Instance MonoPred_fmSM (A: Type) {R1: KI.Relation A} {kiM: KripkeIntuitionisticModel A} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A} : @FlatModalSemantics (MonoPred_L A) (MonoPred_nL A) (MonoPred_mL A) (Build_Model A) (unit_kMD _) tt R1 R2 (MonoPred_SM A).
+Instance MonoPred_fmSM (A: Type) {R1: KI.Relation A} {po_R: PreOrder KI.Krelation} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A} : @FlatModalSemantics (MonoPred_L A) (MonoPred_nL A) (MonoPred_mL A) (Build_Model A) (unit_kMD _) tt R1 R2 (MonoPred_SM A).
 Proof.
   constructor.
   intros; apply Same_set_refl.
 Qed.
 
-Instance MonoPred_KmGamma (A: Type) {R1: KI.Relation A} {kiM: KripkeIntuitionisticModel A} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A}: SystemK (MonoPred_L A) (MonoPred_Gamma A).
+Instance MonoPred_KmGamma (A: Type) {R1: KI.Relation A} {po_R: PreOrder KI.Krelation} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A}: SystemK (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   + intros x y.
@@ -33,7 +33,7 @@ Proof.
     exact (@sound_rule_N (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ R2 _ (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_fmSM A) x).
 Qed.
 
-Instance MonoPred_pmGamma (A: Type) {R1: KI.Relation A} {kiM: KripkeIntuitionisticModel A} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A} {kmM_pfun: KripkeModalModel_PFunctional A}: PropositionalTransparentModality (MonoPred_L A) (MonoPred_Gamma A).
+Instance MonoPred_pmGamma (A: Type) {R1: KI.Relation A} {po_R: PreOrder KI.Krelation} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A} {kmM_pfun: KripkeModalModel_PFunctional A}: PropositionalTransparentModality (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   intros x y.

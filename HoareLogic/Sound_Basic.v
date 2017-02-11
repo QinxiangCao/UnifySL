@@ -27,7 +27,7 @@ Context {P: ProgrammingLanguage}
         {MD: Model}
         {BSS: BigStepSemantics P model}.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L MD} {R: Relation model} {kiM: KripkeIntuitionisticModel model} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
+Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L MD} {R: Relation model} {po_R: PreOrder Krelation} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
 
 Lemma hoare_consequence_partial_sound: forall c P1 P2 Q1 Q2,
   valid (AllModel _) (P2 --> P1) ->

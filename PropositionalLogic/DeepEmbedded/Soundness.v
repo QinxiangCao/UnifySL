@@ -40,7 +40,7 @@ Instance Trivial_SM: Semantics L Trivial_MD := TrivialSemantics.SM Var.
 Instance Kripke_MD: Model := KripkeSemantics.MD Var.
 Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
 Instance Kripke_R (M: Kmodel): Relation (Kworlds M) := KripkeSemantics.R Var M.
-Instance Kripke_kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
+Instance po_Kripke_R (M: Kmodel): PreOrder (@KI.Krelation _ (Kripke_R M)) := KripkeSemantics.po_R Var M.
 Instance Kripke_SM: Semantics L Kripke_MD := KripkeSemantics.SM Var.
 Instance Kripke_kiSM (M: Kmodel): KripkeIntuitionisticSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kiSM Var M.
 

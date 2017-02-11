@@ -14,40 +14,40 @@ Import KripkeModelNotation_Intuitionistic.
 Program Definition sepcon
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}
       {SA: SeparationAlgebra worlds}
       {uSA: UpwardsClosedSeparationAlgebra worlds}
       (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
   WeakSemantics.sepcon X Y.
 Next Obligation.
-  apply (@WeakSemantics.sepcon_closed worlds R kiM J SA uSA);
+  apply (@WeakSemantics.sepcon_closed worlds R po_R J SA uSA);
   apply (proj2_sig _).
 Defined.
 
 Program Definition wand
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}
       {SA: SeparationAlgebra worlds}
       {dSA: DownwardsClosedSeparationAlgebra worlds}
       (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
   WeakSemantics.wand X Y.
 Next Obligation.
-  apply (@WeakSemantics.wand_closed worlds R kiM J SA dSA);
+  apply (@WeakSemantics.wand_closed worlds R po_R J SA dSA);
   apply (proj2_sig _).
 Defined.
 
 Program Definition emp
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}
       {SA: SeparationAlgebra worlds}
       {dSA: DownwardsClosedSeparationAlgebra worlds}: MonoEnsemble worlds :=
   WeakSemantics.emp.
 Next Obligation.
-  apply (@WeakSemantics.emp_closed worlds R kiM J SA dSA);
+  apply (@WeakSemantics.emp_closed worlds R po_R J SA dSA);
   apply (proj2_sig _).
 Defined.

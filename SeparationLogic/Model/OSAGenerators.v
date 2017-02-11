@@ -4,19 +4,10 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Coq.Logic.ChoiceFacts.
 Require Import Coq.Logic.ClassicalChoice.
+Require Import Logic.lib.RelationPairs_ext.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
-
-Definition identity_R {worlds}: Relation worlds := eq.
-
-Definition identity_kiM {worlds}:
-  @KripkeIntuitionisticModel worlds identity_R.
-Proof.
-  constructor; hnf; intros; hnf in *.
-  + auto.
-  + subst; auto.
-Qed.
 
 (***********************************)
 (* Separation Algebra Generators   *)
@@ -44,7 +35,7 @@ Section trivialSA.
 
   (*Increasing*)
   Definition trivial_incrSA: @IncreasingSeparationAlgebra
-                           worlds identity_R trivial_Join.
+                           worlds eq trivial_Join.
   Proof.
     constructor; intros.
     hnf; intros.
@@ -67,46 +58,44 @@ Section unitSA.
     + intros; exists tt; split; constructor.
   Qed.
 
-  Definition unit_R: Relation unit:= fun _ _=> True.
-
-  Definition unit_kiM: @KripkeIntuitionisticModel unit unit_R.
-  Proof.
-    constructor; hnf; intros; hnf; auto.
-  Qed.
-  
   (* Unit algebra is upwards closed *)
   Definition unit_uSA:
-    @UpwardsClosedSeparationAlgebra unit unit_R unit_Join.
+    @UpwardsClosedSeparationAlgebra unit eq unit_Join.
   Proof.
     intros; exists tt, tt; intuition.
+    + destruct m1; reflexivity.
+    + destruct m2; reflexivity.
   Qed.
 
   (* Unit algebra is downwards closed *)
   Definition unit_dSA:
-    @DownwardsClosedSeparationAlgebra unit unit_R unit_Join.
+    @DownwardsClosedSeparationAlgebra unit eq unit_Join.
   Proof.
     intros; exists tt; intuition.
+    destruct m; reflexivity.
   Qed.
 
   (*Increasing*)
   Instance unit_incrSA:
-    @IncreasingSeparationAlgebra unit unit_R unit_Join.
+    @IncreasingSeparationAlgebra unit eq unit_Join.
   Proof.
     constructor; intros; hnf; intros.
-    constructor.
+    destruct n, n'; reflexivity.
   Qed.
 
   Instance unit_residual:
-    @ResidualSeparationAlgebra unit unit_R unit_Join.
+    @ResidualSeparationAlgebra unit eq unit_Join.
   Proof.
     constructor; intros.
-    exists tt; exists tt; split; constructor.
+    exists tt; exists tt; split.
+    + constructor.
+    + destruct n; reflexivity.
   Qed.
 
   Definition unit_unital:
-    @UnitalSeparationAlgebra unit unit_R unit_Join.
+    @UnitalSeparationAlgebra unit eq unit_Join.
   Proof.
-    apply <- (@incr_unital_iff_residual unit unit_R unit_kiM unit_Join); auto.
+    apply <- (@incr_unital_iff_residual unit eq (eq_preorder unit) unit_Join); auto.
     + apply unit_residual.
     + apply unit_incrSA.
   Qed.
@@ -143,7 +132,7 @@ Section equivSA.
   Qed.
 
   Definition equiv_incrSA: @IncreasingSeparationAlgebra
-                           worlds identity_R equiv_Join.
+                           worlds eq equiv_Join.
   Proof.
     constructor; intros.
     hnf; intros.
@@ -151,13 +140,7 @@ Section equivSA.
     constructor.
   Qed.
 
-  Instance identity_ikiM: @IdentityKripkeIntuitionisticModel worlds identity_R.
-  Proof.
-    constructor.
-    intros; auto.
-  Qed.
-
-  Definition ikiM_uSA {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: UpwardsClosedSeparationAlgebra worlds.
+  Definition ikiM_uSA {R: Relation worlds} {po_R: PreOrder Krelation} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: UpwardsClosedSeparationAlgebra worlds.
   Proof.
     intros until m2; intros.
     apply Korder_identity in H0.
@@ -166,7 +149,7 @@ Section equivSA.
     split; [| split]; auto; reflexivity.
   Qed.
 
-  Definition ikiM_dSA {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: DownwardsClosedSeparationAlgebra worlds.
+  Definition ikiM_dSA {R: Relation worlds} {po_R: PreOrder Krelation} {ikiM: IdentityKripkeIntuitionisticModel worlds} {J: Join worlds}: DownwardsClosedSeparationAlgebra worlds.
   Proof.
     intros until n2; intros.
     apply Korder_identity in H0.
@@ -222,50 +205,13 @@ Section optionSA.
                     | apply None_Some_join | apply Some_Some_join; eauto].
   Qed.
 
-  Inductive option_ord_R {R: Relation worlds}: Relation (option worlds):=
-  | None_None_ord: option_ord_R None None
-  | None_Some_ord: forall a, option_ord_R None (Some a)
-  | Some_Some_ord: forall a b, Krelation a b -> option_ord_R (Some a) (Some b).
-
-  Inductive option_disj_R {R: Relation worlds}: Relation (option worlds):=
-  | None_None_disj: option_disj_R None None
-  | Some_Some_disj: forall a b, Krelation a b -> option_disj_R (Some a) (Some b).
-
-  Lemma option_ord_kiM
-        {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}:
-    @KripkeIntuitionisticModel (option worlds) option_ord_R.
-  Proof.
-    constructor; hnf; intros.
-    + destruct x.
-      - constructor; reflexivity.
-      - constructor.
-    + inversion H; inversion H0; subst; try first [congruence | constructor].
-      inversion H5; subst.
-      etransitivity; eauto.
-  Qed.
-
-  Lemma option_disj_kiM
-        {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}:
-    @KripkeIntuitionisticModel (option worlds) option_disj_R.
-  Proof.
-    constructor; hnf; intros.
-    + destruct x.
-      - constructor; reflexivity.
-      - constructor.
-    + inversion H; inversion H0; subst; try first [congruence | constructor].
-      inversion H5; subst.
-      etransitivity; eauto.
-  Qed.
-
   (* Ordered option Upwards closed *)
   Lemma option_ord_uSA
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         (uSA: UpwardsClosedSeparationAlgebra worlds):
-    @UpwardsClosedSeparationAlgebra (option worlds) option_ord_R option_Join.
+    @UpwardsClosedSeparationAlgebra (option worlds) (option01_relation Krelation) option_Join.
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -285,12 +231,12 @@ Section optionSA.
   (* Downwards closed IF the algebra is increasing*)
   Lemma option_ord_dSA
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}
         (dSA: DownwardsClosedSeparationAlgebra worlds)
         {incrSA: IncreasingSeparationAlgebra worlds}:
-    @DownwardsClosedSeparationAlgebra (option worlds) option_ord_R option_Join.
+    @DownwardsClosedSeparationAlgebra (option worlds) (option01_relation Krelation) option_Join.
   Proof.
     hnf; intros.
     inversion H0; [ | | inversion H1]; subst.
@@ -306,7 +252,6 @@ Section optionSA.
     - exists (Some a); split; try constructor.
       inversion H; subst; auto.
     - exists (Some a); split; try constructor.
-      pose proof option_ord_kiM.
       transitivity (Some b); auto.
       inversion H; subst.
       constructor. eapply all_increasing. apply join_comm; eassumption.
@@ -317,10 +262,10 @@ Section optionSA.
 
   Lemma option_ord_incr_None
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}:
-    @increasing (option worlds) option_ord_R option_Join None.
+    @increasing (option worlds) (option01_relation Krelation) option_Join None.
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -331,10 +276,10 @@ Section optionSA.
 
   Lemma option_ord_res_None
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}:
-    forall n, @residue (option worlds) option_ord_R option_Join n None.
+    forall n, @residue (option worlds) (option01_relation Krelation) option_Join n None.
   Proof.
     hnf; intros.
     exists n.
@@ -346,10 +291,10 @@ Section optionSA.
 
   Lemma option_ord_USA
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}:
-    @UnitalSeparationAlgebra (option worlds) option_ord_R option_Join.
+    @UnitalSeparationAlgebra (option worlds) (option01_relation Krelation) option_Join.
   Proof.
     constructor.
     intros.
@@ -362,10 +307,10 @@ Section optionSA.
   (* Disjoint option Upwards closed*)
   Lemma option_disj_uSA
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         (uSA: UpwardsClosedSeparationAlgebra worlds):
-    @UpwardsClosedSeparationAlgebra (option worlds) option_disj_R option_Join.
+    @UpwardsClosedSeparationAlgebra (option worlds) (option00_relation Krelation) option_Join.
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -384,11 +329,11 @@ Section optionSA.
   (* Disjointed option Downwards *)
   Lemma option_disj_dSA
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}
         (dSA: DownwardsClosedSeparationAlgebra worlds):
-    @DownwardsClosedSeparationAlgebra (option worlds) option_disj_R option_Join.
+    @DownwardsClosedSeparationAlgebra (option worlds) (option00_relation Krelation) option_Join.
   Proof.
     hnf; intros.
     inversion H0; [ | inversion H1]; subst.
@@ -403,10 +348,10 @@ Section optionSA.
 
   Lemma option_disj_incr_None
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}:
-    @increasing (option worlds) option_disj_R option_Join None.
+    @increasing (option worlds) (option00_relation Krelation) option_Join None.
   Proof.
     hnf; intros.
     inversion H; subst.
@@ -417,10 +362,10 @@ Section optionSA.
 
   Lemma option_disj_res_None
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}:
-    forall n, @residue (option worlds) option_disj_R option_Join n None.
+    forall n, @residue (option worlds) (option00_relation Krelation) option_Join n None.
   Proof.
     hnf; intros.
     exists n.
@@ -432,10 +377,10 @@ Section optionSA.
 
   Lemma option_disj_USA
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}:
-    @UnitalSeparationAlgebra (option worlds) option_disj_R option_Join.
+    @UnitalSeparationAlgebra (option worlds) (option00_relation Krelation) option_Join.
   Proof.
     constructor.
     intros.
@@ -447,10 +392,10 @@ Section optionSA.
 
   Lemma option_disj_USA'
         {R: Relation worlds}
-        {kiM: KripkeIntuitionisticModel worlds}
+        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}:
-    @UnitalSeparationAlgebra' (option worlds) option_disj_R option_Join.
+    @UnitalSeparationAlgebra' (option worlds) (option00_relation Krelation) option_Join.
   Proof.
     constructor.
     intros.
@@ -486,31 +431,18 @@ Section exponentialSA.
     - exists myz; firstorder.
   Qed.
 
-  Definition fun_R (A B: Type) {R_B: Relation B}: Relation (A -> B) :=
-     fun a b => forall x, Krelation (a x) (b x).
-
-  Lemma fun_kiM (A B: Type) {R: Relation B} {kiM_B: KripkeIntuitionisticModel B}:
-    @KripkeIntuitionisticModel (A -> B) (fun_R A B).
-  Proof.
-    constructor; hnf; intros.
-    + hnf; intros; reflexivity.
-    + hnf in *; intros.
-      specialize (H x0); specialize (H0 x0).
-      etransitivity; eauto.
-  Qed.
-
   (* Exponential is upwards closed *)
   Lemma fun_uSA 
         (A B: Type)
         {R_B: Relation B}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (uSA_B: UpwardsClosedSeparationAlgebra B):
-    @UpwardsClosedSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
+    @UpwardsClosedSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
   Proof.
     hnf; intros.
     unfold join, fun_Join in H.
-    unfold Krelation, fun_R in H0.
+    unfold Krelation, pointwise_relation in H0.
     destruct (choice (fun x nn => join (fst nn) (snd nn) (n x) /\
                                Krelation (m1 x) (fst nn) /\
                                Krelation (m2 x) (snd nn)))
@@ -528,37 +460,37 @@ Section exponentialSA.
   Lemma fun_dSA 
         (A B: Type)
         {R_B: Relation B}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (dSA_B: DownwardsClosedSeparationAlgebra B):
-    @DownwardsClosedSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
+    @DownwardsClosedSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
   Proof.
     hnf; intros.
     unfold join, fun_Join in H.
-    unfold Krelation, fun_R in H0.
+    unfold Krelation, pointwise_relation in H0.
     destruct (choice (fun x n => join (n1 x) (n2 x) (n) /\
                                Krelation (n) (m x)))
       as [n H2].
     intros x.
-    destruct (dSA_B (m1 x) (m2 x) (m x) (n1 x) (n2 x) (H x) (H0 x)) as [x1 [x2 ?]]; auto;
-    exists x1; auto.
-
-    exists n; split; hnf; intros x; specialize (H2 x); destruct H2; auto.
+    destruct (dSA_B (m1 x) (m2 x) (m x) (n1 x) (n2 x) (H x) (H0 x)) as [x1 [x2 ?]]; auto.
+    + apply H1.
+    + exists x1; auto.
+    + exists n; split; hnf; intros x; specialize (H2 x); destruct H2; auto.
   Qed.
 
   (* Exponential is increasing *)
   Lemma fun_incrSA 
         (A B: Type)
         {R_B: Relation B}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (incr_B: IncreasingSeparationAlgebra B):
-    @IncreasingSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
+    @IncreasingSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
   Proof.
     constructor; intros.
     hnf; intros.
     hnf; intros.
-    specialize (H x0).
+    specialize (H a).
     eapply all_increasing; eauto.
   Qed.
 
@@ -566,10 +498,10 @@ Section exponentialSA.
   Lemma fun_unitSA 
         (A B: Type)
         {R_B: Relation B}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (USA_B: UnitalSeparationAlgebra B):
-    @UnitalSeparationAlgebra (A -> B) (fun_R A B) (fun_Join A B).
+    @UnitalSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
   Proof.
     constructor; intros.
     destruct (choice (fun x mx => residue (n x) mx /\ increasing mx)) as [M HH].
@@ -595,10 +527,10 @@ Section exponentialSA.
   Lemma fun_unitSA' 
         (A B: Type)
         {R_B: Relation B}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (USA'_B: UnitalSeparationAlgebra' B):
-    @UnitalSeparationAlgebra' (A -> B) (fun_R A B) (fun_Join A B).
+    @UnitalSeparationAlgebra' (A -> B) (pointwise_relation A R_B) (fun_Join A B).
   Proof.
     constructor; intros.
     destruct (choice (fun x mx => residue (n x) mx /\ increasing' mx)) as [M HH].
@@ -617,6 +549,7 @@ Section exponentialSA.
       hnf; intros x.
       specialize (HH x); destruct HH as [ _ HH].
       eapply (HH _); eauto.
+      apply H.
   Qed.
 
 End exponentialSA.
@@ -655,57 +588,6 @@ Section sumSA.
       + exists (rw myz); split; constructor; auto.
   Qed.
 
-  (*Disjoint order (parallel composition)*)
-  Inductive disjsum_order {A B: Type}
-            {R_A: Relation A}
-            {R_B: Relation B}:
-    @sum_worlds A B -> @sum_worlds A B -> Prop:=
-  | lordd a1 a2: disjsum_order (lw a1) (lw a2)
-  | rordd b1 b2: disjsum_order (rw b1) (rw b2).
-
-  Definition disjsum_R (A B: Type) {R_A: Relation A} {R_B: Relation B}:
-    Relation (@sum_worlds A B) := @disjsum_order A B _ _.
-
-  Lemma disjsum_kiM
-        (A B: Type)
-        {R_A: Relation A}
-        {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}:
-    @KripkeIntuitionisticModel (@sum_worlds A B) (disjsum_R A B).
-  Proof.
-    constructor; hnf; intros.
-    - destruct x; constructor.
-    - inversion H; subst; inversion H0; subst;
-      constructor.
-  Qed.
-
-  (*Linear order (series composition)*)
-  Inductive ordsum_order {A B: Type}
-            {R_A: Relation A}
-            {R_B: Relation B}:
-    @sum_worlds A B -> @sum_worlds A B -> Prop:=
-  | lordo a1 a2: ordsum_order (lw a1) (lw a2)
-  | rordo b1 b2: ordsum_order (rw b1) (rw b2)
-  | landr a b: ordsum_order (lw a) (rw b).
-
-  Definition ordsum_R (A B: Type) {R_A: Relation A} {R_B: Relation B}:
-    Relation (@sum_worlds A B) := @ordsum_order A B _ _.
-
-  Lemma ordsum_kiM
-        (A B: Type)
-        {R_A: Relation A}
-        {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}:
-    @KripkeIntuitionisticModel (@sum_worlds A B) (ordsum_R A B).
-  Proof.
-    constructor; hnf; intros.
-    - destruct x; constructor.
-    - inversion H; subst; inversion H0; subst;
-      constructor.
-  Qed.
-
 End sumSA.
 
 Section productSA.
@@ -729,34 +611,17 @@ Section productSA.
       do 2 split; auto.
   Qed.
 
-  Definition prod_R (A B: Type) {R_A: Relation A} {R_B: Relation B}: Relation (A * B) :=
-    fun a b => Krelation (fst a) (fst b) /\ Krelation (snd a) (snd b).
-
-  Lemma prod_kiM
-        (A B: Type)
-        {R_A: Relation A}
-        {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}:
-    @KripkeIntuitionisticModel (A * B) (prod_R A B).
-  Proof.
-    constructor; hnf; intros.
-    + split; reflexivity.
-    + destruct H, H0.
-      split; etransitivity; eauto.
-  Qed.
-
   Lemma prod_uSA
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_A: PreOrder (@Krelation A R_A)}
+        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {dSA_A: UpwardsClosedSeparationAlgebra A}
         {dSA_B: UpwardsClosedSeparationAlgebra B}:
-    @UpwardsClosedSeparationAlgebra (A * B) (prod_R A B) (@prod_Join _ _ Join_A Join_B).
+    @UpwardsClosedSeparationAlgebra (A * B) (RelProd R_A R_B) (@prod_Join _ _ Join_A Join_B).
   Proof.
     intros until m2; intros.
     destruct H, H0.
@@ -771,13 +636,13 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_A: PreOrder (@Krelation A R_A)}
+        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {uSA_A: DownwardsClosedSeparationAlgebra A}
         {uSA_B: DownwardsClosedSeparationAlgebra B}:
-    @DownwardsClosedSeparationAlgebra (A * B) (prod_R A B) (@prod_Join _ _ Join_A Join_B).
+    @DownwardsClosedSeparationAlgebra (A * B) (RelProd R_A R_B) (@prod_Join _ _ Join_A Join_B).
   Proof.
     intros until n2; intros.
     destruct H, H0, H1.
@@ -791,14 +656,14 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_A: PreOrder (@Krelation A R_A)}
+        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}:
     forall (a: A) (b: B),
       increasing a -> increasing b ->
       @increasing _
-                   (prod_R A B)
+                   (RelProd R_A R_B)
                    (@prod_Join _ _ Join_A Join_B) (a,b).
   Proof.
     intros. hnf; intros.
@@ -813,13 +678,13 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_A: PreOrder (@Krelation A R_A)}
+        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {incrSA_A: IncreasingSeparationAlgebra A}
         {incrSA_B: IncreasingSeparationAlgebra B}:
-    @IncreasingSeparationAlgebra (A * B) (prod_R A B) (@prod_Join _ _ Join_A Join_B).
+    @IncreasingSeparationAlgebra (A * B) (RelProd R_A R_B) (@prod_Join _ _ Join_A Join_B).
   Proof.
     constructor; intros.
     destruct x; apply prod_incr; auto.
@@ -831,13 +696,13 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_A: PreOrder (@Krelation A R_A)}
+        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {residualSA_A: ResidualSeparationAlgebra A}
         {residualSA_B: ResidualSeparationAlgebra B}:
-    @ResidualSeparationAlgebra (A * B) (prod_R A B) (@prod_Join _ _ Join_A Join_B).
+    @ResidualSeparationAlgebra (A * B) (RelProd R_A R_B) (@prod_Join _ _ Join_A Join_B).
   Proof.
     constructor; intros.
     destruct n as [a b].
@@ -855,13 +720,13 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {kiM_A: KripkeIntuitionisticModel A}
-        {kiM_B: KripkeIntuitionisticModel B}
+        {po_R_A: PreOrder (@Krelation A R_A)}
+        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {unitalSA_A: UnitalSeparationAlgebra A}
         {unitalSA_B: UnitalSeparationAlgebra B}:
-    @UnitalSeparationAlgebra (A * B) (prod_R A B) (@prod_Join _ _ Join_A Join_B).
+    @UnitalSeparationAlgebra (A * B) (RelProd R_A R_B) (@prod_Join _ _ Join_A Join_B).
   Proof.
     inversion unitalSA_A.
     inversion unitalSA_B.
@@ -938,7 +803,7 @@ Instance gcHeap_kiM (addr val: Type): KripkeIntuitionisticModel (Heap addr val) 
 
 Definition Stack (LV val: Type): Type := LV -> val.
 
-Definition StepIndex_kiM (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}: KripkeIntuitionisticModel (nat * worlds) := @prod_kiM _ _ nat_le_kiM kiM.
+Definition StepIndex_kiM (worlds: Type) {po_R: PreOrder Krelation}: KripkeIntuitionisticModel (nat * worlds) := @prod_kiM _ _ nat_le_kiM kiM.
 
 Definition StepIndex_Join (worlds: Type) {J: Join worlds}: Join (nat * worlds) :=
   @prod_Join _ _ (equiv_Join _) J.
@@ -946,7 +811,7 @@ Definition StepIndex_Join (worlds: Type) {J: Join worlds}: Join (nat * worlds) :
 Definition StepIndex_SA (worlds: Type) {J: Join worlds} {SA: SeparationAlgebra worlds}:
   @SeparationAlgebra (nat * worlds) (StepIndex_Join worlds) := @prod_SA _ _ _ _ (equiv_SA _) SA.
 
-Definition StepIndex_dSA (worlds: Type) {kiM: KripkeIntuitionisticModel worlds}
+Definition StepIndex_dSA (worlds: Type) {po_R: PreOrder Krelation}
            {J: Join worlds} {dSA: UpwardsClosedSeparationAlgebra worlds}:
   @UpwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_Join worlds) (StepIndex_kiM worlds):= @prod_dSA _ _ _ _ _ _ (@identity_dSA _ nat_le_kiM) dSA.
 

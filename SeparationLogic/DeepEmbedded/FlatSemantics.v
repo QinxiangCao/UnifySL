@@ -80,7 +80,7 @@ Instance SM: Semantics L MD :=
 Instance R (M: Kmodel): Relation (Kworlds M) :=
   @Krelation M.
 
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M) :=
+Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)) :=
   @Krelation_Preorder M.
 
 Instance J (M: Kmodel): Join (Kworlds M) :=

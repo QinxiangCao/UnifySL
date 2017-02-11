@@ -21,7 +21,12 @@ Module Semantics.
 Definition boxp {worlds: Type} {R: KM.Relation worlds} (X: Ensemble worlds): Ensemble worlds :=
   fun m => forall n, KM.Krelation m n -> X n.
 
-Lemma boxp_closed {worlds: Type} {R1: KI.Relation worlds} {kiM: KripkeIntuitionisticModel worlds} {R2: KM.Relation worlds} {ukmM: UpwardsClosedOrderedKripkeModel worlds}:
+Lemma boxp_closed
+      {worlds: Type}
+      {R1: KI.Relation worlds}
+      {po_R1: PreOrder KI.Krelation}
+      {R2: KM.Relation worlds}
+      {ukmM: UpwardsClosedOrderedKripkeModel worlds}:
   forall (X: Ensemble worlds),
     upwards_closed_Kdenote X ->
     upwards_closed_Kdenote (boxp X).
@@ -39,10 +44,16 @@ End Semantics.
 
 Module SemanticsMono.
 
-Program Definition boxp {worlds: Type} {R1: KI.Relation worlds} {kiM: KripkeIntuitionisticModel worlds} {R2: KM.Relation worlds} {ukmM: UpwardsClosedOrderedKripkeModel worlds} (X: MonoEnsemble worlds): MonoEnsemble worlds :=
+Program Definition boxp
+      {worlds: Type}
+      {R1: KI.Relation worlds}
+      {po_R1: PreOrder KI.Krelation}
+      {R2: KM.Relation worlds}
+      {ukmM: UpwardsClosedOrderedKripkeModel worlds}
+      (X: MonoEnsemble worlds): MonoEnsemble worlds :=
   Semantics.boxp X.
 Next Obligation.
-  apply (@Semantics.boxp_closed worlds R1 kiM R2 ukmM);
+  apply (@Semantics.boxp_closed worlds R1 po_R1 R2 ukmM);
   apply (proj2_sig _).
 Defined.
 

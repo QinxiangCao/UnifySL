@@ -57,7 +57,7 @@ Instance ipG: IntuitionisticPropositionalLogic L G := SeparationLogic.ipG Var SL
 Instance MD: Model := FlatSemantics.MD Var.
 Instance kMD: KripkeModel MD := FlatSemantics.kMD Var.
 Instance R (M: Kmodel): Relation (Kworlds M):= FlatSemantics.R Var M.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= FlatSemantics.kiM Var M.
+Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)):= FlatSemantics.po_R Var M.
 Instance J (M: Kmodel): Join (Kworlds M):= FlatSemantics.J Var M.
 Instance SA (M: Kmodel): SeparationAlgebra (Kworlds M):= FlatSemantics.SA Var M.
 Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M):= FlatSemantics.uSA Var M.
@@ -402,7 +402,7 @@ Qed.
 
 Instance DCS_R {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: Relation (DCS Gamma) := fun a b => Included _ (proj1_sig a) (proj1_sig b).
 
-Instance DCS_kiM {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: KripkeIntuitionisticModel (DCS Gamma).
+Instance po_DCS_R {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: PreOrder (@KI.Krelation _ DCS_R).
 Proof.
   constructor.
   + hnf; intros.
@@ -481,7 +481,7 @@ Proof.
 Qed.
 
 Definition canonical_frame {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemantics.frame :=
-  FlatSemantics.Build_frame (DCS Gamma) DCS_R DCS_kiM DCS_J DCS_SA DCS_dSA DCS_uSA.
+  FlatSemantics.Build_frame (DCS Gamma) DCS_R po_DCS_R DCS_J DCS_SA DCS_dSA DCS_uSA.
 
 Program Definition canonical_emp {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: FlatSemantics.sem canonical_frame :=
   fun a => a (SeparationEmpLanguage.emp).

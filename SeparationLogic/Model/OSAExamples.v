@@ -2,6 +2,7 @@ Require Import Coq.Logic.ChoiceFacts.
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.ClassicalChoice.
 Require Import Logic.lib.Coqlib.
+Require Import Logic.lib.RelationPairs_ext.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.UpwardsClosure.
@@ -21,10 +22,9 @@ Section nat_algs.
   Definition nat_leR: Relation nat := le.
   Definition nat_geR: Relation nat := ge.
 
-  Instance nat_le_kiM: @KripkeIntuitionisticModel nat nat_leR.
-  Proof. apply Nat.le_preorder. Qed.
+  Instance po_nat_leR: PreOrder (@Krelation _ nat_leR) := Nat.le_preorder.
 
-  Instance nat_ge_kiM: @KripkeIntuitionisticModel nat nat_geR.
+  Instance po_nat_geR: PreOrder (@Krelation _ nat_geR).
   Proof.
     constructor.
     + hnf; intros; hnf; omega.
@@ -262,7 +262,7 @@ Section nat_algs.
 
   Definition natPlus_R: Relation natPlus:= lep.
 
-  Definition natPlus_kiM: @KripkeIntuitionisticModel natPlus natPlus_R:=
+  Definition po_natPlus_R: PreOrder (@Krelation _ natPlus_R) :=
     lep_preorder.
 
 Definition sumpAlg: @SeparationAlgebra _ sump_Join.
@@ -501,8 +501,8 @@ Instance Heap_SA: SeparationAlgebra Heap :=
   @fun_SA _ _ _ (@option_SA _ _ (trivial_SA)).
 
 (** * Discrete heap *)
-Instance discHeap_R: Relation Heap := identity_R.
-Instance discHeap_kiM: @KripkeIntuitionisticModel Heap discHeap_R := identity_kiM.
+Instance discHeap_R: Relation Heap := eq.
+Instance po_discHeap_R: PreOrder Krelation := eq_preorder _.
 
 Program Instance discHeap_ikiM: IdentityKripkeIntuitionisticModel Heap.
 
@@ -556,34 +556,29 @@ Proof. apply unital_is_residual; apply discHeap_unital. Qed.
 (** * Monotonic heap*)
 
 Instance monHeap_R: Relation Heap :=
-  @fun_R _ _ (@option_ord_R _ (identity_R)).
+  @pointwise_relation _ _ (@option01_relation _ eq).
 
-Instance monHeap_kiM: @KripkeIntuitionisticModel Heap monHeap_R :=
-  @fun_kiM _ _ _ (@option_ord_kiM _ _ (identity_kiM)).
-
-Instance identity_ikiM (A: Type): @IdentityKripkeIntuitionisticModel _ (@identity_R A).
-Proof.
-  constructor; intros; auto.
-Qed.
+Instance po_monHeap_R: PreOrder Krelation :=
+  @pointwise_preorder _ _ _ (@option01_preorder _ _ (eq_preorder _)).
 
 (* Upwards-closed*)
 Instance monHeap_uSA:
   @UpwardsClosedSeparationAlgebra Heap monHeap_R Heap_Join.
 Proof.
-  apply fun_uSA; [apply option_ord_kiM, identity_kiM |].
-  apply option_ord_uSA; [apply identity_kiM |].
-  apply (@ikiM_uSA val identity_R identity_kiM (identity_ikiM _)).
+  apply fun_uSA; [apply option01_preorder, eq_preorder |].
+  apply option_ord_uSA; [apply eq_preorder |].
+  apply (@ikiM_uSA val eq (eq_preorder _) (eq_ikiM)).
 Qed.
 
 (*Downwards-closed*)
 Definition monHeap_dSA:
   @DownwardsClosedSeparationAlgebra Heap monHeap_R Heap_Join.
 Proof.
-  eapply fun_dSA; [apply option_ord_kiM, identity_kiM |].
+  eapply fun_dSA; [apply option01_preorder, eq_preorder |].
   eapply option_ord_dSA.
-  - apply identity_kiM.
+  - apply eq_preorder.
   - apply trivial_SA.
-  - apply (@ikiM_dSA val identity_R identity_kiM (identity_ikiM _)).
+  - apply (@ikiM_dSA val eq (eq_preorder _) (eq_ikiM)).
   - apply trivial_incrSA.
 Qed.
 
@@ -594,7 +589,7 @@ Proof.
   constructor; intros.
   hnf; intros.
   hnf; intros.
-  specialize (H x0).
+  specialize (H a).
   inversion H; constructor.
   - reflexivity.
   - inversion H3. (*subst; reflexivity.*)
@@ -640,10 +635,10 @@ Instance Heap_SA': SeparationAlgebra Heap' :=
 
 (** * Discrete heap *)
 Instance discHeap_R': Relation Heap' :=
-  identity_R.
+  eq.
 
-Instance discHeap_kiM': @KripkeIntuitionisticModel Heap' discHeap_R' :=
-  identity_kiM.
+Instance po_discHeap_R': PreOrder Krelation :=
+  eq_preorder _.
 
 Program Instance discHeap_ikiM': IdentityKripkeIntuitionisticModel Heap'.
 
@@ -695,34 +690,29 @@ Proof. apply unital_is_residual; apply discHeap_unital'. Qed.
 
 (** * Monotonic heap*)
 Instance monHeap_R': Relation Heap' :=
-  @fun_R _ _ (@option_ord_R _ (identity_R)).
+  @pointwise_relation _ _ (@option01_relation _ eq).
 
-Instance monHeap_kiM': @KripkeIntuitionisticModel Heap' monHeap_R' :=
-  @fun_kiM _ _ _ (@option_ord_kiM _ _ (identity_kiM)).
-
-Instance identity_ikiM' (A: Type): @IdentityKripkeIntuitionisticModel _ (@identity_R A).
-Proof.
-  constructor; intros; auto.
-Qed.
+Instance po_monHeap_R': PreOrder Krelation :=
+  @pointwise_preorder _ _ _ (@option01_preorder _ _ (eq_preorder _)).
 
 (* Upwards-closed*)
 Instance monHeap_uSA':
   @UpwardsClosedSeparationAlgebra Heap' monHeap_R' Heap_Join'.
 Proof.
-  eapply fun_uSA; [apply option_ord_kiM, identity_kiM |].
-  eapply option_ord_uSA; [apply identity_kiM |].
-  apply (@ikiM_uSA val identity_R identity_kiM (identity_ikiM _)).
+  eapply fun_uSA; [apply option01_preorder, eq_preorder |].
+  eapply option_ord_uSA; [apply eq_preorder |].
+  apply (@ikiM_uSA val eq (eq_preorder _) (eq_ikiM)).
 Qed.
 
 (*Downwards-closed*)
 Definition monHeap_dSA':
   @DownwardsClosedSeparationAlgebra Heap' monHeap_R' Heap_Join'.
 Proof.
-  eapply fun_dSA; [apply option_ord_kiM, identity_kiM |].
+  eapply fun_dSA; [apply option01_preorder, eq_preorder |].
   eapply option_ord_dSA.
-  - apply identity_kiM.
+  - apply eq_preorder.
   - apply equiv_SA.
-  - apply (@ikiM_dSA val identity_R identity_kiM (identity_ikiM _)).
+  - apply (@ikiM_dSA val eq (eq_preorder _) (eq_ikiM)).
   - apply equiv_incrSA.
 Qed.
 
@@ -733,7 +723,7 @@ Proof.
   constructor; intros.
   hnf; intros.
   hnf; intros.
-  specialize (H x0).
+  specialize (H a).
   inversion H; constructor.
   - reflexivity.
   - inversion H3. subst; reflexivity.
@@ -893,14 +883,14 @@ Qed.
 
 Instance THeap_R': Relation THeap' := THeap_order'.
 
-Instance THeap_kiM': @KripkeIntuitionisticModel THeap' THeap_R'.
+Instance po_THeap_R': PreOrder (@Krelation _ THeap_R').
 Proof.
   eapply THeap_preorder'.
 Defined.
 
 Instance THeap_R: Relation THeap := THeap_order.
 
-Instance THeap_kiM: @KripkeIntuitionisticModel THeap THeap_R.
+Instance po_THeap_R: PreOrder (@Krelation _ THeap_R).
 Proof.
   eapply THeap_preorder.
 Defined.
@@ -1047,11 +1037,11 @@ Section step_index.
 
   Definition StepIndex_R (worlds: Type) {R: Relation worlds}:
     Relation (nat * worlds) :=
-    @prod_R _ _ nat_geR R.
+    @RelProd _ _ nat_geR R.
 
-  Definition StepIndex_kiM (worlds: Type) {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}:
-    KripkeIntuitionisticModel (nat * worlds) :=
-    @prod_kiM _ _ _ _ nat_ge_kiM kiM.
+  Definition po_StepIndex_R (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}:
+    PreOrder (@Krelation _ (StepIndex_R worlds)):=
+    @RelProd_Preorder _ _ _ _ po_nat_geR po_R.
 
   Definition StepIndex_Join (worlds: Type) {J: Join worlds}: Join (nat * worlds) :=
     @prod_Join _ _ equiv_Join J.
@@ -1063,34 +1053,34 @@ Section step_index.
     @SeparationAlgebra (nat * worlds)
                        (StepIndex_Join worlds) := @prod_SA _ _ _ _ equiv_SA SA.
 
-  Definition StepIndex_uSA (worlds: Type) {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}
+  Definition StepIndex_uSA (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
              {J: Join worlds} {uSA: UpwardsClosedSeparationAlgebra worlds}:
     @UpwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_R worlds) (StepIndex_Join worlds) :=
-    @prod_uSA _ _ _ _ nat_ge_kiM _ _ _ (@identity_uSA _ nat_geR) uSA.
+    @prod_uSA _ _ _ _ po_nat_geR _ _ _ (@identity_uSA _ nat_geR) uSA.
 
   Definition StepIndex_Increasing
-             (worlds: Type) {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}
+             (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
              {J: Join worlds} {incrSA: IncreasingSeparationAlgebra worlds}:
     @IncreasingSeparationAlgebra (nat * worlds)
                                   (StepIndex_R worlds)
                                   (StepIndex_Join worlds) :=
-    @prod_incrSA _ _ _ _ nat_ge_kiM _ _ _ IndexAlg_increasing incrSA.
+    @prod_incrSA _ _ _ _ po_nat_geR _ _ _ IndexAlg_increasing incrSA.
 
   Definition StepIndex_Unital
-             (worlds: Type) {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}
+             (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
              {J: Join worlds} {USA: UnitalSeparationAlgebra worlds}:
     @UnitalSeparationAlgebra (nat * worlds)
                                   (StepIndex_R worlds)
                                   (StepIndex_Join worlds) :=
-    @prod_unitalSA _ _ _ _ nat_ge_kiM _ _ _ IndexAlg_unital USA.
+    @prod_unitalSA _ _ _ _ po_nat_geR _ _ _ IndexAlg_unital USA.
 
   Definition StepIndex_Residual
-             (worlds: Type) {R: Relation worlds} {kiM: KripkeIntuitionisticModel worlds}
+             (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
              {J: Join worlds} {rSA: ResidualSeparationAlgebra worlds}:
     @ResidualSeparationAlgebra (nat * worlds)
                                   (StepIndex_R worlds)
                                   (StepIndex_Join worlds) :=
-    @prod_residualSA _ _ _ _ nat_ge_kiM _ _ _ IndexAlg_residual rSA.
+    @prod_residualSA _ _ _ _ po_nat_geR _ _ _ IndexAlg_residual rSA.
 
   (** *step-indexed HEAPS*)
   Context (addr val: Type).
@@ -1103,13 +1093,13 @@ Section step_index.
   (** *Monotonic, step-indexed heap *)
   Definition monSIheap_R := @StepIndex_R heap (monHeap_R addr val).
 
-  Definition monSIheap_kiM := @StepIndex_kiM heap _ (monHeap_kiM addr val).
+  Definition po_monSIheap_R := @po_StepIndex_R heap _ (po_monHeap_R addr val).
 
   (*Upwards-closed *)
   Instance monSIheap_uSA:
     @UpwardsClosedSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_uSA; [apply monHeap_kiM |].
+    eapply StepIndex_uSA; [apply po_monHeap_R |].
     apply monHeap_uSA.
   Qed.
 
@@ -1119,7 +1109,7 @@ Section step_index.
   Instance monSIheap_increasing:
     @IncreasingSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Increasing; [apply monHeap_kiM |].
+    eapply StepIndex_Increasing; [apply po_monHeap_R |].
     apply monHeap_increasing.
   Qed.
 
@@ -1127,7 +1117,7 @@ Section step_index.
   Instance monSIheap_unital:
     @UnitalSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Unital; [apply monHeap_kiM |].
+    eapply StepIndex_Unital; [apply po_monHeap_R |].
     apply monHeap_unital.
   Qed.
 
@@ -1135,19 +1125,19 @@ Section step_index.
   Instance monSIheap_residual:
     @ResidualSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Residual; [apply monHeap_kiM |].
+    eapply StepIndex_Residual; [apply po_monHeap_R |].
     apply monHeap_residual.
   Qed.
 
   (** *Discrete, step-indexed heap *)
   Definition discSIheap_R:= @StepIndex_R heap (discHeap_R addr val).
-  Definition discSIheap_kiM:= @StepIndex_kiM heap _ (discHeap_kiM addr val).
+  Definition po_discSIheap_R:= @po_StepIndex_R heap _ (po_discHeap_R addr val).
 
   (*Upwards-closed *)
   Instance discSIheap_uSA:
     @UpwardsClosedSeparationAlgebra _ discSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_uSA; [apply discHeap_kiM |].
+    eapply StepIndex_uSA; [apply po_discHeap_R |].
     apply discHeap_uSA.
   Qed.
 
@@ -1159,7 +1149,7 @@ Section step_index.
   Instance discSIheap_unital:
     @UnitalSeparationAlgebra _ discSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Unital; [apply discHeap_kiM |].
+    eapply StepIndex_Unital; [apply po_discHeap_R |].
     apply discHeap_unital.
   Qed.
 
@@ -1167,7 +1157,7 @@ Section step_index.
   Instance discSIheap_residual:
     @ResidualSeparationAlgebra _ discSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Residual; [apply discHeap_kiM |].
+    eapply StepIndex_Residual; [apply po_discHeap_R |].
     apply discHeap_residual.
   Qed.
 

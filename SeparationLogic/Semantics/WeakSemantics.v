@@ -21,7 +21,7 @@ Definition emp {worlds: Type} {R: Relation worlds} {J: Join worlds}: Ensemble wo
 Lemma sepcon_closed
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}
       {SA: SeparationAlgebra worlds}
       {uSA: UpwardsClosedSeparationAlgebra worlds}:
@@ -44,7 +44,7 @@ Qed.
 Lemma wand_closed
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}
       {SA: SeparationAlgebra worlds}
       {dSA: DownwardsClosedSeparationAlgebra worlds}:
@@ -65,7 +65,7 @@ Qed.
 Lemma emp_closed
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}
       {SA: SeparationAlgebra worlds}
       {dSA: DownwardsClosedSeparationAlgebra worlds}:

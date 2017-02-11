@@ -21,7 +21,7 @@ Definition emp {worlds: Type} {R: Relation worlds} {J: Join worlds}: Ensemble wo
 Lemma sepcon_closed
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}:
   forall (X: Ensemble worlds) (Y: Ensemble worlds),
     upwards_closed_Kdenote X ->
@@ -39,7 +39,7 @@ Qed.
 Lemma wand_closed
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}:
   forall (X: Ensemble worlds) (Y: Ensemble worlds),
     upwards_closed_Kdenote X ->
@@ -56,7 +56,7 @@ Qed.
 Lemma emp_closed
       {worlds: Type}
       {R: Relation worlds}
-      {kiM: KripkeIntuitionisticModel worlds}
+      {po_R: PreOrder Krelation}
       {J: Join worlds}:
   upwards_closed_Kdenote emp.
 Proof.

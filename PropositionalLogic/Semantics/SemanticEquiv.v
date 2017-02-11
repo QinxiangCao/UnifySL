@@ -18,7 +18,7 @@ Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
 Lemma Trivial2Kripke {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {SM: Semantics L MD} {tpSM: Trivial.TrivialPropositionalSemantics L MD SM}: 
-  @Kripke.KripkeIntuitionisticSemantics L nL pL MD (unit_kMD _) tt identity_R SM.
+  @Kripke.KripkeIntuitionisticSemantics L nL pL MD (unit_kMD _) tt eq SM.
 Proof.
   constructor.
   + intros; hnf; intros.

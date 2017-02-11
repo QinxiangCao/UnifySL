@@ -28,7 +28,7 @@ Context {P: ProgrammingLanguage}
         {iP: ImperativeProgrammingLanguage P}
         {MD: Model}
         {R: Relation model}
-        {kiM: KripkeIntuitionisticModel model}
+        {po_R: PreOrder Krelation}
         {BSS: BigStepSemantics P model}
         {iBSS: ImpBigStepSemantics P model BSS}.
 
@@ -147,7 +147,7 @@ Context {P: ProgrammingLanguage}
         {iP: ImperativeProgrammingLanguage P}
         {MD: Model}
         {R: Relation model}
-        {kiM: KripkeIntuitionisticModel model}
+        {po_R: PreOrder Krelation}
         {BSS: BigStepSemantics P model}
         {iBSS: ImpBigStepSemantics P model BSS}.
 

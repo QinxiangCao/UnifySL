@@ -34,8 +34,8 @@ Context {L: Language}
         {kMD: KripkeModel MD}
         {M: Kmodel}
         {R: Relation (Kworlds M)}
-        {kiM: KripkeIntuitionisticModel (Kworlds M)}
-        {J: Join  (Kworlds M)}
+        {po_R: PreOrder Krelation}
+        {J: Join (Kworlds M)}
         {SA: SeparationAlgebra (Kworlds M)}
         {dSA: DownwardsClosedSeparationAlgebra (Kworlds M)}
         {SM: Semantics L MD}

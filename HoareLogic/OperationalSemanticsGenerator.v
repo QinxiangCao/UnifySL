@@ -248,7 +248,7 @@ Export SmallStepSemantics.Partial.
 Export LocalTraceSemantics.Partial.
 Export BigStepSemantics.Partial.
 
-Lemma Ssequence_fin_left {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {R: Relation state} {kiM: KripkeIntuitionisticModel state} {SSS: SmallStepSemantics P state} {iSSS: ImpSmallStepSemantics P state SSS}:
+Lemma Ssequence_fin_left {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {R: Relation state} {po_R: PreOrder Krelation} {SSS: SmallStepSemantics P state} {iSSS: ImpSmallStepSemantics P state SSS}:
   forall (ctr: trace (cmd * state)) c c0 s1 cs,
     sequential_trace ctr ->
     sound_trace step ctr ->
@@ -261,7 +261,7 @@ Lemma Ssequence_fin_left {P: ProgrammingLanguage} {iP: ImperativeProgrammingLang
       ctrace2trace ctr' = ctrace2trace ctr.
 Admitted.
 
-Lemma Ssequence_progress_left {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {R: Relation state} {kiM: KripkeIntuitionisticModel state} {SSS: SmallStepSemantics P state} {iSSS: ImpSmallStepSemantics P state SSS}:
+Lemma Ssequence_progress_left {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {R: Relation state} {po_R: PreOrder Krelation} {SSS: SmallStepSemantics P state} {iSSS: ImpSmallStepSemantics P state SSS}:
   forall (ctr: trace (cmd * state)) c c0 s1 mcs,
     sequential_trace ctr ->
     sound_trace step ctr ->
@@ -271,7 +271,7 @@ Lemma Ssequence_progress_left {P: ProgrammingLanguage} {iP: ImperativeProgrammin
     mcs = NonTerminating \/ mcs = Error.
 Admitted.
 
-Instance iLTS_SSS {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {R: Relation state} {kiM: KripkeIntuitionisticModel state} (SSS: SmallStepSemantics P state) {iSSS: ImpSmallStepSemantics P state SSS}: ImpLocalTraceSemantics P state (LTS_SSS SSS).
+Instance iLTS_SSS {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {R: Relation state} {po_R: PreOrder Krelation} (SSS: SmallStepSemantics P state) {iSSS: ImpSmallStepSemantics P state SSS}: ImpLocalTraceSemantics P state (LTS_SSS SSS).
 Proof.
   refine (Build_ImpLocalTraceSemantics _ _ _ _ _ _ SmallStepSemantics.Partial.eval_bool_stable _ _ _ _).
   + intros.

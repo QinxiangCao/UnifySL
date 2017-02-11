@@ -28,7 +28,7 @@ Context {P: ProgrammingLanguage}
         {BSS: BigStepSemantics P model}
         {J: Join model}
         {R: Relation model}
-        {kiM: KripkeIntuitionisticModel model}
+        {po_R: PreOrder Krelation}
         {SA_BSS: SABigStepSemantics P model BSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.

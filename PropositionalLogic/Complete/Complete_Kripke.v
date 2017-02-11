@@ -42,7 +42,7 @@ Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
 Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
+Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)):= KripkeSemantics.po_R Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
@@ -264,7 +264,7 @@ Instance ipG: IntuitionisticPropositionalLogic L G := IntuitionisticLogic.ipG Va
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
 Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
+Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)):= KripkeSemantics.po_R Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
@@ -321,7 +321,7 @@ Instance cpG: ClassicalPropositionalLogic L G := ClassicalLogic.cpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
 Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M) := KripkeSemantics.kiM Var M.
+Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)):= KripkeSemantics.po_R Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
@@ -395,7 +395,7 @@ Instance gdG: GodelDummettPropositionalLogic L G := GodelDummettLogic.gdpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
 Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
+Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)):= KripkeSemantics.po_R Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 
@@ -488,7 +488,7 @@ Instance dmpG: DeMorganPropositionalLogic L G := DeMorganLogic.dmpG Var.
 Instance MD: Model := KripkeSemantics.MD Var.
 Instance kMD: KripkeModel MD := KripkeSemantics.kMD Var.
 Instance R (M: Kmodel): Relation (Kworlds M):= KripkeSemantics.R Var M.
-Instance kiM (M: Kmodel): KripkeIntuitionisticModel (Kworlds M):= KripkeSemantics.kiM Var M.
+Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)):= KripkeSemantics.po_R Var M.
 Instance SM: Semantics L MD := KripkeSemantics.SM Var.
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM := KripkeSemantics.kiSM Var M.
 

@@ -66,7 +66,7 @@ Class StrongSeparationAlgebraAbsorbStable (worlds: Type) {J: Join worlds} {R: Re
     forall m m1 m2, join m1 m2 m -> R m1 m /\ R m2 m
 }.
 
-Lemma DownwardsClosure_SAAbsorbStable (worlds: Type) {R1: KI.Relation worlds} {J: Join worlds} {R2: Relation worlds} {kiM: KripkeIntuitionisticModel worlds} {SA_abs': StrongSeparationAlgebraAbsorbStable worlds}: @SeparationAlgebraAbsorbStable worlds R1 DownwardsClosure_J R2.
+Lemma DownwardsClosure_SAAbsorbStable (worlds: Type) {R1: KI.Relation worlds} {po_R: PreOrder KI.Krelation} {J: Join worlds} {R2: Relation worlds} {SA_abs': StrongSeparationAlgebraAbsorbStable worlds}: @SeparationAlgebraAbsorbStable worlds R1 DownwardsClosure_J R2.
 Proof.
   constructor.
   intros.
