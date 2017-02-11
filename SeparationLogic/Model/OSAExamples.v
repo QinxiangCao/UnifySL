@@ -565,8 +565,8 @@ Instance po_monHeap_R: PreOrder Krelation :=
 Instance monHeap_uSA:
   @UpwardsClosedSeparationAlgebra Heap monHeap_R Heap_Join.
 Proof.
-  apply fun_uSA; [apply option01_preorder, eq_preorder |].
-  apply option_ord_uSA; [apply eq_preorder |].
+  apply fun_uSA.
+  apply option_ord_uSA.
   apply (@ikiM_uSA val eq (eq_preorder _) (eq_ikiM)).
 Qed.
 
@@ -574,7 +574,7 @@ Qed.
 Definition monHeap_dSA:
   @DownwardsClosedSeparationAlgebra Heap monHeap_R Heap_Join.
 Proof.
-  eapply fun_dSA; [apply option01_preorder, eq_preorder |].
+  eapply fun_dSA.
   eapply option_ord_dSA.
   - apply eq_preorder.
   - apply trivial_SA.
@@ -699,8 +699,8 @@ Instance po_monHeap_R': PreOrder Krelation :=
 Instance monHeap_uSA':
   @UpwardsClosedSeparationAlgebra Heap' monHeap_R' Heap_Join'.
 Proof.
-  eapply fun_uSA; [apply option01_preorder, eq_preorder |].
-  eapply option_ord_uSA; [apply eq_preorder |].
+  eapply fun_uSA.
+  eapply option_ord_uSA.
   apply (@ikiM_uSA val eq (eq_preorder _) (eq_ikiM)).
 Qed.
 
@@ -708,7 +708,7 @@ Qed.
 Definition monHeap_dSA':
   @DownwardsClosedSeparationAlgebra Heap' monHeap_R' Heap_Join'.
 Proof.
-  eapply fun_dSA; [apply option01_preorder, eq_preorder |].
+  eapply fun_dSA.
   eapply option_ord_dSA.
   - apply eq_preorder.
   - apply equiv_SA.
@@ -1053,34 +1053,34 @@ Section step_index.
     @SeparationAlgebra (nat * worlds)
                        (StepIndex_Join worlds) := @prod_SA _ _ _ _ equiv_SA SA.
 
-  Definition StepIndex_uSA (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
+  Definition StepIndex_uSA (worlds: Type) {R: Relation worlds}
              {J: Join worlds} {uSA: UpwardsClosedSeparationAlgebra worlds}:
     @UpwardsClosedSeparationAlgebra (nat * worlds) (StepIndex_R worlds) (StepIndex_Join worlds) :=
-    @prod_uSA _ _ _ _ po_nat_geR _ _ _ (@identity_uSA _ nat_geR) uSA.
+    @prod_uSA _ _ _ _  _ _ (@identity_uSA _ nat_geR) uSA.
 
   Definition StepIndex_Increasing
-             (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
+             (worlds: Type) {R: Relation worlds}
              {J: Join worlds} {incrSA: IncreasingSeparationAlgebra worlds}:
     @IncreasingSeparationAlgebra (nat * worlds)
                                   (StepIndex_R worlds)
                                   (StepIndex_Join worlds) :=
-    @prod_incrSA _ _ _ _ po_nat_geR _ _ _ IndexAlg_increasing incrSA.
+    @prod_incrSA _ _ _ _ _ _ IndexAlg_increasing incrSA.
 
   Definition StepIndex_Unital
-             (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
+             (worlds: Type) {R: Relation worlds}
              {J: Join worlds} {USA: UnitalSeparationAlgebra worlds}:
     @UnitalSeparationAlgebra (nat * worlds)
                                   (StepIndex_R worlds)
                                   (StepIndex_Join worlds) :=
-    @prod_unitalSA _ _ _ _ po_nat_geR _ _ _ IndexAlg_unital USA.
+    @prod_unitalSA _ _ _  _ _ _ IndexAlg_unital USA.
 
   Definition StepIndex_Residual
-             (worlds: Type) {R: Relation worlds} {po_R: PreOrder (@Krelation _ R)}
+             (worlds: Type) {R: Relation worlds}
              {J: Join worlds} {rSA: ResidualSeparationAlgebra worlds}:
     @ResidualSeparationAlgebra (nat * worlds)
                                   (StepIndex_R worlds)
                                   (StepIndex_Join worlds) :=
-    @prod_residualSA _ _ _ _ po_nat_geR _ _ _ IndexAlg_residual rSA.
+    @prod_residualSA _ _ _  _ _ _ IndexAlg_residual rSA.
 
   (** *step-indexed HEAPS*)
   Context (addr val: Type).
@@ -1099,7 +1099,7 @@ Section step_index.
   Instance monSIheap_uSA:
     @UpwardsClosedSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_uSA; [apply po_monHeap_R |].
+    eapply StepIndex_uSA.
     apply monHeap_uSA.
   Qed.
 
@@ -1109,7 +1109,7 @@ Section step_index.
   Instance monSIheap_increasing:
     @IncreasingSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Increasing; [apply po_monHeap_R |].
+    eapply StepIndex_Increasing.
     apply monHeap_increasing.
   Qed.
 
@@ -1117,7 +1117,7 @@ Section step_index.
   Instance monSIheap_unital:
     @UnitalSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Unital; [apply po_monHeap_R |].
+    eapply StepIndex_Unital.
     apply monHeap_unital.
   Qed.
 
@@ -1125,7 +1125,7 @@ Section step_index.
   Instance monSIheap_residual:
     @ResidualSeparationAlgebra _ monSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Residual; [apply po_monHeap_R |].
+    eapply StepIndex_Residual.
     apply monHeap_residual.
   Qed.
 
@@ -1137,7 +1137,7 @@ Section step_index.
   Instance discSIheap_uSA:
     @UpwardsClosedSeparationAlgebra _ discSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_uSA; [apply po_discHeap_R |].
+    eapply StepIndex_uSA.
     apply discHeap_uSA.
   Qed.
 
@@ -1149,7 +1149,7 @@ Section step_index.
   Instance discSIheap_unital:
     @UnitalSeparationAlgebra _ discSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Unital; [apply po_discHeap_R |].
+    eapply StepIndex_Unital.
     apply discHeap_unital.
   Qed.
 
@@ -1157,7 +1157,7 @@ Section step_index.
   Instance discSIheap_residual:
     @ResidualSeparationAlgebra _ discSIheap_R SIheap_Join.
   Proof.
-    eapply StepIndex_Residual; [apply po_discHeap_R |].
+    eapply StepIndex_Residual.
     apply discHeap_residual.
   Qed.
 

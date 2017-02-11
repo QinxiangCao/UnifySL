@@ -208,7 +208,6 @@ Section optionSA.
   (* Ordered option Upwards closed *)
   Lemma option_ord_uSA
         {R: Relation worlds}
-        {po_R: PreOrder Krelation}
         {J: Join worlds}
         (uSA: UpwardsClosedSeparationAlgebra worlds):
     @UpwardsClosedSeparationAlgebra (option worlds) (option01_relation Krelation) option_Join.
@@ -307,7 +306,6 @@ Section optionSA.
   (* Disjoint option Upwards closed*)
   Lemma option_disj_uSA
         {R: Relation worlds}
-        {po_R: PreOrder Krelation}
         {J: Join worlds}
         (uSA: UpwardsClosedSeparationAlgebra worlds):
     @UpwardsClosedSeparationAlgebra (option worlds) (option00_relation Krelation) option_Join.
@@ -329,7 +327,6 @@ Section optionSA.
   (* Disjointed option Downwards *)
   Lemma option_disj_dSA
         {R: Relation worlds}
-        {po_R: PreOrder Krelation}
         {J: Join worlds}
         {SA: SeparationAlgebra worlds}
         (dSA: DownwardsClosedSeparationAlgebra worlds):
@@ -435,7 +432,6 @@ Section exponentialSA.
   Lemma fun_uSA 
         (A B: Type)
         {R_B: Relation B}
-        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (uSA_B: UpwardsClosedSeparationAlgebra B):
     @UpwardsClosedSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
@@ -460,7 +456,6 @@ Section exponentialSA.
   Lemma fun_dSA 
         (A B: Type)
         {R_B: Relation B}
-        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (dSA_B: DownwardsClosedSeparationAlgebra B):
     @DownwardsClosedSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
@@ -482,7 +477,6 @@ Section exponentialSA.
   Lemma fun_incrSA 
         (A B: Type)
         {R_B: Relation B}
-        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (incr_B: IncreasingSeparationAlgebra B):
     @IncreasingSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
@@ -498,7 +492,6 @@ Section exponentialSA.
   Lemma fun_unitSA 
         (A B: Type)
         {R_B: Relation B}
-        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (USA_B: UnitalSeparationAlgebra B):
     @UnitalSeparationAlgebra (A -> B) (pointwise_relation A R_B) (fun_Join A B).
@@ -527,7 +520,6 @@ Section exponentialSA.
   Lemma fun_unitSA' 
         (A B: Type)
         {R_B: Relation B}
-        {po_R_B: PreOrder Krelation}
         {J_B: Join B}
         (USA'_B: UnitalSeparationAlgebra' B):
     @UnitalSeparationAlgebra' (A -> B) (pointwise_relation A R_B) (fun_Join A B).
@@ -615,8 +607,6 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {po_R_A: PreOrder (@Krelation A R_A)}
-        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {dSA_A: UpwardsClosedSeparationAlgebra A}
@@ -636,8 +626,6 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {po_R_A: PreOrder (@Krelation A R_A)}
-        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {uSA_A: DownwardsClosedSeparationAlgebra A}
@@ -656,8 +644,6 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {po_R_A: PreOrder (@Krelation A R_A)}
-        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}:
     forall (a: A) (b: B),
@@ -678,8 +664,6 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {po_R_A: PreOrder (@Krelation A R_A)}
-        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {incrSA_A: IncreasingSeparationAlgebra A}
@@ -696,8 +680,6 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {po_R_A: PreOrder (@Krelation A R_A)}
-        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {residualSA_A: ResidualSeparationAlgebra A}
@@ -720,8 +702,6 @@ Section productSA.
         (A B: Type)
         {R_A: Relation A}
         {R_B: Relation B}
-        {po_R_A: PreOrder (@Krelation A R_A)}
-        {po_R_B: PreOrder (@Krelation B R_B)}
         {Join_A: Join A}
         {Join_B: Join B}
         {unitalSA_A: UnitalSeparationAlgebra A}
