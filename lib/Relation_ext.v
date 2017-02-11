@@ -1,6 +1,6 @@
 (* Copied from RamifyCoq project *)
 
-Require Export Coq.Relations.Relation_Definitions.
+Require Export Coq.Relations.Relations.
 Require Import Coq.Classes.Morphisms.
 Require Export Coq.Classes.Equivalence.
 Require Coq.Setoids.Setoid.
@@ -213,3 +213,54 @@ Proof.
   apply compond_intro with (f y); auto.
 Qed.
 
+Definition partial_functional {A: Type} (R: relation A): Prop :=
+  forall m n n', R m n -> R m n' -> n = n'.
+
+Class PartialFunctional {A: Type} (R: relation A): Prop :=
+  partial_functionality: forall m n n', R m n -> R m n' -> n = n'.
+
+Definition functional {A: Type} (R: relation A): Prop :=
+  forall m, exists n, forall n', R m n' <-> n' = n.
+
+Class Functional {A: Type} (R: relation A): Prop :=
+  functionality: forall m, exists n, forall n', R m n' <-> n' = n.
+
+Definition serial {A: Type} (R: relation A): Prop :=
+  forall m, exists n, R m n.
+
+Class Serial {A: Type} (R: relation A): Prop :=
+  seriality: forall m, exists n, R m n.
+
+Lemma function_Functional {A: Type} {f: A -> A}: Functional (fun a => eq (f a)).
+Proof.
+  hnf; intros.
+  exists (f m); intros.
+  split; intros; congruence.
+Qed.
+
+Lemma SerialPartialFunctional_Functional {A: Type} {R: relation A}: Serial R -> PartialFunctional R -> Functional R.
+Proof.
+  intros; hnf; intros.
+  destruct (seriality m) as [n ?].
+  exists n; intros.
+  split; intros.
+  + eapply partial_functionality; eauto.
+  + subst; auto.
+Qed.
+
+Instance Functional_PartialFunctional {A: Type} {R: relation A} {_: Functional R}: PartialFunctional R.
+Proof.
+  intros; hnf; intros.
+  destruct (functionality m) as [n0 ?].
+  rewrite H2 in H0, H1.
+  congruence.
+Qed.
+
+Instance Functional_Serial {A: Type} {R: relation A} {_: Functional R}: Serial R.
+Proof.
+  intros; hnf; intros.
+  destruct (functionality m) as [n ?].
+  exists n.
+  rewrite H0.
+  auto.
+Qed.

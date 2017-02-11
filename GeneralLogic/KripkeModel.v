@@ -1,8 +1,9 @@
 Require Import Coq.Sets.Ensembles.
 Require Import Coq.Logic.Classical_Prop.
 Require Export Coq.Classes.RelationClasses.
-Require Import Coq.Relations.Relation_Definitions.
+Require Import Coq.Relations.Relations.
 Require Export Coq.Classes.Morphisms.
+Require Export Logic.lib.Relation_ext.
 Require Export Logic.lib.RelationPairs_ext.
 
 Module KI.

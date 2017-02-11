@@ -1,6 +1,7 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Ensembles_ext.
+Require Import Logic.lib.Relation_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.ModalLogic.Model.KripkeModel.
 Require Import Logic.MinimunLogic.Syntax.
@@ -39,7 +40,7 @@ Proof.
   intros; apply H; auto.
 Qed.
 
-Lemma sound_boxp_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {Pf_kmM: KripkeModalModel_PFunctional (Kworlds M)} {SM: Semantics L MD} {tpSM: TrivialPropositionalSemantics L MD SM} {kmSM: KripkeModalSemantics L MD M SM}:
+Lemma sound_boxp_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {pf_R: PartialFunctional KM.Krelation} {SM: Semantics L MD} {tpSM: TrivialPropositionalSemantics L MD SM} {kmSM: KripkeModalSemantics L MD M SM}:
   forall x y (m: Kworlds M),
     KRIPKE: M, m |= boxp (x || y) <--> (boxp x || boxp y).
 Proof.
@@ -54,7 +55,7 @@ Proof.
     apply not_all_ex_not in H1; destruct H1 as [n2 ?].
     apply imply_to_and in H0; destruct H0.
     apply imply_to_and in H1; destruct H1.
-    pose proof Krelation_pfunc _ _ _ H0 H1.
+    pose proof partial_functionality _ _ _ H0 H1.
     subst n2; clear H1.
     specialize (H _ H0).
     rewrite sat_orp in H.

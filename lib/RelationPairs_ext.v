@@ -2,6 +2,11 @@ Require Export Coq.Relations.Relations.
 Require Export Coq.Classes.RelationPairs.
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.Classes.Equivalence.
+Require Import Logic.lib.Relation_ext.
+Require Import Logic.lib.Bisimulation.
+
+Instance eq_preorder (A: Type): PreOrder (@eq A) :=
+  Build_PreOrder _ (eq_Reflexive) (eq_Transitive).
 
 Instance RelProd_Preorder:
   forall {A B : Type} (RA: relation A) (RB : relation B),
@@ -14,6 +19,36 @@ Proof.
   + apply RelProd_Transitive; auto.
 Qed.
 
+Instance RelProd_PartialFunctional:
+  forall {A B : Type} (RA: relation A) (RB : relation B),
+  PartialFunctional RA -> PartialFunctional RB -> PartialFunctional (RelProd RA RB).
+Proof.
+  intros; hnf; intros.
+  destruct m as [m1 m2], n as [n1 n2], n' as [n1' n2'], H1, H2.
+  hnf in H1, H2, H3, H4; simpl in *.
+  f_equal.
+  + eapply H; eauto.
+  + eapply H0; eauto.
+Qed.
+
+Instance RelProd_Bisimulation:
+  forall {A B : Type} (bisA RA: relation A) (bisB RB : relation B),
+  Bisimulation bisA RA -> Bisimulation bisB RB -> Bisimulation (RelProd bisA bisB) (RelProd RA RB).
+Proof.
+  intros.
+  constructor; intros [m1 m2] [n1 n2] [? ?].
+  + intros [m1' m2'] [? ?].
+    hnf in H1, H2, H3, H4; simpl in *.
+    destruct (@bis_l _ _ _ H _ _ H1 _ H3) as [n1' [? ?]].
+    destruct (@bis_l _ _ _ H0 _ _ H2 _ H4) as [n2' [? ?]].
+    exists (n1', n2'); auto.
+  + intros [n1' n2'] [? ?].
+    hnf in H1, H2, H3, H4; simpl in *.
+    destruct (@bis_r _ _ _ H _ _ H1 _ H3) as [m1' [? ?]].
+    destruct (@bis_r _ _ _ H0 _ _ H2 _ H4) as [m2' [? ?]].
+    exists (m1', m2'); auto.
+Qed.
+
 Instance pointwise_preorder:
   forall A {B : Type} (RB : relation B),
   PreOrder RB -> PreOrder (pointwise_relation A RB).
@@ -23,10 +58,7 @@ Proof.
   constructor.
   + apply pointwise_reflexive; auto.
   + apply pointwise_transitive; auto.
-Qed.
-
-Instance eq_preorder (A: Type): PreOrder (@eq A) :=
-  Build_PreOrder _ (eq_Reflexive) (eq_Transitive).
+Qed.  
 
 Inductive option00_relation {A: Type} (R: relation A): relation (option A):=
 | None_None_option00: option00_relation R None None

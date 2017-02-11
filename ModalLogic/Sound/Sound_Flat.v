@@ -19,7 +19,7 @@ Import ModalLanguageNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Lemma sound_axiom_K {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
+Lemma sound_axiom_K {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R1: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
   forall x y (m: Kworlds M),
     KRIPKE: M, m |= boxp (x --> y) --> (boxp x --> boxp y).
 Proof.
@@ -37,7 +37,7 @@ Proof.
   exact (H0 n'' H4 H2).
 Qed.
 
-Lemma sound_rule_N {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
+Lemma sound_rule_N {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R1: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
   forall x,
     (forall (m: Kworlds M), KRIPKE: M, m |= x) ->
     (forall (m: Kworlds M), KRIPKE: M, m |= boxp x).
@@ -47,7 +47,7 @@ Proof.
   intros; apply H; auto.
 Qed.
 
-Lemma sound_boxp_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {Pf_kmM: KripkeModalModel_PFunctional (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
+Lemma sound_boxp_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R1: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {pf_R2: PartialFunctional KM.Krelation} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
   forall x y (m: Kworlds M),
     KRIPKE: M, m |= boxp (x || y) <--> (boxp x || boxp y).
 Proof.
@@ -65,7 +65,7 @@ Proof.
     apply not_all_ex_not in H1; destruct H1 as [n2 ?].
     apply imply_to_and in H0; destruct H0.
     apply imply_to_and in H1; destruct H1.
-    pose proof Krelation_pfunc _ _ _ H0 H1.
+    pose proof partial_functionality _ _ _ H0 H1.
     subst n2; clear H1.
     specialize (H _ H0).
     rewrite sat_orp in H.
