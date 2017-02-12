@@ -193,3 +193,36 @@ Class DownwardsClosedSeparationAlgebra
 It is necessary to be this strong, or else sepcon_assoc will be unsound, e.g. the following weaker version causes unsoundness:
   join_Korder: forall M (m1 m2 m n1: Kworlds M), join m1 m2 m -> Korder m1 n1 -> exists n2 n, join n1 n2 n /\ Korder m2 n2 /\ Korder m n;  *)
 
+Lemma residue_extensible
+      {worlds: Type}
+      {R: Relation worlds}
+      {po_R: PreOrder Krelation}
+      {J: Join worlds}
+      {dSA: DownwardsClosedSeparationAlgebra worlds}:
+  forall e u,
+    residue u e ->
+    exists v, join e u v.
+Proof.
+  intros.
+  destruct H as [u' [? ?]].
+  pose proof join_Korder_down _ _ _ _ _ H ltac:(reflexivity) H0.
+  firstorder.
+Qed.
+
+Lemma residual_extensible
+      {worlds: Type}
+      {R: Relation worlds}
+      {po_R: PreOrder Krelation}
+      {J: Join worlds}
+      {SA: SeparationAlgebra worlds}
+      {dSA: DownwardsClosedSeparationAlgebra worlds}
+      {resSA: ResidualSeparationAlgebra worlds}:
+  forall u, exists e v, join u e v.
+Proof.
+  intros.
+  destruct (residue_exists u) as [e ?].
+  apply residue_extensible in H.
+  destruct H as [v ?].
+  apply join_comm in H.
+  exists e, v; auto.
+Qed.
