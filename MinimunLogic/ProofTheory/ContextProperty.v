@@ -1,3 +1,4 @@
+Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
@@ -7,10 +8,10 @@ Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Local Open Scope logic_base.
 Local Open Scope syntax.
 
-Definition maximal_consistent {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
+Definition maximal_consistent {L: Language} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => consistent Phi /\ forall Psi, consistent Psi -> Included _ Phi Psi -> Included _ Psi Phi.
 
-Definition derivable_closed {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
+Definition derivable_closed {L: Language} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => forall x, derivable Phi x -> Phi x.
 
 Lemma maximal_consistent_spec {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}:
@@ -72,5 +73,17 @@ Lemma MCS_element_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma:
 Proof.
   intros.
   apply derivable_closed_element_derivable, maximal_consistent_derivable_closed.
+  auto.
+Qed.
+
+Lemma sig_context_ext: forall {L: Language} (P: context -> Prop) (Phi Psi: sig P),
+  (forall x, proj1_sig Phi x <-> proj1_sig Psi x) -> Phi = Psi.
+Proof.
+  intros.
+  pose proof Extensionality_Ensembles _ _ _ (conj (fun x => proj1 (H x)) (fun x => proj2 (H x))).
+  destruct Psi as [Psi ?], Phi as [Phi ?].
+  simpl in H0; subst.
+  pose proof proof_irrelevance _ p p0.
+  subst.
   auto.
 Qed.

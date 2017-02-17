@@ -1,4 +1,3 @@
-(* Split it into General proofs and the proof for DeepEmbedded *)
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
