@@ -25,7 +25,7 @@ Import PropositionalLanguageNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Section TruthLemma
+Section TruthLemma.
 
 Context {L: Language}
         {nL: NormalLanguage L}
