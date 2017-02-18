@@ -13,10 +13,10 @@ Import PropositionalLanguage.
 
 Record frame: Type := {
   underlying_set:> Type;
-  Krelation: relation underlying_set
+  underlying_relation: relation underlying_set
 }.
 
-Infix "<=" := (Krelation _): TheKripkeSemantics.
+Infix "<=" := (underlying_relation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
@@ -27,7 +27,7 @@ Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> s
   match x with
   | andp y z => @Semantics.andp F (denotation y) (denotation z)
   | orp y z => @Semantics.orp F (denotation y) (denotation z)
-  | impp y z => @Semantics.impp F (Krelation F) (denotation y) (denotation z)
+  | impp y z => @Semantics.impp F (underlying_relation F) (denotation y) (denotation z)
   | falsep => @Semantics.falsep F
   | varp p => eval p
   end.
@@ -37,7 +37,7 @@ Context (Var: Type).
 
 Record Kmodel : Type := {
   underlying_frame :> frame;
-  Kvar: Var -> sem underlying_frame
+  sem_var: Var -> sem underlying_frame
 }.
 
 Record model: Type := {
@@ -55,21 +55,13 @@ Instance kMD: KripkeModel MD :=
     (fun M m => Build_model M m).
 
 Instance R (M: Kmodel): Relation (Kworlds M) :=
-  @Krelation M.
+  @underlying_relation M.
 
-Instance SM: Semantics L MD :=
-  Build_Semantics L MD (fun x M => (denotation M (Kvar M) x) (elm M)).
+Definition Kmodel_Monotonic: Kmodel -> Prop := fun M =>
+  forall v: Var, upwards_closed_Kdenote (sem_var M v).
 
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM.
-Proof.
-  apply Build_KripkeIntuitionisticSemantics.
-  + hnf; simpl; intros.
-    eapply (proj2_sig (denotation M (Kvar M) x)); eauto.
-  + intros; apply Same_set_refl.
-  + intros; apply Same_set_refl.
-  + intros; apply Same_set_refl.
-  + intros; apply Same_set_refl.
-Defined.
+Definition Kmodel_PreOrder: Kmodel -> Prop := fun M =>
+  PreOrder (@Krelation _ (R M)).
 
 Definition Kmodel_Identity: Kmodel -> Prop := fun M =>
   IdentityKripkeIntuitionisticModel (Kworlds M).
@@ -80,4 +72,35 @@ Definition Kmodel_NoBranch: Kmodel -> Prop := fun M =>
 Definition Kmodel_BranchJoin: Kmodel -> Prop := fun M =>
   BranchJoinKripkeIntuitionisticModel (Kworlds M).
 
+Instance SM: Semantics L MD :=
+  Build_Semantics L MD (fun x M => (denotation M (sem_var M) x) (elm M)).
+
+Instance kiSM (M: Kmodel) {_: Kmodel_Monotonic M} {_: Kmodel_PreOrder M}:
+  KripkeIntuitionisticSemantics L MD M SM.
+Proof.
+  hnf in H, H0.
+  constructor; intros.
+  induction x.
+  + apply Semantics.andp_closed; auto.
+  + apply Semantics.orp_closed; auto.
+  + apply (Semantics.impp_closed _ _ IHx1 IHx2).
+  + apply Semantics.falsep_closed.
+  + apply H.
+Qed.
+
+Instance kpSM (M: Kmodel): KripkePropositionalSemantics L MD M SM.
+Proof.
+  apply Build_KripkePropositionalSemantics.
+  + intros; apply Same_set_refl.
+  + intros; apply Same_set_refl.
+  + intros; apply Same_set_refl.
+  + intros; apply Same_set_refl.
+Defined.
+
 End KripkeSemantics.
+
+Arguments Kmodel_Monotonic {Var} _.
+Arguments Kmodel_PreOrder {Var} _.
+Arguments Kmodel_Identity {Var} _.
+Arguments Kmodel_NoBranch {Var} _.
+Arguments Kmodel_BranchJoin {Var} _.

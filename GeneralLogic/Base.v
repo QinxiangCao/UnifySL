@@ -83,4 +83,11 @@ Module KripkeModelSingleNotation.
 Notation "'KRIPKE:'  m" := (@build_model _ (unit_kMD _) tt m) (at level 59, no associativity) : kripke_model.
 End KripkeModelSingleNotation.
 
+Module KripkeModelClass.
+
+Definition kripke_model_class_join {MD: Model} {kMD: KripkeModel MD} (X Y: Kmodel -> Prop): Kmodel -> Prop := fun M => X M /\ Y M.
+
+Notation "x + y" := (kripke_model_class_join x y) : kripke_model_class.
+
+End KripkeModelClass.
 

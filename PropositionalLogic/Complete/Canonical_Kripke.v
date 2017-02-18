@@ -65,13 +65,29 @@ Context {L: Language}
         {M: Kmodel}
         {R: Relation (Kworlds M)}
         {SM: Semantics L MD}
-        {kiSM: KripkeIntuitionisticSemantics L MD M SM}.
+(*        {kiSM: KripkeIntuitionisticSemantics L MD M SM} *)
+        {kpSM: KripkePropositionalSemantics L MD M SM}.
 
 Context (P: context -> Prop)
         (rel: bijection (Kworlds M) (sig P)).
 
 Hypothesis H_R: forall m n Phi Psi, rel m Phi -> rel n Psi -> (m <= n <-> Included _ (proj1_sig Phi) (proj1_sig Psi)).
 
+Lemma denote_monotonic (x: expr):
+  (forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)) ->
+  upwards_closed_Kdenote (Kdenotation M x).
+Proof.
+  intros.
+  hnf; intros.
+  change (KRIPKE: M, m |= x).
+  change (KRIPKE: M, n |= x) in H1.
+  destruct (im_bij _ _ rel n) as [Phi ?].
+  destruct (im_bij _ _ rel m) as [Psi ?].
+  erewrite H in H1 |- * by eauto.
+  eapply H_R in H0; eauto.
+  apply H0; auto.
+Qed.
+    
 Instance po_R: PreOrder (@KI.Krelation _ R).
 Proof.
   constructor.

@@ -19,7 +19,25 @@ Import ModalLanguageNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Lemma sound_axiom_K {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R1: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
+Section Sound_Flat.
+
+Context {L: Language}
+        {nL: NormalLanguage L}
+        {pL: PropositionalLanguage L}
+        {mL: ModalLanguage L}
+        {MD: Model}
+        {kMD: KripkeModel MD}
+        {M: Kmodel}
+        {R1: KI.Relation (Kworlds M)}
+        {po_R1: PreOrder KI.Krelation}
+        {R2: KM.Relation (Kworlds M)}
+        {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)}
+        {SM: Semantics L MD}
+        {kiSM: KripkeIntuitionisticSemantics L MD M SM}
+        {kpSM: KripkePropositionalSemantics L MD M SM}
+        {fmSM: FlatModalSemantics L MD M SM}.
+
+Lemma sound_axiom_K :
   forall x y (m: Kworlds M),
     KRIPKE: M, m |= boxp (x --> y) --> (boxp x --> boxp y).
 Proof.
@@ -37,7 +55,7 @@ Proof.
   exact (H0 n'' H4 H2).
 Qed.
 
-Lemma sound_rule_N {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R1: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
+Lemma sound_rule_N:
   forall x,
     (forall (m: Kworlds M), KRIPKE: M, m |= x) ->
     (forall (m: Kworlds M), KRIPKE: M, m |= boxp x).
@@ -47,7 +65,7 @@ Proof.
   intros; apply H; auto.
 Qed.
 
-Lemma sound_boxp_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {po_R1: PreOrder KI.Krelation} {R2: KM.Relation (Kworlds M)} {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)} {pf_R2: PartialFunctional KM.Krelation} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fmSM: FlatModalSemantics L MD M SM}:
+Lemma sound_boxp_orp {pf_R2: PartialFunctional KM.Krelation}:
   forall x y (m: Kworlds M),
     KRIPKE: M, m |= boxp (x || y) <--> (boxp x || boxp y).
 Proof.
@@ -77,4 +95,6 @@ Qed.
 
 (* (boxp x --> boxp y) --> (boxp (x --> y)) is not sound in non-classical transparent modal logic *)
 (* e.g. (boxp (x |--> 1) --> boxp (x |--> 1 * y |--> 1)) -->                                      *)
-(*         boxp (x |--> 1 --> x |--> 1 * y |--> 1) is not valid on monotonic heap                 *) 
+(*         boxp (x |--> 1 --> x |--> 1 * y |--> 1) is not valid on monotonic heap                 *)
+
+End Sound_Flat.
