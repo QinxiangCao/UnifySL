@@ -17,13 +17,26 @@ Import PropositionalLanguageNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Lemma Trivial2Kripke {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {SM: Semantics L MD} {tpSM: Trivial.TrivialPropositionalSemantics L MD SM}: 
-  @Kripke.KripkeIntuitionisticSemantics L nL pL MD (unit_kMD _) tt eq SM.
+Section SemanticEquiv.
+
+Context {L: Language}
+        {nL: NormalLanguage L}
+        {pL: PropositionalLanguage L}
+        {MD: Model}
+        {SM: Semantics L MD}.
+
+Lemma eqR_KripkeIntuitionistic: @Kripke.KripkeIntuitionisticSemantics L MD (unit_kMD _) tt eq SM.
 Proof.
   constructor.
-  + intros; hnf; intros.
-    hnf in H; subst.
-    auto.
+  intros; hnf; intros.
+  hnf in H; subst.
+  auto.
+Qed.
+
+Lemma Trivial2Kripke {tpSM: Trivial.TrivialPropositionalSemantics L MD SM}: 
+  @Kripke.KripkePropositionalSemantics L nL pL MD (unit_kMD _) tt eq SM.
+Proof.
+  constructor.
   + intros.
     change (@Kdenotation L MD (unit_kMD _) tt SM) with denotation.
     rewrite Trivial.denote_impp.
@@ -46,3 +59,5 @@ Proof.
     rewrite Trivial.denote_falsep.
     reflexivity.
 Qed.
+
+End SemanticEquiv.

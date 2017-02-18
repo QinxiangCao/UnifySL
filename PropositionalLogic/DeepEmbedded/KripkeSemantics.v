@@ -13,23 +13,22 @@ Import PropositionalLanguage.
 
 Record frame: Type := {
   underlying_set:> Type;
-  Krelation: relation underlying_set; (* <= *)
-  Krelation_Preorder: PreOrder Krelation
+  Krelation: relation underlying_set
 }.
 
 Infix "<=" := (Krelation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := @MonoEnsemble (underlying_set f) (Krelation f).
+Definition sem (f: frame) := @Ensemble (underlying_set f).
 
 Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
   fix denotation (x: expr Var): sem F:=
   match x with
-  | andp y z => @SemanticsMono.andp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
-  | orp y z => @SemanticsMono.orp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
-  | impp y z => @SemanticsMono.impp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
-  | falsep => @SemanticsMono.falsep F (Krelation F)
+  | andp y z => @Semantics.andp F (denotation y) (denotation z)
+  | orp y z => @Semantics.orp F (denotation y) (denotation z)
+  | impp y z => @Semantics.impp F (Krelation F) (denotation y) (denotation z)
+  | falsep => @Semantics.falsep F
   | varp p => eval p
   end.
 
@@ -58,11 +57,8 @@ Instance kMD: KripkeModel MD :=
 Instance R (M: Kmodel): Relation (Kworlds M) :=
   @Krelation M.
 
-Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)) :=
-  @Krelation_Preorder M.
-
 Instance SM: Semantics L MD :=
-  Build_Semantics L MD (fun x M => proj1_sig (denotation M (Kvar M) x) (elm M)).
+  Build_Semantics L MD (fun x M => (denotation M (Kvar M) x) (elm M)).
 
 Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM.
 Proof.

@@ -16,6 +16,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Complete.Canonical_Kripke.
 Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.DeMorganLogic.
