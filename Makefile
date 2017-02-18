@@ -61,7 +61,7 @@ PropositionalLogic_ShallowEmbedded_FILES = \
 
 PropositionalLogic_Complete_FILES = \
   Complete_Classical_Trivial.v \
-  Complete_Kripke.v Canonical_Kripke.v
+  Complete_Kripke.v Canonical_Kripke.v ContextProperty_Kripke.v Truth_Kripke.v
 
 PropositionalLogic_FILES = \
   Syntax.v\
