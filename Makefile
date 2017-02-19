@@ -48,20 +48,21 @@ PropositionalLogic_Semantics_FILES = \
 PropositionalLogic_Sound_FILES = \
   Sound_Kripke.v Sound_Classical_Trivial.v
 
+PropositionalLogic_Complete_FILES = \
+  Complete_Classical_Trivial.v \
+  ContextProperty_Kripke.v \
+  Lindenbaum_Kripke.v Canonical_Kripke.v Truth_Kripke.v Complete_Kripke.v
+
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
   IntuitionisticLogic.v DeMorganLogic.v \
   GodelDummettLogic.v ClassicalLogic.v \
   KripkeSemantics.v TrivialSemantics.v \
-  Soundness.v
+  Soundness.v Completeness.v
 
 PropositionalLogic_ShallowEmbedded_FILES = \
   PredicatePropositionalLogic.v \
   MonoPredicatePropositionalLogic.v
-
-PropositionalLogic_Complete_FILES = \
-  Complete_Classical_Trivial.v \
-  Complete_Kripke.v Canonical_Kripke.v ContextProperty_Kripke.v Truth_Kripke.v
 
 PropositionalLogic_FILES = \
   Syntax.v\

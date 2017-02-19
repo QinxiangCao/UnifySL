@@ -125,6 +125,6 @@ Proof.
     apply H1; auto.
 Qed.
 
-End Canonical.
+End TruthLemma.
 
 

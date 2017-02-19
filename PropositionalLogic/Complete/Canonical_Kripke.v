@@ -109,7 +109,7 @@ Proof.
   apply CONSI, (proj2_sig Psi).
 Qed.
 
-Lemma Godel_Dummett_canonical_no_branch
+Lemma GodelDummett_canonical_no_branch
       {gdpGamma: GodelDummettPropositionalLogic L Gamma}
       (DER: at_least_derivable_closed P)
       (ORP: at_least_orp_witnessed P):

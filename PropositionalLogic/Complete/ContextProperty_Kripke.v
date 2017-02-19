@@ -42,7 +42,6 @@ Definition at_least_orp_witnessed
 
 Definition Linderbaum_derivable
            {L: Language}
-           {nL: NormalLanguage L}
            {Gamma: ProofTheory L}
            (P: context -> Prop): Prop :=
   forall Phi x, ~ Phi |-- x -> exists Psi: sig P, Included _ Phi (proj1_sig Psi) /\ ~ (proj1_sig Psi) |-- x.

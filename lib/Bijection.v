@@ -102,7 +102,19 @@ Definition bijection_sym {A B} (R: bijection A B): bijection B A.
     apply (pf_bij _ _ R b a1 a2); auto.
   + hnf.
     apply (im_bij _ _ R).
-Qed.
+Defined.
+
+Definition bijection_refl {A}: bijection A A.
+  apply (Build_bijection _ _ eq).
+  + hnf; intros.
+    eauto.
+  + hnf; intros.
+    congruence.
+  + hnf; intros.
+    congruence.
+  + hnf; intros.
+    eauto.
+Defined.
 
 Definition sum_injection {A1 B1 A2 B2} (R1: injection A1 B1) (R2: injection A2 B2): injection (sum A1 A2) (sum B1 B2).
 Proof.
@@ -127,7 +139,7 @@ Proof.
     destruct a1 as [a1 | a1], a2 as [a2 | a2], b as [b | b]; try solve [inversion H | inversion H0].
     - f_equal; apply (in_inj _ _ R1 _ _ b); auto.
     - f_equal; apply (in_inj _ _ R2 _ _ b); auto.
-Qed.
+Defined.
 
 Definition prod_injection {A1 B1 A2 B2} (R1: injection A1 B1) (R2: injection A2 B2): injection (prod A1 A2) (prod B1 B2).
 Proof.
@@ -147,7 +159,7 @@ Proof.
     pose proof in_inj _ _ R1 _ _ _ H H0.
     pose proof in_inj _ _ R2 _ _ _ H1 H2.
     simpl in *; subst; auto.
-Qed.
+Defined.
 
 Definition sigT_injection (I: Type) (A: I -> Type) (B: Type) (R: forall i: I, injection (A i) B): injection (sigT A) (I * B).
   apply (Build_injection _ _ (fun a b => projT1 a = fst b /\ (R (projT1 a)) (projT2 a) (snd b))).
@@ -188,7 +200,7 @@ Definition nat2_nat_bijection: bijection (sum nat nat) nat.
     - rewrite (proj2 (Div2.even_odd_double _)), NPeano.double_twice in H.
       exists (inr (Div2.div2 b)).
       rewrite H at 1. omega.
-Qed.
+Defined.
 
 Definition natnat_nat_bijection: bijection (prod nat nat) nat.
   apply (Build_bijection _ _
@@ -268,5 +280,5 @@ Definition natnat_nat_bijection: bijection (prod nat nat) nat.
     exists (a1, s - a1).
     replace (a1 + (s - a1)) with s by omega.
     omega.
-Qed.
+Defined.
 
