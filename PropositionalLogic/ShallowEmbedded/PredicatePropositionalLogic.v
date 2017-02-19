@@ -67,5 +67,8 @@ Require Import Logic.SeparationLogic.Model.OSAGenerators.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Semantics.SemanticEquiv.
 
-Instance Pred_kiSM (A: Type): @KripkeIntuitionisticSemantics (Pred_L A) (Pred_nL A)  (Pred_pL A) (Build_Model A) (unit_kMD _) tt eq (Pred_SM A) :=
+Instance Pred_kiSM (A: Type): @KripkeIntuitionisticSemantics (Pred_L A) (Build_Model A) (unit_kMD _) tt eq (Pred_SM A) :=
+  @eqR_KripkeIntuitionistic _ _ _.
+
+Instance Pred_kpSM (A: Type): @KripkePropositionalSemantics (Pred_L A) (Pred_nL A) (Pred_pL A) (Build_Model A) (unit_kMD _) tt eq (Pred_SM A) :=
   @Trivial2Kripke _ _ _ _ _ (Pred_tpSM A).

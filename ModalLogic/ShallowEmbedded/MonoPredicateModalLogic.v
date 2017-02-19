@@ -28,14 +28,14 @@ Instance MonoPred_KmGamma (A: Type) {R1: KI.Relation A} {po_R1: PreOrder KI.Krel
 Proof.
   constructor.
   + intros x y.
-    exact (@sound_axiom_K (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ R2 _ (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_fmSM A) x y).
+    exact (@sound_axiom_K (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 R2 _ (MonoPred_SM A) (MonoPred_kpSM A) (MonoPred_fmSM A) x y).
   + intros x.
-    exact (@sound_rule_N (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ R2 _ (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_fmSM A) x).
+    exact (@sound_rule_N (MonoPred_L A) _ _ (Build_Model A) (unit_kMD _) tt R1 R2 (MonoPred_SM A) (MonoPred_fmSM A) x).
 Qed.
 
 Instance MonoPred_pmGamma (A: Type) {R1: KI.Relation A} {po_R1: PreOrder KI.Krelation} {R2: KM.Relation A} {uR2: UpwardsClosedOrderedKripkeModel A} {pf_R2: PartialFunctional KM.Krelation}: PropositionalTransparentModality (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   intros x y.
-  exact (@sound_boxp_orp (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ R2 _ _ (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_fmSM A) x y).
+  exact (@sound_boxp_orp (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 R2 (MonoPred_SM A) (MonoPred_kpSM A) (MonoPred_fmSM A) pf_R2 x y).
 Qed.

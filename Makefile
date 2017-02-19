@@ -134,6 +134,9 @@ SeparationLogic_Sound_FILES = \
   Sound_Downwards.v Sound_Upwards.v Sound_Flat.v \
   Sound_DownUp_Fail.v
 
+SeparationLogic_Complete_FILES = \
+  Truth_Flat.v ContextProperty_Flat.v
+
 SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v \
   Parameter.v \
@@ -149,6 +152,7 @@ SeparationLogic_FILES = \
   $(SeparationLogic_Model_FILES:%.v=Model/%.v) \
   $(SeparationLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
+  $(SeparationLogic_Complete_FILES:%.v=Complete/%.v) \
   $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
   $(SeparationLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
   Complete_Flat.v

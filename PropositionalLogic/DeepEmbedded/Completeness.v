@@ -219,3 +219,7 @@ Proof.
 Qed.
 
 End Classical_Completeness.
+
+End Complete_Kripke.
+
+End Complete.

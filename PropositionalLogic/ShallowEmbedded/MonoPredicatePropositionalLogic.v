@@ -19,7 +19,12 @@ Instance MonoPred_pL (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: Propo
 Instance MonoPred_kiSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: KripkeIntuitionisticSemantics (MonoPred_L A) (Build_Model A) (tt: @Kmodel _ (unit_kMD (Build_Model A))) (MonoPred_SM A).
 Proof.
   constructor.
-  + intros; apply (proj2_sig _).
+  intros; apply (proj2_sig _).
+Qed.
+
+Instance MonoPred_kpSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: KripkePropositionalSemantics (MonoPred_L A) (Build_Model A) (tt: @Kmodel _ (unit_kMD (Build_Model A))) (MonoPred_SM A).
+Proof.
+  constructor.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
@@ -34,50 +39,50 @@ Instance MonoPred_mpGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: 
 Proof.
   constructor.
   + intros x y ? ? m.
-    pose proof @sound_modus_ponens (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y.
+    pose proof @sound_modus_ponens (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kpSM A) x y.
     exact (H1 m (H m) (H0 m)).
   + intros x y.
-    exact (@sound_axiom1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y).
+    exact (@sound_axiom1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kpSM A) x y).
   + intros x y z.
-    exact (@sound_axiom2 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y z).
+    exact (@sound_axiom2 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kpSM A) x y z).
 Qed.
 
 Instance MonoPred_ipGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: IntuitionisticPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   + intros x y.
-    exact (@sound_andp_intros (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y).
+    exact (@sound_andp_intros (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kpSM A) x y).
   + intros x y.
-    exact (@sound_andp_elim1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y).
+    exact (@sound_andp_elim1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kpSM A) x y).
   + intros x y.
-    exact (@sound_andp_elim2 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y).
+    exact (@sound_andp_elim2 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kpSM A) x y).
   + intros x y.
-    exact (@sound_orp_intros1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y).
+    exact (@sound_orp_intros1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kpSM A) x y).
   + intros x y.
-    exact (@sound_orp_intros2 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y).
+    exact (@sound_orp_intros2 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kpSM A) x y).
   + intros x y z.
-    exact (@sound_orp_elim (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x y z).
+    exact (@sound_orp_elim (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kpSM A) x y z).
   + intros x.
-    exact (@sound_falsep_elim (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) x).
+    exact (@sound_falsep_elim (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kpSM A) x).
 Qed.
 
-Instance MonoPred_gdpGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {npo_R: NoBranchKripkeIntuitionisticModel A}: GodelDummettPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
+Instance MonoPred_gdpGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {nkiM: NoBranchKripkeIntuitionisticModel A}: GodelDummettPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   intros x y.
-  exact (@sound_impp_choice_no_branch (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R npo_R (MonoPred_SM A) (MonoPred_kiSM A) x y).
+  exact (@sound_impp_choice_no_branch (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kpSM A) nkiM x y).
 Qed.
 
-Instance MonoPred_dmpGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {bpo_R: BranchJoinKripkeIntuitionisticModel A}: DeMorganPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
+Instance MonoPred_dmpGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {bkiM: BranchJoinKripkeIntuitionisticModel A}: DeMorganPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   intros x.
-  exact (@sound_weak_excluded_middle_branch_join (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R bpo_R (MonoPred_SM A) (MonoPred_kiSM A) x).
+  exact (@sound_weak_excluded_middle_branch_join (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kpSM A) bkiM x).
 Qed.
 
 Instance MonoPred_cpGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {ikiM: IdentityKripkeIntuitionisticModel A}: ClassicalPropositionalLogic (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   intros x.
-  exact (@sound_excluded_middle_ident (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R po_R ikiM (MonoPred_SM A) (MonoPred_kiSM A) x).
+  exact (@sound_excluded_middle_ident (MonoPred_L A) _ _ (Build_Model A) (unit_kMD (Build_Model A)) tt R (MonoPred_SM A) (MonoPred_kpSM A) ikiM x).
 Qed.

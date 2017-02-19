@@ -39,20 +39,13 @@ Instance Pred_sGamma (A: Type) {J: Join A} {SA: SeparationAlgebra A}: Separation
 Proof.
   constructor.
   + intros x y.
-    exact (@sound_sepcon_comm (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J SA (Pred_SM A) (Pred_kiSM A) (Pred_fsSM A) x y).
+    exact (@sound_sepcon_comm (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kpSM A) (Pred_fsSM A) x y).
   + intros x y.
-    exact (@sound_sepcon_assoc (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J SA (Pred_SM A) (Pred_kiSM A) (Pred_fsSM A) x y).
+    exact (@sound_sepcon_assoc (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kpSM A) (Pred_fsSM A) x y).
   + intros x y z.
-    exact (@sound_wand_sepcon_adjoint (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J SA (Pred_SM A) (Pred_kiSM A) (Pred_fsSM A) x y z).
+    exact (@sound_wand_sepcon_adjoint (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J (Pred_SM A) (Pred_kpSM A) (Pred_fsSM A) x y z).
   + intros x1 x2 y1 y2.
-    exact (@sound_sepcon_mono (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J SA (Pred_SM A) (Pred_kiSM A) (Pred_fsSM A) x1 x2 y1 y2).
-Qed.
-
-Instance Pred_EmpsGamma (A: Type) {J: Join A} {SA: SeparationAlgebra A} {USA: @UnitalSeparationAlgebra A eq J}: EmpSeparationLogic (Pred_L A) (Pred_Gamma A).
-Proof.
-  constructor.
-  intros x.
-  exact (@sound_sepcon_emp (Pred_L A) _ _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J SA USA (Pred_SM A) (Pred_kiSM A) (Pred_fsSM A) (Pred_feSM A) x).
+    exact (@sound_sepcon_mono (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J (Pred_SM A) (Pred_kpSM A) (Pred_fsSM A) x1 x2 y1 y2).
 Qed.
 
 Instance Pred_gcsGamma (A: Type) {J: Join A} {SA: SeparationAlgebra A} {incrSA: @IncreasingSeparationAlgebra A eq J}: GarbageCollectSeparationLogic (Pred_L A) (Pred_Gamma A).
@@ -60,5 +53,13 @@ Proof.
   intros.
   constructor.
   intros x y.
-  exact (@sound_sepcon_elim1 (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J SA incrSA (Pred_SM A) (Pred_kiSM A) (Pred_fsSM A) x y).
+  exact (@sound_sepcon_elim1 (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kiSM A) (Pred_kpSM A) (Pred_fsSM A) incrSA x y).
 Qed.
+
+Instance Pred_EmpsGamma (A: Type) {J: Join A} {SA: SeparationAlgebra A} {USA: @UnitalSeparationAlgebra A eq J}: EmpSeparationLogic (Pred_L A) (Pred_Gamma A).
+Proof.
+  constructor.
+  intros x.
+  exact (@sound_sepcon_emp (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA(Pred_SM A) (Pred_kiSM A) (Pred_kpSM A) (Pred_fsSM A) _ (Pred_feSM A) USA x).
+Qed.
+

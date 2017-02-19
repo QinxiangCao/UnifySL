@@ -24,30 +24,26 @@ Import KripkeModelNotation_Intuitionistic.
 
 Record frame: Type := {
   underlying_set:> Type;
-  Krelation: relation underlying_set; (* <= *)
-  Krelation_Preorder: PreOrder Krelation;
-  Frame_join: Join underlying_set;
-  Frame_SA: SeparationAlgebra underlying_set;
-  Frame_downwards: @DownwardsClosedSeparationAlgebra underlying_set Krelation Frame_join;
-  Frame_upwards: @UpwardsClosedSeparationAlgebra underlying_set Krelation Frame_join
+  underlying_relation: relation underlying_set;
+  underlying_join: Join underlying_set
 }.
 
-Infix "<=" := (Krelation _): TheKripkeSemantics.
+Infix "<=" := (underlying_relation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
-Definition sem (f: frame) := @MonoEnsemble (underlying_set f) (Krelation f).
+Definition sem (f: frame) := @Ensemble (underlying_set f).
 
-Definition denotation {Var: Type} (F: frame) (eval_emp: sem F) (eval: Var -> sem F): expr Var -> sem F :=
+Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
   fix denotation (x: expr Var): sem F:=
   match x with
-  | andp y z => @SemanticsMono.andp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
-  | orp y z => @SemanticsMono.orp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
-  | impp y z => @SemanticsMono.impp F (Krelation F) (Krelation_Preorder F) (denotation y) (denotation z)
-  | sepcon y z => @WeakSemanticsMono.sepcon F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_upwards F) (denotation y) (denotation z)
-  | wand y z => @WeakSemanticsMono.wand F (Krelation F) (Krelation_Preorder F) (Frame_join F) (Frame_SA F) (Frame_downwards F) (denotation y) (denotation z)
-  | emp => eval_emp
-  | falsep => @SemanticsMono.falsep F (Krelation F)
+  | andp y z => @Semantics.andp F (denotation y) (denotation z)
+  | orp y z => @Semantics.orp F (denotation y) (denotation z)
+  | impp y z => @Semantics.impp F (underlying_relation F) (denotation y) (denotation z)
+  | sepcon y z => @WeakSemantics.sepcon F (underlying_join F) (denotation y) (denotation z)
+  | wand y z => @WeakSemantics.wand F (underlying_join F) (denotation y) (denotation z)
+  | emp => @WeakSemantics.emp F (underlying_relation F) (underlying_join F)
+  | falsep => @Semantics.falsep F
   | varp p => eval p
   end.
 
@@ -56,8 +52,7 @@ Context (Var: Type).
 
 Record Kmodel : Type := {
   underlying_frame :> frame;
-  Kemp: sem underlying_frame;
-  Kvar: Var -> sem underlying_frame
+  sem_var: Var -> sem underlying_frame
 }.
 
 Record model: Type := {
@@ -75,49 +70,35 @@ Instance kMD: KripkeModel MD :=
     (fun M m => Build_model M m).
 
 Instance SM: Semantics L MD :=
-  Build_Semantics L MD (fun x M => proj1_sig (denotation M (Kemp M) (Kvar M) x) (elm M)).
+  Build_Semantics L MD (fun x M => (denotation M (sem_var M) x) (elm M)).
 
 Instance R (M: Kmodel): Relation (Kworlds M) :=
-  @Krelation M.
-
-Instance po_R (M: Kmodel): PreOrder (@KI.Krelation _ (R M)) :=
-  @Krelation_Preorder M.
+  @underlying_relation M.
 
 Instance J (M: Kmodel): Join (Kworlds M) :=
-  @Frame_join M.
+  @underlying_join M.
 
-Instance SA (M: Kmodel): SeparationAlgebra (Kworlds M) :=
-  @Frame_SA M.
-
-Instance uSA (M: Kmodel): UpwardsClosedSeparationAlgebra (Kworlds M) :=
-  @Frame_upwards M.
-
-Instance dSA (M: Kmodel): DownwardsClosedSeparationAlgebra (Kworlds M) :=
-  @Frame_downwards M.
-
-Instance kiSM (M: Kmodel): KripkeIntuitionisticSemantics L MD M SM.
+Instance kpSM (M: Kmodel): KripkePropositionalSemantics L MD M SM.
 Proof.
-  apply Build_KripkeIntuitionisticSemantics.
-  + hnf; simpl; intros.
-    eapply (proj2_sig (denotation M (Kemp M) (Kvar M) x)); eauto.
+  apply Build_KripkePropositionalSemantics.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
-Defined.
+Qed.
 
 Instance fsSM (M: Kmodel): FlatSemantics.SeparatingSemantics L MD M SM.
 Proof.
   apply FlatSemantics.Build_SeparatingSemantics.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
-Defined.
+Qed.
 
-Instance feSM (M: Kmodel): Same_set _ (proj1_sig (Kemp M)) (WeakSemantics.emp) -> FlatSemantics.EmpSemantics L MD M SM.
+Instance feSM (M: Kmodel): FlatSemantics.EmpSemantics L MD M SM.
 Proof.
-  intros; hnf; intros.
-  auto.
-Defined.
+  unfold FlatSemantics.EmpSemantics.
+  apply Same_set_refl.
+Qed.
 
 Definition Kmodel_Identity: Kmodel -> Prop := fun M =>
   IdentityKripkeIntuitionisticModel (Kworlds M).
@@ -132,7 +113,6 @@ Definition Kmodel_Increasing: Kmodel -> Prop := fun M =>
   IncreasingSeparationAlgebra (Kworlds M).
 
 Definition Kmodel_Unital: Kmodel -> Prop := fun M =>
-  (forall m: Kworlds M, proj1_sig (Kemp M) m <-> WeakSemantics.emp m) /\
   UnitalSeparationAlgebra (Kworlds M).
 
 Definition Kmodel_Residual: Kmodel -> Prop := fun M =>
