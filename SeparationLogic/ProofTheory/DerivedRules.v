@@ -23,6 +23,16 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
+Lemma sepcon_emp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: SeparationEmpLogic L Gamma} {ueGamma: UnitalSeparationLogic L Gamma} (x: expr),
+  |-- x * emp <--> x.
+Proof.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + apply derivable_sepcon_emp_l.
+  + apply derivable_sepcon_emp_r.
+Qed.
+
 Lemma provable_sepcon_comm_iffp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (x y: expr),
   |-- x * y <--> y * x.
 Proof.
@@ -196,27 +206,21 @@ Proof.
     apply sepcon_ext.
 Qed.
 
-Lemma derivable_emp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {EmpsGamma: EmpSeparationLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} (Phi: context) (x y: expr),
+Lemma derivable_emp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: SeparationEmpLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} {ueGamma: UnitalSeparationLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- emp.
 Proof.
   intros.
-  pose proof derivable_sepcon_elim2 Phi TT emp.
-  pose proof derivable_sepcon_emp Phi TT.
-  apply deduction_andp_elim2 in H0.
-  pose proof derivable_impp_refl Phi FF.
-  pose proof deduction_modus_ponens _ _ _ H1 H0.
-  pose proof deduction_modus_ponens _ _ _ H2 H.
-  auto.
+  rewrite <- (sepcon_elim2 TT emp).
+  rewrite <- (sepcon_emp_r TT).
+  apply derivable_impp_refl.
 Qed.
 
-Lemma GC_Classical_collapse_aux: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {EmpsGamma: EmpSeparationLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} (Phi: context) (x: expr),
+Lemma GC_Ext_Classical_collapse_aux: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} {ExtsGamma: ExtSeparationLogic L Gamma} (Phi: context) (x: expr),
   Phi |-- x --> x * x.
 Proof.
   intros.
-  pose proof derivable_sepcon_emp Phi x.
-  apply deduction_andp_elim2 in H.
-  eapply deduction_impp_trans;
-    [exact H | eapply deduction_impp_trans with (x * (x || ~~ x))]; clear H.
+  rewrite (sepcon_ext x) at 1.
+  eapply deduction_impp_trans with (x * (x || ~~ x)).
   + apply deduction_weaken0.
     apply sepcon_mono; [apply provable_impp_refl |].
     rewrite provable_derivable.
@@ -228,12 +232,13 @@ Proof.
     - apply deduction_orp_elim; [apply derivable_impp_refl |].
       rewrite <- deduction_theorem.
       pose proof derivable_assum1 Phi (x * (~~ x)).
-      pose proof deduction_sepcon_elim1 _ _ _ H.
-      pose proof deduction_sepcon_elim2 _ _ _ H.
-      eapply deduction_contradiction_elim; [exact H0 | exact H1].
+      pose proof derivable_assum1 Phi (x * (~~ x)).
+      rewrite sepcon_elim1 in H at 2.
+      rewrite sepcon_elim2 in H0 at 2.
+      eapply deduction_contradiction_elim; [exact H | exact H0].
 Qed.
 
-Theorem GC_Classical_collapse: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {EmpsGamma: EmpSeparationLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} (x y: expr),
+Theorem GC_Ext_Classical_collapse: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}{gcsGamma: GarbageCollectSeparationLogic L Gamma} {ExtsGamma: ExtSeparationLogic L Gamma} (x y: expr),
   |-- x * y <--> x && y.
 Proof.
   intros.
@@ -248,7 +253,7 @@ Proof.
     - rewrite deduction_theorem.
       apply derivable_sepcon_elim2.
   + eapply deduction_impp_trans.
-    - apply GC_Classical_collapse_aux.
+    - apply GC_Ext_Classical_collapse_aux.
     - apply deduction_weaken0.
       apply sepcon_mono.
       * apply andp_elim1.

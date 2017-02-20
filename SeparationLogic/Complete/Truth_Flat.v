@@ -51,7 +51,6 @@ Context {L: Language}
         {R: Relation (Kworlds M)}
         {J: Join (Kworlds M)}
         {SM: Semantics L MD}
-        {kpSM: KripkePropositionalSemantics L MD M SM}
         {fsSM: SeparatingSemantics L MD M SM}.
 
 Context (P: context -> Prop)
@@ -145,18 +144,21 @@ Proof.
     specialize (H1 _ _ H0 H2).
     rewrite provable_wand_sepcon_modus_ponens1 in H1; auto.
 Qed.
-(*
-Lemma truth_lemma_emp:
+
+Context {s'L: SeparationEmpLanguage L}
+        {eGamma: SeparationEmpLogic L Gamma}
+        {feSM: EmpSemantics L MD M SM}.
+
+Lemma truth_lemma_emp
+      (DER: at_least_derivable_closed P):
   forall m Phi, rel m Phi -> (KRIPKE: M, m |= emp <-> proj1_sig Phi emp).
 Proof.
   intros.
-  rewrite sat_falsep.
-  pose proof proj2_sig Phi.
-  pose proof CONSI _ H0.
-  rewrite consistent_spec in H1.
-  split; [intros [] |].
-  intro; apply H1.
-  apply derivable_assum; auto.
+  rewrite sat_emp.
+  split; intros.
+  + rewrite derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)); auto.
+    rewrite <- (provable_wand_sepcon_modus_ponens1 emp).
+    rewrite <- sepcon_emp_l.
 Qed.
-*)
+
 End TruthLemma.
