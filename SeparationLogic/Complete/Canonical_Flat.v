@@ -26,6 +26,7 @@ Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.SeparationLogic.Complete.ContextProperty_Flat.
 Require Import Logic.PropositionalLogic.Complete.Canonical_Kripke.
+Require Import Logic.SeparationLogic.Complete.Truth_Flat.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -191,39 +192,78 @@ Context {s'L: SeparationEmpLanguage L}
 
 Instance unitSA
          (DER: at_least_derivable_closed P)
-         (LIN_SL: Linderbaum_sepcon_left P):
+         (LIN_DER: Linderbaum_derivable P)
+         (LIN_SR: Linderbaum_sepcon_right P):
   UnitalSeparationAlgebra (Kworlds M).
 Proof.
   intros.
   constructor.
   intros.
   destruct (im_bij _ _ rel n) as [Phi ?].
-  assert (context_join (Union _ empty_context (Singleton _ emp)) (proj1_sig Phi) (proj1_sig Phi)).
+  assert (context_join (proj1_sig Phi) (Union _ empty_context (Singleton _ emp)) (proj1_sig Phi)).
   + hnf; intros.
-    rewrite deduction_theorem, <- provable_derivable in H0.
-    rewrite <- H0, <- sepcon_comm, sepcon_emp; auto.
-  + apply LIN_SL in H0.
+    rewrite deduction_theorem, <- provable_derivable in H1.
+    rewrite <- H1, sepcon_emp; auto.
+  + apply LIN_SR in H0.
     destruct H0 as [Psi [? ?]].
     destruct (su_bij _ _ rel Psi) as [m ?].
     exists m.
     split; [exists n; split |].
-    - erewrite H_J by eauto.
+    - apply (@join_comm _ _ (SA LIN_SR)).
+      erewrite H_J by eauto.
       auto.
     - erewrite H_R by eauto.
       hnf; intros; auto.
     - clear H1 n Phi H.
-      hnf; intros n1 n2 ?.
-      destruct (im_bij _ _ rel n1) as [Phi1 ?].
-      destruct (im_bij _ _ rel n2) as [Phi2 ?].
-      erewrite H_R by eauto.
-      erewrite H_J in H by eauto.
-      intros x; unfold Ensembles.In; intros.
-      rewrite derivable_closed_element_derivable by (apply DER, (proj2_sig Phi2)); auto.
-      rewrite derivable_closed_element_derivable in H4 by (apply DER, (proj2_sig Phi1)); auto.
-      rewrite <- sepcon_emp, provable_sepcon_comm_iffp.
-      apply (H emp x); auto.
-      rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Psi)); auto.
-      apply H0; right; constructor.
+      specialize (H0 emp ltac:(right; constructor)).
+      unfold Ensembles.In in H0.
+      rewrite <- (truth_lemma_emp P rel H_R H_J DER LIN_DER LIN_SR) in H0 by eauto.
+      rewrite sat_emp in H0; auto.
+Qed.
+
+Lemma nonsplit_canonical_split_smaller
+      {nssGamma: NonsplitEmpSeparationLogic L Gamma}
+      (DER: at_least_derivable_closed P)
+      (LIN_DER: Linderbaum_derivable P)
+      (LIN_SR: Linderbaum_sepcon_right P):
+  IncreasingSplitSmallerSeparationAlgebra (Kworlds M).
+Proof.
+  hnf; intros.
+  destruct (im_bij _ _ rel m1) as [Phi1 ?].
+  destruct (im_bij _ _ rel m2) as [Phi2 ?].
+  destruct (im_bij _ _ rel m) as [Phi ?].
+  erewrite H_J in H0 by eauto.
+  erewrite H_R by eauto.
+  unfold Included, Ensembles.In; intros x ?.
+  rewrite derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)).
+  rewrite <- (emp_sepcon_truep_elim x).
+  apply deduction_andp_intros.
+  + apply H0.
+    - rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi1)); auto.
+    - apply derivable_impp_refl.
+  + rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)).
+    rewrite <- (truth_lemma_emp P rel H_R H_J DER LIN_DER LIN_SR) by eauto.
+    rewrite sat_emp; auto.
+Qed.
+
+Lemma dup_canonical_incr_join
+      {desGamma: DupEmpSeparationLogic L Gamma}
+      (DER: at_least_derivable_closed P)
+      (LIN_DER: Linderbaum_derivable P)
+      (LIN_SR: Linderbaum_sepcon_right P):
+  IncreasingJoinSelfSeparationAlgebra (Kworlds M).
+Proof.
+  hnf; intros.
+  destruct (im_bij _ _ rel m) as [Phi ?].
+  erewrite H_J by eauto.
+  intros x y ? ?.
+  rewrite <- (andp_elim1 x y).
+  rewrite <- (andp_elim2 x y) at 2.
+  rewrite <- emp_dup.
+  apply deduction_andp_intros; [apply deduction_andp_intros |]; auto.
+  rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)); auto.
+  rewrite <- (truth_lemma_emp P rel H_R H_J DER LIN_DER LIN_SR) by eauto.
+  rewrite sat_emp; auto.
 Qed.
 
 End Canonical.

@@ -32,9 +32,19 @@ Class ExtSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: Propositional
   sepcon_ext: forall x, |-- x --> x * TT
 }.
 
-Class MallocFreeSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
-  emp_sepcon_elim1: forall x y, |-- x * y && emp --> x;
+Class NonsplitEmpSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: EmpSeparationLogic L Gamma} := {
+  emp_sepcon_truep_elim: forall x, |-- x * TT && emp --> x
+}.
+
+Class DupEmpSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: EmpSeparationLogic L Gamma} := {
   emp_dup: forall x, |-- x && emp --> x * x
+}.
+
+Class MallocFreeSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: EmpSeparationLogic L Gamma} := {
+  MallocFreeSeparationLogic_NonsplitEmpSeparationLogic :>
+    NonsplitEmpSeparationLogic L Gamma;
+  MallocFreeSeparationLogic_DupEmpSeparationLogic :>
+    DupEmpSeparationLogic L Gamma
 }.
 
 Class GarbageCollectSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
@@ -65,25 +75,6 @@ Proof.
   apply deduction_weaken0; auto.
 Qed.
 
-Lemma deduction_sepcon_comm: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x y: expr),
-  Phi |-- x * y <-> Phi |-- y * x.
-Proof.
-  intros.
-  pose proof derivable_sepcon_comm Phi x y.
-  pose proof derivable_sepcon_comm Phi y x.
-  split; intros; eapply deduction_modus_ponens; eauto.
-Qed.
-
-Lemma deduction_sepcon_assoc: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x y z: expr),
-  Phi |-- x * (y * z) <-> Phi |-- (x * y) * z.
-Proof.
-  intros.
-  pose proof derivable_sepcon_assoc Phi x y z.
-  pose proof deduction_andp_elim1 _ _ _ H.
-  pose proof deduction_andp_elim2 _ _ _ H.
-  split; intros; eapply deduction_modus_ponens; eauto.
-Qed.
-
 Lemma sepcon_elim2: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} (x y: expr),
   |-- x * y --> y.
 Proof.
@@ -109,4 +100,23 @@ Proof.
   eapply deduction_impp_trans; eauto.
   apply deduction_weaken0.
   apply sepcon_comm.
+Qed.
+
+Lemma emp_sepcon_elim1: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: EmpSeparationLogic L Gamma} {nssGamma: NonsplitEmpSeparationLogic L Gamma} x y,
+  |-- x * y && emp --> x.
+Proof.
+  intros.
+  rewrite <- (emp_sepcon_truep_elim x) at 2.
+  apply andp_proper_impp; [| apply provable_impp_refl].
+  apply sepcon_mono; [apply provable_impp_refl |].
+  rewrite provable_derivable, <- deduction_theorem.
+  apply derivable_impp_refl.
+Qed.
+
+Lemma emp_sepcon_elim2: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: EmpSeparationLogic L Gamma} {nssGamma: NonsplitEmpSeparationLogic L Gamma} x y,
+  |-- x * y && emp --> y.
+Proof.
+  intros.
+  rewrite sepcon_comm.
+  apply emp_sepcon_elim1.
 Qed.
