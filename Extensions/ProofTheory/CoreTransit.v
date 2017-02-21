@@ -89,9 +89,9 @@ Proof.
     rewrite provable_derivable.
     rewrite <- deduction_theorem.
     apply deduction_andp_intros.
-    - eapply deduction_sepcon_elim1.
+    - rewrite <- (sepcon_elim1 x y) at 2.
       apply derivable_assum1.
-    - eapply deduction_sepcon_elim2.
+    - rewrite <- (sepcon_elim2 x y) at 2.
       apply derivable_assum1.
 Qed.
 
