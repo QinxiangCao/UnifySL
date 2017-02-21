@@ -135,7 +135,8 @@ SeparationLogic_Sound_FILES = \
   Sound_DownUp_Fail.v
 
 SeparationLogic_Complete_FILES = \
-  Truth_Flat.v ContextProperty_Flat.v
+  ContextProperty_Flat.v \
+  Truth_Flat.v Canonical_Flat.v
 
 SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v \

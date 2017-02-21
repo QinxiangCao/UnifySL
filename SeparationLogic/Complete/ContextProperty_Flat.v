@@ -71,6 +71,22 @@ Proof.
   auto.
 Qed.
 
+Lemma context_join_spec {L: Language} {nL: NormalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
+  forall Phi1 Phi2 Phi,
+    derivable_closed Phi ->
+    (context_join Phi1 Phi2 Phi <-> Included _ (context_sepcon Phi1 Phi2) Phi).
+Proof.
+  intros.
+  split; intros.
+  + unfold Included, Ensembles.In.
+    intros z ?.
+    destruct H1 as [x [y [? [? ?]]]].
+    subst.
+    rewrite derivable_closed_element_derivable by auto.
+    apply H0; auto.
+  + apply context_sepcon_context_join'; auto.
+Qed.
+
 Lemma context_sepcon_derivable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
   forall (Phi Psi: context) z,
     context_sepcon Phi Psi |-- z ->

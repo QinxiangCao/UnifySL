@@ -146,11 +146,13 @@ Proof.
 Qed.
 
 Context {s'L: SeparationEmpLanguage L}
-        {eGamma: SeparationEmpLogic L Gamma}
+        {eGamma: EmpSeparationLogic L Gamma}
         {feSM: EmpSemantics L MD M SM}.
 
 Lemma truth_lemma_emp
-      (DER: at_least_derivable_closed P):
+      (DER: at_least_derivable_closed P)
+      (LIN_DER: Linderbaum_derivable P)
+      (LIN_SR: Linderbaum_sepcon_right P):
   forall m Phi, rel m Phi -> (KRIPKE: M, m |= emp <-> proj1_sig Phi emp).
 Proof.
   intros.
@@ -158,7 +160,33 @@ Proof.
   split; intros.
   + rewrite derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)); auto.
     rewrite <- (provable_wand_sepcon_modus_ponens1 emp).
-    rewrite <- sepcon_emp_l.
+    rewrite sepcon_emp.
+    apply wand_deduction_theorem.
+    apply NNPP; intro.
+    apply LIN_DER in H1.
+    destruct H1 as [Phi2 [? ?]].
+    apply context_sepcon_context_join' in H1.
+    apply H2; clear H2.
+    rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi2)); auto.
+    apply LIN_SR in H1.
+    destruct H1 as [Phi1 [? ?]].
+    destruct (su_bij _ _ rel Phi1) as [m1 ?].
+    destruct (su_bij _ _ rel Phi2) as [m2 ?].
+    erewrite <- H_J in H2 by eauto.
+    apply H0 in H2.
+    erewrite H_R in H2 by eauto.
+    apply H2, H1; right; constructor.
+  + hnf; intros n1 n2 ?.
+    destruct (im_bij _ _ rel n1) as [Phi1 ?].
+    destruct (im_bij _ _ rel n2) as [Phi2 ?].
+    erewrite H_R by eauto.
+    erewrite H_J in H1 by eauto.
+    intros x; unfold Ensembles.In; intros.
+    rewrite derivable_closed_element_derivable by (apply DER, (proj2_sig Phi2)); auto.
+    rewrite derivable_closed_element_derivable in H4 by (apply DER, (proj2_sig Phi1)); auto.
+    rewrite derivable_closed_element_derivable in H0 by (apply DER, (proj2_sig Phi)); auto.
+    rewrite <- sepcon_emp, provable_sepcon_comm_iffp.
+    apply (H1 emp x); auto.
 Qed.
 
 End TruthLemma.
