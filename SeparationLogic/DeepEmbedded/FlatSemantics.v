@@ -100,6 +100,24 @@ Proof.
   apply Same_set_refl.
 Qed.
 
+Definition Kmodel_Monotonic: Kmodel -> Prop := fun M =>
+  forall v: Var, upwards_closed_Kdenote (sem_var M v).
+
+Definition Kmodel_PreOrder: Kmodel -> Prop := fun M =>
+  PreOrder (@Krelation _ (R M)).
+
+Definition Kmodel_SeparationAlgebra: Kmodel -> Prop := fun M =>
+  SeparationAlgebra (Kworlds M).
+
+Definition Kmodel_UpwardsClosed: Kmodel -> Prop := fun M =>
+  UpwardsClosedSeparationAlgebra (Kworlds M).
+
+Definition Kmodel_DownwardsClosed: Kmodel -> Prop := fun M =>
+  DownwardsClosedSeparationAlgebra (Kworlds M).
+
+Definition Kmodel_Unital: Kmodel -> Prop := fun M =>
+  UnitalSeparationAlgebra (Kworlds M).
+(*
 Definition Kmodel_Identity: Kmodel -> Prop := fun M =>
   IdentityKripkeIntuitionisticModel (Kworlds M).
 
@@ -112,11 +130,12 @@ Definition Kmodel_BranchJoin: Kmodel -> Prop := fun M =>
 Definition Kmodel_Increasing: Kmodel -> Prop := fun M =>
   IncreasingSeparationAlgebra (Kworlds M).
 
-Definition Kmodel_Unital: Kmodel -> Prop := fun M =>
-  UnitalSeparationAlgebra (Kworlds M).
+Definition Kmodel_IncreasingSplitSmaller: Kmodel -> Prop := fun M =>
+  IncreasingSplitSmallerSeparationAlgebra (Kworlds M).
 
-Definition Kmodel_Residual: Kmodel -> Prop := fun M =>
-  ResidualSeparationAlgebra (Kworlds M).
+Definition Kmodel_IncreasingJoinSelf: Kmodel -> Prop := fun M =>
+  IncreasingJoinSelfSeparationAlgebra (Kworlds M).
+*)
 
 Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 
@@ -125,8 +144,16 @@ Record Parametric_Kmodel_Class (PAR: SA_Parameter) (M: Kmodel): Prop := {
   SA_NB: NB PAR = true -> NoBranchKripkeIntuitionisticModel (Kworlds M);
   SA_BJ: BJ PAR = true -> BranchJoinKripkeIntuitionisticModel (Kworlds M);
   SA_INCR: INCR PAR = true -> IncreasingSeparationAlgebra (Kworlds M);
-  SA_UNI: UNI PAR = true -> UnitalSeparationAlgebra (Kworlds M);
-  SA_RES: RES PAR = true -> ResidualSeparationAlgebra (Kworlds M)
+  SA_UNI: ISS PAR = true -> IncreasingSplitSmallerSeparationAlgebra (Kworlds M);
+  SA_RES: IJS PAR = true -> IncreasingJoinSelfSeparationAlgebra (Kworlds M)
 }.
 
 End KripkeSemantics.
+
+Arguments Kmodel_Monotonic {Var} _.
+Arguments Kmodel_PreOrder {Var} _.
+Arguments Kmodel_SeparationAlgebra {Var} _.
+Arguments Kmodel_UpwardsClosed {Var} _.
+Arguments Kmodel_DownwardsClosed {Var} _.
+Arguments Kmodel_Unital {Var} _.
+Arguments Parametric_Kmodel_Class {Var} _ _.

@@ -87,6 +87,18 @@ Proof.
   + apply context_sepcon_context_join'; auto.
 Qed.
 
+Lemma context_join_comm {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
+  forall Phi1 Phi2 Phi,
+    context_join Phi1 Phi2 Phi <-> context_join Phi2 Phi1 Phi.
+Proof.
+  intros.
+  split; intros; hnf; intros.
+  + rewrite <- sepcon_comm.
+    apply H; auto.
+  + rewrite <- sepcon_comm.
+    apply H; auto.
+Qed.
+
 Lemma context_sepcon_derivable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
   forall (Phi Psi: context) z,
     context_sepcon Phi Psi |-- z ->
@@ -148,3 +160,20 @@ Proof.
     apply derivable_impp_refl.
 Qed.
 
+Lemma Linderbaum_sepcon_equiv {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall P, Linderbaum_sepcon_left P <-> Linderbaum_sepcon_right P.
+Proof.
+  intros; split; intros.
+  + hnf; intros.
+    apply context_join_comm in H0.
+    specialize (H Phi2 Phi1 Psi H0).
+    destruct H as [Psi2 [? ?]]; exists Psi2.
+    split; auto.
+    apply context_join_comm; auto.
+  + hnf; intros.
+    apply context_join_comm in H0.
+    specialize (H Phi2 Phi1 Psi H0).
+    destruct H as [Psi2 [? ?]]; exists Psi2.
+    split; auto.
+    apply context_join_comm; auto.
+Qed.
+    

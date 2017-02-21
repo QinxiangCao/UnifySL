@@ -26,7 +26,6 @@ Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.SeparationLogic.Complete.ContextProperty_Flat.
 Require Import Logic.PropositionalLogic.Complete.Canonical_Kripke.
-Require Import Logic.SeparationLogic.Complete.Truth_Flat.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -192,8 +191,8 @@ Context {s'L: SeparationEmpLanguage L}
 
 Instance unitSA
          (DER: at_least_derivable_closed P)
-         (LIN_DER: Linderbaum_derivable P)
-         (LIN_SR: Linderbaum_sepcon_right P):
+         (LIN_SR: Linderbaum_sepcon_right P)
+         (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   UnitalSeparationAlgebra (Kworlds M).
 Proof.
   intros.
@@ -217,15 +216,14 @@ Proof.
     - clear H1 n Phi H.
       specialize (H0 emp ltac:(right; constructor)).
       unfold Ensembles.In in H0.
-      rewrite <- (truth_lemma_emp P rel H_R H_J DER LIN_DER LIN_SR) in H0 by eauto.
+      rewrite <- (TRUTH emp) in H0 by eauto.
       rewrite sat_emp in H0; auto.
 Qed.
 
 Lemma nonsplit_canonical_split_smaller
       {nssGamma: NonsplitEmpSeparationLogic L Gamma}
       (DER: at_least_derivable_closed P)
-      (LIN_DER: Linderbaum_derivable P)
-      (LIN_SR: Linderbaum_sepcon_right P):
+      (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   IncreasingSplitSmallerSeparationAlgebra (Kworlds M).
 Proof.
   hnf; intros.
@@ -242,15 +240,14 @@ Proof.
     - rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi1)); auto.
     - apply derivable_impp_refl.
   + rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)).
-    rewrite <- (truth_lemma_emp P rel H_R H_J DER LIN_DER LIN_SR) by eauto.
+    rewrite <- (TRUTH emp) by eauto.
     rewrite sat_emp; auto.
 Qed.
 
 Lemma dup_canonical_incr_join
       {desGamma: DupEmpSeparationLogic L Gamma}
       (DER: at_least_derivable_closed P)
-      (LIN_DER: Linderbaum_derivable P)
-      (LIN_SR: Linderbaum_sepcon_right P):
+      (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   IncreasingJoinSelfSeparationAlgebra (Kworlds M).
 Proof.
   hnf; intros.
@@ -262,7 +259,7 @@ Proof.
   rewrite <- emp_dup.
   apply deduction_andp_intros; [apply deduction_andp_intros |]; auto.
   rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)); auto.
-  rewrite <- (truth_lemma_emp P rel H_R H_J DER LIN_DER LIN_SR) by eauto.
+  rewrite <- (TRUTH emp) by eauto.
   rewrite sat_emp; auto.
 Qed.
 

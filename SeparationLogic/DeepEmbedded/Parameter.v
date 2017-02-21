@@ -3,8 +3,8 @@ Record SL_Parameter: Type := {
   IC: bool;
   WEM: bool;
   SCE: bool;
-  EMP: bool;
-  EXT: bool
+  ESE: bool;
+  ED: bool
 }.
 
 Record SA_Parameter: Type := {
@@ -12,8 +12,8 @@ Record SA_Parameter: Type := {
   NB: bool;
   BJ: bool;
   INCR: bool;
-  UNI: bool;
-  RES: bool
+  ISS: bool;
+  IJS: bool
 }.
 
 Inductive Parameter_coincide (SLP: SL_Parameter) (SAP: SA_Parameter) : Prop :=
@@ -22,6 +22,6 @@ Inductive Parameter_coincide (SLP: SL_Parameter) (SAP: SA_Parameter) : Prop :=
     IC SLP = NB SAP ->
     WEM SLP = BJ SAP ->
     SCE SLP = INCR SAP ->
-    EMP SLP = UNI SAP ->
-    EXT SLP = RES SAP ->
+    ESE SLP = ISS SAP ->
+    ED SLP = IJS SAP ->
     Parameter_coincide SLP SAP.

@@ -20,13 +20,13 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
-  Parametric_WC: WEM PAR = true -> DeMorganPropositionalLogic L Gamma;
+Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: EmpSeparationLogic L Gamma} := {
+  Parametric_DM: WEM PAR = true -> DeMorganPropositionalLogic L Gamma;
   Parametric_GD: IC PAR = true -> GodelDummettPropositionalLogic L Gamma;
   Parametric_C: EM PAR = true -> ClassicalPropositionalLogic L Gamma;
   Parametric_GC: SCE PAR = true -> GarbageCollectSeparationLogic L Gamma;
-  Parametric_EMP: EMP PAR = true -> EmpSeparationLogic L Gamma;
-  Parametric_EXT: EXT PAR = true -> ExtSeparationLogic L Gamma
+  Parametric_NE: ESE PAR = true -> NonsplitEmpSeparationLogic L Gamma;
+  Parametric_ED: ED PAR = true -> DupEmpSeparationLogic L Gamma
 }.
 
 Section SeparationLogic.
@@ -60,9 +60,10 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
+| sepcon_emp: forall x, provable (x * emp <--> x)
 | sepcon_elim1: SCE PAR = true -> forall x y, provable (x * y --> x)
-| sepcon_emp: EMP PAR = true -> forall x, provable (x * emp <--> x)
-| sepcon_ext: EXT PAR = true -> forall x, provable (x --> x * TT).
+| emp_sepcon_truep_elim: ESE PAR = true -> forall x, provable (x * TT && emp --> x)
+| emp_dup: ED PAR = true -> forall x, provable (x && emp --> x * x).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
 
@@ -99,6 +100,13 @@ Proof.
   + apply sepcon_mono.
 Qed.
 
+Instance eG: EmpSeparationLogic L G.
+Proof.
+  constructor.
+  intros.
+  apply sepcon_emp.
+Qed.
+
 Instance ParG: Parametric_SeparationLogic PAR L G.
 Proof.
   constructor.
@@ -111,9 +119,9 @@ Proof.
   + intros; constructor.
     apply sepcon_elim1; auto.
   + intros; constructor.
-    apply sepcon_emp; auto.
+    apply emp_sepcon_truep_elim; auto.
   + intros; constructor.
-    apply sepcon_ext; auto.
+    apply emp_dup; auto.
 Qed.
 
 End SeparationLogic.

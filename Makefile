@@ -136,13 +136,13 @@ SeparationLogic_Sound_FILES = \
 
 SeparationLogic_Complete_FILES = \
   ContextProperty_Flat.v \
-  Truth_Flat.v Canonical_Flat.v
+  Lindenbaum_Flat.v Truth_Flat.v Canonical_Flat.v
 
 SeparationLogic_DeepEmbedded_FILES = \
   SeparationLanguage.v SeparationEmpLanguage.v \
   Parameter.v \
   ParametricSeparationLogic.v SeparationLogicsInLiteratures.v \
-  FlatSemantics.v
+  FlatSemantics.v ParametricCompleteness.v
 
 SeparationLogic_ShallowEmbedded_FILES = \
   PredicateSeparationLogic.v MonoPredicateSeparationLogic.v
@@ -155,8 +155,7 @@ SeparationLogic_FILES = \
   $(SeparationLogic_Sound_FILES:%.v=Sound/%.v) \
   $(SeparationLogic_Complete_FILES:%.v=Complete/%.v) \
   $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
-  $(SeparationLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) \
-  Complete_Flat.v
+  $(SeparationLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 Extentions_ProofTheory_FILES = \
   Stable.v ModalSeparation.v Corable.v CoreTransit.v
