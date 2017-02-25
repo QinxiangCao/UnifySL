@@ -32,10 +32,15 @@ GeneralLogic_FILES = \
 
 MinimunLogic_ProofTheory_FILES = \
   Normal.v Minimun.v Adjoint.v AdjointLemmas.v \
-  RewriteClass.v ContextProperty.v
+  RewriteClass.v
+
+MinimunLogic_Complete_FILES = \
+ ContextProperty_Intuitionistic.v ContextProperty_Classical.v
 
 MinimunLogic_FILES = \
-  Syntax.v $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v)
+  Syntax.v \
+  $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(MinimunLogic_Complete_FILES:%.v=Complete/%.v)
 
 PropositionalLogic_ProofTheory_FILES = \
   Intuitionistic.v DeMorgan.v \
