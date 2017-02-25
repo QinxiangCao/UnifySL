@@ -5,9 +5,9 @@ Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 
 Local Open Scope logic_base.
@@ -172,114 +172,3 @@ Qed.
 
 *)
 
-Lemma classical_derivable_spec: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context) (x: expr),
-  Phi |-- x <-> ~ consistent (Union _ Phi (Singleton _ (~~ x))).
-Proof.
-  intros.
-  rewrite deduction_double_negp.
-  unfold negp at 1.
-  rewrite <- deduction_theorem.
-  rewrite consistent_spec.
-  tauto.
-Qed.
-
-Lemma MCS_nonelement_inconsistent: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Phi ->
-  (forall x: expr, ~ Phi x <-> Phi |-- x --> FF).
-Proof.
-  intros.
-  split; intros.
-  + destruct H.
-    specialize (H1 (Union _ Phi (Singleton _ x))).
-    rewrite consistent_spec in H1.
-    rewrite deduction_theorem in H1.
-    assert (Included expr Phi (Union expr Phi (Singleton expr x))) by (intros ? ?; left; auto).
-    assert (~ Included expr (Union expr Phi (Singleton expr x)) Phi) by (intros HH; specialize (HH x); apply H0, HH; right; constructor).
-    tauto.
-  + intro.
-    pose proof derivable_assum Phi x H1.
-    pose proof deduction_modus_ponens _ _ _ H2 H0.
-    destruct H as [? _].
-    rewrite consistent_spec in H; auto.
-Qed.
-
-Lemma MCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Phi ->
-  (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).
-Proof.
-  intros.
-  apply maximal_consistent_derivable_closed in H.
-  apply DCS_andp_iff; auto.
-Qed.
-
-Lemma MCS_orp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Phi ->
-  (forall x y: expr, Phi (x || y) <-> (Phi x \/ Phi y)).
-Proof.
-  intros.
-  split; intros.
-  + destruct (Classical_Prop.classic (Phi x)); auto.
-    destruct (Classical_Prop.classic (Phi y)); auto.
-    exfalso.
-    rewrite MCS_nonelement_inconsistent in H1 by auto.
-    rewrite MCS_nonelement_inconsistent in H2 by auto.
-    rewrite MCS_element_derivable in H0 by auto.
-    pose proof deduction_orp_elim Phi x y FF H1 H2.
-    pose proof deduction_modus_ponens _ _ _ H0 H3.
-    destruct H as [? _].
-    rewrite consistent_spec in H; auto.
-  + destruct H0; rewrite MCS_element_derivable in H0 |- * by auto.
-    - pose proof deduction_orp_intros1 Phi x y H0; auto.
-    - pose proof deduction_orp_intros2 Phi x y H0; auto.
-Qed.
-
-Lemma MCS_impp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
-  maximal_consistent Phi ->
-  (forall x y: expr, Phi (x --> y) <-> (Phi x -> Phi y)).
-Proof.
-  intros.
-  split; intros.
-  + rewrite MCS_element_derivable in H0, H1 |- * by auto.
-    apply (deduction_modus_ponens _ x y); auto.
-  + pose proof derivable_excluded_middle Phi y.
-    rewrite <- MCS_element_derivable in H1 by auto.
-    rewrite MCS_orp_iff in H1 by auto.
-    pose proof derivable_excluded_middle Phi x.
-    rewrite <- MCS_element_derivable in H2 by auto.
-    rewrite MCS_orp_iff in H2 by auto.
-    destruct H1; [| destruct H2].
-    - rewrite MCS_element_derivable in H1 |- * by auto.
-      apply deduction_left_impp_intros; auto.
-    - exfalso.
-      apply H0 in H2.
-      rewrite MCS_element_derivable in H1, H2 by auto.
-      pose proof deduction_modus_ponens _ _ _ H2 H1.
-      destruct H as [? _].
-      rewrite consistent_spec in H; auto.
-    - rewrite MCS_element_derivable in H2 |- * by auto.
-      unfold negp in H2.
-      rewrite <- deduction_theorem in H2 |- *.
-      pose proof deduction_falsep_elim _ y H2.
-      auto.
-Qed.
-
-Lemma DCS_negp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} (Phi: context),
-  derivable_closed Phi ->
-  orp_witnessed Phi ->
-  consistent Phi ->
-  (forall x: expr, Phi x <-> ~ Phi (~~ x)).
-Proof.
-  intros.
-  split; intros.
-  + rewrite derivable_closed_element_derivable in H2 |- * by auto.
-    intro.
-    pose proof deduction_modus_ponens _ _ _ H2 H3.
-    rewrite consistent_spec in H1; apply H1; auto.
-  + rewrite derivable_closed_element_derivable in H2 |- * by auto.
-    pose proof derivable_excluded_middle Phi x.
-    specialize (H0 x (~~ x)).
-    rewrite derivable_closed_element_derivable in H0 by auto.
-    apply H0 in H3.
-    destruct H3; rewrite derivable_closed_element_derivable in H3 by auto; auto.
-    tauto.
-Qed.

@@ -22,6 +22,3 @@ Notation "'TT'" := truep : syntax.
 
 End PropositionalLanguageNotation.
 
-Definition orp_witnessed {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
-  fun Phi => forall x y, Phi (orp x y) -> Phi x \/ Phi y.
-

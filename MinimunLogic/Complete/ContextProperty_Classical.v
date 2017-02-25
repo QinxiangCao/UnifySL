@@ -4,15 +4,13 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 
 Definition maximal_consistent {L: Language} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => consistent Phi /\ forall Psi, consistent Psi -> Included _ Phi Psi -> Included _ Psi Phi.
-
-Definition derivable_closed {L: Language} {Gamma: ProofTheory L}: context -> Prop :=
-  fun Phi => forall x, derivable Phi x -> Phi x.
 
 Lemma maximal_consistent_spec {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}:
   forall Phi, maximal_consistent Phi <-> consistent Phi /\ forall x, consistent (Union _ Phi (Singleton _ x)) -> Phi x.
@@ -34,15 +32,6 @@ Proof.
     eapply deduction_weaken; [| exact H4].
     intros ? [? | ?]; auto.
     intros []; auto.
-Qed.
-
-Lemma derivable_closed_element_derivable: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
-  derivable_closed Phi ->
-  (forall x: expr, Phi x <-> Phi |-- x).
-Proof.
-  intros.
-  split; intros; auto.
-  apply derivable_assum; auto.
 Qed.
 
 Lemma maximal_consistent_derivable_closed: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
@@ -76,14 +65,3 @@ Proof.
   auto.
 Qed.
 
-Lemma sig_context_ext: forall {L: Language} (P: context -> Prop) (Phi Psi: sig P),
-  (forall x, proj1_sig Phi x <-> proj1_sig Psi x) -> Phi = Psi.
-Proof.
-  intros.
-  pose proof Extensionality_Ensembles _ _ _ (conj (fun x => proj1 (H x)) (fun x => proj2 (H x))).
-  destruct Psi as [Psi ?], Phi as [Phi ?].
-  simpl in H0; subst.
-  pose proof proof_irrelevance _ p p0.
-  subst.
-  auto.
-Qed.
