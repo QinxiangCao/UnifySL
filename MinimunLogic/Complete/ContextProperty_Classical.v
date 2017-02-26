@@ -65,3 +65,15 @@ Proof.
   auto.
 Qed.
 
+Definition at_least_maximal_consistent
+           {L: Language}
+           {nL: NormalLanguage L}
+           {Gamma: ProofTheory L}
+           (P: context -> Prop): Prop :=
+  forall Phi, P Phi -> maximal_consistent Phi.
+
+Definition Linderbaum_consistent
+           {L: Language}
+           {Gamma: ProofTheory L}
+           (P: context -> Prop): Prop :=
+  forall Phi, consistent Phi -> exists Psi: sig P, Included _ Phi (proj1_sig Psi).

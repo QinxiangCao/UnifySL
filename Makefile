@@ -54,9 +54,11 @@ PropositionalLogic_Sound_FILES = \
   Sound_Kripke.v Sound_Classical_Trivial.v
 
 PropositionalLogic_Complete_FILES = \
-  Complete_Classical_Trivial.v \
   ContextProperty_Kripke.v \
-  Lindenbaum_Kripke.v Canonical_Kripke.v Truth_Kripke.v Complete_Kripke.v
+  Lindenbaum_Kripke.v Canonical_Kripke.v Truth_Kripke.v Complete_Kripke.v \
+  ContextProperty_Trivial.v \
+  Lindenbaum_Trivial.v Truth_Trivial.v Complete_Trivial.v \
+  Complete_Classical_Trivial.v
 
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \

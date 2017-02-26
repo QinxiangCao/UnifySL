@@ -14,9 +14,11 @@ Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Semantics.Trivial.
 Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Classical.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Complete.ContextProperty_Trivial.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -34,48 +36,54 @@ Context {L: Language}
         {nGamma: NormalProofTheory L Gamma}
         {mpGamma: MinimunPropositionalLogic L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {cpGamma: ClassicalPropositionalLogic L Gamma}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
-        {R: Relation (Kworlds M)}
         {SM: Semantics L MD}
-        {kpSM: KripkePropositionalSemantics L MD M SM}
+        {tpSM: TrivialPropositionalSemantics L MD SM}
         {kMC: Kmodel -> Prop}.
 
 Context (P: context -> Prop)
         (rel: bijection (Kworlds M) (sig P)).
 
-Hypothesis LIN_DER: Linderbaum_derivable P.
-Hypothesis DER: at_least_derivable_closed P.
+Hypothesis MC: at_least_maximal_consistent P.
+Hypothesis LIN_CONSI: Linderbaum_consistent P.
 Hypothesis TRUTH: forall x: expr, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x).
 Hypothesis CANON: kMC M.
 
 Lemma general_completeness: strongly_complete Gamma SM (KripkeModelClass _ kMC).
 Proof.
   intros.
-  assert (forall Phi x, ~ Phi |-- x -> ~ consequence (KripkeModelClass _ kMC) Phi x).
+  assert (forall Phi, consistent Phi -> satisfiable (KripkeModelClass _ kMC) Phi).
   Focus 2. {
+    clear M CANON rel TRUTH.
     hnf; intros.
-    apply Classical_Prop.NNPP; intro; revert H0.
-    apply H; auto.
+    rewrite classical_derivable_spec.
+    intro.
+    specialize (H _ H1); clear H1.
+
+    destruct H as [_ [[M m CANON] ?]].
+    pose proof (fun x0 (HH: Phi x0) => H x0 (Union_introl _ _ _ _ HH)).
+    pose proof (H (~~ x) (Union_intror _ _ _ _ (In_singleton _ _))).
+    specialize (H0 (KRIPKE: M, m)).
+    clear H.
+
+    specialize (H0 ltac:(constructor; auto) H1).
+    unfold negp in H2; rewrite sat_impp, sat_falsep in H2.
+    auto.
   } Unfocus.
-
   intros.
-  assert (exists Psi: sig P,
-            Included _ Phi (proj1_sig Psi) /\ ~ proj1_sig Psi |-- x)
-  by (apply LIN_DER in H; auto).
-  destruct H0 as [Psi [? ?]].
-
-  intro.
-  destruct (su_bij _ _ rel Psi) as [n ?].
-  specialize (H2 (KRIPKE: M, n) ltac:(constructor; apply CANON)).
-  apply H1; clear H1.
-
-  rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Psi)).
-  rewrite <- TRUTH by eauto.
-  apply H2; intros.
-  rewrite TRUTH by eauto.
-  apply H0; auto.
+  apply LIN_CONSI in H.
+  destruct H as [Psi ?].
+  destruct (su_bij _ _ rel Psi) as [m ?].
+  exists (KRIPKE: M, m).
+  split.
+  + constructor.
+    apply CANON.
+  + intros.
+    erewrite TRUTH by eauto.
+    apply H, H1.
 Qed.
 
 End Completeness.

@@ -20,14 +20,6 @@ Import PropositionalLanguageNotation.
 Definition orp_witnessed {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => forall x y, Phi (orp x y) -> Phi x \/ Phi y.
 
-Definition at_least_orp_witnessed
-           {L: Language}
-           {nL: NormalLanguage L}
-           {pL: PropositionalLanguage L}
-           {Gamma: ProofTheory L}
-           (P: context -> Prop): Prop :=
-  forall Phi, P Phi -> orp_witnessed Phi.
-
 Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).
@@ -107,4 +99,12 @@ Proof.
     auto.
   + exists FF; auto.
 Qed.
+
+Definition at_least_orp_witnessed
+           {L: Language}
+           {nL: NormalLanguage L}
+           {pL: PropositionalLanguage L}
+           {Gamma: ProofTheory L}
+           (P: context -> Prop): Prop :=
+  forall Phi, P Phi -> orp_witnessed Phi.
 
