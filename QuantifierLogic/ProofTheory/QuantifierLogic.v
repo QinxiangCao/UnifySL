@@ -6,7 +6,6 @@ Require Import Logic.QuantifierLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
