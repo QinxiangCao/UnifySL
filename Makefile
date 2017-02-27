@@ -57,15 +57,14 @@ PropositionalLogic_Complete_FILES = \
   ContextProperty_Kripke.v \
   Lindenbaum_Kripke.v Canonical_Kripke.v Truth_Kripke.v Complete_Kripke.v \
   ContextProperty_Trivial.v \
-  Lindenbaum_Trivial.v Truth_Trivial.v Complete_Trivial.v \
-  Complete_Classical_Trivial.v
+  Lindenbaum_Trivial.v Truth_Trivial.v Complete_Trivial.v
 
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v \
   IntuitionisticLogic.v DeMorganLogic.v \
   GodelDummettLogic.v ClassicalLogic.v \
   KripkeSemantics.v TrivialSemantics.v \
-  Soundness.v Completeness.v
+  Soundness.v Complete_Kripke.v Complete_Classical_Trivial.v
 
 PropositionalLogic_ShallowEmbedded_FILES = \
   PredicatePropositionalLogic.v \

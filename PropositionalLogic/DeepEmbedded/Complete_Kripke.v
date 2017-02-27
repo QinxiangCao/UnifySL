@@ -12,8 +12,6 @@ Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
-Require Import Logic.PropositionalLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
@@ -26,7 +24,6 @@ Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.DeMorganLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.GodelDummettLogic.
 Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.TrivialSemantics.
 Require Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Local Open Scope logic_base.
@@ -50,15 +47,11 @@ Instance Intuitionistic_G: ProofTheory L := IntuitionisticLogic.G Var.
 Instance DeMorgan_G: ProofTheory L := DeMorganLogic.G Var.
 Instance GodelDummett_G: ProofTheory L := GodelDummettLogic.G Var.
 Instance Classical_G: ProofTheory L := ClassicalLogic.G Var.
-Instance Trivial_MD: Model := TrivialSemantics.MD Var.
-Instance Trivial_SM: Semantics L Trivial_MD := TrivialSemantics.SM Var.
 Instance Kripke_MD: Model := KripkeSemantics.MD Var.
 Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
 Instance Kripke_R (M: Kmodel): Relation (Kworlds M) := KripkeSemantics.R Var M.
 Instance Kripke_SM: Semantics L Kripke_MD := KripkeSemantics.SM Var.
 Instance Kripke_kpSM (M: Kmodel): KripkePropositionalSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kpSM Var M.
-
-Section Complete_Kripke.
 
 Section General_Completeness.
 
@@ -220,7 +213,5 @@ Proof.
 Qed.
 
 End Classical_Completeness.
-
-End Complete_Kripke.
 
 End Complete.
