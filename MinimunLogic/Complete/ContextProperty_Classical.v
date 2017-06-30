@@ -31,7 +31,7 @@ Proof.
     intro; apply H1.
     eapply deduction_weaken; [| exact H4].
     intros ? [? | ?]; auto.
-    intros []; auto.
+    destruct H5; auto.
 Qed.
 
 Lemma maximal_consistent_derivable_closed: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context),
