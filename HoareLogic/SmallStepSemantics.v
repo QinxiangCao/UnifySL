@@ -32,6 +32,11 @@ Definition step_term_norm
   Prop :=
   ~ step cs Error /\ ~ step cs NonTerminating.
 
+Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (SSS: SmallStepSemantics P state): Type := {
+  frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, snd nf <= snd mf /\ @lift_join _ (@prod_Join cmd state (equiv_Join) J) n (Terminating nf) n' /\ step m n
+}.
+
+(*
 Record denote
        {P: ProgrammingLanguage}
        {state: Type}
@@ -52,16 +57,11 @@ Record denote
                    end;
   tr_ctr: tr = ctrace2trace ctr
 }.
-
-(*
-Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {SSS: SmallStepSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
-  clos_refl_trans _ lift_step (Terminating (c, s)) (lift_function (pair Sskip) ms) \/
-  ms = NonTerminating /\ exists cs: nat -> cmd * state, cs 0 = (c, s) /\ forall k, step (cs k) (Terminating (cs (S k))).
 *)
 
-Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (SSS: SmallStepSemantics P state): Type := {
-  frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, snd nf <= snd mf /\ @lift_join _ (@prod_Join cmd state (equiv_Join) J) n (Terminating nf) n' /\ step m n
-}.
+Definition access {P: ProgrammingLanguage} {Imp: ImperativeProgrammingLanguage P} {state: Type} {SSS: SmallStepSemantics P state} (s: state) (c: cmd) (ms: MetaState state) :=
+  clos_refl_trans _ (lift_relation step) (Terminating (c, s)) (lift_function (pair Sskip) ms) \/
+  ms = NonTerminating /\ exists cs: nat -> cmd * state, cs 0 = (c, s) /\ forall k, step (cs k) (Terminating (cs (S k))).
 
 Module ImpSmallStepSemantics (D: FORWARD).
 

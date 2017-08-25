@@ -21,10 +21,18 @@ Definition trace_app {action: Type} {Ac: Action action}: trace -> trace -> trace
 Inductive traces_app {action: Type} {Ac: Action action}: traces -> traces -> traces :=
   traces_app_intro: forall tr1 tr2 (Tr1 Tr2: traces), Tr1 tr1 -> Tr2 tr2 -> traces_app Tr1 Tr2 (trace_app tr1 tr2).
 
-Class TraceSemantics (P: ProgrammingLanguage) (state: Type) (action: Type) {Ac: Action action}: Type := {
-  cmd_denote: cmd -> traces;
+Class Command2Traces (P: ProgrammingLanguage) (action: Type) {Ac: Action action}: Type := {
+  cmd_denote: cmd -> traces
+}.
+
+Class ActionInterpret (state: Type) (action: Type) {Ac: Action action}: Type := {
   state_enable: action -> state -> MetaState state -> Prop;
   state_enable_pf: forall a s ms1 ms2, state_enable a s ms1 -> state_enable a s ms2 -> ms1 = ms2
+}.
+
+Class TraceSemantics (P: ProgrammingLanguage) (state: Type) (action: Type) {Ac: Action action}: Type := {
+  c2t :> Command2Traces P action;
+  ac_sen :> ActionInterpret state action
 }.
 
 Class Action_Resource (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action}: Type := {
@@ -35,8 +43,8 @@ Class Action_Resource (action: Type) (resource: Type) {Res: Resource resource} {
 Definition is_resource_action {action: Type} {resource: Type} {Res: Resource resource} {Ac: Action action} {AcR: Action_Resource action resource} (a: action) := exists r, a = Aacquire_res r \/ a = Arelease_res r.
 
 Inductive res_enable {action: Type} {resource: Type} {Res: Resource resource} {Ac: Action action} {AcR: Action_Resource action resource}: action -> resources -> resources -> Prop :=
-| res_enable_acq: forall r A1 A2, (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> res_enable (Aacquire_res r) A1 A2
-| res_enable_rel: forall r A1 A2, (forall r0, A1 r0 /\ r <> r0 <-> A2 r0) -> res_enable (Arelease_res r) A1 A2
+| res_enable_acq: forall r A1 A2, (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r -> res_enable (Aacquire_res r) A1 A2
+| res_enable_rel: forall r A1 A2, (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r -> res_enable (Arelease_res r) A1 A2
 | res_enable_other: forall a A, ~ is_resource_action a -> res_enable a A A.
 
 Class Action_Parallel (action: Type) {Ac: Action action}: Type := {
@@ -57,145 +65,44 @@ Inductive trace_interleave {action: Type} {resource: Type} {Res: Resource resour
 Inductive traces_interleave {action: Type} {resource: Type} {Res: Resource resource} {Ac: Action action} {AcP: Action_Parallel action} {AcR: Action_Resource action resource}: traces -> traces -> traces :=
 | traces_interleave_intro: forall A1 A2 (Tr1 Tr2: traces) tr1 tr2 tr, Tr1 tr1 -> Tr2 tr2 -> trace_interleave A1 A2 tr1 tr2 tr -> traces_interleave Tr1 Tr2 tr.
 
-Class TraceSemantics_resource (P: ProgrammingLanguage) (state: Type) (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action} {AcR: Action_Resource action resource} {Tr: TraceSemantics P (state * resources) action}: Type := {
+Class ActionInterpret_resource (state: Type) (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action} {AcR: Action_Resource action resource} {ac_sem: ActionInterpret (state * resources) action}: Type := {
   state_enable_resource_action: forall a (A1 A2: resources) (s: state),
-    is_resource_action a -> res_enable a A1 A2 -> state_enable a (s, A1) (Terminating (s, A2))
+    is_resource_action a -> res_enable a A1 A2 -> state_enable a (s, A1) (Terminating (s, A2));
+  state_enable_non_resource_action: forall a (A1 A2: resources) (s1 s2: state),
+    ~ is_resource_action a -> state_enable a (s1, A1) (Terminating (s2, A2)) -> A1 = A2
 }.
 
-Class TraceSemantics_Sresource (P: ProgrammingLanguage) (state: Type) (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action} {AcR: Action_Resource action resource} {CPR: ConcurrentProgrammingLanguage_Sresource P resource} {Tr: TraceSemantics P (state * resources) action}: Type := {
+Class Command2Traces_Sresource (P: ProgrammingLanguage) (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action} {AcR: Action_Resource action resource} {CPR: ConcurrentProgrammingLanguage_Sresource P resource} {c2t: Command2Traces P action}: Type := {
   Sresource_denote: forall r c, cmd_denote (Sresource r c) = traces_app (singleton_traces (singleton_trace (Aacquire_res r))) (traces_app (cmd_denote c) (singleton_traces (singleton_trace (Arelease_res r))))
 }.
 
-Class TraceSemantics_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action} {AcP: Action_Parallel action} {AcR: Action_Resource action resource} {CPP: ConcurrentProgrammingLanguage_Sparallel P} {Tr: TraceSemantics P (state * resources) action}: Type := {
+Class Command2Traces_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action} {AcP: Action_Parallel action} {AcR: Action_Resource action resource} {CPP: ConcurrentProgrammingLanguage_Sparallel P} {c2t: Command2Traces P action}: Type := {
   Sparallel_denote: forall c1 c2, cmd_denote (Sparallel c1 c2) = traces_interleave (cmd_denote c1) (cmd_denote c2)
 }.
 
-(*
-Definition lift_access
-          {P: ProgrammingLanguage}
-          {state: Type}
-          {BSS: BigStepSemantics P state}
-          (ms1: MetaState state)
-          (c: cmd)
-          (ms2: MetaState state): Prop :=
-  lift_relation (fun s => access s c) ms1 ms2.
-
-Definition safe
-           {P: ProgrammingLanguage}
-           {state: Type}
-           {BSS: BigStepSemantics P state}
-           (s: state)
-           (c: cmd):
-  Prop :=
-  ~ access s c Error.
-
-Definition term_norm
-           {P: ProgrammingLanguage}
-           {state: Type}
-           {BSS: BigStepSemantics P state}
-           (s: state)
-           (c: cmd):
-  Prop :=
-  ~ access s c Error /\ ~ access s c NonTerminating.
-
-Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (BSS: BigStepSemantics P state): Type := {
-  frame_property: forall m mf m' c n', join m mf m' -> access m' c n' -> exists n nf, mf <= nf /\ lift_join n (Terminating nf) n' /\ access m c n
+Class SAActionInterpret_resource (state: Type) (action: Type) (resource: Type) {Res: Resource resource} {Ac: Action action} {AcR: Action_Resource action resource} {ac_sem: ActionInterpret (state * resources) action} {J: Join state} {state_R: Relation state}: Type := {
+  frame_property_Terminating: forall (a: action) (A1 A2: resources) (m1 f n1 n2: state),
+    @join _ J m1 f n1 ->
+    ~ state_enable a (m1, A1) Error ->
+    state_enable a (n1, A1) (Terminating (n2, A2)) ->
+    exists m2, @join _ J m2 f n2 /\ state_enable a (m1, A1) (Terminating (n2, A2));
+  frame_property_NonTerminating: forall (a: action) (A1: resources) (m1 f n1: state),
+    @join _ J m1 f n1 ->
+    ~ state_enable a (m1, A1) Error ->
+    state_enable a (n1, A1) NonTerminating ->
+    state_enable a (m1, A1) NonTerminating;
+  frame_property_Error: forall (a: action) (A1: resources) (m1 f n1: state),
+    @join _ J m1 f n1 ->
+    state_enable a (n1, A1) Error ->
+    state_enable a (m1, A1) Error
 }.
 
-Module ImpBigStepSemantics (F: FORWARD).
+Inductive trace_access {state: Type} {action: Type} {Ac: Action action} {ac_sem: ActionInterpret state action}: trace -> state -> MetaState state -> Prop :=
+| trace_access_nil: forall s, trace_access nil s (Terminating s)
+| trace_access_NonTerminating: forall a tr s, state_enable a s NonTerminating -> trace_access (cons a tr) s NonTerminating
+| trace_access_Error: forall a tr s, state_enable a s Error -> trace_access (cons a tr) s Error
+| trace_access_Terminating: forall a tr s s' ms, state_enable a s (Terminating s') -> trace_access tr s' ms -> trace_access (cons a tr) s ms.
 
-Export F.
+Inductive traces_access {state: Type} {action: Type} {Ac: Action action} {ac_sem: ActionInterpret state action}: traces -> state -> MetaState state -> Prop :=
+| traces_access_intro: forall tr (Tr: traces) s ms, Tr tr -> trace_access tr s ms -> traces_access Tr s ms.
 
-Inductive loop_access_fin
-          {state: Type}
-          {state_R: Relation state}
-          (R: state -> MetaState state -> Prop)
-          (test: state -> Prop): state -> MetaState state -> Prop :=
-| loop_access_Terminating:
-    forall s1 ms2,
-      ~ test s1 ->
-      forward (Terminating s1) ms2 ->
-      loop_access_fin R test s1 ms2
-| loop_access_abnormal:
-    forall s1 ms2 ms3,
-      test s1 ->
-      forward (Terminating s1) ms2 ->
-      lift_relation R ms2 ms3 ->
-      ms3 = Error \/ ms3 = NonTerminating ->
-      loop_access_fin R test s1 ms3
-| loop_access_step:
-    forall s1 s2 s3 s4 ms,
-      test s1 ->
-      s1 <= s2 ->
-      R s2 (Terminating s3) ->
-      s3 <= s4 ->
-      loop_access_fin R test s4 ms ->
-      loop_access_fin R test s1 ms.
-
-Inductive loop_access_inf
-          {state: Type}
-          {state_R: Relation state}
-          (R: state -> MetaState state -> Prop)
-          (test: state -> Prop): state -> Prop :=
-| loop_access_inf_NonTerminating:
-    forall (s1 s2 s3: nat -> state),
-      (forall n, test (s1 n)) ->
-      (forall n, s1 n <= s2 n) ->
-      (forall n, R (s2 n) (Terminating (s3 n))) ->
-      (forall n, s3 n <= s1 (S n)) ->
-      loop_access_inf R test (s1 0).
-
-Class ImpBigStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} (BSS: BigStepSemantics P state): Type := {
-  eval_bool: state -> bool_expr -> Prop;
-  eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
-  access_Ssequence: forall c1 c2 s ms,
-    access s (Ssequence c1 c2) ms ->
-    exists ms' ms'',
-      access s c1 ms' /\ forward ms' ms'' /\ lift_access ms'' c2 ms;
-  access_Sifthenelse: forall b c1 c2 s ms,
-    access s (Sifthenelse b c1 c2) ms ->
-    (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ lift_access ms' c1 ms) \/
-    (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ lift_access ms' c2 ms);
-  access_Swhile: forall b c s ms,
-    access s (Swhile b c) ms ->
-    (loop_access_fin (fun s ms => access s c ms) (fun s => eval_bool s b) s ms) \/
-    (loop_access_inf (fun s ms => access s c ms) (fun s => eval_bool s b) s /\ ms = NonTerminating)
-}.
-
-End ImpBigStepSemantics.
-
-Module Total := ImpBigStepSemantics (ProgramState.Total).
-
-Module Partial := ImpBigStepSemantics (ProgramState.Partial).
-
-Instance Total2Partial_ImpBigStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} {BSS: BigStepSemantics P state} (iBSS: Total.ImpBigStepSemantics P state BSS): Partial.ImpBigStepSemantics P state BSS.
-Proof.
-  refine (Partial.Build_ImpBigStepSemantics _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _).
-  + intros.
-    pose proof Total.access_Ssequence c1 c2 s ms H
-      as [ms' [ms'' [? [? ?]]]].
-    exists ms', ms''; split; [| split]; auto.
-    apply Total2Partial_forward; auto.
-  + intros.
-    pose proof Total.access_Sifthenelse b c1 c2 s ms H
-      as [[? [ms' [? ?]]] | [? [ms' [? ?]]]].
-    - left; split; auto; exists ms'; split; auto.
-      apply Total2Partial_forward; auto.
-    - right; split; auto; exists ms'; split; auto.
-      apply Total2Partial_forward; auto.
-  + intros.
-    pose proof Total.access_Swhile b c s ms H.
-    destruct H0 as [? | [? ?]].
-    - left.
-      clear H; induction H0.
-      * apply Partial.loop_access_Terminating; auto.
-        apply Total2Partial_forward; auto.
-      * eapply Partial.loop_access_abnormal; eauto.
-        apply Total2Partial_forward; auto.
-      * apply (Partial.loop_access_step _ _ s1 s2 s3 s4); eauto.
-    - right; split; auto.
-      clear ms H1 H.
-      inversion H0; subst.
-      econstructor; eauto.
-Defined.
-*)
