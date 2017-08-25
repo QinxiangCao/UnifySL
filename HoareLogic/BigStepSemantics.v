@@ -8,7 +8,10 @@ Local Open Scope kripke_model.
 Import KripkeModelNotation_Intuitionistic.
 
 Class BigStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
-  access: state -> cmd -> MetaState state -> Prop;
+  access: state -> cmd -> MetaState state -> Prop
+}.
+
+Class NormalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (BBS: BigStepSemantics P state): Type := {
   access_defined: forall s c, exists ms, access s c ms
 }.
 

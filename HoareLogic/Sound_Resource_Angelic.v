@@ -41,9 +41,9 @@ Export D.
 
 Class Resource_BigStepSemantics
       (P: ProgrammingLanguage)
-      (resource: Type) {Res: Resource resource}
+      {Res: Resource}
       {CPP: ConcurrentProgrammingLanguage_Sparallel P}
-      {CPR: ConcurrentProgrammingLanguage_Sresource P resource}
+      {CPR: ConcurrentProgrammingLanguage_Sresource P Res}
       (state: Type)
       {J: Join state}
       {R: Relation state}
@@ -146,10 +146,10 @@ Qed.
 Import Partial.
 
 Context {P: ProgrammingLanguage}
-      (resource: Type) {Res: Resource resource}
+      {Res: Resource}
       {CPP: ConcurrentProgrammingLanguage_Sparallel P}
-      {CPR: ConcurrentProgrammingLanguage_Sresource P resource}
- {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R: Relation model} {po_R: PreOrder Krelation} {R_BSS: Resource_BigStepSemantics P resource model TLBSS}.
+      {CPR: ConcurrentProgrammingLanguage_Sresource P Res}
+ {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R: Relation model} {po_R: PreOrder Krelation} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
 

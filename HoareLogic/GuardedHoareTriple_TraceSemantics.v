@@ -22,30 +22,16 @@ Definition guarded_triple_partial_valid
            {L: Language}
            {P: ProgrammingLanguage}
            {MD: Model}
-           {resource: Type}
-           {Res: Resource resource}
-           {action: Type}
-           {Ac: Action action}
-           {TS: TraceSemantics P (model * resource) action}
+           {J: Join model}
+           {R: Relation model}
+           {Res: Resource}
+           {Ac: Action}
+           {Acr: Action_resource Ac Res}
+           {TS: TraceSemantics P (model * resources) Ac}
            {SM: Semantics L MD}
-           (Inv: guard)
+           (Inv: (resource * (model -> Prop)) -> Prop)
            (Pre: expr)
            (c: cmd)
            (Post: expr):
   Prop :=
-  @triple_partial_valid L _ MD (guarded_BSS Inv) SM Pre (existT _ c h) Post.
-
-Definition guarded_triple_total_valid
-           {L: Language}
-           {P: ProgrammingLanguage}
-           {MD: Model}
-           {guard: Type}
-           {TLBSS: ThreadLocalBigStepSemantics P (model) guard}
-           {SM: Semantics L MD}
-           (Inv: guard)
-           (Pre: expr)
-           (c: cmd)
-           (Post: expr):
-  Prop :=
-  exists h,
-  @triple_total_valid L _ MD (guarded_BSS Inv) SM Pre (existT _ c h) Post.
+  @triple_partial_valid L _ MD (ThreadLocal_BSS TS Inv) SM Pre c Post.

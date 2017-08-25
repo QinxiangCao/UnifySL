@@ -14,15 +14,16 @@ Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := 
   Sparallel: cmd -> cmd -> cmd
 }.
 
-Class Resource (resource: Type): Type := {
+Class Resource: Type := {
+  resource: Type;
   resources := resource -> Prop
 }.
 
-Class ConcurrentProgrammingLanguage_Sresource (P: ProgrammingLanguage) (resource: Type) {Res: Resource resource}: Type := {
+Class ConcurrentProgrammingLanguage_Sresource (P: ProgrammingLanguage) (Res: Resource): Type := {
   Sresource: resource -> cmd -> cmd
 }.
 
-Class ConcurrentProgrammingLanguage_AcqRel_resource (P: ProgrammingLanguage) (resource: Type) {Res: Resource resource}: Type := {
+Class ConcurrentProgrammingLanguage_AcqRel_resource (P: ProgrammingLanguage) (Res: Resource): Type := {
   Sacquire_res: resource -> cmd;
   Srelease_res: resource -> cmd
 }.
