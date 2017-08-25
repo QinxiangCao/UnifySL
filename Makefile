@@ -185,7 +185,7 @@ Extentions_FILES = \
 HoareLogic_FILES = \
   ImperativeLanguage.v ProgramState.v Trace.v \
   SimpleSmallStepSemantics.v SmallStepSemantics.v \
-  BigStepSemantics.v ConcurrentSemantics_Angelic.v LocalSemantics_Angelic.v \
+  BigStepSemantics.v ConcurrentSemantics_Angelic.v \
   TraceSemantics.v \
   OperationalSemanticsGenerator.v \
   HoareLogic_Sequential.v HoareLogic_Concurrent_Angelic.v \
