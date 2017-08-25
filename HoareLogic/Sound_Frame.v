@@ -9,7 +9,7 @@ Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
-Require Import Logic.HoareLogic.HoareLogic_Sequential.
+Require Import Logic.HoareLogic.HoareTriple_BigStepSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

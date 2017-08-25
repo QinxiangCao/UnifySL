@@ -11,8 +11,8 @@ Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
 Require Import Logic.HoareLogic.ConcurrentSemantics_Angelic.
-Require Import Logic.HoareLogic.HoareLogic_Sequential.
-Require Import Logic.HoareLogic.HoareLogic_Concurrent_Angelic.
+Require Import Logic.HoareLogic.HoareTriple_BigStepSemantics.
+Require Import Logic.HoareLogic.GuardedHoareTriple_Angelic.
 
 Definition Inv_free
            {resource state: Type}
