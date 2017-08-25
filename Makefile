@@ -185,11 +185,12 @@ Extentions_FILES = \
 HoareLogic_FILES = \
   ImperativeLanguage.v ProgramState.v Trace.v \
   SimpleSmallStepSemantics.v SmallStepSemantics.v \
-  BigStepSemantics.v ConcurrentSemantics.v LocalTraceSemantics.v \
+  BigStepSemantics.v ConcurrentSemantics_Angelic.v LocalSemantics_Angelic.v \
+  TraceSemantics.v \
   OperationalSemanticsGenerator.v \
-  HoareLogic_Sequential.v HoareLogic_Concurrent.v \
+  HoareLogic_Sequential.v HoareLogic_Concurrent_Angelic.v \
   Sound_Basic.v Sound_Imp.v Sound_Frame.v \
-  Sound_ResourceBrookes.v
+  Sound_Resource_Angelic.v
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \

@@ -16,7 +16,7 @@ Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.Trace.
 Require Import Logic.HoareLogic.SimpleSmallStepSemantics.
 Require Import Logic.HoareLogic.SmallStepSemantics.
-Require Import Logic.HoareLogic.LocalTraceSemantics.
+Require Import Logic.HoareLogic.LocalSemantics_Angelic.
 Require Import Logic.HoareLogic.BigStepSemantics.
 
 Module SSS_SimpleSSS.
@@ -245,7 +245,7 @@ Admitted.
 Module Partial.
 
 Export SmallStepSemantics.Partial.
-Export LocalTraceSemantics.Partial.
+Export LocalSemantics_Angelic.Partial.
 Export BigStepSemantics.Partial.
 
 Lemma Ssequence_fin_left {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {niP: NormalImperativeProgrammingLanguage P} {state: Type} {R: Relation state} {po_R: PreOrder Krelation} {SSS: SmallStepSemantics P state} {iSSS: ImpSmallStepSemantics P state SSS}:
@@ -586,7 +586,7 @@ Instance BSS_LTS
          (LTS: LocalTraceSemantics P state):
   BigStepSemantics P state.
 Proof.
-  refine (Build_BigStepSemantics _ _ LocalTraceSemantics.access _).
+  refine (Build_BigStepSemantics _ _ LocalSemantics_Angelic.access _).
   intros.
   pose proof denote_defined c s as [tr [? ?]].
   destruct H0 as [ms ?].

@@ -10,9 +10,9 @@ Require Import Logic.SeparationLogic.Semantics.SemanticsExtension.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
-Require Import Logic.HoareLogic.ConcurrentSemantics.
+Require Import Logic.HoareLogic.ConcurrentSemantics_Angelic.
 Require Import Logic.HoareLogic.HoareLogic_Sequential.
-Require Import Logic.HoareLogic.HoareLogic_Concurrent.
+Require Import Logic.HoareLogic.HoareLogic_Concurrent_Angelic.
 
 Definition Inv_free
            {resource state: Type}
@@ -41,9 +41,9 @@ Export D.
 
 Class Resource_BigStepSemantics
       (P: ProgrammingLanguage)
-      {CPr: ConcurrentProgrammingLanguage_resource P}
+      (resource: Type) {Res: Resource resource}
       {CPP: ConcurrentProgrammingLanguage_Sparallel P}
-      {CPR: ConcurrentProgrammingLanguage_Sresource P}
+      {CPR: ConcurrentProgrammingLanguage_Sresource P resource}
       (state: Type)
       {J: Join state}
       {R: Relation state}
@@ -146,10 +146,10 @@ Qed.
 Import Partial.
 
 Context {P: ProgrammingLanguage}
-      {CPr: ConcurrentProgrammingLanguage_resource P}
+      (resource: Type) {Res: Resource resource}
       {CPP: ConcurrentProgrammingLanguage_Sparallel P}
-      {CPR: ConcurrentProgrammingLanguage_Sresource P}
- {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R: Relation model} {po_R: PreOrder Krelation} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
+      {CPR: ConcurrentProgrammingLanguage_Sresource P resource}
+ {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R: Relation model} {po_R: PreOrder Krelation} {R_BSS: Resource_BigStepSemantics P resource model TLBSS}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
 
