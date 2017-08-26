@@ -54,8 +54,9 @@ Class Action_Parallel (Ac: Action): Type := {
   race_actions: action -> action -> Prop;
 }.
 
-Class NormalAction_Parallel_Resource (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: Type := {
-  res_actions_no_race: forall a1 a2, race_actions a1 a2 -> ~ is_resource_action a1 /\ ~ is_resource_action a2
+Class NormalAction_Parallel_resource (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: Type := {
+  res_actions_no_race: forall a1 a2, race_actions a1 a2 -> ~ is_resource_action a1 /\ ~ is_resource_action a2;
+  race_not_resource: ~ is_resource_action race
 }.
 
 Inductive trace_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: resources -> resources -> trace -> trace -> trace -> Prop :=
@@ -65,13 +66,20 @@ Inductive trace_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac
 | trace_interleave_right: forall (A1 A2 A2': resources) tr1 a2 tr2 tr, res_enable a2 A2 A2' -> trace_interleave A1 A2' tr1 tr2 tr -> trace_interleave A1 A2 tr1 (cons a2 tr2) (cons a2 tr).
 
 Inductive traces_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: traces -> traces -> traces :=
-| traces_interleave_intro: forall A1 A2 (Tr1 Tr2: traces) tr1 tr2 tr, Tr1 tr1 -> Tr2 tr2 -> trace_interleave A1 A2 tr1 tr2 tr -> traces_interleave Tr1 Tr2 tr.
+| traces_interleave_intro: forall (Tr1 Tr2: traces) tr1 tr2 tr, Tr1 tr1 -> Tr2 tr2 -> trace_interleave (fun _ => False) (fun _ => False) tr1 tr2 tr -> traces_interleave Tr1 Tr2 tr.
 
 Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac): Type := {
   state_enable_resource_action: forall a (A1 A2: resources) (s: state),
     is_resource_action a -> res_enable a A1 A2 -> state_enable a (s, A1) (Terminating (s, A2));
   state_enable_non_resource_action: forall a (A1 A2: resources) (s1 s2: state),
     ~ is_resource_action a -> state_enable a (s1, A1) (Terminating (s2, A2)) -> A1 = A2
+}.
+
+Class ActionInterpret_Parallel_resource (state: Type) {J: Join state} (Ac: Action) {AcP: Action_Parallel Ac} (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac): Type := {
+  state_enable_race: forall s A ms, state_enable race (s, A) ms <-> ms = Error; (* TODO: is this line necessary? *)
+  state_enable_race_actions_spec: forall a1 a2 (A1 A2: resources) (s1 s2 s: state),
+      race_actions a1 a2 -> ~ state_enable a1 (s1, A1) Error -> ~ state_enable a2 (s2, A2) Error -> join s1 s2 s -> False
+  (* This formalization is critical. Even if there is no ms s.t. stable_enable a1 (s1, A1) ms, it still means (s1, A1) has a domain to perform a1. It's just the result does not match, i.e. the read action. *)
 }.
 
 Class Command2Traces_Sresource (P: ProgrammingLanguage) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} {CPR: ConcurrentProgrammingLanguage_Sresource P Res} (c2t: Command2Traces P Ac): Type := {
@@ -135,10 +143,42 @@ Inductive thread_local_state_enable {state: Type} {Ac: Action} {Res: Resource} {
     state_enable a s s' ->
     thread_local_state_enable Inv a s s'.
 
+Lemma thread_local_state_enable_non_resource_action {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac}:
+  forall Inv a s s',
+    ~ is_resource_action a ->
+    (state_enable a s s' <-> thread_local_state_enable Inv a s s').
+Proof.
+  intros.
+  split; intros.
+  + constructor; auto.
+  + inversion H0; subst; clear H0.
+    - exfalso; apply H.
+      exists r; auto.
+    - exfalso; apply H.
+      exists r; auto.
+    - exfalso; apply H.
+      exists r; auto.
+    - auto.
+Qed.
+
 Definition ThreadLocal_ActionInterpret_resource {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac) (Inv: resource * (state -> Prop) -> Prop): ActionInterpret (state * resources) Ac :=
   Build_ActionInterpret _ _ (thread_local_state_enable Inv).
 
 Definition ThreadLocal_BSS {P: ProgrammingLanguage} {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} (TS: TraceSemantics P (state * resources) Ac) (Inv: resource * (state -> Prop) -> Prop): BigStepSemantics P state :=
   TS2BSS (Build_TraceSemantics _ _ _ c2t (ThreadLocal_ActionInterpret_resource ac_sem Inv)).
 
-
+Definition ThreadLocal_AIPr {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res} {nAcPr: NormalAction_Parallel_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac} {AIPr: ActionInterpret_Parallel_resource state Ac Res ac_sem}: forall (Inv: resource * (state -> Prop) -> Prop), ActionInterpret_Parallel_resource state Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
+  intros.
+  constructor.
+  + intros.
+    simpl.
+    rewrite <- (state_enable_race s A ms).
+    rewrite (thread_local_state_enable_non_resource_action Inv) by (apply race_not_resource).
+    tauto.
+  + intros.
+    simpl in H0, H1.
+    destruct (res_actions_no_race _ _ H).
+    rewrite <- (thread_local_state_enable_non_resource_action Inv) in H0, H1 by auto.
+    revert H H0 H1 H2.
+    apply state_enable_race_actions_spec.
+Qed.
