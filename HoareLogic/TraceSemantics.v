@@ -42,12 +42,44 @@ Class Action_resource (Ac: Action) (Res: Resource) : Type := {
   Arelease_res: resource -> action;
 }.
 
+Class NormalAction_resource (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res}: Type := {
+  Aacquire_res_inv: forall r1 r2, Aacquire_res r1 = Aacquire_res r2 -> r1 = r2;
+  Arelease_res_inv: forall r1 r2, Arelease_res r1 = Arelease_res r2 -> r1 = r2;
+  Aacquire_Arelease_res: forall r1 r2, Aacquire_res r1 <> Arelease_res r2;
+}.
+
 Definition is_resource_action {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} (a: action) := exists r, a = Aacquire_res r \/ a = Arelease_res r.
 
-Inductive res_enable {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: action -> resources -> resources -> Prop :=
-| res_enable_acq: forall r A1 A2, (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r -> res_enable (Aacquire_res r) A1 A2
-| res_enable_rel: forall r A1 A2, (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r -> res_enable (Arelease_res r) A1 A2
-| res_enable_other: forall a A, ~ is_resource_action a -> res_enable a A A.
+(* res_enable A1 A1' A2 := A1 ==> A1' while A2 is the environ *)
+Inductive res_enable {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: action -> resources -> resources -> resources -> Prop :=
+| res_enable_acq: forall r A1 A1' A2, (forall r0, A1 r0 \/ r = r0 <-> A1' r0) -> ~ A1 r -> ~ A2 r -> res_enable (Aacquire_res r) A1 A1' A2
+| res_enable_rel: forall r A1 A1' A2, (forall r0, A1' r0 \/ r = r0 <-> A1 r0) -> ~ A1' r -> res_enable (Arelease_res r) A1 A1' A2
+| res_enable_other: forall a A1 A2, ~ is_resource_action a -> res_enable a A1 A1 A2.
+
+Lemma res_enable_acq_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
+  forall r A1 A1' A2, res_enable (Aacquire_res r) A1 A1' A2 -> (forall r0, A1 r0 \/ r = r0 <-> A1' r0) /\ ~ A1 r /\ ~ A2 r.
+Proof.
+  intros.
+  inversion H; subst.
+  + apply Aacquire_res_inv in H0; subst.
+    auto.
+  + symmetry in H0.
+    apply Aacquire_Arelease_res in H0; inversion H0.
+  + exfalso; apply H0.
+    exists r; auto.
+Qed.
+
+Lemma res_enable_rel_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
+  forall r A1 A1' A2, res_enable (Arelease_res r) A1 A1' A2 -> (forall r0, A1' r0 \/ r = r0 <-> A1 r0) /\ ~ A1' r.
+Proof.
+  intros.
+  inversion H; subst.
+  + apply Aacquire_Arelease_res in H0; inversion H0.
+  + apply Arelease_res_inv in H0; subst.
+    auto.
+  + exfalso; apply H0.
+    exists r; auto.
+Qed.
 
 Class Action_Parallel (Ac: Action): Type := {
   race: action;
@@ -62,15 +94,17 @@ Class NormalAction_Parallel_resource (Ac: Action) (Res: Resource) {AcP: Action_P
 Inductive trace_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: resources -> resources -> trace -> trace -> trace -> Prop :=
 | trace_interleave_nil_nil: forall (A1 A2: resources), trace_interleave A1 A2 nil nil nil
 | trace_interleave_race: forall (A1 A2: resources) a1 tr1 a2 tr2, race_actions a1 a2 -> trace_interleave A1 A2 (cons a1 tr1) (cons a2 tr2) (cons race nil)
-| trace_interleave_left: forall (A1 A1' A2: resources) a1 tr1 tr2 tr, res_enable a1 A1 A1' -> trace_interleave A1' A2 tr1 tr2 tr -> trace_interleave A1 A2 (cons a1 tr1) tr2 (cons a1 tr)
-| trace_interleave_right: forall (A1 A2 A2': resources) tr1 a2 tr2 tr, res_enable a2 A2 A2' -> trace_interleave A1 A2' tr1 tr2 tr -> trace_interleave A1 A2 tr1 (cons a2 tr2) (cons a2 tr).
+| trace_interleave_left: forall (A1 A1' A2: resources) a1 tr1 tr2 tr, res_enable a1 A1 A1' A2 -> trace_interleave A1' A2 tr1 tr2 tr -> trace_interleave A1 A2 (cons a1 tr1) tr2 (cons a1 tr)
+| trace_interleave_right: forall (A1 A2 A2': resources) tr1 a2 tr2 tr, res_enable a2 A2 A2' A1 -> trace_interleave A1 A2' tr1 tr2 tr -> trace_interleave A1 A2 tr1 (cons a2 tr2) (cons a2 tr).
 
 Inductive traces_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: traces -> traces -> traces :=
 | traces_interleave_intro: forall (Tr1 Tr2: traces) tr1 tr2 tr, Tr1 tr1 -> Tr2 tr2 -> trace_interleave (fun _ => False) (fun _ => False) tr1 tr2 tr -> traces_interleave Tr1 Tr2 tr.
 
 Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac): Type := {
-  state_enable_resource_action: forall a (A1 A2: resources) (s: state),
-    is_resource_action a -> res_enable a A1 A2 -> state_enable a (s, A1) (Terminating (s, A2));
+  state_enable_Aacquire_res: forall r (A1 A2: resources) (s: state),
+    (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r -> state_enable (Aacquire_res r) (s, A1) (Terminating (s, A2));
+  state_enable_Arelease_res: forall r (A1 A2: resources) (s: state),
+    (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r -> state_enable (Arelease_res r) (s, A1) (Terminating (s, A2));
   state_enable_non_resource_action: forall a (A1 A2: resources) (s1 s2: state),
     ~ is_resource_action a -> state_enable a (s1, A1) (Terminating (s2, A2)) -> A1 = A2
 }.
@@ -115,6 +149,26 @@ Inductive trace_access {state: Type} {Ac: Action} {ac_sem: ActionInterpret state
 
 Inductive traces_access {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac}: traces -> state -> MetaState state -> Prop :=
 | traces_access_intro: forall tr (Tr: traces) s ms, Tr tr -> trace_access tr s ms -> traces_access Tr s ms.
+
+Lemma trace_access_Terminating_inv {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac}:
+  forall P a tr s ms,
+    trace_access (cons a tr) s ms ->
+    (forall ms', state_enable a s ms' -> exists s', P s' /\ ms' = Terminating s') ->
+    (exists s', P s' /\ trace_access tr s' ms).
+Proof.
+  intros.
+  inversion H; subst.
+  + apply H0 in H5.
+    destruct H5 as [? [? ?]].
+    inversion H2.
+  + apply H0 in H5.
+    destruct H5 as [? [? ?]].
+    inversion H2.
+  + apply H0 in H3.
+    destruct H3 as [? [? ?]].
+    inversion H2; subst.
+    exists x; auto.
+Qed.
 
 Definition TS2BSS {P: ProgrammingLanguage} {state: Type} {Ac: Action} {Res: Resource} (TS: TraceSemantics P (state * resources) Ac): BigStepSemantics P state :=
   Build_BigStepSemantics _ _ (fun s c ms => traces_access (cmd_denote c) (s, fun _ => False) (lift_function (fun s => (s, fun _ => False)) ms)).

@@ -191,7 +191,7 @@ HoareLogic_FILES = \
   HoareLogic.v GuardedHoareLogic.v \
   HoareTriple_BigStepSemantics.v GuardedHoareTriple_Angelic.v GuardedHoareTriple_TraceSemantics.v \
   Sound_Basic.v Sound_Imp.v Sound_Frame.v \
-  Sound_Resource_Angelic.v
+  Sound_Resource_Angelic.v Sound_Resource_TraceSemantics.v
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
