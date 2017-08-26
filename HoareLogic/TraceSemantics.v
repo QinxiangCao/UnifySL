@@ -173,8 +173,11 @@ Qed.
 Definition TS2BSS {P: ProgrammingLanguage} {state: Type} {Ac: Action} {Res: Resource} (TS: TraceSemantics P (state * resources) Ac): BigStepSemantics P state :=
   Build_BigStepSemantics _ _ (fun s c ms => traces_access (cmd_denote c) (s, fun _ => False) (lift_function (fun s => (s, fun _ => False)) ms)).
 
-Definition greatest {A: Type} {R: Relation A} (s: A -> Prop) (a: A): Prop :=
+Definition is_upper_bound {A: Type} {R: Relation A} (s: A -> Prop) (a: A): Prop :=
   forall a0, s a0 -> a0 <= a.
+
+Definition greatest {A: Type} {R: Relation A} (s: A -> Prop) (a: A): Prop :=
+  s a /\ is_upper_bound s a.
 
 Inductive thread_local_state_enable {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac} (Inv: resource * (state -> Prop) -> Prop) : action -> state * resources -> MetaState (state * resources) -> Prop :=
 | thread_local_state_enable_acq: forall r A1 A2 I m f n,
