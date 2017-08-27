@@ -104,7 +104,7 @@ Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
     (exists s', greatest (fun s' => exists f, I f /\ join s' f s) s')
 }.
 
-Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop), KSAActionInterpret_resource model Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
+Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop) {LEGAL: LegalInvariants Inv}, KSAActionInterpret_resource model Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
   intros.
   constructor.
   intros.
@@ -125,9 +125,82 @@ Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop)
     - constructor; auto.
     - simpl.
       eapply thread_local_state_enable_acq; eauto.
-  +
-Abort.
-
+  + subst a.
+    simpl in H1.
+    assert (RES: A1 r).
+    Focus 1. {
+      inversion H1; subst.
+      + apply Aacquire_Arelease_res in H2; inversion H2.
+      + apply Arelease_res_inv in H2; subst.
+        specialize (H6 r); tauto.
+      + apply Arelease_res_inv in H2; subst.
+        specialize (H6 r); tauto.
+      + exfalso; apply H2; exists r; auto.
+    } Unfocus.
+    destruct (classic (forall I, Inv (r, I) -> exists m2, (fun m2 => exists f, I f /\ join m2 f m1) m2)).
+    - inversion H1; subst.
+      Focus 1. { apply Aacquire_Arelease_res in H3; inversion H3. } Unfocus.
+      Focus 2. {
+        exfalso.
+        apply Arelease_res_inv in H3; subst.
+        destruct n2; inversion H6; subst; clear H6.
+        specialize (H2 _ H9).
+        destruct H2 as [m2 [f0 [? ?]]].
+        pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H3) H as [n2' [? ?]].
+        pose proof join_Korder_up _ _ _ _ H5 H0 as [_f0 [n2 [? [? ?]]]].
+        apply (H10 n2); clear H10.
+        exists _f0; split; [eapply (invariant_mono _ _ H9); eauto | apply join_comm; auto].
+      } Unfocus.
+      Focus 2. { exfalso; apply H3; exists r; auto. } Unfocus.
+      apply Arelease_res_inv in H3; subst.
+      destruct n2 as [| | n2]; inversion H6; subst; clear H6.
+      specialize (H2 _ H9).
+      apply (invariant_precise _ _ H9) in H2.
+      destruct H2 as [m2 ?].
+      destruct (proj1 H2) as [f0 [? ?]].
+      pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H4) H as [n2' [? ?]].
+      pose proof join_Korder_up _ _ _ _ H6 H0 as [_f0 [_n2 [? [? ?]]]].
+      assert ((fun n : model => exists f : model, I f /\ join n f n1) _n2).
+      Focus 1. { exists _f0; split; [eapply (invariant_mono _ _ H9); eauto | apply join_comm; auto]. } Unfocus.
+      apply (proj2 H10) in H14.
+      exists (Terminating m2), (Terminating n2').
+      split; [| split].
+      * constructor; auto.
+      * constructor. etransitivity; eauto.
+      * simpl.
+        eapply thread_local_state_enable_rel_succ; eauto.
+    - exists Error, n2.
+      split; [| split].
+      * constructor.
+      * destruct n2; constructor.
+        reflexivity.
+      * simpl.
+        apply Classical_Pred_Type.not_all_ex_not in H2; destruct H2 as [I ?].
+        apply imply_to_and in H2; destruct H2.
+        clear A2 H1.
+        set (A2 := fun r0 => A1 r0 /\ r <> r0).
+        assert (forall r0, A2 r0 \/ r = r0 <-> A1 r0).
+        Focus 1. {
+          intros.
+          assert (r = r0 -> A1 r0) by (intros; subst; auto).
+          subst A2; tauto.
+        } Unfocus.
+        assert (~ A2 r).
+        Focus 1. {
+          subst A2; intro.
+          tauto.
+        } Unfocus.
+        eapply thread_local_state_enable_rel_fail; eauto.
+  + simpl in H1.
+    rewrite <- (thread_local_state_enable_non_resource_action Inv) in H1 by auto.
+    pose proof ordered_frame_property _ _ _ _ _ _ _ _ H H0 H1 as [m2 [n2' [? [? ?]]]].
+    exists m2, n2'.
+    split; [| split]; auto.
+    simpl.
+    rewrite <- (thread_local_state_enable_non_resource_action Inv) by auto.
+    auto.
+Qed.
+(*
 Lemma Sparallel_sound_acq_aux: forall Inv r tr s A A' ms,
   @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) (Aacquire_res r :: tr) (s, A) ms ->
   (forall r0, A r0 \/ r = r0 <-> A' r0) ->
@@ -203,7 +276,7 @@ Proof.
   split; auto.
   apply join_comm; auto.
 Qed.
-
+*)
 Lemma hoare_parallel_partial_sound
       {CPP: ConcurrentProgrammingLanguage_Sparallel P}
       {AcP: Action_Parallel Ac}
@@ -265,7 +338,11 @@ Proof.
       rewrite (thread_local_state_enable_non_resource_action Inv) in H2 by auto.
       specialize (RIGHT_ASSU Error (@trace_access_Error _ _ (ThreadLocal_ActionInterpret_resource _ Inv) _ _ _ H2)).
       inversion RIGHT_ASSU.
-  + destruct (classic (is_resource_action a1)) as [[?r [? | ?]] | ?].
+  +
+
+(*
+
+        destruct (classic (is_resource_action a1)) as [[?r [? | ?]] | ?].
     - subst a1.
       destruct (res_enable_acq_inv _ _ _ _ H) as [? [? ?]].
       set (A' := fun r0 => A r0 \/ r = r0).
@@ -341,6 +418,6 @@ Proof.
         assert (r = r0 -> ~ A2 r0) by (intros; subst; auto).
         specialize (RES_DISJ r0); specialize (H0 r0).
         tauto.
-       *)
+       *) *)
       Abort.
 End soundness.
