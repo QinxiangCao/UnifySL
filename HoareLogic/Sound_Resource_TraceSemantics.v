@@ -8,6 +8,8 @@ Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
+Require Import Logic.SeparationLogic.Model.OSAExamples.
+Require Import Logic.SeparationLogic.Model.OSAGenerators.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.HoareLogic.ImperativeLanguage.
@@ -24,7 +26,7 @@ Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import KripkeModelSingleNotation.
 Import KripkeModelNotation_Intuitionistic.
-
+(*
 Lemma thread_local_state_enable_acq_inv {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}:
   forall Inv r s1 A1 A2 ms,
     (forall r0 : resource, A1 r0 \/ r = r0 <-> A2 r0) ->
@@ -73,7 +75,7 @@ Proof.
     exists I; split; auto.
   + exfalso; apply H2; exists r; auto.
 Qed.
-
+*)
 Section soundness.
 
 Existing Instance unit_kMD.
@@ -91,8 +93,11 @@ Context {P: ProgrammingLanguage}
         {Acr: Action_resource Ac Res}
         {nAcr: NormalAction_resource Ac Res}
         {TS: TraceSemantics P (resources * model) Ac}
-        {SAAIr: SAActionInterpret_resource model Ac Res ac_sem}
-        {KSA_AIr: KSAActionInterpret_resource model Ac Res ac_sem}.
+        {SAAIr: @SAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J)}
+        {KAIr: @KActionInterpret_resource (resources * model) Ac ac_sem (RelProd (discPred_R resource) R)}.
+
+Definition KSAAIr: @KSAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R) :=
+  ordered_and_frame_AIr _ _.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
 
@@ -104,7 +109,7 @@ Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
     (exists s', greatest (fun s' => exists f, I f /\ join s' f s) s')
 }.
 
-Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}, KSAActionInterpret_resource model Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
+Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}, @KSAActionInterpret_resource (resources * model) Ac (ThreadLocal_ActionInterpret_resource ac_sem Inv) (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R).
   intros.
   constructor.
   intros.
@@ -116,13 +121,25 @@ Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop)
     Focus 2. { symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2. } Unfocus.
     Focus 2. { exfalso; apply H2; exists r; auto. } Unfocus.
     apply Aacquire_res_inv in H2; subst.
-    destruct n2 as [| | n2]; inversion H5; subst; clear H5.
-    pose proof join_Korder_down _ _ _ _ _ H10 H0 ltac:(reflexivity) as [n2' [? ?]].
-    pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H) H2 as [m2 [? ?]].
-    exists (Terminating m2), (Terminating n2').
+    rename m into n1, n into n2.
+    destruct n1' as [A1' n1'], f as [Af f], m1 as [B1 m1].
+    hnf in H; simpl in H; destruct H.
+    hnf in H0; simpl in H0. destruct H0. hnf in H0, H7; simpl in H0, H7.
+    pose proof join_Korder_down _ _ _ _ _ H6 H7 ltac:(reflexivity) as [n2' [? ?]].
+    pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H2) H8 as [m2 [? ?]].
+    assert (A1 = A1').
+    Focus 1. {
+      extensionality r0; apply prop_ext.
+      apply iff_sym, H0.
+    } Unfocus.
+    subst A1'.
+    pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H) H3 as [B2 [? ?]].
+    exists (Terminating (B2, m2)), (Terminating (A2, n2')).
     split; [| split].
-    - constructor; apply join_comm; auto.
-    - constructor; auto.
+    - constructor.
+      split; apply join_comm; auto.
+    - constructor; split; auto; simpl.
+      hnf; intro; simpl; hnf; tauto.
     - simpl.
       eapply thread_local_state_enable_acq; eauto.
   + subst a.

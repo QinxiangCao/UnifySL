@@ -2,6 +2,8 @@ Require Import Coq.Relations.Relation_Operators.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.SeparationLogic.Model.OSAExamples.
+Require Import Logic.SeparationLogic.Model.OSAGenerators.
 Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.BigStepSemantics.
@@ -51,14 +53,18 @@ Class NormalAction_resource (Ac: Action) (Res: Resource) {Acr: Action_resource A
 
 Definition is_resource_action {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} (a: action) := exists r, a = Aacquire_res r \/ a = Arelease_res r.
 
+Instance Res_Join (Res: Resource): Join resources := Pred_Join resource.
+
+Instance Res_SA (Res: Resource): SeparationAlgebra resources := Pred_SA resource.
+
 (* res_enable A1 A1' A2 := A1 ==> A1' while A2 is the environ *)
 Inductive res_enable {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: action -> resources -> resources -> resources -> Prop :=
-| res_enable_acq: forall r A1 A1' A2, (forall r0, A1 r0 \/ r = r0 <-> A1' r0) -> ~ A1 r -> ~ A2 r -> res_enable (Aacquire_res r) A1 A1' A2
-| res_enable_rel: forall r A1 A1' A2, (forall r0, A1' r0 \/ r = r0 <-> A1 r0) -> ~ A1' r -> res_enable (Arelease_res r) A1 A1' A2
+| res_enable_acq: forall r A1 A1' A2, join A1 (eq r) A1' -> ~ A2 r -> res_enable (Aacquire_res r) A1 A1' A2
+| res_enable_rel: forall r A1 A1' A2, join A1' (eq r) A1 -> res_enable (Arelease_res r) A1 A1' A2
 | res_enable_other: forall a A1 A2, ~ is_resource_action a -> res_enable a A1 A1 A2.
 
 Lemma res_enable_acq_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
-  forall r A1 A1' A2, res_enable (Aacquire_res r) A1 A1' A2 -> (forall r0, A1 r0 \/ r = r0 <-> A1' r0) /\ ~ A1 r /\ ~ A2 r.
+  forall r A1 A1' A2, res_enable (Aacquire_res r) A1 A1' A2 -> join A1 (eq r) A1' /\ ~ A2 r.
 Proof.
   intros.
   inversion H; subst.
@@ -71,7 +77,7 @@ Proof.
 Qed.
 
 Lemma res_enable_rel_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
-  forall r A1 A1' A2, res_enable (Arelease_res r) A1 A1' A2 -> (forall r0, A1' r0 \/ r = r0 <-> A1 r0) /\ ~ A1' r.
+  forall r A1 A1' A2, res_enable (Arelease_res r) A1 A1' A2 -> join A1' (eq r) A1.
 Proof.
   intros.
   inversion H; subst.
@@ -125,38 +131,38 @@ Class Command2Traces_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (
   Sparallel_denote: forall c1 c2, cmd_denote (Sparallel c1 c2) = traces_interleave (cmd_denote c1) (cmd_denote c2)
 }.
 
-Class SAActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) {J: Join state}: Prop := {
-  frame_property: forall (a: action) (A1 A2: resources) (m1 f n1: state) (n2: MetaState state),
+Class SAActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {J: Join state}: Prop := {
+  frame_property: forall (a: action) (m1 f n1: state) (n2: MetaState state),
     join m1 f n1 ->
-    state_enable a (A1, n1) (lift_function (pair A2) n2) ->
-    exists m2, lift_join m2 (Terminating f) n2 /\ state_enable a (A1, m1) (lift_function (pair A2) m2)
+    state_enable a n1 n2 ->
+    exists m2, lift_join m2 (Terminating f) n2 /\ state_enable a m1 m2
 }.
 
-Class KActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) {state_R: Relation state}: Prop := {
-  ordered_action_interpret: forall (a: action) (A1 A2: resources) (m1 n1: state) (n2: MetaState state),
+Class KActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {state_R: Relation state}: Prop := {
+  ordered_action_interpret: forall (a: action) (m1 n1: state) (n2: MetaState state),
     m1 <= n1 ->
-    state_enable a (A1, n1) (lift_function (pair A2) n2) ->
-    exists m2, Partial.forward m2 n2 /\ state_enable a (A1, m1) (lift_function (pair A2) m2)
+    state_enable a n1 n2 ->
+    exists m2, Partial.forward m2 n2 /\ state_enable a m1 m2
 }.
 
-Class KSAActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) {J: Join state} {state_R: Relation state}: Prop := {
-  ordered_frame_property: forall (a: action) (A1 A2: resources) (m1 f n1' n1: state) (n2: MetaState state),
+Class KSAActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {J: Join state} {state_R: Relation state}: Prop := {
+  ordered_frame_property: forall (a: action) (m1 f n1' n1: state) (n2: MetaState state),
     join m1 f n1' ->
     n1' <= n1 ->
-    state_enable a (A1, n1) (lift_function (pair A2) n2) ->
-    exists m2 n2', lift_join m2 (Terminating f) n2' /\ Partial.forward n2' n2 /\ state_enable a (A1, m1) (lift_function (pair A2) m2)
+    state_enable a n1 n2  ->
+    exists m2 n2', lift_join m2 (Terminating f) n2' /\ Partial.forward n2' n2 /\ state_enable a m1 m2
 }.
 
-Lemma ordered_and_frame_AIr {state: Type} {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac} {J: Join state} {state_R: Relation state}:
-  SAActionInterpret_resource state Ac Res ac_sem ->
-  KActionInterpret_resource state Ac Res ac_sem ->
-  KSAActionInterpret_resource state Ac Res ac_sem.
+Lemma ordered_and_frame_AIr {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac} {J: Join state} {state_R: Relation state}:
+  SAActionInterpret_resource state Ac ac_sem ->
+  KActionInterpret_resource state Ac ac_sem ->
+  KSAActionInterpret_resource state Ac ac_sem.
 Proof.
   intros.
   constructor.
   intros.
-  pose proof ordered_action_interpret _ _ _ _ _ _ H2 H3 as [n2' [? ?]].
-  pose proof frame_property _ _ _ _ _ _ _ H1 H5 as [m2 [? ?]].
+  pose proof ordered_action_interpret _ _ _ _ H2 H3 as [n2' [? ?]].
+  pose proof frame_property _ _ _ _ _ H1 H5 as [m2 [? ?]].
   exists m2, n2'; auto.
 Qed.
 
@@ -201,17 +207,17 @@ Definition greatest {A: Type} {R: Relation A} (s: A -> Prop) (a: A): Prop :=
 
 Inductive thread_local_state_enable {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac} (Inv: resource * (state -> Prop) -> Prop) : action -> resources * state -> MetaState (resources * state) -> Prop :=
 | thread_local_state_enable_acq: forall r A1 A2 I m f n,
-    (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r ->
+    join A1 (eq r) A2 ->
     Inv (r, I) -> I f ->
     join m f n ->
     thread_local_state_enable Inv (Aacquire_res r) (A1, m) (Terminating (A2, n))
 | thread_local_state_enable_rel_succ: forall r A1 A2 I m n,
-    (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r ->
+    join A2 (eq r) A1 ->
     Inv (r, I) ->
     greatest (fun n => exists f, I f /\ join n f m) n ->
     thread_local_state_enable Inv (Arelease_res r) (A1, m) (Terminating (A2, n))
 | thread_local_state_enable_rel_fail: forall r A1 A2 I m,
-    (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r ->
+    join A2 (eq r) A1 ->
     Inv (r, I) ->
     (forall n, ~ exists f, I f /\ join n f m) ->
     thread_local_state_enable Inv (Arelease_res r) (A1, m) Error
