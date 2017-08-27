@@ -88,6 +88,17 @@ Proof.
     exists r; auto.
 Qed.
 
+Lemma res_enable_not_res_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
+  forall a A1 A1' A2, ~ is_resource_action a -> res_enable a A1 A1' A2 -> A1 = A1'.
+Proof.
+  intros.
+  inversion H0; subst; auto; clear H0.
+  + exfalso.
+    apply H; exists r; auto.
+  + exfalso.
+    apply H; exists r; auto.
+Qed.
+
 Class Action_Parallel (Ac: Action): Type := {
   race: action;
   race_actions: action -> action -> Prop;

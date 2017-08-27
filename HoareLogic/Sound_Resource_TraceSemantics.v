@@ -93,6 +93,7 @@ Context {P: ProgrammingLanguage}
         {Acr: Action_resource Ac Res}
         {nAcr: NormalAction_resource Ac Res}
         {TS: TraceSemantics P (resources * model) Ac}
+        {AIr: ActionInterpret_resource model Ac Res ac_sem}
         {SAAIr: @SAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (fun a => ~ is_resource_action a)}
         {KAIr: @KActionInterpret_resource (resources * model) Ac ac_sem (RelProd (discPred_R resource) R)}.
 
@@ -111,13 +112,14 @@ Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
 (*
 Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}, @KSAActionInterpret_resource (resources * model) Ac (ThreadLocal_ActionInterpret_resource ac_sem Inv) (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R).
   Check @lift_join.
-*)
-Lemma ThreadLocal_ordered_frame_property (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}: forall (a: action) (m1 f n1' n1: resources * model) (n2: MetaState (resources * model))
-    (ASSU: forall r, a = Arelease_res r -> ~ fst f r),
+ *)
+
+Lemma ThreadLocal_ordered_frame_property (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}: forall (a: action) (m1 f n1' n1: resources * model) (n2: MetaState (resources * model)) fst_m2
+    (ASSU: res_enable a (fst m1) fst_m2 (fst f) (*forall r, a = Arelease_res r -> ~ fst f r*)),
     @join _ (prod_Join _ _) m1 f n1' ->
     (RelProd (discPred_R _) R) n1' n1 ->
     thread_local_state_enable Inv a n1 n2  ->
-    exists m2 n2', @lift_join _ (prod_Join _ _) m2 (Terminating f) n2' /\ @Partial.forward _ (RelProd (discPred_R _) R) n2' n2 /\ thread_local_state_enable Inv a m1 m2.
+    exists m2 n2', @lift_join _ (prod_Join _ _) m2 (Terminating f) n2' /\ @Partial.forward _ (RelProd (discPred_R _) R) n2' n2 /\ match m2 with Terminating m2 => fst m2 = fst_m2 | _ => True end /\ thread_local_state_enable Inv a m1 m2.
 Proof.
   intros.
   destruct (classic (is_resource_action a)) as [[?r [? | ?]] | ?].
@@ -141,11 +143,16 @@ Proof.
     subst A1'.
     pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H) H3 as [B2 [? ?]].
     exists (Terminating (B2, m2)), (Terminating (A2, n2')).
-    split; [| split].
+    split; [| split; [| split]].
     - constructor.
       split; apply join_comm; auto.
     - constructor; split; auto; simpl.
       hnf; intro; simpl; hnf; tauto.
+    - apply res_enable_acq_inv in ASSU.
+      simpl in ASSU; destruct ASSU as [? _].
+      simpl; clear - H14 H12.
+      extensionality r0; apply prop_ext.
+      specialize (H12 r0); specialize (H14 r0); destruct H12, H14; tauto.
     - simpl.
       eapply thread_local_state_enable_acq; eauto.
   + subst a.
@@ -158,7 +165,7 @@ Proof.
       apply H0.
     } Unfocus.
     subst A1'; clear H0.
-    
+    (*
     assert (RES: exists B2, join B2 (eq r) B1 /\ forall A2, join A2 (eq r) A1 -> join B2 Af A2).
     Focus 1. {
       assert (A1 r).
@@ -169,10 +176,11 @@ Proof.
         - apply Arelease_res_inv in H0; subst.
           specialize (H6 r); destruct H6; tauto.
         - exfalso; apply H0; exists r; auto.
-      + clear - H H0 ASSU.
-        specialize (ASSU _ eq_refl); simpl in ASSU.
-        exists (fun r0 => B1 r0 /\ r <> r0).
-        split.
+      + clear - H H0 ASSU nAcr.
+        apply res_enable_rel_inv in ASSU; simpl in ASSU.
+        exists fst_m2.
+        split; auto.
+        intros.
         - intros r0.
           specialize (H r0).
           destruct H.
@@ -188,6 +196,7 @@ Proof.
           assert (r = r0 -> A1 r0) by (intro; subst; auto).
           split; tauto.
     } Unfocus.
+    *)
     destruct (classic (forall I, Inv (r, I) -> exists m2, (fun m2 => exists f, I f /\ join m2 f m1) m2)).
     - inversion H1; subst.
       Focus 1. { apply Aacquire_Arelease_res in H4; inversion H4. } Unfocus.
@@ -212,34 +221,45 @@ Proof.
       assert ((fun n : model => exists f : model, I f /\ join n f n1) _n2).
       Focus 1. { exists _f0; split; [eapply (invariant_mono _ _ H8); eauto | apply join_comm; auto]. } Unfocus.
       apply (proj2 H10) in H14.
-      destruct RES as [B2 [? ?]].
-      specialize (H16 _ H7).
+      apply res_enable_rel_inv in ASSU; simpl in ASSU.
+      rename fst_m2 into B2.
       exists (Terminating (B2, m2)), (Terminating (A2, n2')).
-      split; [| split].
+      split; [| split; [| split]].
       * constructor.
         split; auto.
+        simpl.
+        clear - ASSU H H7.
+        intros r0; specialize (ASSU r0); specialize (H r0); specialize (H7 r0).
+        destruct ASSU, H, H7; split; tauto.
       * constructor.
         split; [hnf; intros ?; hnf; tauto | change (n2' <= n); etransitivity; eauto].
+      * auto.
       * simpl.
         eapply thread_local_state_enable_rel_succ; eauto.
     - exists Error, n2.
-      split; [| split].
+      split; [| split; [| split]].
       * constructor.
       * destruct n2; constructor.
         destruct p as [A2 n2].
         split; [hnf; intros ?; hnf; tauto | change (n2 <= n2); reflexivity].
+      * auto.
       * apply Classical_Pred_Type.not_all_ex_not in H0; destruct H0 as [I ?].
         apply imply_to_and in H0; destruct H0.
-        destruct RES as [B2 [? _]].
+        apply res_enable_rel_inv in ASSU; simpl in ASSU.
         eapply thread_local_state_enable_rel_fail; eauto.
   + rewrite <- (thread_local_state_enable_non_resource_action Inv) in H1 by auto.
     change ((fun a => ~ is_resource_action a) a) in H2.
     pose proof ordered_frame_property _ _ _ _ _ _ H2 H H0 H1 as [m2 [n2' [? [? ?]]]].
     exists m2, n2'.
-    split; [| split]; auto.
-    simpl.
-    rewrite <- (thread_local_state_enable_non_resource_action Inv) by auto.
-    auto.
+    split; [| split; [| split]]; auto.
+    - apply res_enable_not_res_inv in ASSU; auto.
+      destruct m1 as [A1 m1], m2 as [| | [A2 m2]]; auto.
+      simpl in H5.
+      apply state_enable_non_resource_action in H5; auto.
+      subst; auto.
+    - simpl.
+      rewrite <- (thread_local_state_enable_non_resource_action Inv) by auto.
+      auto.
 Qed.
 
 Lemma hoare_parallel_partial_sound
@@ -327,22 +347,12 @@ Proof.
       specialize (RIGHT_ASSU Error (@trace_access_Error _ _ (ThreadLocal_ActionInterpret_resource _ Inv) _ _ _ H2)).
       inversion RIGHT_ASSU.
     - exact (proj2 STATE_JOIN).
-  + assert (FRAME_ASSU: (fun a => forall r, a = Arelease_res r -> ~ fst (A2, s2) r) a1).
-    Focus 1. {
-      intros; subst a1.
-      apply res_enable_rel_inv in H.
-      clear - STATE_JOIN H.
-      destruct STATE_JOIN as [? _].
-      specialize (H r); specialize (H0 r).
-      simpl in H0; destruct H0.
-      destruct H.
-      tauto.
-    } Unfocus.
+  + change (res_enable a1 (fst (A1, s1)) A1' (fst (A2, s2))) in H.
     inversion TRACE_ACC; subst.
     - (* NonTerminating *)
       destruct ms_post; inversion H5; clear H5; auto.
     - (* Error *)
-      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ Error FRAME_ASSU STATE_JOIN STATE_LE H3 as [Error' [Error'' [? [? ?]]]].
+      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ Error A1' H STATE_JOIN STATE_LE H3 as [Error' [Error'' [? [? [_ ?]]]]].
       inversion H1; subst; clear H1.
       inversion H0; subst; clear H0.
       simpl lift_function in H2.
@@ -350,6 +360,54 @@ Proof.
       apply (LEFT_ASSU Error).
       apply trace_access_Error; auto.
     - (* Terminating *)
-      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ (Terminating s') FRAME_ASSU STATE_JOIN STATE_LE H2 as [m2' [n2' [? [? ?]]]].
-      Abort.
+      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ (Terminating s') A1' H STATE_JOIN STATE_LE H2 as [m2 [n2' [? [? [? ?]]]]].
+      destruct n2' as [| | n2']; inversion H1; subst.
+      destruct m2 as [| | m2]; inversion H0; subst.
+      * exfalso.
+        apply (LEFT_ASSU Error).
+        apply trace_access_Error; auto.
+      * destruct s' as [A' s'], m2 as [A1' s1'], n2' as [A0' s0'].
+        assert (A0' = A').
+        Focus 1. {
+          clear - H9. destruct H9 as [? _]; hnf in H; simpl in H.
+          extensionality r0; apply prop_ext; apply H.
+        } Unfocus.
+        subst A0'.
+        apply (IHtrace_interleave s0' s1' s2 s' A'); auto.
+        intros.
+        apply LEFT_ASSU.
+        eapply trace_access_Terminating; eauto.
+  + change (res_enable a2 (fst (A2, s2)) A2' (fst (A1, s1))) in H.
+    inversion TRACE_ACC; subst.
+    - (* NonTerminating *)
+      destruct ms_post; inversion H5; clear H5; auto.
+    - (* Error *)
+      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ Error A2' H (@join_comm _ _ (prod_SA _ _) _ _ _ STATE_JOIN) STATE_LE H3 as [Error' [Error'' [? [? [_ ?]]]]].
+      inversion H1; subst; clear H1.
+      inversion H0; subst; clear H0.
+      simpl lift_function in H2.
+      exfalso.
+      apply (RIGHT_ASSU Error).
+      apply trace_access_Error; auto.
+    - (* Terminating *)
+      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ (Terminating s') A2' H (@join_comm _ _ (prod_SA _ _) _ _ _ STATE_JOIN) STATE_LE H2 as [m2 [n2' [? [? [? ?]]]]].
+      destruct n2' as [| | n2']; inversion H1; subst.
+      destruct m2 as [| | m2]; inversion H0; subst.
+      * exfalso.
+        apply (RIGHT_ASSU Error).
+        apply trace_access_Error; auto.
+      * destruct s' as [A' s'], m2 as [A2' s2'], n2' as [A0' s0'].
+        assert (A0' = A').
+        Focus 1. {
+          clear - H9. destruct H9 as [? _]; hnf in H; simpl in H.
+          extensionality r0; apply prop_ext; apply H.
+        } Unfocus.
+        subst A0'.
+        apply (IHtrace_interleave s0' s1 s2' s' A'); auto.
+        intros.
+        apply RIGHT_ASSU.
+        eapply trace_access_Terminating; eauto.
+        apply (@join_comm _ _ (prod_SA _ _)); auto.
+Qed.
+
 End soundness.
