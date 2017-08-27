@@ -25,12 +25,12 @@ Import SeparationLogicNotation.
 Import KripkeModelSingleNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Lemma thread_local_state_enable_acq_inv {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac}:
+Lemma thread_local_state_enable_acq_inv {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}:
   forall Inv r s1 A1 A2 ms,
     (forall r0 : resource, A1 r0 \/ r = r0 <-> A2 r0) ->
     ~ A1 r ->
-    thread_local_state_enable Inv (Aacquire_res r) (s1, A1) ms ->
-    exists s2 I f, Inv (r, I) /\ I f /\ join s1 f s2 /\ ms = Terminating (s2, A2).
+    thread_local_state_enable Inv (Aacquire_res r) (A1, s1) ms ->
+    exists s2 I f, Inv (r, I) /\ I f /\ join s1 f s2 /\ ms = Terminating (A2, s2).
 Proof.
   intros.
   inversion H1; subst.
@@ -46,14 +46,14 @@ Proof.
   + exfalso; apply H2; exists r; auto.
 Qed.
 
-Lemma thread_local_state_enable_rel_inv {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac}:
+Lemma thread_local_state_enable_rel_inv {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}:
   forall Inv r s1 A1 A2 ms,
     (forall r0 : resource, A2 r0 \/ r = r0 <-> A1 r0) ->
     ~ A2 r ->
-    thread_local_state_enable Inv (Arelease_res r) (s1, A1) ms ->
+    thread_local_state_enable Inv (Arelease_res r) (A1, s1) ms ->
     exists I, Inv (r, I) /\ 
     ((ms = Error /\ forall s2, ~ exists f, I f /\ join s2 f s1) \/
-     (exists s2, greatest (fun s2 => exists f, I f /\ join s2 f s1) s2 /\ ms = Terminating (s2, A2))).
+     (exists s2, greatest (fun s2 => exists f, I f /\ join s2 f s1) s2 /\ ms = Terminating (A2, s2))).
 Proof.
   intros.
   inversion H1; subst.
@@ -90,8 +90,9 @@ Context {P: ProgrammingLanguage}
         {Ac: Action}
         {Acr: Action_resource Ac Res}
         {nAcr: NormalAction_resource Ac Res}
-        {TS: TraceSemantics P (model * resources) Ac}
-        {SAAIr: SAActionInterpret_resource model Ac Res ac_sem}.
+        {TS: TraceSemantics P (resources * model) Ac}
+        {SAAIr: SAActionInterpret_resource model Ac Res ac_sem}
+        {KSA_AIr: KSAActionInterpret_resource model Ac Res ac_sem}.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
 
@@ -102,6 +103,30 @@ Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
     (exists s', (fun s' => exists f, I f /\ join s' f s) s') ->
     (exists s', greatest (fun s' => exists f, I f /\ join s' f s) s')
 }.
+
+Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop), KSAActionInterpret_resource model Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
+  intros.
+  constructor.
+  intros.
+  destruct (classic (is_resource_action a)) as [[?r [? | ?]] | ?].
+  + subst a.
+    simpl in H1.
+    inversion H1; subst.
+    Focus 2. { symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2. } Unfocus.
+    Focus 2. { symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2. } Unfocus.
+    Focus 2. { exfalso; apply H2; exists r; auto. } Unfocus.
+    apply Aacquire_res_inv in H2; subst.
+    destruct n2 as [| | n2]; inversion H5; subst; clear H5.
+    pose proof join_Korder_down _ _ _ _ _ H10 H0 ltac:(reflexivity) as [n2' [? ?]].
+    pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H) H2 as [m2 [? ?]].
+    exists (Terminating m2), (Terminating n2').
+    split; [| split].
+    - constructor; apply join_comm; auto.
+    - constructor; auto.
+    - simpl.
+      eapply thread_local_state_enable_acq; eauto.
+  +
+Abort.
 
 Lemma Sparallel_sound_acq_aux: forall Inv r tr s A A' ms,
   @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) (Aacquire_res r :: tr) (s, A) ms ->
@@ -133,7 +158,6 @@ Lemma acq_assoc_aux: forall s1 s2 s0 s f s',
     join s1 f s1'.
 Proof.
   intros.
-  Print DownwardsClosedSeparationAlgebra.
   pose proof join_Korder_down _ _ _ _ _ H1 H0 ltac:(reflexivity) as [s0' [? ?]].
   pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H) H2 as [s1' [? ?]].
   exists s1', s0'.

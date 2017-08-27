@@ -27,7 +27,7 @@ Definition guarded_triple_partial_valid
            {Res: Resource}
            {Ac: Action}
            {Acr: Action_resource Ac Res}
-           {TS: TraceSemantics P (model * resources) Ac}
+           {TS: TraceSemantics P (resources * model) Ac}
            {SM: Semantics L MD}
            (Inv: (resource * (model -> Prop)) -> Prop)
            (Pre: expr)

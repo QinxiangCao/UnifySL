@@ -1,4 +1,5 @@
 Require Import Coq.Relations.Relation_Operators.
+Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.HoareLogic.ImperativeLanguage.
@@ -100,19 +101,19 @@ Inductive trace_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac
 Inductive traces_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: traces -> traces -> traces :=
 | traces_interleave_intro: forall (Tr1 Tr2: traces) tr1 tr2 tr, Tr1 tr1 -> Tr2 tr2 -> trace_interleave (fun _ => False) (fun _ => False) tr1 tr2 tr -> traces_interleave Tr1 Tr2 tr.
 
-Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac): Type := {
+Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac): Type := {
   state_enable_Aacquire_res: forall r (A1 A2: resources) (s: state),
-    (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r -> state_enable (Aacquire_res r) (s, A1) (Terminating (s, A2));
+    (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r -> state_enable (Aacquire_res r) (A1, s) (Terminating (A2, s));
   state_enable_Arelease_res: forall r (A1 A2: resources) (s: state),
-    (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r -> state_enable (Arelease_res r) (s, A1) (Terminating (s, A2));
+    (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r -> state_enable (Arelease_res r) (A1, s) (Terminating (A2, s));
   state_enable_non_resource_action: forall a (A1 A2: resources) (s1 s2: state),
-    ~ is_resource_action a -> state_enable a (s1, A1) (Terminating (s2, A2)) -> A1 = A2
+    ~ is_resource_action a -> state_enable a (A1, s1) (Terminating (A2, s2)) -> A1 = A2
 }.
 
-Class ActionInterpret_Parallel_resource (state: Type) {J: Join state} (Ac: Action) {AcP: Action_Parallel Ac} (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac): Type := {
-  state_enable_race: forall s A ms, state_enable race (s, A) ms <-> ms = Error; (* TODO: is this line necessary? *)
+Class ActionInterpret_Parallel_resource (state: Type) {J: Join state} (Ac: Action) {AcP: Action_Parallel Ac} (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac): Type := {
+  state_enable_race: forall A s ms, state_enable race (A, s) ms <-> ms = Error; (* TODO: is this line necessary? *)
   state_enable_race_actions_spec: forall a1 a2 (A1 A2: resources) (s1 s2 s: state),
-      race_actions a1 a2 -> ~ state_enable a1 (s1, A1) Error -> ~ state_enable a2 (s2, A2) Error -> join s1 s2 s -> False
+      race_actions a1 a2 -> ~ state_enable a1 (A1, s1) Error -> ~ state_enable a2 (A2, s2) Error -> join s1 s2 s -> False
   (* This formalization is critical. Even if there is no ms s.t. stable_enable a1 (s1, A1) ms, it still means (s1, A1) has a domain to perform a1. It's just the result does not match, i.e. the read action. *)
 }.
 
@@ -124,22 +125,40 @@ Class Command2Traces_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (
   Sparallel_denote: forall c1 c2, cmd_denote (Sparallel c1 c2) = traces_interleave (cmd_denote c1) (cmd_denote c2)
 }.
 
-Class SAActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac) {J: Join state} {state_R: Relation state}: Type := {
-  frame_property_Terminating: forall (a: action) (A1 A2: resources) (m1 f n1 n2: state),
-    @join _ J m1 f n1 ->
-    ~ state_enable a (m1, A1) Error ->
-    state_enable a (n1, A1) (Terminating (n2, A2)) ->
-    exists m2, @join _ J m2 f n2 /\ state_enable a (m1, A1) (Terminating (n2, A2));
-  frame_property_NonTerminating: forall (a: action) (A1: resources) (m1 f n1: state),
-    @join _ J m1 f n1 ->
-    ~ state_enable a (m1, A1) Error ->
-    state_enable a (n1, A1) NonTerminating ->
-    state_enable a (m1, A1) NonTerminating;
-  frame_property_Error: forall (a: action) (A1: resources) (m1 f n1: state),
-    @join _ J m1 f n1 ->
-    state_enable a (n1, A1) Error ->
-    state_enable a (m1, A1) Error
+Class SAActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) {J: Join state}: Prop := {
+  frame_property: forall (a: action) (A1 A2: resources) (m1 f n1: state) (n2: MetaState state),
+    join m1 f n1 ->
+    state_enable a (A1, n1) (lift_function (pair A2) n2) ->
+    exists m2, lift_join m2 (Terminating f) n2 /\ state_enable a (A1, m1) (lift_function (pair A2) m2)
 }.
+
+Class KActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) {state_R: Relation state}: Prop := {
+  ordered_action_interpret: forall (a: action) (A1 A2: resources) (m1 n1: state) (n2: MetaState state),
+    m1 <= n1 ->
+    state_enable a (A1, n1) (lift_function (pair A2) n2) ->
+    exists m2, Partial.forward m2 n2 /\ state_enable a (A1, m1) (lift_function (pair A2) m2)
+}.
+
+Class KSAActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) {J: Join state} {state_R: Relation state}: Prop := {
+  ordered_frame_property: forall (a: action) (A1 A2: resources) (m1 f n1' n1: state) (n2: MetaState state),
+    join m1 f n1' ->
+    n1' <= n1 ->
+    state_enable a (A1, n1) (lift_function (pair A2) n2) ->
+    exists m2 n2', lift_join m2 (Terminating f) n2' /\ Partial.forward n2' n2 /\ state_enable a (A1, m1) (lift_function (pair A2) m2)
+}.
+
+Lemma ordered_and_frame_AIr {state: Type} {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac} {J: Join state} {state_R: Relation state}:
+  SAActionInterpret_resource state Ac Res ac_sem ->
+  KActionInterpret_resource state Ac Res ac_sem ->
+  KSAActionInterpret_resource state Ac Res ac_sem.
+Proof.
+  intros.
+  constructor.
+  intros.
+  pose proof ordered_action_interpret _ _ _ _ _ _ H2 H3 as [n2' [? ?]].
+  pose proof frame_property _ _ _ _ _ _ _ H1 H5 as [m2 [? ?]].
+  exists m2, n2'; auto.
+Qed.
 
 Inductive trace_access {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac}: trace -> state -> MetaState state -> Prop :=
 | trace_access_nil: forall s, trace_access nil s (Terminating s)
@@ -150,6 +169,7 @@ Inductive trace_access {state: Type} {Ac: Action} {ac_sem: ActionInterpret state
 Inductive traces_access {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac}: traces -> state -> MetaState state -> Prop :=
 | traces_access_intro: forall tr (Tr: traces) s ms, Tr tr -> trace_access tr s ms -> traces_access Tr s ms.
 
+(* TODO: maybe not necessary *)
 Lemma trace_access_Terminating_inv {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac}:
   forall P a tr s ms,
     trace_access (cons a tr) s ms ->
@@ -170,8 +190,8 @@ Proof.
     exists x; auto.
 Qed.
 
-Definition TS2BSS {P: ProgrammingLanguage} {state: Type} {Ac: Action} {Res: Resource} (TS: TraceSemantics P (state * resources) Ac): BigStepSemantics P state :=
-  Build_BigStepSemantics _ _ (fun s c ms => traces_access (cmd_denote c) (s, fun _ => False) (lift_function (fun s => (s, fun _ => False)) ms)).
+Definition TS2BSS {P: ProgrammingLanguage} {state: Type} {Ac: Action} {Res: Resource} (TS: TraceSemantics P (resources * state) Ac): BigStepSemantics P state :=
+  Build_BigStepSemantics _ _ (fun s c ms => traces_access (cmd_denote c) (fun _ => False, s) (lift_function (pair ( fun _ => False)) ms)).
 
 Definition is_upper_bound {A: Type} {R: Relation A} (s: A -> Prop) (a: A): Prop :=
   forall a0, s a0 -> a0 <= a.
@@ -179,28 +199,28 @@ Definition is_upper_bound {A: Type} {R: Relation A} (s: A -> Prop) (a: A): Prop 
 Definition greatest {A: Type} {R: Relation A} (s: A -> Prop) (a: A): Prop :=
   s a /\ is_upper_bound s a.
 
-Inductive thread_local_state_enable {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac} (Inv: resource * (state -> Prop) -> Prop) : action -> state * resources -> MetaState (state * resources) -> Prop :=
+Inductive thread_local_state_enable {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac} (Inv: resource * (state -> Prop) -> Prop) : action -> resources * state -> MetaState (resources * state) -> Prop :=
 | thread_local_state_enable_acq: forall r A1 A2 I m f n,
     (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r ->
     Inv (r, I) -> I f ->
     join m f n ->
-    thread_local_state_enable Inv (Aacquire_res r) (m, A1) (Terminating (n, A2))
+    thread_local_state_enable Inv (Aacquire_res r) (A1, m) (Terminating (A2, n))
 | thread_local_state_enable_rel_succ: forall r A1 A2 I m n,
     (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r ->
     Inv (r, I) ->
     greatest (fun n => exists f, I f /\ join n f m) n ->
-    thread_local_state_enable Inv (Arelease_res r) (m, A1) (Terminating (n, A2))
+    thread_local_state_enable Inv (Arelease_res r) (A1, m) (Terminating (A2, n))
 | thread_local_state_enable_rel_fail: forall r A1 A2 I m,
     (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r ->
     Inv (r, I) ->
     (forall n, ~ exists f, I f /\ join n f m) ->
-    thread_local_state_enable Inv (Arelease_res r) (m, A1) Error
+    thread_local_state_enable Inv (Arelease_res r) (A1, m) Error
 | thread_local_state_enable_non_resource: forall a s s',
     ~ is_resource_action a ->
     state_enable a s s' ->
     thread_local_state_enable Inv a s s'.
 
-Lemma thread_local_state_enable_non_resource_action {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac}:
+Lemma thread_local_state_enable_non_resource_action {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}:
   forall Inv a s s',
     ~ is_resource_action a ->
     (state_enable a s s' <-> thread_local_state_enable Inv a s s').
@@ -218,18 +238,18 @@ Proof.
     - auto.
 Qed.
 
-Definition ThreadLocal_ActionInterpret_resource {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (state * resources) Ac) (Inv: resource * (state -> Prop) -> Prop): ActionInterpret (state * resources) Ac :=
+Definition ThreadLocal_ActionInterpret_resource {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) (Inv: resource * (state -> Prop) -> Prop): ActionInterpret (resources * state) Ac :=
   Build_ActionInterpret _ _ (thread_local_state_enable Inv).
 
-Definition ThreadLocal_BSS {P: ProgrammingLanguage} {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} (TS: TraceSemantics P (state * resources) Ac) (Inv: resource * (state -> Prop) -> Prop): BigStepSemantics P state :=
+Definition ThreadLocal_BSS {P: ProgrammingLanguage} {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} (TS: TraceSemantics P (resources * state) Ac) (Inv: resource * (state -> Prop) -> Prop): BigStepSemantics P state :=
   TS2BSS (Build_TraceSemantics _ _ _ c2t (ThreadLocal_ActionInterpret_resource ac_sem Inv)).
 
-Definition ThreadLocal_AIPr {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res} {nAcPr: NormalAction_Parallel_resource Ac Res} {ac_sem: ActionInterpret (state * resources) Ac} {AIPr: ActionInterpret_Parallel_resource state Ac Res ac_sem}: forall (Inv: resource * (state -> Prop) -> Prop), ActionInterpret_Parallel_resource state Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
+Definition ThreadLocal_AIPr {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res} {nAcPr: NormalAction_Parallel_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac} {AIPr: ActionInterpret_Parallel_resource state Ac Res ac_sem}: forall (Inv: resource * (state -> Prop) -> Prop), ActionInterpret_Parallel_resource state Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
   intros.
   constructor.
   + intros.
     simpl.
-    rewrite <- (state_enable_race s A ms).
+    rewrite <- (state_enable_race A s ms).
     rewrite (thread_local_state_enable_non_resource_action Inv) by (apply race_not_resource).
     tauto.
   + intros.
@@ -239,3 +259,4 @@ Definition ThreadLocal_AIPr {state: Type} {Ac: Action} {Res: Resource} {J: Join 
     revert H H0 H1 H2.
     apply state_enable_race_actions_spec.
 Qed.
+
