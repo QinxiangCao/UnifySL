@@ -1164,6 +1164,93 @@ Section step_index.
 End step_index.
 
 (***********************************)
+(* ALGEBRAS ON NATURALS            *)
+(***********************************)
+
+Section Prop_alg.
+
+Instance Prop_Join: Join Prop := fun P Q R => (P \/ Q <-> R) /\ (P -> Q -> False).
+  
+Instance discProp_R: Relation Prop := fun P Q => P <-> Q.
+
+Instance Prop_SA: SeparationAlgebra Prop.
+Proof.
+  constructor.
+  + intros.
+    hnf in *; tauto.
+  + intros.
+    exists (my \/ mz).
+    split; hnf in *; tauto.
+Qed.
+
+Instance po_discProp_R: PreOrder Krelation.
+Proof.
+  constructor; constructor;
+  hnf in *; tauto.
+Qed.
+
+Instance discProp_ikiM: IdentityKripkeIntuitionisticModel Prop.
+Proof.
+  constructor.
+  intros.
+  apply prop_ext; auto.
+Qed.
+
+Instance discProp_uSA:
+  @UpwardsClosedSeparationAlgebra Prop discProp_R Prop_Join.
+Proof.
+  eapply ikiM_uSA.
+Qed.
+  
+Instance discProp_dSA:
+  @DownwardsClosedSeparationAlgebra Prop discProp_R Prop_Join.
+Proof.
+  eapply ikiM_dSA.
+Qed.
+
+Instance discProp_unitSA:
+  @UnitalSeparationAlgebra Prop discProp_R Prop_Join.
+Proof.
+  constructor.
+  intros.
+  exists False.
+  split.
+  + hnf.
+    exists n; split; hnf; tauto.
+  + hnf.
+    intros.
+    hnf in *; tauto.
+Qed.
+
+End Prop_alg.
+
+Section pred_alg.
+
+Context (A : Type).
+
+Definition Pred: Type := A -> Prop.
+
+Instance Pred_Join: Join Pred :=
+  @fun_Join _ _ Prop_Join.
+
+Instance Pred_SA: SeparationAlgebra Pred :=
+  @fun_SA _ _ _ Prop_SA.
+
+Instance discPred_R: Relation Pred := pointwise_relation _ discProp_R.
+Instance po_discPred_R: PreOrder Krelation := pointwise_preorder _ _ po_discProp_R.
+
+Instance discPred_uSA: @UpwardsClosedSeparationAlgebra Pred discPred_R Pred_Join :=
+  fun_uSA _ _ discProp_uSA.
+
+Instance discPred_dSA: @DownwardsClosedSeparationAlgebra Pred discPred_R Pred_Join :=
+  fun_dSA _ _ discProp_dSA.
+
+Instance discPred_unital: @UnitalSeparationAlgebra Pred discPred_R Pred_Join :=
+  fun_unitSA _ _ discProp_unitSA.
+
+End pred_alg.
+
+(***********************************)
 (* Resource Bounds                 *)
 (***********************************)
 
