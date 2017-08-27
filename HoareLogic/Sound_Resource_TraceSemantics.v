@@ -104,7 +104,7 @@ Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
     (exists s', greatest (fun s' => exists f, I f /\ join s' f s) s')
 }.
 
-Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop) {LEGAL: LegalInvariants Inv}, KSAActionInterpret_resource model Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
+Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}, KSAActionInterpret_resource model Ac Res (ThreadLocal_ActionInterpret_resource ac_sem Inv).
   intros.
   constructor.
   intros.
@@ -200,83 +200,7 @@ Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop)
     rewrite <- (thread_local_state_enable_non_resource_action Inv) by auto.
     auto.
 Qed.
-(*
-Lemma Sparallel_sound_acq_aux: forall Inv r tr s A A' ms,
-  @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) (Aacquire_res r :: tr) (s, A) ms ->
-  (forall r0, A r0 \/ r = r0 <-> A' r0) ->
-  ~ A r ->
-  exists s' I f,
-    Inv (r, I) /\ I f /\ join s f s' /\ @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) tr (s', A') ms.
-Proof.
-  intros.
-  apply (@trace_access_Terminating_inv _ _ (ThreadLocal_ActionInterpret_resource _ Inv) (fun sa => exists s' I f, Inv (r, I) /\ I f /\ join s f s' /\ sa = (s', A'))) in H.
-  + destruct H as [ms' [[s' [I [f [? [? [? HEQ]]]]]] ?]]; subst ms'.
-    exists s', I, f; auto.
-  + intros.
-    simpl in H2.
-    eapply thread_local_state_enable_acq_inv in H2; auto.
-    destruct H2 as [s' [I [f [? [? [? ?]]]]]].
-    exists (s', A').
-    split; [| exact H5].
-    exists s', I, f; auto.
-Qed.
 
-Lemma acq_assoc_aux: forall s1 s2 s0 s f s',
-  join s1 s2 s0 ->
-  s0 <= s ->
-  join s f s' ->
-  exists s1' s0',
-    join s1' s2 s0' /\
-    s0' <= s' /\
-    join s1 f s1'.
-Proof.
-  intros.
-  pose proof join_Korder_down _ _ _ _ _ H1 H0 ltac:(reflexivity) as [s0' [? ?]].
-  pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H) H2 as [s1' [? ?]].
-  exists s1', s0'.
-  split; [| split]; auto.
-  apply join_comm; auto.
-Qed.
-
-Lemma Sparallel_sound_rel_aux: forall Inv r tr s A A' ms,
-  @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) (Arelease_res r :: tr) (s, A) ms ->
-  (forall r0, A' r0 \/ r = r0 <-> A r0) ->
-  ~ A' r ->
-  exists I, Inv (r, I) /\
-    ((forall s', ~ exists f, I f /\ join s' f s) \/
-     (exists s', greatest (fun s' => exists f, I f /\ join s' f s) s' /\ @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) tr (s', A') ms)).
-Proof.
-  intros.
-  inversion H; subst.
-  + simpl in H6.
-    eapply thread_local_state_enable_rel_inv in H6; auto.
-    destruct H6 as [? [? [[? ?] | [? [? ?]]]]]; congruence.
-  + simpl in H6.
-    eapply thread_local_state_enable_rel_inv in H6; auto.
-    destruct H6 as [I [? [[? ?] | [? [? ?]]]]]; [| congruence].
-    exists I; split; auto.
-  + simpl in H4.
-    eapply thread_local_state_enable_rel_inv in H4; auto.
-    destruct H4 as [I [? [[? ?] | [s'' [? ?]]]]]; [congruence |].
-    inversion H4; subst; clear H4.
-    exists I; split; auto.
-    right; exists s''; auto.
-Qed.
-
-Lemma rel_fail_assoc_aux: forall s1 s2 s0 s s1' f1,
-  join s1 s2 s0 ->
-  s0 <= s ->
-  join s1' f1 s1 ->
-  exists s' f, join s' f s /\ f1 <= f.
-Proof.
-  intros.
-  pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H1) H as [s0' [? ?]].
-  pose proof join_Korder_up _ _ _ _ H3 H0 as [f [s' [? [? ?]]]].
-  exists s', f.
-  split; auto.
-  apply join_comm; auto.
-Qed.
-*)
 Lemma hoare_parallel_partial_sound
       {CPP: ConcurrentProgrammingLanguage_Sparallel P}
       {AcP: Action_Parallel Ac}
@@ -338,86 +262,16 @@ Proof.
       rewrite (thread_local_state_enable_non_resource_action Inv) in H2 by auto.
       specialize (RIGHT_ASSU Error (@trace_access_Error _ _ (ThreadLocal_ActionInterpret_resource _ Inv) _ _ _ H2)).
       inversion RIGHT_ASSU.
-  +
-
-(*
-
-        destruct (classic (is_resource_action a1)) as [[?r [? | ?]] | ?].
-    - subst a1.
-      destruct (res_enable_acq_inv _ _ _ _ H) as [? [? ?]].
-      set (A' := fun r0 => A r0 \/ r = r0).
-      destruct (Sparallel_sound_acq_aux Inv r tr s_pre A A' _ TRACE_ACC) as [s' [I [f ?]]].
-      1: subst A'; intro; apply iff_refl.
-      1: clear - RES_JOIN H1 H2; firstorder.
-
-      clear TRACE_ACC; destruct H3 as [? [? [JOIN_F TRACE_ACC]]].
-      pose proof acq_assoc_aux _ _ _ _ _ _ STATE_JOIN STATE_LE JOIN_F as [s1' [s0' [? [? ?]]]].
-      apply (IHtrace_interleave s0' s1' s2 s' A').
-      * intros.
-        apply LEFT_ASSU.
-        eapply trace_access_Terminating; [clear HH | exact HH].
-        simpl.
-        eapply thread_local_state_enable_acq; eassumption.
-      * apply RIGHT_ASSU.
-      * auto.
-      * auto.
-      * exact TRACE_ACC.
-      * intros.
-        clear - RES_JOIN H0; subst A'; firstorder.
-      * intro.
-        assert (r = r0 -> ~ A2 r0) by (intros; subst; auto).
-        specialize (RES_DISJ r0); specialize (H0 r0).
-        tauto.
-    - subst a1.
-      destruct (res_enable_rel_inv _ _ _ _ H) as [? ?].
-      set (A' := fun r0 => A1' r0 \/ A2 r0).
-      assert (forall I, Inv (r, I) -> exists s1', greatest (fun s1' => exists f, I f /\ join s1' f s1) s1').
-      Focus 1. {
-        intros.
-        apply (invariant_precise r); auto.
-        apply NNPP.
-        intro.
-        apply (LEFT_ASSU Error).
-        apply trace_access_Error.
-        simpl.
-        apply (thread_local_state_enable_rel_fail _ _ A1 A1' I); auto.
-        intros s1' [f [? ?]].
-        apply H3; exists s1', f; auto.
-      } Unfocus.
-      destruct (Sparallel_sound_rel_aux Inv r tr s_pre A A' _ TRACE_ACC) as [I [? [? | [s' [? ?]]]]].
-      1: subst A'; intro; specialize (H0 r0); specialize (RES_JOIN r0); tauto.
-      1: subst A'; intro; specialize (H0 r); specialize (RES_DISJ r); tauto.
-
-      Focus 1. { (* fail case *)
-        exfalso.
-        specialize (H2 _ H3).
-        destruct H2 as [s1' [? _]].
-        destruct H2 as [f1 [? ?]].
-        pose proof rel_fail_assoc_aux _  _ _ _ _ _ STATE_JOIN STATE_LE H6 as [s' [f [? ?]]].
-        apply (H5 s'); clear H5.
-        exists f; split; auto.
-        eapply invariant_mono; eassumption.
-      } Unfocus.
-      
-      clear TRACE_ACC; rename H6 into TRACE_ACC.
-      specialize (H2 _ H3).
-      destruct H2 as [s1' [? _]].
-      (*
-      apply (IHtrace_interleave s1' s2 s' A').
-      * intros.
-        apply LEFT_ASSU.
-        eapply trace_access_Terminating; [clear HH | exact HH].
-        simpl.
-        eapply thread_local_state_enable_rel_succ; eassumption.
-      * apply RIGHT_ASSU.
-      * apply join_comm; auto.
-      * exact TRACE_ACC.
-      * intros.
-        clear - RES_JOIN H0; subst A'; firstorder.
-      * intro.
-        assert (r = r0 -> ~ A2 r0) by (intros; subst; auto).
-        specialize (RES_DISJ r0); specialize (H0 r0).
-        tauto.
-       *) *)
+  + inversion TRACE_ACC; subst.
+    - (* NonTerminating *)
+      destruct ms_post; inversion H5; clear H5; auto.
+    - (* Error *)
+      pose proof @ordered_frame_property _ _ _ _ _ _ _ (ThreadLocal_KSA_AIr Inv) _ _ (fun _ => False) _ _ _ _ Error STATE_JOIN STATE_LE H3 as [Error' [Error'' [? [? ?]]]].
+      inversion H1; subst; clear H1.
+      inversion H0; subst; clear H0.
+      simpl lift_function in H2.
+      exfalso.
+      apply (LEFT_ASSU Error).
+      apply trace_access_Error. Set Printing All. simpl in H2 |- *. exact H2. simpl. simpl in H2.
       Abort.
 End soundness.
