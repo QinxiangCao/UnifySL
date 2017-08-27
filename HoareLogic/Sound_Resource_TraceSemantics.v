@@ -266,32 +266,55 @@ Proof.
   set (A1 := fun _: resource => False) in LEFT_ASSU at 1, H4 at 1.
   set (A2 := fun _: resource => False) in RIGHT_ASSU at 1, H4 at 1.
   set (A := fun _: resource => False) in H2 at 1.
-  assert (RES_JOIN: forall r, A1 r \/ A2 r <-> A r) by (intro; subst A1 A2 A; simpl; tauto).
-  assert (RES_DISJ: forall r, A1 r -> A2 r -> False) by (intro; subst A1 A2; simpl; tauto).
-  clearbody A1 A2 A.
-  
   rewrite sat_sepcon in H.
-  destruct H as [s1 [s2 [STATE_JOIN [? ?]]]].
-  set (s0 := s_pre) in STATE_JOIN.
-  assert (STATE_LE: s0 <= s_pre) by (subst s0; reflexivity).
-  clearbody s0.
-  specialize (fun ms_post HH => LEFT_ASSU s1 ms_post H (traces_access_intro tr1 _ _ _ H0 HH)).
-  specialize (fun ms_post HH => RIGHT_ASSU s2 ms_post H1 (traces_access_intro tr2 _ _ _ H3 HH)).
-  clear P1 P2 H H1 Tr1 Tr2 H0 H3.
+  destruct H as [s1 [s2 [? [? ?]]]].
+  set (s0 := s_pre) in H.
+  assert (STATE_JOIN: @join _ (prod_Join resources model) (A1, s1) (A2, s2) (A, s0)).
+  Focus 1. {
+    split; auto.
+    hnf; intros r0.
+    simpl; subst A1 A2 A; split; tauto.
+  } Unfocus.
+  assert (STATE_LE: @Krelation _ (RelProd (discPred_R resource) R) (A, s0) (A, s_pre)).
+  Focus 1. {
+    split; hnf; simpl.
+    + intros; hnf; tauto.
+    + change (s_pre <= s_pre).
+      reflexivity.
+  } Unfocus.
+  clearbody A1 A2 A s0. clear H.
+  specialize (fun ms_post HH => LEFT_ASSU s1 ms_post H1 (traces_access_intro tr1 _ _ _ H0 HH)).
+  specialize (fun ms_post HH => RIGHT_ASSU s2 ms_post H5 (traces_access_intro tr2 _ _ _ H3 HH)).
+  clear P1 P2 H1 H5 Tr1 Tr2 H0 H3.
   rename H2 into TRACE_ACC.
-  revert s0 s1 s2 s_pre A LEFT_ASSU RIGHT_ASSU STATE_JOIN STATE_LE TRACE_ACC RES_JOIN RES_DISJ; induction H4; intros.
+  revert s0 s1 s2 s_pre A LEFT_ASSU RIGHT_ASSU STATE_JOIN STATE_LE TRACE_ACC; induction H4; intros.
   + inversion TRACE_ACC; subst.
     destruct ms_post; subst; inversion H.
     subst m A.
-    assert (A1 = fun _ => False) by (extensionality r; apply prop_ext; specialize (RES_JOIN r); tauto).
-    assert (A2 = fun _ => False) by (extensionality r; apply prop_ext; specialize (RES_JOIN r); tauto).
+    assert (A2 = fun _ => False).
+    Focus 1. {
+      extensionality r; apply prop_ext.
+      destruct STATE_JOIN as [? _].
+      hnf in H0. specialize (H0 r).
+      simpl in H0; destruct H0.
+      tauto.
+    } Unfocus.
+    assert (A1 = fun _ => False).
+    Focus 1. {
+      extensionality r; apply prop_ext.
+      destruct STATE_JOIN as [? _].
+      hnf in H1. specialize (H1 r).
+      simpl in H1; destruct H1.
+      tauto.
+    } Unfocus.
     subst A1 A2.
     specialize (LEFT_ASSU (Terminating s1) (trace_access_nil _)); simpl in LEFT_ASSU.
     specialize (RIGHT_ASSU (Terminating s2) (trace_access_nil _)); simpl in RIGHT_ASSU.
-    eapply sat_mono; [exact STATE_LE |].
+    eapply sat_mono; [exact (proj2 STATE_LE) |].
     rewrite sat_sepcon.
     exists s1, s2.
     split; [| split]; auto.
+    exact (proj2 STATE_JOIN).
   + exfalso.
     destruct (res_actions_no_race _ _ H).
     apply (state_enable_race_actions_spec a1 a2 A1 A2 s1 s2 s0); auto.
@@ -303,18 +326,30 @@ Proof.
       rewrite (thread_local_state_enable_non_resource_action Inv) in H2 by auto.
       specialize (RIGHT_ASSU Error (@trace_access_Error _ _ (ThreadLocal_ActionInterpret_resource _ Inv) _ _ _ H2)).
       inversion RIGHT_ASSU.
-  + inversion TRACE_ACC; subst.
+    - exact (proj2 STATE_JOIN).
+  + assert (FRAME_ASSU: (fun a => forall r, a = Arelease_res r -> ~ fst (A2, s2) r) a1).
+    Focus 1. {
+      intros; subst a1.
+      apply res_enable_rel_inv in H.
+      clear - STATE_JOIN H.
+      destruct STATE_JOIN as [? _].
+      specialize (H r); specialize (H0 r).
+      simpl in H0; destruct H0.
+      destruct H.
+      tauto.
+    } Unfocus.
+    inversion TRACE_ACC; subst.
     - (* NonTerminating *)
       destruct ms_post; inversion H5; clear H5; auto.
     - (* Error *)
-      (*
-      pose proof @ordered_frame_property _ _ _ _ _ _ _ (ThreadLocal_KSA_AIr Inv) _ _ (fun _ => False) _ _ _ _ Error STATE_JOIN STATE_LE H3 as [Error' [Error'' [? [? ?]]]].
+      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ Error FRAME_ASSU STATE_JOIN STATE_LE H3 as [Error' [Error'' [? [? ?]]]].
       inversion H1; subst; clear H1.
       inversion H0; subst; clear H0.
       simpl lift_function in H2.
       exfalso.
       apply (LEFT_ASSU Error).
-      apply trace_access_Error. Set Printing All. simpl in H2 |- *. exact H2. simpl. simpl in H2.
-*)
+      apply trace_access_Error; auto.
+    - (* Terminating *)
+      pose proof ThreadLocal_ordered_frame_property Inv _ _ _ _ _ (Terminating s') FRAME_ASSU STATE_JOIN STATE_LE H2 as [m2' [n2' [? [? ?]]]].
       Abort.
 End soundness.
