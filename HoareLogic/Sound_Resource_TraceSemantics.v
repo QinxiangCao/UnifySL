@@ -93,11 +93,11 @@ Context {P: ProgrammingLanguage}
         {Acr: Action_resource Ac Res}
         {nAcr: NormalAction_resource Ac Res}
         {TS: TraceSemantics P (resources * model) Ac}
-        {SAAIr: @SAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J)}
+        {SAAIr: @SAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (fun a => ~ is_resource_action a)}
         {KAIr: @KActionInterpret_resource (resources * model) Ac ac_sem (RelProd (discPred_R resource) R)}.
 
-Definition KSAAIr: @KSAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R) :=
-  ordered_and_frame_AIr _ _.
+Instance KSAAIr: @KSAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R) (fun a => ~ is_resource_action a) :=
+  ordered_and_frame_AIr _ _ _.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
 
@@ -108,14 +108,20 @@ Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
     (exists s', (fun s' => exists f, I f /\ join s' f s) s') ->
     (exists s', greatest (fun s' => exists f, I f /\ join s' f s) s')
 }.
-
+(*
 Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}, @KSAActionInterpret_resource (resources * model) Ac (ThreadLocal_ActionInterpret_resource ac_sem Inv) (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R).
-  intros.
-  constructor.
+  Check @lift_join.
+*)
+Lemma ThreadLocal_ordered_frame_property (Inv: resource * (model -> Prop) -> Prop) {INV: LegalInvariants Inv}: forall (a: action) (m1 f n1' n1: resources * model) (n2: MetaState (resources * model))
+    (ASSU: forall r, a = Arelease_res r -> ~ fst f r),
+    @join _ (prod_Join _ _) m1 f n1' ->
+    (RelProd (discPred_R _) R) n1' n1 ->
+    thread_local_state_enable Inv a n1 n2  ->
+    exists m2 n2', @lift_join _ (prod_Join _ _) m2 (Terminating f) n2' /\ @Partial.forward _ (RelProd (discPred_R _) R) n2' n2 /\ thread_local_state_enable Inv a m1 m2.
+Proof.
   intros.
   destruct (classic (is_resource_action a)) as [[?r [? | ?]] | ?].
   + subst a.
-    simpl in H1.
     inversion H1; subst.
     Focus 2. { symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2. } Unfocus.
     Focus 2. { symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2. } Unfocus.
@@ -143,74 +149,92 @@ Definition ThreadLocal_KSA_AIr: forall (Inv: resource * (model -> Prop) -> Prop)
     - simpl.
       eapply thread_local_state_enable_acq; eauto.
   + subst a.
-    simpl in H1.
-    assert (RES: A1 r).
+    destruct n1 as [A1 n1], n1' as [A1' n1'], f as [Af f], m1 as [B1 m1].
+    hnf in H; simpl in H; destruct H.
+    hnf in H0; unfold RelCompFun in H0; simpl in H0; destruct H0.
+    assert (A1' = A1).
     Focus 1. {
-      inversion H1; subst.
-      + apply Aacquire_Arelease_res in H2; inversion H2.
-      + apply Arelease_res_inv in H2; subst.
-        specialize (H6 r); tauto.
-      + apply Arelease_res_inv in H2; subst.
-        specialize (H6 r); tauto.
-      + exfalso; apply H2; exists r; auto.
+      extensionality r0; apply prop_ext.
+      apply H0.
+    } Unfocus.
+    subst A1'; clear H0.
+    
+    assert (RES: exists B2, join B2 (eq r) B1 /\ forall A2, join A2 (eq r) A1 -> join B2 Af A2).
+    Focus 1. {
+      assert (A1 r).
+      + inversion H1; subst.
+        - apply Aacquire_Arelease_res in H0; inversion H0.
+        - apply Arelease_res_inv in H0; subst.
+          specialize (H6 r); destruct H6; tauto.
+        - apply Arelease_res_inv in H0; subst.
+          specialize (H6 r); destruct H6; tauto.
+        - exfalso; apply H0; exists r; auto.
+      + clear - H H0 ASSU.
+        specialize (ASSU _ eq_refl); simpl in ASSU.
+        exists (fun r0 => B1 r0 /\ r <> r0).
+        split.
+        - intros r0.
+          specialize (H r0).
+          destruct H.
+          assert (r = r0 -> ~ Af r0) by (intro; subst; auto).
+          assert (r = r0 -> A1 r0) by (intro; subst; auto).
+          split; tauto.
+        - intros.
+          intros r0.
+          specialize (H r0).
+          specialize (H1 r0).
+          destruct H, H1.
+          assert (r = r0 -> ~ Af r0) by (intro; subst; auto).
+          assert (r = r0 -> A1 r0) by (intro; subst; auto).
+          split; tauto.
     } Unfocus.
     destruct (classic (forall I, Inv (r, I) -> exists m2, (fun m2 => exists f, I f /\ join m2 f m1) m2)).
     - inversion H1; subst.
-      Focus 1. { apply Aacquire_Arelease_res in H3; inversion H3. } Unfocus.
+      Focus 1. { apply Aacquire_Arelease_res in H4; inversion H4. } Unfocus.
       Focus 2. {
         exfalso.
-        apply Arelease_res_inv in H3; subst.
-        destruct n2; inversion H6; subst; clear H6.
-        specialize (H2 _ H9).
-        destruct H2 as [m2 [f0 [? ?]]].
-        pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H3) H as [n2' [? ?]].
-        pose proof join_Korder_up _ _ _ _ H5 H0 as [_f0 [n2 [? [? ?]]]].
+        apply Arelease_res_inv in H4; subst.
+        specialize (H0 _ H8).
+        destruct H0 as [m2 [f0 [? ?]]].
+        pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H4) H2 as [n2' [? ?]].
+        pose proof join_Korder_up _ _ _ _ H6 H3 as [_f0 [n2 [? [? ?]]]].
         apply (H10 n2); clear H10.
-        exists _f0; split; [eapply (invariant_mono _ _ H9); eauto | apply join_comm; auto].
+        exists _f0; split; [eapply (invariant_mono _ _ H8); eauto | apply join_comm; auto].
       } Unfocus.
-      Focus 2. { exfalso; apply H3; exists r; auto. } Unfocus.
-      apply Arelease_res_inv in H3; subst.
-      destruct n2 as [| | n2]; inversion H6; subst; clear H6.
-      specialize (H2 _ H9).
-      apply (invariant_precise _ _ H9) in H2.
-      destruct H2 as [m2 ?].
-      destruct (proj1 H2) as [f0 [? ?]].
-      pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H4) H as [n2' [? ?]].
-      pose proof join_Korder_up _ _ _ _ H6 H0 as [_f0 [_n2 [? [? ?]]]].
+      Focus 2. { exfalso; apply H4; exists r; auto. } Unfocus.
+      apply Arelease_res_inv in H4; subst.
+      specialize (H0 _ H8).
+      apply (invariant_precise _ _ H8) in H0.
+      destruct H0 as [m2 ?].
+      destruct (proj1 H0) as [f0 [? ?]].
+      pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H5) H2 as [n2' [? ?]].
+      pose proof join_Korder_up _ _ _ _ H9 H3 as [_f0 [_n2 [? [? ?]]]].
       assert ((fun n : model => exists f : model, I f /\ join n f n1) _n2).
-      Focus 1. { exists _f0; split; [eapply (invariant_mono _ _ H9); eauto | apply join_comm; auto]. } Unfocus.
+      Focus 1. { exists _f0; split; [eapply (invariant_mono _ _ H8); eauto | apply join_comm; auto]. } Unfocus.
       apply (proj2 H10) in H14.
-      exists (Terminating m2), (Terminating n2').
+      destruct RES as [B2 [? ?]].
+      specialize (H16 _ H7).
+      exists (Terminating (B2, m2)), (Terminating (A2, n2')).
       split; [| split].
-      * constructor; auto.
-      * constructor. etransitivity; eauto.
+      * constructor.
+        split; auto.
+      * constructor.
+        split; [hnf; intros ?; hnf; tauto | change (n2' <= n); etransitivity; eauto].
       * simpl.
         eapply thread_local_state_enable_rel_succ; eauto.
     - exists Error, n2.
       split; [| split].
       * constructor.
       * destruct n2; constructor.
-        reflexivity.
-      * simpl.
-        apply Classical_Pred_Type.not_all_ex_not in H2; destruct H2 as [I ?].
-        apply imply_to_and in H2; destruct H2.
-        clear A2 H1.
-        set (A2 := fun r0 => A1 r0 /\ r <> r0).
-        assert (forall r0, A2 r0 \/ r = r0 <-> A1 r0).
-        Focus 1. {
-          intros.
-          assert (r = r0 -> A1 r0) by (intros; subst; auto).
-          subst A2; tauto.
-        } Unfocus.
-        assert (~ A2 r).
-        Focus 1. {
-          subst A2; intro.
-          tauto.
-        } Unfocus.
+        destruct p as [A2 n2].
+        split; [hnf; intros ?; hnf; tauto | change (n2 <= n2); reflexivity].
+      * apply Classical_Pred_Type.not_all_ex_not in H0; destruct H0 as [I ?].
+        apply imply_to_and in H0; destruct H0.
+        destruct RES as [B2 [? _]].
         eapply thread_local_state_enable_rel_fail; eauto.
-  + simpl in H1.
-    rewrite <- (thread_local_state_enable_non_resource_action Inv) in H1 by auto.
-    pose proof ordered_frame_property _ _ _ _ _ _ _ _ H H0 H1 as [m2 [n2' [? [? ?]]]].
+  + rewrite <- (thread_local_state_enable_non_resource_action Inv) in H1 by auto.
+    change ((fun a => ~ is_resource_action a) a) in H2.
+    pose proof ordered_frame_property _ _ _ _ _ _ H2 H H0 H1 as [m2 [n2' [? [? ?]]]].
     exists m2, n2'.
     split; [| split]; auto.
     simpl.
@@ -283,6 +307,7 @@ Proof.
     - (* NonTerminating *)
       destruct ms_post; inversion H5; clear H5; auto.
     - (* Error *)
+      (*
       pose proof @ordered_frame_property _ _ _ _ _ _ _ (ThreadLocal_KSA_AIr Inv) _ _ (fun _ => False) _ _ _ _ Error STATE_JOIN STATE_LE H3 as [Error' [Error'' [? [? ?]]]].
       inversion H1; subst; clear H1.
       inversion H0; subst; clear H0.
@@ -290,5 +315,6 @@ Proof.
       exfalso.
       apply (LEFT_ASSU Error).
       apply trace_access_Error. Set Printing All. simpl in H2 |- *. exact H2. simpl. simpl in H2.
+*)
       Abort.
 End soundness.

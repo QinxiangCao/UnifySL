@@ -131,8 +131,9 @@ Class Command2Traces_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (
   Sparallel_denote: forall c1 c2, cmd_denote (Sparallel c1 c2) = traces_interleave (cmd_denote c1) (cmd_denote c2)
 }.
 
-Class SAActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {J: Join state}: Prop := {
+Class SAActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {J: Join state} (G: action -> Prop) : Prop := {
   frame_property: forall (a: action) (m1 f n1: state) (n2: MetaState state),
+    G a ->
     join m1 f n1 ->
     state_enable a n1 n2 ->
     exists m2, lift_join m2 (Terminating f) n2 /\ state_enable a m1 m2
@@ -145,24 +146,25 @@ Class KActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterp
     exists m2, Partial.forward m2 n2 /\ state_enable a m1 m2
 }.
 
-Class KSAActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {J: Join state} {state_R: Relation state}: Prop := {
+Class KSAActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {J: Join state} {state_R: Relation state} (G: action -> Prop): Prop := {
   ordered_frame_property: forall (a: action) (m1 f n1' n1: state) (n2: MetaState state),
+    G a ->
     join m1 f n1' ->
     n1' <= n1 ->
     state_enable a n1 n2  ->
     exists m2 n2', lift_join m2 (Terminating f) n2' /\ Partial.forward n2' n2 /\ state_enable a m1 m2
 }.
 
-Lemma ordered_and_frame_AIr {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac} {J: Join state} {state_R: Relation state}:
-  SAActionInterpret_resource state Ac ac_sem ->
+Lemma ordered_and_frame_AIr {state: Type} {Ac: Action} {ac_sem: ActionInterpret state Ac} {J: Join state} {state_R: Relation state} (G: action -> Prop):
+  SAActionInterpret_resource state Ac ac_sem G ->
   KActionInterpret_resource state Ac ac_sem ->
-  KSAActionInterpret_resource state Ac ac_sem.
+  KSAActionInterpret_resource state Ac ac_sem G.
 Proof.
   intros.
   constructor.
   intros.
-  pose proof ordered_action_interpret _ _ _ _ H2 H3 as [n2' [? ?]].
-  pose proof frame_property _ _ _ _ _ H1 H5 as [m2 [? ?]].
+  pose proof ordered_action_interpret _ _ _ _ H3 H4 as [n2' [? ?]].
+  pose proof frame_property _ _ _ _ _ H1 H2 H6 as [m2 [? ?]].
   exists m2, n2'; auto.
 Qed.
 
