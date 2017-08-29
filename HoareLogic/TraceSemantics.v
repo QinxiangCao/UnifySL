@@ -99,6 +99,14 @@ Proof.
     apply H; exists r; auto.
 Qed.
 
+Inductive start_by_Aacq {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: resource -> trace -> Prop :=
+| start_by_Aacq_nil: forall r, start_by_Aacq r nil
+| start_by_Aacq_acq: forall r tr, start_by_Arel r tr -> start_by_Aacq r (cons (Aacquire_res r) tr)
+| start_by_Aacq_irr: forall r a tr, ~ (a = Aacquire_res r \/ a = Arelease_res r) -> start_by_Aacq r tr -> start_by_Aacq r (cons a tr)
+with start_by_Arel {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: resource -> trace -> Prop :=
+| start_by_Arel_rel: forall r tr, start_by_Aacq r tr -> start_by_Arel r (cons (Arelease_res r) tr)
+| start_by_Arel_irr: forall r a tr, ~ (a = Aacquire_res r \/ a = Arelease_res r) -> start_by_Arel r tr -> start_by_Arel r (cons a tr).
+
 Class Action_Parallel (Ac: Action): Type := {
   race: action;
   race_actions: action -> action -> Prop;
@@ -141,6 +149,13 @@ Class Command2Traces_Sresource (P: ProgrammingLanguage) (Ac: Action) (Res: Resou
 Class Command2Traces_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res} {CPP: ConcurrentProgrammingLanguage_Sparallel P} (c2t: Command2Traces P Ac): Type := {
   Sparallel_denote: forall c1 c2, cmd_denote (Sparallel c1 c2) = traces_interleave (cmd_denote c1) (cmd_denote c2)
 }.
+
+Class StructuralResourceAccess (P: ProgrammingLanguage) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (c2t: Command2Traces P Ac): Type := {
+  resource_sequential: forall c r tr, cmd_denote c tr -> start_by_Aacq r tr
+}.
+
+Definition resource_no_occur {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} (r: resource) (Tr: traces): Prop :=
+  forall tr, Tr tr -> ~ List.In (Aacquire_res r) tr /\ ~ List.In (Arelease_res r) tr.
 
 Class SAActionInterpret_resource (state: Type) (Ac: Action) (ac_sem: ActionInterpret state Ac) {J: Join state} (G: action -> Prop) : Prop := {
   frame_property: forall (a: action) (m1 f n1: state) (n2: MetaState state),
@@ -278,4 +293,3 @@ Definition ThreadLocal_AIPr {state: Type} {Ac: Action} {Res: Resource} {J: Join 
     revert H H0 H1 H2.
     apply state_enable_race_actions_spec.
 Qed.
-

@@ -26,56 +26,82 @@ Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import KripkeModelSingleNotation.
 Import KripkeModelNotation_Intuitionistic.
-(*
-Lemma thread_local_state_enable_acq_inv {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}:
-  forall Inv r s1 A1 A2 ms,
-    (forall r0 : resource, A1 r0 \/ r = r0 <-> A2 r0) ->
-    ~ A1 r ->
-    thread_local_state_enable Inv (Aacquire_res r) (A1, s1) ms ->
-    exists s2 I f, Inv (r, I) /\ I f /\ join s1 f s2 /\ ms = Terminating (A2, s2).
+
+Lemma start_by_Aacq_or_Arel {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}: forall r tr, start_by_Aacq r tr -> start_by_Arel r tr -> False.
 Proof.
   intros.
-  inversion H1; subst.
-  + apply Aacquire_res_inv in H2; subst.
-    exists n, I, f.
-    split; [| split; [| split]]; auto.
-    f_equal.
-    f_equal.
-    extensionality r0; apply prop_ext.
-    specialize (H5 r0); specialize (H r0); tauto.
-  + symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2.
-  + symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2.
-  + exfalso; apply H2; exists r; auto.
+  induction tr.
+  + inversion H0.
+  + destruct (classic (a = Aacquire_res r \/ a = Arelease_res r)) as [[? | ?] | ?]; subst.
+    - inversion H0; subst.
+      * symmetry in H1; apply Aacquire_Arelease_res in H1; auto.
+      * apply H4; auto.
+    - inversion H; subst.
+      * apply Aacquire_Arelease_res in H1; auto.
+      * apply H4; auto.
+    - inversion H; subst; [tauto |].
+      inversion H0; subst; [tauto |].
+      auto.
 Qed.
 
-Lemma thread_local_state_enable_rel_inv {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}:
-  forall Inv r s1 A1 A2 ms,
-    (forall r0 : resource, A2 r0 \/ r = r0 <-> A1 r0) ->
-    ~ A2 r ->
-    thread_local_state_enable Inv (Arelease_res r) (A1, s1) ms ->
-    exists I, Inv (r, I) /\ 
-    ((ms = Error /\ forall s2, ~ exists f, I f /\ join s2 f s1) \/
-     (exists s2, greatest (fun s2 => exists f, I f /\ join s2 f s1) s2 /\ ms = Terminating (A2, s2))).
+Lemma start_by_Aacq_trace_acc_spec {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}: forall (Inv: resource * (state -> Prop) -> Prop) (tr: trace) A1 A2 s1 s2,
+  (forall r, start_by_Aacq r tr) ->
+  @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) tr (A1, s1) (Terminating (A2, s2)) ->
+  (forall r, A1 r <-> A2 r).
 Proof.
   intros.
-  inversion H1; subst.
-  + apply Aacquire_Arelease_res in H2; inversion H2.
-  + apply Arelease_res_inv in H2; subst.
-    exists I; split; auto.
-    right; exists n.
-    split; auto.
-    f_equal.
-    f_equal.
-    extensionality r0; apply prop_ext.
-    specialize (H5 r0); specialize (H r0).
-    assert (r = r0 -> ~ A3 r0) by (intro; subst; auto).
-    assert (r = r0 -> ~ A2 r0) by (intro; subst; auto).
-    tauto.
-  + apply Arelease_res_inv in H2; subst.
-    exists I; split; auto.
-  + exfalso; apply H2; exists r; auto.
-Qed.
-*)
+  revert r.
+  assert (join A2 (fun r => start_by_Arel r tr) A1).
+  Focus 2. {
+    intros r; specialize (H r); specialize (H1 r).
+    pose proof start_by_Aacq_or_Arel r tr.
+    destruct H1; tauto.
+  } Unfocus.
+  assert (forall r, start_by_Aacq r tr \/ start_by_Arel r tr).
+  Focus 1. {
+    intros r.
+    specialize (H r).
+    auto.
+  } Unfocus.
+  clear H.
+  revert s1 A1 H0; induction tr; intros.
+  + inversion H0; subst; clear H0.
+    clear - nAcr.
+    intros r.
+    pose proof start_by_Aacq_or_Arel r nil.
+    pose proof start_by_Aacq_nil r.
+    split; tauto.
+  + inversion H0; subst; clear H0.
+    destruct s' as [A1' s1'].
+    specialize (fun HH => IHtr HH s1' A1' H6); clear H6.
+    simpl in H3.
+    assert (HH: forall r : resource, start_by_Aacq r tr \/ start_by_Arel r tr).
+    Focus 1. {
+      clear - nAcr H1.
+      intros r; specialize (H1 r).
+      destruct (classic (a = Aacquire_res r \/ a = Arelease_res r)) as [[? | ?] | ?]; subst;
+      destruct H1 as [HH | HH]; inversion HH; auto.
+    } Unfocus.
+    specialize (IHtr HH); clear HH.
+    intros r; specialize (IHtr r); specialize (H1 r).
+    destruct (classic (is_resource_action a)) as [[?r [? | ?]] | ?]; subst.
+    - inversion H3; subst; clear H3;
+        [apply Aacquire_res_inv in H; subst | symmetry in H; apply Aacquire_Arelease_res in H; tauto | exfalso; apply H; exists r0; auto].
+      clear I f H7 H8 H9.
+      specialize (H6 r).
+      destruct (classic (r0 = r)).
+      * subst r0.
+        destruct H1.
+        Focus 2. {
+          exfalso. inversion H; subst.
+          + symmetry in H0; apply Aacquire_Arelease_res in H0; auto.
+          + tauto.
+        } Unfocus.
+        inversion H; subst; [| tauto].
+        pose proof start_by_Aacq_or_Arel r (Aacquire_res r :: tr).
+        destruct IHtr, H6; split; tauto.
+      * Abort.
+
 Section soundness.
 
 Existing Instance unit_kMD.
@@ -165,38 +191,6 @@ Proof.
       apply H0.
     } Unfocus.
     subst A1'; clear H0.
-    (*
-    assert (RES: exists B2, join B2 (eq r) B1 /\ forall A2, join A2 (eq r) A1 -> join B2 Af A2).
-    Focus 1. {
-      assert (A1 r).
-      + inversion H1; subst.
-        - apply Aacquire_Arelease_res in H0; inversion H0.
-        - apply Arelease_res_inv in H0; subst.
-          specialize (H6 r); destruct H6; tauto.
-        - apply Arelease_res_inv in H0; subst.
-          specialize (H6 r); destruct H6; tauto.
-        - exfalso; apply H0; exists r; auto.
-      + clear - H H0 ASSU nAcr.
-        apply res_enable_rel_inv in ASSU; simpl in ASSU.
-        exists fst_m2.
-        split; auto.
-        intros.
-        - intros r0.
-          specialize (H r0).
-          destruct H.
-          assert (r = r0 -> ~ Af r0) by (intro; subst; auto).
-          assert (r = r0 -> A1 r0) by (intro; subst; auto).
-          split; tauto.
-        - intros.
-          intros r0.
-          specialize (H r0).
-          specialize (H1 r0).
-          destruct H, H1.
-          assert (r = r0 -> ~ Af r0) by (intro; subst; auto).
-          assert (r = r0 -> A1 r0) by (intro; subst; auto).
-          split; tauto.
-    } Unfocus.
-    *)
     destruct (classic (forall I, Inv (r, I) -> exists m2, (fun m2 => exists f, I f /\ join m2 f m1) m2)).
     - inversion H1; subst.
       Focus 1. { apply Aacquire_Arelease_res in H4; inversion H4. } Unfocus.
@@ -410,4 +404,85 @@ Proof.
         apply (@join_comm _ _ (prod_SA _ _)); auto.
 Qed.
 
+Lemma hoare_resource_block_partial_sound
+      {CPP: ConcurrentProgrammingLanguage_Sresource P Res}
+      {c2tR: Command2Traces_Sresource P Ac Res c2t}:
+  forall Inv0 Inv1 r P1 P2 c I dI (INV: LegalInvariants Inv1),
+  @join _ (Pred_Join _) Inv0 (eq (r, dI)) Inv1 ->
+  (dI = fun m => KRIPKE: m |= I) ->
+  resource_no_occur r (cmd_denote c) ->
+  guarded_triple_partial_valid Inv0 (P1 * I) c (P2 * I) ->
+  guarded_triple_partial_valid Inv1 P1 (Sresource r c) P2.
+Proof.
+  intros.
+  subst dI.
+  rename H into INV_CONS, H1 into NO_OCCUR.
+  rename H2 into ASSU; hnf in ASSU |- *; intros.
+  unfold access, ThreadLocal_BSS in ASSU, H0; simpl in ASSU, H0.
+  inversion H0; subst; clear H0.
+  rewrite Sresource_denote in H1.
+  set (Tr := cmd_denote c) in ASSU, H1, NO_OCCUR.
+  clearbody Tr; clear c.
+  inversion H1; subst; clear H1.
+  inversion H3; subst; clear H3.
+  unfold singleton_traces, singleton_trace in H0, H4.
+  subst tr1 tr3; rename tr0 into tr.
+  specialize (fun s ms_post _H HH => ASSU s ms_post _H (traces_access_intro tr _ _ _ H1 HH)).
+  specialize (NO_OCCUR _ H1).
+  clear Tr H1.
+  unfold trace_app in H2; simpl app in H2; inversion H2; subst; clear H2.
+  Focus 1. {
+    exfalso; clear - H4.
+    inversion H4; subst.
+    apply H; exists r; auto.
+  } Unfocus.
+  Focus 1. {
+    exfalso; clear - H4 nAcr.
+    inversion H4; subst.
+    + symmetry in H; apply Aacquire_Arelease_res in H; auto.
+    + apply H; exists r; auto.
+  } Unfocus.
+  inversion H3; subst; clear H3.
+  Focus 2. {
+    exfalso; clear - H0 nAcr.
+    symmetry in H0; apply Aacquire_Arelease_res in H0; auto.
+  } Unfocus.
+  Focus 2. {
+    exfalso; clear - H0.
+    apply H0; exists r; auto.
+  } Unfocus.
+  apply Aacquire_res_inv in H0; subst r0.
+  assert (I0 = fun m => KRIPKE: m |= I).
+  Focus 1. {
+    clear - INV_CONS INV H7.
+    apply (at_most_one_invariant r); auto.
+    specialize (INV_CONS (r, fun m => m |= I)).
+    destruct INV_CONS; simpl in *.
+    tauto.
+  } Unfocus.
+  subst I0.
+  assert (KRIPKE: n |= P1 * I).
+  Focus 1. {
+    rewrite sat_sepcon.
+    exists s_pre, f; auto.
+  } Unfocus.
+  clear f s_pre H8 H9 H.
+  rename n into s.
+  specialize (fun ms_post => ASSU s ms_post H0); clear H0 P1.
+  set (A1 := fun _ => False) in H5, ASSU at 1.
+  clearbody A1.
+  rename H5 into JOIN_RES, H6 into TRACE_ACC, H7 into Inv_r.
+
+  revert A1 A2 s JOIN_RES TRACE_ACC ASSU; induction tr; intros.
+  + simpl in TRACE_ACC.
+    inversion TRACE_ACC; subst.
+    - inversion H2; subst.
+      exfalso; apply H; exists r; auto.
+    - inversion H2; subst.
+        2: exfalso; apply H; exists r; auto.
+      apply Arelease_res_inv in H; subst.
+      pose proof at_most_one_invariant _ _ _ H5 Inv_r; subst I0; clear H5.
+Abort.
+
 End soundness.
+
