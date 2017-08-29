@@ -32,28 +32,24 @@ Proof.
   intros.
   induction tr.
   + inversion H0.
-  + destruct (classic (a = Aacquire_res r \/ a = Arelease_res r)) as [[? | ?] | ?]; subst.
-    - inversion H0; subst.
-      * symmetry in H1; apply Aacquire_Arelease_res in H1; auto.
-      * apply H4; auto.
-    - inversion H; subst.
-      * apply Aacquire_Arelease_res in H1; auto.
-      * apply H4; auto.
-    - inversion H; subst; [tauto |].
-      inversion H0; subst; [tauto |].
+  + destruct (classic (is_resource_action r a)) as [[? | ?] | ?]; subst.
+    - inversion H0; subst; solve_resource_action.
+    - inversion H; subst; solve_resource_action.
+    - inversion H; subst; solve_resource_action.
+      inversion H0; subst; solve_resource_action.
       auto.
 Qed.
 
-Lemma start_by_Aacq_trace_acc_spec {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}: forall (Inv: resource * (state -> Prop) -> Prop) (tr: trace) A1 A2 s1 s2,
+Lemma start_by_Aacq_trace_acc_spec {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac} {AIr: ActionInterpret_resource state Ac Res ac_sem}: forall (Inv: resource * (state -> Prop) -> Prop) (tr: trace) A1 A2 s1 s2,
   (forall r, start_by_Aacq r tr) ->
   @trace_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) tr (A1, s1) (Terminating (A2, s2)) ->
-  (forall r, A1 r <-> A2 r).
+  A1 = A2.
 Proof.
   intros.
-  revert r.
   assert (join A2 (fun r => start_by_Arel r tr) A1).
   Focus 2. {
-    intros r; specialize (H r); specialize (H1 r).
+    extensionality r; apply prop_ext.
+    specialize (H r); specialize (H1 r).
     pose proof start_by_Aacq_or_Arel r tr.
     destruct H1; tauto.
   } Unfocus.
@@ -79,28 +75,35 @@ Proof.
     Focus 1. {
       clear - nAcr H1.
       intros r; specialize (H1 r).
-      destruct (classic (a = Aacquire_res r \/ a = Arelease_res r)) as [[? | ?] | ?]; subst;
+      destruct (classic (is_resource_action r a)) as [[? | ?] | ?]; subst;
       destruct H1 as [HH | HH]; inversion HH; auto.
     } Unfocus.
     specialize (IHtr HH); clear HH.
     intros r; specialize (IHtr r); specialize (H1 r).
-    destruct (classic (is_resource_action a)) as [[?r [? | ?]] | ?]; subst.
-    - inversion H3; subst; clear H3;
-        [apply Aacquire_res_inv in H; subst | symmetry in H; apply Aacquire_Arelease_res in H; tauto | exfalso; apply H; exists r0; auto].
+    destruct (classic (is_resources_action a)) as [[?r [? | ?]] | ?]; subst.
+    - inversion H3; subst; clear H3; solve_resource_action.
       clear I f H7 H8 H9.
       specialize (H6 r).
-      destruct (classic (r0 = r)).
-      * subst r0.
-        destruct H1.
-        Focus 2. {
-          exfalso. inversion H; subst.
-          + symmetry in H0; apply Aacquire_Arelease_res in H0; auto.
-          + tauto.
-        } Unfocus.
-        inversion H; subst; [| tauto].
-        pose proof start_by_Aacq_or_Arel r (Aacquire_res r :: tr).
-        destruct IHtr, H6; split; tauto.
-      * Abort.
+      pose proof start_by_Aacq_or_Arel r (Aacquire_res r0 :: tr).
+      pose proof start_by_Aacq_or_Arel r tr.
+      destruct H1 as [H1 | H1]; inversion H1; subst; solve_resource_action;
+      destruct IHtr, H6; split; try tauto.
+    - inversion H3; subst; clear H3; solve_resource_action.
+      clear I H7 H8.
+      specialize (H6 r).
+      pose proof start_by_Aacq_or_Arel r (Arelease_res r0 :: tr).
+      pose proof start_by_Aacq_or_Arel r tr.
+      destruct H1 as [H1 | H1]; inversion H1; subst; solve_resource_action;
+      destruct IHtr, H6; split; try tauto.
+    - rewrite <- thread_local_state_enable_non_resource_action in H3 by auto.
+      apply state_enable_non_resource_action in H3; auto.
+      subst A1.
+      assert (~ is_resource_action r a) by (intro HH; apply H; exists r; auto).
+      pose proof start_by_Aacq_or_Arel r (a :: tr).
+      pose proof start_by_Aacq_or_Arel r tr.
+      destruct H1 as [H1 | H1]; inversion H1; subst; solve_resource_action;
+      destruct IHtr; split; try tauto.
+Qed.
 
 Section soundness.
 
@@ -120,10 +123,10 @@ Context {P: ProgrammingLanguage}
         {nAcr: NormalAction_resource Ac Res}
         {TS: TraceSemantics P (resources * model) Ac}
         {AIr: ActionInterpret_resource model Ac Res ac_sem}
-        {SAAIr: @SAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (fun a => ~ is_resource_action a)}
+        {SAAIr: @SAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (fun a => ~ is_resources_action a)}
         {KAIr: @KActionInterpret_resource (resources * model) Ac ac_sem (RelProd (discPred_R resource) R)}.
 
-Instance KSAAIr: @KSAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R) (fun a => ~ is_resource_action a) :=
+Instance KSAAIr: @KSAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R) (fun a => ~ is_resources_action a) :=
   ordered_and_frame_AIr _ _ _.
 
 Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
@@ -148,13 +151,9 @@ Lemma ThreadLocal_ordered_frame_property (Inv: resource * (model -> Prop) -> Pro
     exists m2 n2', @lift_join _ (prod_Join _ _) m2 (Terminating f) n2' /\ @Partial.forward _ (RelProd (discPred_R _) R) n2' n2 /\ match m2 with Terminating m2 => fst m2 = fst_m2 | _ => True end /\ thread_local_state_enable Inv a m1 m2.
 Proof.
   intros.
-  destruct (classic (is_resource_action a)) as [[?r [? | ?]] | ?].
+  destruct (classic (is_resources_action a)) as [[?r [? | ?]] | ?].
   + subst a.
-    inversion H1; subst.
-    Focus 2. { symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2. } Unfocus.
-    Focus 2. { symmetry in H2; apply Aacquire_Arelease_res in H2; inversion H2. } Unfocus.
-    Focus 2. { exfalso; apply H2; exists r; auto. } Unfocus.
-    apply Aacquire_res_inv in H2; subst.
+    inversion H1; subst; solve_resource_action.
     rename m into n1, n into n2.
     destruct n1' as [A1' n1'], f as [Af f], m1 as [B1 m1].
     hnf in H; simpl in H; destruct H.
@@ -192,11 +191,9 @@ Proof.
     } Unfocus.
     subst A1'; clear H0.
     destruct (classic (forall I, Inv (r, I) -> exists m2, (fun m2 => exists f, I f /\ join m2 f m1) m2)).
-    - inversion H1; subst.
-      Focus 1. { apply Aacquire_Arelease_res in H4; inversion H4. } Unfocus.
+    - inversion H1; subst; solve_resource_action.
       Focus 2. {
         exfalso.
-        apply Arelease_res_inv in H4; subst.
         specialize (H0 _ H8).
         destruct H0 as [m2 [f0 [? ?]]].
         pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H4) H2 as [n2' [? ?]].
@@ -204,8 +201,6 @@ Proof.
         apply (H10 n2); clear H10.
         exists _f0; split; [eapply (invariant_mono _ _ H8); eauto | apply join_comm; auto].
       } Unfocus.
-      Focus 2. { exfalso; apply H4; exists r; auto. } Unfocus.
-      apply Arelease_res_inv in H4; subst.
       specialize (H0 _ H8).
       apply (invariant_precise _ _ H8) in H0.
       destruct H0 as [m2 ?].
@@ -242,7 +237,7 @@ Proof.
         apply res_enable_rel_inv in ASSU; simpl in ASSU.
         eapply thread_local_state_enable_rel_fail; eauto.
   + rewrite <- (thread_local_state_enable_non_resource_action Inv) in H1 by auto.
-    change ((fun a => ~ is_resource_action a) a) in H2.
+    change ((fun a => ~ is_resources_action a) a) in H2.
     pose proof ordered_frame_property _ _ _ _ _ _ H2 H H0 H1 as [m2 [n2' [? [? ?]]]].
     exists m2, n2'.
     split; [| split; [| split]]; auto.
@@ -404,9 +399,35 @@ Proof.
         apply (@join_comm _ _ (prod_SA _ _)); auto.
 Qed.
 
+Lemma SRA_triple_spec
+      {c2tSRA: StructuralResourceAccess P Ac Res c2t}:
+  forall (Inv: (resource * (model -> Prop)) -> Prop) (Pre: expr) (c: cmd) (Post: expr),
+     guarded_triple_partial_valid Inv Pre c Post <->
+     (forall s_pre A_post ms_post, KRIPKE: s_pre |= Pre -> @traces_access _ _ (ThreadLocal_ActionInterpret_resource _ Inv) (cmd_denote c) (fun _ => False, s_pre) (lift_function (pair A_post) ms_post) -> match ms_post with | Error => False | NonTerminating => True | Terminating s_post => KRIPKE: s_post |= Post end).
+Proof.
+  intros.
+  split.
+  + intros.
+    hnf in H.
+    inversion H1; subst.
+    replace (lift_function (pair A_post) ms_post) with (lift_function (pair (fun _:resource => False)) ms_post) in H3.
+    Focus 2. {
+      destruct ms_post as [| | ms_post]; auto.
+      simpl lift_function in H3.
+      eapply start_by_Aacq_trace_acc_spec in H3; [subst; auto |].
+      intros; eapply resource_sequential; eauto.
+    } Unfocus.
+    apply (H s_pre ms_post); auto.
+    apply (traces_access_intro tr); auto.
+  + intros.
+    hnf; intros.
+    apply (H s_pre (fun _ => False) ms_post); auto.
+Qed.
+
 Lemma hoare_resource_block_partial_sound
       {CPP: ConcurrentProgrammingLanguage_Sresource P Res}
-      {c2tR: Command2Traces_Sresource P Ac Res c2t}:
+      {c2tR: Command2Traces_Sresource P Ac Res c2t}
+      {c2tSRA: StructuralResourceAccess P Ac Res c2t}:
   forall Inv0 Inv1 r P1 P2 c I dI (INV: LegalInvariants Inv1),
   @join _ (Pred_Join _) Inv0 (eq (r, dI)) Inv1 ->
   (dI = fun m => KRIPKE: m |= I) ->
@@ -416,8 +437,9 @@ Lemma hoare_resource_block_partial_sound
 Proof.
   intros.
   subst dI.
+  rewrite SRA_triple_spec in H2 |- *.
   rename H into INV_CONS, H1 into NO_OCCUR.
-  rename H2 into ASSU; hnf in ASSU |- *; intros.
+  rename H2 into ASSU; intros.
   unfold access, ThreadLocal_BSS in ASSU, H0; simpl in ASSU, H0.
   inversion H0; subst; clear H0.
   rewrite Sresource_denote in H1.
@@ -427,31 +449,13 @@ Proof.
   inversion H3; subst; clear H3.
   unfold singleton_traces, singleton_trace in H0, H4.
   subst tr1 tr3; rename tr0 into tr.
-  specialize (fun s ms_post _H HH => ASSU s ms_post _H (traces_access_intro tr _ _ _ H1 HH)).
+  specialize (fun s A_post ms_post _H HH => ASSU s A_post ms_post _H (traces_access_intro tr _ _ _ H1 HH)).
   specialize (NO_OCCUR _ H1).
   clear Tr H1.
   unfold trace_app in H2; simpl app in H2; inversion H2; subst; clear H2.
-  Focus 1. {
-    exfalso; clear - H4.
-    inversion H4; subst.
-    apply H; exists r; auto.
-  } Unfocus.
-  Focus 1. {
-    exfalso; clear - H4 nAcr.
-    inversion H4; subst.
-    + symmetry in H; apply Aacquire_Arelease_res in H; auto.
-    + apply H; exists r; auto.
-  } Unfocus.
-  inversion H3; subst; clear H3.
-  Focus 2. {
-    exfalso; clear - H0 nAcr.
-    symmetry in H0; apply Aacquire_Arelease_res in H0; auto.
-  } Unfocus.
-  Focus 2. {
-    exfalso; clear - H0.
-    apply H0; exists r; auto.
-  } Unfocus.
-  apply Aacquire_res_inv in H0; subst r0.
+  Focus 1. { exfalso; inversion H4; subst; solve_resource_action. } Unfocus.
+  Focus 1. { exfalso; inversion H4; subst; solve_resource_action. } Unfocus.
+  inversion H3; subst; clear H3; solve_resource_action.
   assert (I0 = fun m => KRIPKE: m |= I).
   Focus 1. {
     clear - INV_CONS INV H7.
@@ -468,7 +472,8 @@ Proof.
   } Unfocus.
   clear f s_pre H8 H9 H.
   rename n into s.
-  specialize (fun ms_post => ASSU s ms_post H0); clear H0 P1.
+  specialize (fun A_post ms_post => ASSU s A_post ms_post H0); clear H0 P1.
+
   set (A1 := fun _ => False) in H5, ASSU at 1.
   clearbody A1.
   rename H5 into JOIN_RES, H6 into TRACE_ACC, H7 into Inv_r.
@@ -476,11 +481,8 @@ Proof.
   revert A1 A2 s JOIN_RES TRACE_ACC ASSU; induction tr; intros.
   + simpl in TRACE_ACC.
     inversion TRACE_ACC; subst.
-    - inversion H2; subst.
-      exfalso; apply H; exists r; auto.
-    - inversion H2; subst.
-        2: exfalso; apply H; exists r; auto.
-      apply Arelease_res_inv in H; subst.
+    - inversion H2; subst; solve_resource_action.
+    - inversion H2; subst; solve_resource_action.
       pose proof at_most_one_invariant _ _ _ H5 Inv_r; subst I0; clear H5.
 Abort.
 

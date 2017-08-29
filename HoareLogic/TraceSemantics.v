@@ -51,7 +51,31 @@ Class NormalAction_resource (Ac: Action) (Res: Resource) {Acr: Action_resource A
   Aacquire_Arelease_res: forall r1 r2, Aacquire_res r1 <> Arelease_res r2;
 }.
 
-Definition is_resource_action {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} (a: action) := exists r, a = Aacquire_res r \/ a = Arelease_res r.
+Definition is_resource_action {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} (r: resource) (a: action) := Aacquire_res r = a \/ Arelease_res r = a.
+
+Definition is_resources_action {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} (a: action) := exists r, is_resource_action r a.
+
+Ltac solve_resource_action :=
+  repeat
+  match goal with
+  | H: Aacquire_res ?r1 = Aacquire_res ?r2 |- _ => apply Aacquire_res_inv in H; subst
+  | H: Arelease_res ?r1 = Arelease_res ?r2 |- _ => apply Arelease_res_inv in H; subst
+  | H: Aacquire_res ?r1 = Arelease_res ?r2 |- _ => exfalso; apply Aacquire_Arelease_res in H; apply H
+  | H: Arelease_res ?r1 = Aacquire_res ?r2 |- _ => exfalso; symmetry in H; apply Aacquire_Arelease_res in H; apply H
+  | H: ~ is_resource_action ?r (Aacquire_res ?r) |- _ => exfalso; apply H; left; auto
+  | H: ~ is_resource_action ?r (Arelease_res ?r) |- _ => exfalso; apply H; right; auto
+  | H: ~ is_resources_action (Aacquire_res ?r) |- _ => exfalso; apply H; exists r; left; auto
+  | H: ~ is_resources_action (Arelease_res ?r) |- _ => exfalso; apply H; exists r; right; auto
+  end;
+  repeat
+  let HH := fresh "H" in
+  match goal with
+  | H: ~ is_resource_action ?r1 (Aacquire_res ?r2) |- _ =>
+         specialize (fun (HH: r2 = r1) => H (or_introl (f_equal Aacquire_res (eq_sym HH))))
+  | H: ~ is_resource_action ?r1 (Arelease_res ?r2) |- _ =>
+         specialize (fun (HH: r2 = r1) => H (or_intror (f_equal Arelease_res (eq_sym HH))))
+  end.
+  
 
 Instance Res_Join (Res: Resource): Join resources := Pred_Join resource.
 
@@ -61,51 +85,39 @@ Instance Res_SA (Res: Resource): SeparationAlgebra resources := Pred_SA resource
 Inductive res_enable {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: action -> resources -> resources -> resources -> Prop :=
 | res_enable_acq: forall r A1 A1' A2, join A1 (eq r) A1' -> ~ A2 r -> res_enable (Aacquire_res r) A1 A1' A2
 | res_enable_rel: forall r A1 A1' A2, join A1' (eq r) A1 -> res_enable (Arelease_res r) A1 A1' A2
-| res_enable_other: forall a A1 A2, ~ is_resource_action a -> res_enable a A1 A1 A2.
+| res_enable_other: forall a A1 A2, ~ is_resources_action a -> res_enable a A1 A1 A2.
 
 Lemma res_enable_acq_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
   forall r A1 A1' A2, res_enable (Aacquire_res r) A1 A1' A2 -> join A1 (eq r) A1' /\ ~ A2 r.
 Proof.
   intros.
-  inversion H; subst.
-  + apply Aacquire_res_inv in H0; subst.
-    auto.
-  + symmetry in H0.
-    apply Aacquire_Arelease_res in H0; inversion H0.
-  + exfalso; apply H0.
-    exists r; auto.
+  inversion H; subst; solve_resource_action.
+  auto.
 Qed.
 
 Lemma res_enable_rel_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
   forall r A1 A1' A2, res_enable (Arelease_res r) A1 A1' A2 -> join A1' (eq r) A1.
 Proof.
   intros.
-  inversion H; subst.
-  + apply Aacquire_Arelease_res in H0; inversion H0.
-  + apply Arelease_res_inv in H0; subst.
-    auto.
-  + exfalso; apply H0.
-    exists r; auto.
+  inversion H; subst; solve_resource_action.
+  auto.
 Qed.
 
 Lemma res_enable_not_res_inv {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res} {nAcr: NormalAction_resource Ac Res}:
-  forall a A1 A1' A2, ~ is_resource_action a -> res_enable a A1 A1' A2 -> A1 = A1'.
+  forall a A1 A1' A2, ~ is_resources_action a -> res_enable a A1 A1' A2 -> A1 = A1'.
 Proof.
   intros.
-  inversion H0; subst; auto; clear H0.
-  + exfalso.
-    apply H; exists r; auto.
-  + exfalso.
-    apply H; exists r; auto.
+  inversion H0; subst; solve_resource_action.
+  auto.
 Qed.
 
 Inductive start_by_Aacq {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: resource -> trace -> Prop :=
 | start_by_Aacq_nil: forall r, start_by_Aacq r nil
 | start_by_Aacq_acq: forall r tr, start_by_Arel r tr -> start_by_Aacq r (cons (Aacquire_res r) tr)
-| start_by_Aacq_irr: forall r a tr, ~ (a = Aacquire_res r \/ a = Arelease_res r) -> start_by_Aacq r tr -> start_by_Aacq r (cons a tr)
+| start_by_Aacq_irr: forall r a tr, ~ is_resource_action r a -> start_by_Aacq r tr -> start_by_Aacq r (cons a tr)
 with start_by_Arel {Ac: Action} {Res: Resource} {Acr: Action_resource Ac Res}: resource -> trace -> Prop :=
 | start_by_Arel_rel: forall r tr, start_by_Aacq r tr -> start_by_Arel r (cons (Arelease_res r) tr)
-| start_by_Arel_irr: forall r a tr, ~ (a = Aacquire_res r \/ a = Arelease_res r) -> start_by_Arel r tr -> start_by_Arel r (cons a tr).
+| start_by_Arel_irr: forall r a tr, ~ is_resource_action r a -> start_by_Arel r tr -> start_by_Arel r (cons a tr).
 
 Class Action_Parallel (Ac: Action): Type := {
   race: action;
@@ -113,8 +125,8 @@ Class Action_Parallel (Ac: Action): Type := {
 }.
 
 Class NormalAction_Parallel_resource (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: Type := {
-  res_actions_no_race: forall a1 a2, race_actions a1 a2 -> ~ is_resource_action a1 /\ ~ is_resource_action a2;
-  race_not_resource: ~ is_resource_action race
+  res_actions_no_race: forall a1 a2, race_actions a1 a2 -> ~ is_resources_action a1 /\ ~ is_resources_action a2;
+  race_not_resource: ~ is_resources_action race
 }.
 
 Inductive trace_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: resources -> resources -> trace -> trace -> trace -> Prop :=
@@ -128,11 +140,11 @@ Inductive traces_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel A
 
 Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac): Type := {
   state_enable_Aacquire_res: forall r (A1 A2: resources) (s: state),
-    (forall r0, A1 r0 \/ r = r0 <-> A2 r0) -> ~ A1 r -> state_enable (Aacquire_res r) (A1, s) (Terminating (A2, s));
+    join A1 (eq r) A2 -> state_enable (Aacquire_res r) (A1, s) (Terminating (A2, s));
   state_enable_Arelease_res: forall r (A1 A2: resources) (s: state),
-    (forall r0, A2 r0 \/ r = r0 <-> A1 r0) -> ~ A2 r -> state_enable (Arelease_res r) (A1, s) (Terminating (A2, s));
+    join A2 (eq r) A1 -> state_enable (Arelease_res r) (A1, s) (Terminating (A2, s));
   state_enable_non_resource_action: forall a (A1 A2: resources) (s1 s2: state),
-    ~ is_resource_action a -> state_enable a (A1, s1) (Terminating (A2, s2)) -> A1 = A2
+    ~ is_resources_action a -> state_enable a (A1, s1) (Terminating (A2, s2)) -> A1 = A2
 }.
 
 Class ActionInterpret_Parallel_resource (state: Type) {J: Join state} (Ac: Action) {AcP: Action_Parallel Ac} (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac): Type := {
@@ -250,26 +262,20 @@ Inductive thread_local_state_enable {state: Type} {Ac: Action} {Res: Resource} {
     (forall n, ~ exists f, I f /\ join n f m) ->
     thread_local_state_enable Inv (Arelease_res r) (A1, m) Error
 | thread_local_state_enable_non_resource: forall a s s',
-    ~ is_resource_action a ->
+    ~ is_resources_action a ->
     state_enable a s s' ->
     thread_local_state_enable Inv a s s'.
 
 Lemma thread_local_state_enable_non_resource_action {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} {ac_sem: ActionInterpret (resources * state) Ac}:
   forall Inv a s s',
-    ~ is_resource_action a ->
+    ~ is_resources_action a ->
     (state_enable a s s' <-> thread_local_state_enable Inv a s s').
 Proof.
   intros.
   split; intros.
   + constructor; auto.
-  + inversion H0; subst; clear H0.
-    - exfalso; apply H.
-      exists r; auto.
-    - exfalso; apply H.
-      exists r; auto.
-    - exfalso; apply H.
-      exists r; auto.
-    - auto.
+  + inversion H0; subst; solve_resource_action.
+    auto.
 Qed.
 
 Definition ThreadLocal_ActionInterpret_resource {state: Type} {Ac: Action} {Res: Resource} {J: Join state} {state_R: Relation state} {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac) (Inv: resource * (state -> Prop) -> Prop): ActionInterpret (resources * state) Ac :=
