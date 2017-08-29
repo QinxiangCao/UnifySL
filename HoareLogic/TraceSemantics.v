@@ -143,8 +143,10 @@ Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: 
     join A1 (eq r) A2 -> state_enable (Aacquire_res r) (A1, s) (Terminating (A2, s));
   state_enable_Arelease_res: forall r (A1 A2: resources) (s: state),
     join A2 (eq r) A1 -> state_enable (Arelease_res r) (A1, s) (Terminating (A2, s));
-  state_enable_non_resource_action: forall a (A1 A2: resources) (s1 s2: state),
-    ~ is_resources_action a -> state_enable a (A1, s1) (Terminating (A2, s2)) -> A1 = A2
+  state_enable_non_resource_action1: forall a (A1 A2: resources) (s1 s2: state),
+    ~ is_resources_action a -> state_enable a (A1, s1) (Terminating (A2, s2)) -> A1 = A2;
+  state_enable_non_resource_action2: forall a (A A': resources) (s: state) (ms: MetaState state),
+    ~ is_resources_action a -> state_enable a (A, s) (lift_function (pair A) ms) -> state_enable a (A', s) (lift_function (pair A') ms)
 }.
 
 Class ActionInterpret_Parallel_resource (state: Type) {J: Join state} (Ac: Action) {AcP: Action_Parallel Ac} (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac): Type := {

@@ -96,7 +96,7 @@ Proof.
       destruct H1 as [H1 | H1]; inversion H1; subst; solve_resource_action;
       destruct IHtr, H6; split; try tauto.
     - rewrite <- thread_local_state_enable_non_resource_action in H3 by auto.
-      apply state_enable_non_resource_action in H3; auto.
+      apply state_enable_non_resource_action1 in H3; auto.
       subst A1.
       assert (~ is_resource_action r a) by (intro HH; apply H; exists r; auto).
       pose proof start_by_Aacq_or_Arel r (a :: tr).
@@ -244,7 +244,7 @@ Proof.
     - apply res_enable_not_res_inv in ASSU; auto.
       destruct m1 as [A1 m1], m2 as [| | [A2 m2]]; auto.
       simpl in H5.
-      apply state_enable_non_resource_action in H5; auto.
+      apply state_enable_non_resource_action1 in H5; auto.
       subst; auto.
     - simpl.
       rewrite <- (thread_local_state_enable_non_resource_action Inv) by auto.
@@ -480,11 +480,131 @@ Proof.
 
   revert A1 A2 s JOIN_RES TRACE_ACC ASSU; induction tr; intros.
   + simpl in TRACE_ACC.
+    specialize (ASSU A1 (Terminating s) (trace_access_nil _)).
+    change (KRIPKE: s |= P2 * I) in ASSU.
+    rewrite sat_sepcon in ASSU.
+    destruct ASSU as [s' [f [? [? ?]]]].
+    assert ((fun n : model => exists f : model, KRIPKE: f |= I /\ join n f s) s') by (exists f; auto).
     inversion TRACE_ACC; subst.
-    - inversion H2; subst; solve_resource_action.
-    - inversion H2; subst; solve_resource_action.
-      pose proof at_most_one_invariant _ _ _ H5 Inv_r; subst I0; clear H5.
-Abort.
+    - inversion H6; subst; solve_resource_action.
+    - inversion H6; subst; solve_resource_action.
+      pose proof at_most_one_invariant _ _ _ H9 Inv_r; subst I0; clear H9.
+      exfalso; apply (H10 s').
+      exists f; auto.
+    - inversion H5; subst; solve_resource_action.
+      pose proof at_most_one_invariant _ _ _ H10 Inv_r; subst I0; clear H10.
+      apply (proj2 H11) in H2.
+      eapply sat_mono in H0; [| exact H2].
+      inversion H8; subst.
+      destruct ms_post; inversion H3; subst.
+      auto.
+  + simpl in TRACE_ACC.
+    assert (forall ms, thread_local_state_enable Inv1 a (A2, s) ms ->
+                       match ms with
+                       | Error => thread_local_state_enable Inv0 a (A1, s) Error
+                       | NonTerminating => thread_local_state_enable Inv0 a (A1, s) NonTerminating
+                       | Terminating (A2', s') => exists A1', join A1' (eq r) A2' /\ thread_local_state_enable Inv0 a (A1, s) (Terminating (A1', s'))
+                       end).
+    Focus 1. {
+      clear - INV_CONS INV NO_OCCUR JOIN_RES AIr.
+      intros.
+      assert (~ is_resource_action r a).
+      Focus 1. {
+        intros [? | ?].
+        + subst; apply (proj1 NO_OCCUR).
+          left; auto.
+        + subst; apply (proj2 NO_OCCUR).
+          left; auto.
+      } Unfocus.
+      clear NO_OCCUR; rename H0 into NO_OCCUR.
+      inversion H; subst; solve_resource_action.
+      + assert (Inv0 (r0, I0)).
+        Focus 1. {
+          specialize (INV_CONS (r0, I0)).
+          assert ((r, fun m : model => KRIPKE: m |= I) <> (r0, I0)) by congruence.
+          destruct INV_CONS; tauto.
+        } Unfocus.
+        rename A3 into A2'.
+        pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ JOIN_RES) H2 as [A1' [? ?]].
+        apply join_comm in H4.
+        exists A1'; split; auto.
+        eapply (thread_local_state_enable_acq _ _ _ _ _ _ _ _ H1 H0 H5 H7).
+      + assert (Inv0 (r0, I0)).
+        Focus 1. {
+          specialize (INV_CONS (r0, I0)).
+          assert ((r, fun m : model => KRIPKE: m |= I) <> (r0, I0)) by congruence.
+          destruct INV_CONS; tauto.
+        } Unfocus.
+        rename A3 into A2'.
+        set (A1' := fun rr => A2' rr /\ r <> rr).
+        assert (join A1' (eq r) A2').
+        Focus 1. {
+          subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
+          assert (r0 = rr -> r = rr -> False) by (intros; congruence).
+          destruct H2, JOIN_RES; split; tauto.
+        } Unfocus.
+        assert (join A1' (eq r0) A1).
+        Focus 1. {
+          subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
+          assert (r0 = rr -> r = rr -> False) by (intros; congruence).
+          destruct H2, JOIN_RES; split; tauto.
+        } Unfocus.
+        exists A1'; split; auto.
+        eapply (thread_local_state_enable_rel_succ _ _ _ _ _ _ _ H3 H0 H6).
+      + assert (Inv0 (r0, I0)).
+        Focus 1. {
+          specialize (INV_CONS (r0, I0)).
+          assert ((r, fun m : model => KRIPKE: m |= I) <> (r0, I0)) by congruence.
+          destruct INV_CONS; tauto.
+        } Unfocus.
+        rename A3 into A2'.
+        set (A1' := fun rr => A2' rr /\ r <> rr).
+        assert (join A1' (eq r) A2').
+        Focus 1. {
+          subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
+          assert (r0 = rr -> r = rr -> False) by (intros; congruence).
+          destruct H2, JOIN_RES; split; tauto.
+        } Unfocus.
+        assert (join A1' (eq r0) A1).
+        Focus 1. {
+          subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
+          assert (r0 = rr -> r = rr -> False) by (intros; congruence).
+          destruct H2, JOIN_RES; split; tauto.
+        } Unfocus.
+        eapply (thread_local_state_enable_rel_fail _ _ _ _ _ _ H3 H0 H6).
+      + destruct ms as [| | [A2' s']].
+        - eapply thread_local_state_enable_non_resource; auto.
+          change Error with (lift_function (pair A1) (@Error model)).
+          change Error with (lift_function (pair A2) (@Error model)) in H1.
+          apply (state_enable_non_resource_action2 _ _ _ _ _ H0 H1).
+        - eapply thread_local_state_enable_non_resource; auto.
+          change NonTerminating with (lift_function (pair A1) (@NonTerminating model)).
+          change NonTerminating with (lift_function (pair A2) (@NonTerminating model)) in H1.
+          apply (state_enable_non_resource_action2 _ _ _ _ _ H0 H1).
+        - pose proof state_enable_non_resource_action1 _ _ _ _ _ H0 H1; subst A2'.
+          exists A1.
+          split; auto.
+          eapply thread_local_state_enable_non_resource; auto.
+          change (Terminating (A2, s')) with (lift_function (pair A2) (Terminating s')) in H1.
+          apply (state_enable_non_resource_action2 _ _ _ _ _ H0 H1).
+    } Unfocus.
+    inversion TRACE_ACC; subst.
+    - destruct ms_post; inversion H4; auto.
+    - simpl in H3.
+      apply H in H3.
+      specialize (ASSU A1 Error (@trace_access_Error _ _ (ThreadLocal_ActionInterpret_resource _ Inv0) _ _ _ H3)).
+      inversion ASSU.
+    - simpl in H2.
+      apply H in H2.
+      destruct s' as [A2' s'].
+      destruct H2 as [A1' [? ?]].
+      assert (~ In (Aacquire_res r) tr /\ ~ In (Arelease_res r) tr)
+        by (simpl in NO_OCCUR; tauto).
+      apply (IHtr H2 A1' A2' s'); auto; clear H2 ms_post IHtr TRACE_ACC H5 A_post.
+      intros.
+      apply (ASSU A_post ms_post).
+      eapply trace_access_Terminating; eauto.
+Qed.
 
 End soundness.
 
