@@ -19,8 +19,7 @@ Import SeparationLogicNotation.
 Class SeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   sepcon_comm: forall x y, |-- x * y --> y * x;
   sepcon_assoc: forall x y z, |-- x * (y * z) <--> (x * y) * z;
-  wand_sepcon_adjoint: forall x y z, |-- x * y --> z <-> |-- x --> (y -* z);
-  sepcon_mono: forall x1 x2 y1 y2, |-- x1 --> x2 -> |-- y1 --> y2 -> |-- (x1 * y1) --> (x2 * y2)
+  wand_sepcon_adjoint: forall x y z, |-- x * y --> z <-> |-- x --> (y -* z)
 }.
 
 Class EmpSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
@@ -49,6 +48,20 @@ Class MallocFreeSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: Propos
 Class GarbageCollectSeparationLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
   sepcon_elim1: forall x y, |-- x * y --> x
 }.
+
+Lemma sepcon_mono: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} x1 x2 y1 y2, |-- x1 --> x2 -> |-- y1 --> y2 -> |-- (x1 * y1) --> (x2 * y2).
+Proof.
+  intros.
+  apply wand_sepcon_adjoint.
+  rewrite H.
+  apply wand_sepcon_adjoint.
+  rewrite (sepcon_comm x2 y1).
+  apply wand_sepcon_adjoint.
+  rewrite H0.
+  apply wand_sepcon_adjoint.
+  rewrite (sepcon_comm y2 x2).
+  apply provable_impp_refl.
+Qed.
 
 Lemma derivable_sepcon_comm: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} (Phi: context) (x y: expr),
   Phi |-- x * y --> y * x.

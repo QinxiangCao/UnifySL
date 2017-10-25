@@ -58,7 +58,6 @@ Inductive provable: expr -> Prop :=
 | sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
-| sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
 | sepcon_emp: forall x, provable (x * emp <--> x)
 | sepcon_elim1: SCE PAR = true -> forall x y, provable (x * y --> x)
 | emp_sepcon_truep_elim: ESE PAR = true -> forall x, provable (x * TT && emp --> x)
@@ -96,7 +95,6 @@ Proof.
   + intros; split.
     - apply wand_sepcon_adjoint1.
     - apply wand_sepcon_adjoint2.
-  + apply sepcon_mono.
 Qed.
 
 Instance eG: EmpSeparationLogic L G.

@@ -44,8 +44,6 @@ Proof.
     exact (@sound_sepcon_assoc (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kpSM A) (Pred_fsSM A) x y).
   + intros x y z.
     exact (@sound_wand_sepcon_adjoint (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J (Pred_SM A) (Pred_kpSM A) (Pred_fsSM A) x y z).
-  + intros x1 x2 y1 y2.
-    exact (@sound_sepcon_mono (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J (Pred_SM A) (Pred_kpSM A) (Pred_fsSM A) x1 x2 y1 y2).
 Qed.
 
 Instance Pred_gcsGamma (A: Type) {J: Join A} {SA: SeparationAlgebra A} {incrSA: @IncreasingSeparationAlgebra A eq J}: GarbageCollectSeparationLogic (Pred_L A) (Pred_Gamma A).

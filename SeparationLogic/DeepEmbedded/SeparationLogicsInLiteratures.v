@@ -45,7 +45,6 @@ Inductive provable: expr -> Prop :=
 | sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
-| sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
 | sepcon_elim1: forall x y, provable (x * y --> x).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
@@ -80,7 +79,6 @@ Proof.
   + intros; split.
     - apply wand_sepcon_adjoint1.
     - apply wand_sepcon_adjoint2.
-  + apply sepcon_mono.
 Qed.
 
 Instance gcsG: GarbageCollectSeparationLogic L G.
@@ -119,7 +117,6 @@ Inductive provable: expr -> Prop :=
 | sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
-| sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
 | sepcon_emp: forall x, provable (x * emp <--> x).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
@@ -160,7 +157,6 @@ Proof.
   + intros; split.
     - apply wand_sepcon_adjoint1.
     - apply wand_sepcon_adjoint2.
-  + apply sepcon_mono.
 Qed.
 
 Instance EmpsG: EmpSeparationLogic L G.
@@ -198,7 +194,6 @@ Inductive provable: expr -> Prop :=
 | sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
-| sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
 | sepcon_emp: forall x, provable (x * emp <--> x)
 | sepcon_elim1: forall x y, provable (x * y --> x).
 
@@ -234,7 +229,6 @@ Proof.
   + intros; split.
     - apply wand_sepcon_adjoint1.
     - apply wand_sepcon_adjoint2.
-  + apply sepcon_mono.
 Qed.
 
 Instance EmpsG: EmpSeparationLogic L G.
@@ -279,7 +273,6 @@ Inductive provable: expr -> Prop :=
 | sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
-| sepcon_mono: forall x1 x2 y1 y2, provable (x1 --> x2) -> provable (y1 --> y2) -> provable ((x1 * y1) --> (x2 * y2))
 | sepcon_emp: forall x, provable (x * emp <--> x).
 
 Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
@@ -320,7 +313,6 @@ Proof.
   + intros; split.
     - apply wand_sepcon_adjoint1.
     - apply wand_sepcon_adjoint2.
-  + apply sepcon_mono.
 Qed.
 
 Instance EmpsG: EmpSeparationLogic L G.

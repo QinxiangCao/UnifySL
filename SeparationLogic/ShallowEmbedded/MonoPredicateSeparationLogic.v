@@ -45,8 +45,6 @@ Proof.
     exact (@sound_sepcon_assoc (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kpSM A) (MonoPred_fsSM A) x y).
   + intros x y z.
     exact (@sound_wand_sepcon_adjoint (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt  R po_R J (MonoPred_SM A) (MonoPred_kpSM A) (MonoPred_fsSM A) x y z).
-  + intros x1 x2 y1 y2.
-    exact (@sound_sepcon_mono (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R po_R J (MonoPred_SM A) (MonoPred_kpSM A) (MonoPred_fsSM A) x1 x2 y1 y2).
 Qed.
 
 Instance MonoPred_EmpsGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A} {USA: UnitalSeparationAlgebra A}: EmpSeparationLogic (MonoPred_L A) (MonoPred_Gamma A).
