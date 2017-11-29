@@ -74,6 +74,7 @@ Definition strongly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (S
 Notation "m  |=  x" := (satisfies m x) (at level 70, no associativity) : logic_base.
 Notation "|--  x" := (provable x) (at level 71, no associativity) : logic_base.
 Notation "Phi  |--  x" := (derivable Phi x) (at level 70, no associativity) : logic_base.
+Notation "Phi ;; x" := (Union _ Phi (Singleton _ x)) (at level 69, left associativity) : logic_base.
 
 Module KripkeModelFamilyNotation.
 Notation "'KRIPKE:'  M , m" := (build_model M m) (at level 59, no associativity) : kripke_model.
