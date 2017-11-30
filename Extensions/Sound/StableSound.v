@@ -14,6 +14,11 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.Extensions.Semantics.SemanticStable.
+Require Logic.PropositionalLogic.Semantics.Trivial.
+Require Logic.ModalLogic.Semantics.Kripke.
+Require Logic.PropositionalLogic.Semantics.Kripke.
+Require Logic.ModalLogic.Semantics.Flat.
+Require Logic.SeparationLogic.Semantics.FlatSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -26,8 +31,8 @@ Import KripkeModelNotation_Intuitionistic.
 
 Module Sound_Trivial.
 
-Require Import Logic.PropositionalLogic.Semantics.Trivial.
-Require Import Logic.ModalLogic.Semantics.Kripke.
+Import Logic.PropositionalLogic.Semantics.Trivial.
+Import Logic.ModalLogic.Semantics.Kripke.
 
 Lemma sound_impp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: SS.Relation (Kworlds M)} {SM: Semantics L MD} {trSM: TrivialPropositionalSemantics L MD SM} {stableSM: SemanticStable L MD M SM}:
   forall x y: expr,
@@ -157,9 +162,9 @@ End Sound_Trivial.
 
 Module Sound_KripkeIntuitionistic.
 
-Require Import Logic.PropositionalLogic.Semantics.Kripke.
-Require Import Logic.ModalLogic.Semantics.Flat.
-Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
+Import Logic.PropositionalLogic.Semantics.Kripke.
+Import Logic.ModalLogic.Semantics.Flat.
+Import Logic.SeparationLogic.Semantics.FlatSemantics.
 
 Lemma sound_impp_stable {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {R1_bis: Bisimulation SS.Krelation KI.Krelation} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {kpSM: KripkePropositionalSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x y: expr,

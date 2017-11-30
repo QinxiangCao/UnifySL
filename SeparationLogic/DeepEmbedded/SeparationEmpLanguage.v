@@ -22,7 +22,7 @@ Inductive expr {Var: Type}: Type :=
   | falsep : expr
   | varp : Var -> expr.
 
-Implicit Arguments expr.
+Arguments expr: clear implicits.
 
 Definition expr_eqb {Var: Type} (eqb: Var -> Var -> bool): expr Var -> expr Var -> bool :=
   fix expr_eqb x1 x2 :=
