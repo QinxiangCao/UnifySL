@@ -1,3 +1,4 @@
+(*
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.SublistT.
 Require Import Logic.GeneralLogic.Base.
@@ -34,3 +35,4 @@ Class QuantifierLogic
     |-- exp x --> y
 }.
 
+*)
