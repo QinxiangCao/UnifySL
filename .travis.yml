@@ -7,6 +7,9 @@ matrix:
         - docker
       script:
         - |
+          bash -c "while true; do echo \$(date) - travis building ...; sleep 540; done" &
+          export PING_LOOP_PID=$!
+        - |
           cat <<-EOF | docker run -i ocaml/opam:ubuntu-16.04_ocaml-4.05.0 bash -
           set -e
           opam install -y coq=8.6.1
@@ -15,16 +18,23 @@ matrix:
           make depend
           make -j 2
           EOF
+      after_script:
+        - kill -9 $PING_LOOP_PID
 
     - os: osx
       before_script:
-        - brew install ocaml
-        - brew install opam
-        - opam init -y
-        - eval `opam config env`
+        - |
+          bash -c "while true; do echo \$(date) - travis building ...; sleep 540; done" &
+        - git clone https://github.com/asdf-vm/asdf.git
+        - . asdf/asdf.sh
+        - asdf install ocaml 4.05.0
+        - asdf global ocaml 4.05.0
         - opam install -y coq=8.6.1
+        - asdf reshim ocaml
       script:
         - git clone https://github.com/QinxiangCao/UnifySL
         - cd UnifySL
         - make depend
         - make -j 2
+      after_script:
+        - kill -9 $PING_LOOP_PID
