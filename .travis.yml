@@ -1,0 +1,30 @@
+language: c
+
+matrix:
+  include:
+    - os: linux
+      services:
+        - docker
+      script:
+        - |
+          cat <<-EOF | docker run -i ocaml/opam:ubuntu-16.04_ocaml-4.05.0 bash -
+          set -e
+          opam install -y coq=8.6.1
+          git clone https://github.com/QinxiangCao/UnifySL
+          cd UnifySL
+          make depend
+          make -j 2
+          EOF
+
+    - os: osx
+      before_script:
+        - brew install ocaml
+        - brew install opam
+        - opam init -y
+        - eval `opam config env`
+        - opam install -y coq=8.6.1
+      script:
+        - git clone https://github.com/QinxiangCao/UnifySL
+        - cd UnifySL
+        - make depend
+        - make -j 2
