@@ -43,7 +43,9 @@ Proof.
   hnf; intros.
   rewrite same_relation_spec in *.
   unfold pointwise_relation in *.
-  firstorder.
+  intros.
+  rewrite H, H0.
+  tauto.
 Qed.
 
 Instance same_relation_Equivalence {A}: Equivalence (same_relation A).
