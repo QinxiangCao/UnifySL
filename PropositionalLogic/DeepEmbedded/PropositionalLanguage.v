@@ -17,7 +17,7 @@ Inductive expr {Var: Type}: Type :=
   | falsep : expr
   | varp : Var -> expr.
 
-Implicit Arguments expr.
+Arguments expr Var: clear implicits.
 
 Instance L (Var: Type): Language :=
   Build_Language (expr Var).

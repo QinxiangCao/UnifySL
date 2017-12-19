@@ -1,4 +1,4 @@
-CURRENT_DIR=./
+CURRENT_DIR=.
 COQBIN=
 
 -include CONFIGURE

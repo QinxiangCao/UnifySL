@@ -36,7 +36,10 @@ Definition triple_valid
            (t: @expr HLan): Prop :=
   @satisfies _ _ TI tt t.
 
+(*
 Notation "|==  x" := (triple_valid x) (at level 71, no associativity) : hoare_logic.
+(* This notation has been used. *)
+*)
 Notation "{{ Inv }} {{ P }} c {{ Q }}" := (triple Inv P c Q) (at level 80, no associativity) : guarded_hoare_logic.
 
 

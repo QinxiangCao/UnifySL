@@ -257,6 +257,9 @@ Proof.
   right; constructor.
 Qed.
 
+Ltac solve_assum :=
+  (first [apply derivable_assum1 | assumption | apply deduction_weaken1; solve_assum] || fail 1000 "Cannot find the conclusion in assumption").
+
 Lemma deduction_impp_intros: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
   Union _ Phi (Singleton _ x) |-- y ->
   Phi |-- x --> y.
@@ -341,7 +344,7 @@ Lemma derivable_impp_refl: forall {L: Language} {nL: NormalLanguage L} {Gamma: P
 Proof.
   intros.
   apply deduction_theorem.
-  apply derivable_assum1.
+  solve_assum.
 Qed.
 
 Lemma deduction_left_impp_intros: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
@@ -350,7 +353,7 @@ Lemma deduction_left_impp_intros: forall {L: Language} {nL: NormalLanguage L} {G
 Proof.
   intros.
   apply deduction_theorem.
-  apply deduction_weaken1; auto.
+  solve_assum.
 Qed.
 
 Lemma derivable_axiom1: forall {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} (Phi: context) (x y: expr),
