@@ -1,11 +1,11 @@
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun1.
+Require Import Logic.MinimunLogic.ProofTheory.TheoryOfSequentCalculus.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
-
-(* TODO: rename this file to Minimun.v *)
 
 Definition multi_imp {L: Language} {minL: MinimunLanguage L} (xs: list expr) (y: expr): expr :=
   fold_right impp y xs.
@@ -19,15 +19,6 @@ Class MinimunAxiomatization (L: Language) {minL: MinimunLanguage L} (Gamma: Proo
   modus_ponens: forall x y, |-- (x --> y) -> |-- x -> |-- y;
   axiom1: forall x y, |-- (x --> (y --> x));
   axiom2: forall x y z, |-- ((x --> y --> z) --> (x --> y) --> (x --> z))
-}.
-
-Class NormalSequentCalculus (L: Language) (Gamma: ProofTheory L): Type := {
-  provable_derivable: forall x, provable x <-> derivable empty_context x
-}.
-
-Class BasicSequentCalculus (L: Language) (Gamma: ProofTheory L) := {
-  deduction_weaken: forall Phi Psi x, Included _ Phi Psi -> Phi |-- x -> Psi |-- x;
-  derivable_assum: forall Phi x, Ensembles.In _ Phi x -> Phi |-- x
 }.
 
 Class MinimunSequentCalculus (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) := {
@@ -284,23 +275,6 @@ Qed.
 
 Context {minAX: MinimunAxiomatization L Gamma}.
 
-Lemma Axiomatization2SequentCalculus_bSC: BasicSequentCalculus L Gamma.
-Proof.
-  constructor.
-  + intros.
-    rewrite derivable_provable in H0 |- *.
-    destruct H0 as [xs [? ?]].
-    exists xs; split; auto.
-    revert H0; apply Forall_impl.
-    auto.
-  + intros.
-    rewrite derivable_provable.
-    exists (x :: nil); split.
-    - constructor; auto.
-    - simpl.
-      apply provable_impp_refl.
-Qed.
-
 Lemma Axiomatization2SequentCalculus_minSC: MinimunSequentCalculus L Gamma.
 Proof.
   constructor.
@@ -331,6 +305,26 @@ Proof.
       pose proof aux_minimun_theorem04 x y.
       pose proof aux_minimun_rule01 _ _ x IHForall.
       eapply aux_minimun_rule02; [exact H0 | exact H].
+Qed.
+
+Lemma Axiomatization2SequentCalculus_bSC: BasicSequentCalculus L Gamma.
+Proof.
+  constructor.
+  + intros.
+    rewrite derivable_provable in H0 |- *.
+    destruct H0 as [xs [? ?]].
+    exists xs; split; auto.
+    revert H0; apply Forall_impl.
+    auto.
+  + intros.
+    rewrite derivable_provable.
+    exists (x :: nil); split.
+    - constructor; auto.
+    - simpl.
+      apply provable_impp_refl.
+  + apply DeductionImpIntro_DeductionMP_2_DeductionSubst.
+    - exact (@deduction_impp_intros _ _ _ Axiomatization2SequentCalculus_minSC).
+    - exact (@deduction_modus_ponens _ _ _ Axiomatization2SequentCalculus_minSC).
 Qed.
 
 End Axiomatization2SequentCalculus.

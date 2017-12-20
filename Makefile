@@ -27,15 +27,15 @@ GeneralLogic_ShallowEmbedded_FILES = \
 
 GeneralLogic_FILES = \
   Base.v HenkinCompleteness.v \
-  KripkeModel.v \
+  KripkeModel.v ContextProperty.v \
   $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) 
 
 MinimunLogic_ProofTheory_FILES = \
-  Normal.v Minimun.v Adjoint.v AdjointLemmas.v \
-  RewriteClass.v
+  Minimun1.v Minimun2.v Minimun.v Adjoint.v AdjointLemmas.v \
+  RewriteClass.v TheoryOfSequentCalculus.v
 
 MinimunLogic_Complete_FILES = \
- ContextProperty_Intuitionistic.v ContextProperty_Classical.v
+  ContextProperty_Kripke.v ContextProperty_Trivial.v
 
 MinimunLogic_FILES = \
   Syntax.v \
