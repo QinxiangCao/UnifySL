@@ -14,7 +14,7 @@ Definition Linderbaum_constructable
            {L: Language}
            {Gamma: ProofTheory L}
            (P cP: context -> Prop): Prop :=
-  forall Phi, P Phi -> exists Psi: sig cP, Included _ Phi (proj1_sig Psi) /\ P Phi.
+  forall Phi, P Phi -> exists Psi: sig cP, Included _ Phi (proj1_sig Psi) /\ P (proj1_sig Psi).
   
 Lemma sig_context_ext: forall {L: Language} (cP: context -> Prop) (Phi Psi: sig cP),
   (forall x, proj1_sig Phi x <-> proj1_sig Psi x) -> Phi = Psi.

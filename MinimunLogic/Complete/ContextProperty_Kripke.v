@@ -6,6 +6,9 @@ Local Open Scope logic_base.
 Definition derivable_closed {L: Language} {Gamma: ProofTheory L}: context -> Prop :=
   fun Phi => forall x, derivable Phi x -> Phi x.
 
+Definition cannot_derive {L: Language} {Gamma: ProofTheory L} (x: expr): context -> Prop :=
+  fun Phi => ~ Phi |-- x.
+
 Lemma derivable_closed_element_derivable: forall {L: Language} {Gamma: ProofTheory L} {bSC: BasicSequentCalculus L Gamma} (Phi: context),
   derivable_closed Phi ->
   (forall x: expr, Phi x <-> Phi |-- x).

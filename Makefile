@@ -34,12 +34,16 @@ MinimunLogic_ProofTheory_FILES = \
   Minimun1.v Minimun2.v Minimun.v Adjoint.v AdjointLemmas.v \
   RewriteClass.v TheoryOfSequentCalculus.v
 
+MinimunLogic_Semantics_FILES = \
+  Kripke.v Trivial.v
+
 MinimunLogic_Complete_FILES = \
   ContextProperty_Kripke.v ContextProperty_Trivial.v
 
 MinimunLogic_FILES = \
   Syntax.v \
   $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(MinimunLogic_Semantics_FILES:%.v=Semantics/%.v) \
   $(MinimunLogic_Complete_FILES:%.v=Complete/%.v)
 
 PropositionalLogic_ProofTheory_FILES = \
