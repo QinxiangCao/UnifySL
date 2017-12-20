@@ -5,6 +5,8 @@ Require Import Logic.MinimunLogic.Syntax.
 Local Open Scope logic_base.
 Local Open Scope syntax.
 
+(* TODO: rename this file to Minimun.v *)
+
 Definition multi_imp {L: Language} {minL: MinimunLanguage L} (xs: list expr) (y: expr): expr :=
   fold_right impp y xs.
 
@@ -29,7 +31,7 @@ Class BasicSequentCalculus (L: Language) (Gamma: ProofTheory L) := {
 }.
 
 Class MinimunSequentCalculus (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) := {
-  deduction_impp_elim: forall Phi x y, Phi |-- x -> Phi |-- x --> y -> Phi |-- y;
+  deduction_modus_ponens: forall Phi x y, Phi |-- x -> Phi |-- x --> y -> Phi |-- y;
   deduction_impp_intros: forall Phi x y, Phi;; x |-- y -> Phi |-- x --> y
 }.
 
@@ -336,23 +338,10 @@ End Axiomatization2SequentCalculus.
 Section DerivableRulesFromSequentCalculus.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
         {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}.
+        {bSC: BasicSequentCalculus L Gamma}.
 
-
-
-
-
-
-
-
-
-
-
-
-
-Lemma deduction_weaken1 {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi x y,
+Lemma deduction_weaken1: forall Phi x y,
   Phi |-- y ->
   Union _ Phi (Singleton _ x) |-- y.
 Proof.
@@ -361,7 +350,7 @@ Proof.
   intros ? ?; left; auto.
 Qed.
 
-Lemma deduction_weaken0 {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi y,
+Lemma deduction_weaken0 {SC: NormalSequentCalculus L Gamma}: forall Phi y,
   |-- y ->
   Phi |-- y.
 Proof.
@@ -371,34 +360,144 @@ Proof.
   intros ? [].
 Qed.
 
-Lemma deduction_impp_elim {L: Language} {nL: NormalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma}: forall Phi x y,
+Lemma derivable_assum1: forall (Phi: context) (x: expr), Union _ Phi (Singleton _ x) |-- x.
+Proof.
+  intros.
+  apply derivable_assum.
+  right; constructor.
+Qed.
+
+Context {minL: MinimunLanguage L}
+        {minSC: MinimunSequentCalculus L Gamma}.
+
+Ltac solve_assum :=
+  (first [apply derivable_assum1 | assumption | apply deduction_weaken1; solve_assum] || fail 1000 "Cannot find the conclusion in assumption").
+
+Lemma deduction_impp_elim: forall Phi x y,
   Phi |-- impp x y ->
   Union _ Phi (Singleton _ x) |-- y.
 Proof.
   intros.
-  rewrite derivable_provable in H |- *.
-  destruct H as [xs [? ?]].
-  exists (xs ++ (x :: nil)).
-  split.
-  + rewrite Forall_app_iff; split.
-    - revert H; apply Forall_impl.
-      intros.
-      left; auto.
-    - constructor; auto.
-      right. constructor.
-  + replace (multi_imp (xs ++ x :: nil) y) with (multi_imp xs (impp x y)); auto.
-    clear.
-    induction xs; auto.
-    simpl; f_equal; auto.
+  eapply deduction_modus_ponens; solve_assum.
 Qed.
 
-Definition Build_AxiomaticProofTheory {L: Language} {nL: NormalLanguage L} (Provable: expr -> Prop): ProofTheory L :=
+Theorem deduction_theorem:
+  forall (Phi: context) (x y: expr),
+    Union _ Phi (Singleton _ x) |-- y <->
+    Phi |-- x --> y.
+Proof.
+  intros; split.
+  + apply deduction_impp_intros; auto.
+  + apply deduction_impp_elim; auto.
+Qed.
+
+Lemma derivable_impp_refl: forall (Phi: context) (x: expr), Phi |-- x --> x.
+Proof.
+  intros.
+  apply deduction_theorem.
+  solve_assum.
+Qed.
+
+Lemma deduction_left_impp_intros: forall (Phi: context) (x y: expr),
+  Phi |-- x ->
+  Phi |-- y --> x.
+Proof.
+  intros.
+  apply deduction_theorem.
+  solve_assum.
+Qed.
+
+Lemma derivable_axiom1: forall (Phi: context) (x y: expr),
+  Phi |-- x --> y --> x.
+Proof.
+  intros.
+  rewrite <- !deduction_theorem.
+  solve_assum.
+Qed.
+
+Lemma derivable_axiom2: forall (Phi: context) (x y z: expr),
+  Phi |-- (x --> y --> z) --> (x --> y) --> (x --> z).
+Proof.
+  intros.
+  rewrite <- !deduction_theorem.
+  apply deduction_modus_ponens with y.
+  + apply deduction_modus_ponens with x; solve_assum.
+  + apply deduction_modus_ponens with x; solve_assum.
+Qed.
+
+Lemma derivable_modus_ponens: forall (Phi: context) (x y: expr),
+  Phi |-- x --> (x --> y) --> y.
+Proof.
+  intros.
+  rewrite <- !deduction_theorem.
+  apply deduction_modus_ponens with x; solve_assum.
+Qed.
+
+Lemma deduction_impp_trans: forall (Phi: context) (x y z: expr),
+  Phi |-- x --> y ->
+  Phi |-- y --> z ->
+  Phi |-- x --> z.
+Proof.
+  intros.
+  rewrite <- deduction_theorem in H |- *.
+  apply deduction_modus_ponens with y; solve_assum.
+Qed.
+
+Lemma deduction_impp_arg_switch: forall (Phi: context) (x y z: expr),
+  Phi |-- x --> y --> z ->
+  Phi |-- y --> x --> z.
+Proof.
+  intros.
+  rewrite <- !deduction_theorem in *.
+  eapply deduction_weaken; [| exact H].
+  intros ? ?.
+  destruct H0; [destruct H0 |].
+  + left; left; auto.
+  + right; auto.
+  + left; right; auto.
+Qed.
+
+End DerivableRulesFromSequentCalculus.
+
+Ltac solve_assum :=
+  (first [apply derivable_assum1 | assumption | apply deduction_weaken1; solve_assum] || fail 1000 "Cannot find the conclusion in assumption").
+
+Section SequentCalculus2Axiomatization.
+
+Context {L: Language}
+        {Gamma: ProofTheory L}
+        {minL: MinimunLanguage L}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}.
+
+Theorem SequentCalculus2Axiomatization_minAX: MinimunAxiomatization L Gamma.
+Proof.
+  constructor.
+  + intros x y.
+    rewrite !provable_derivable.
+    intros.
+    eapply deduction_modus_ponens; eauto.
+  + intros x y.
+    rewrite provable_derivable.
+    apply derivable_axiom1.
+  + intros x y z.
+    rewrite provable_derivable.
+    apply derivable_axiom2.
+Qed.
+
+End SequentCalculus2Axiomatization.
+
+Definition Build_AxiomaticProofTheory {L: Language} {minL: MinimunLanguage L} (Provable: expr -> Prop): ProofTheory L :=
   Build_ProofTheory L Provable
    (fun Phi y => exists xs, Forall (fun x => Phi x) xs /\ Provable (multi_imp xs y)).
 
-Definition Build_nAxiomaticProofTheory {L: Language} {nL: NormalLanguage L} (Provable: expr -> Prop): NormalProofTheory L (Build_AxiomaticProofTheory Provable) :=
-  Build_NormalProofTheory L nL (Build_AxiomaticProofTheory Provable) (fun _ _ => iff_refl _).
+Definition Build_AxiomaticProofTheory_AX {L: Language} {minL: MinimunLanguage L} (Provable: expr -> Prop): NormalAxiomatization L (Build_AxiomaticProofTheory Provable) :=
+  Build_NormalAxiomatization L minL (Build_AxiomaticProofTheory Provable) (fun _ _ => iff_refl _).
 
-Definition Build_SequentCalculus {L: Language} {nL: NormalLanguage L} (Derivable: context -> expr -> Prop): ProofTheory L :=
+Definition Build_SequentCalculus {L: Language} (Derivable: context -> expr -> Prop): ProofTheory L :=
   Build_ProofTheory L (fun x => Derivable (Empty_set _) x) Derivable.
+
+Definition Build_SequentCalculus_SC {L: Language} (Derivable: context -> expr -> Prop): NormalSequentCalculus L (Build_SequentCalculus Derivable) :=
+  Build_NormalSequentCalculus L (Build_SequentCalculus Derivable) (fun _ => iff_refl _).
 
