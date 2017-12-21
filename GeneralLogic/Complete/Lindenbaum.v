@@ -146,3 +146,33 @@ Proof.
 Qed.
 
 End Lindenbaum.
+
+Definition Lindenbaum_ensures {A: Type} (CA: Countable A) (P cP: Ensemble A -> Prop): Prop :=
+  forall init, P init -> cP (LindenbaumConstruction CA init P).
+
+Lemma Lindenbaum_ensures_conjunct {A: Type} (CA: Countable A): forall P cP1 cP2: Ensemble A -> Prop,
+  Lindenbaum_ensures CA P cP1 ->
+  Lindenbaum_ensures CA P cP2 ->
+  Lindenbaum_ensures CA P (Intersection _ cP1 cP2).
+Proof.
+  intros.
+  hnf.
+  intros.
+  rewrite Intersection_spec; auto.
+Qed.
+
+Lemma Linderbaum_suffice: forall (A: Type) (CA: Countable A) (init: Ensemble A) (P cP: Ensemble A -> Prop),
+  finite_captured P ->
+  subset_preserved P ->
+  Proper (Same_set A ==> iff) P ->
+  Lindenbaum_ensures CA P cP ->
+  P init ->
+  exists Phi: sig cP, Included _ init (proj1_sig Phi) /\ P (proj1_sig Phi).
+Proof.
+  intros.
+  pose proof Lindenbaum_preserve_omega CA _ _ H3 H1 H H0.
+  pose proof H2 init H3.
+  exists (exist cP (LindenbaumConstruction CA init P) H5).
+  split; auto.
+  apply Lindenbaum_included; auto.
+Qed.

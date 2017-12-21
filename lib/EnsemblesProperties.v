@@ -18,11 +18,11 @@ Definition subset_preserved (P: Ensemble A -> Prop): Prop :=
   forall (Phi Psi: Ensemble A),
     Included _ Phi Psi -> P Psi -> P Phi.
 
-Definition super_preserved (P: Ensemble A -> Prop): Prop :=
+Definition superset_preserved (P: Ensemble A -> Prop): Prop :=
   forall (Phi Psi: Ensemble A),
     Included _ Phi Psi -> P Phi -> P Psi.
 
-Lemma not_finite_witnessed_finite_capture: forall P,
+Lemma not_finite_witnessed_finite_captured: forall P,
   finite_witnessed P ->
   finite_captured (fun X => ~ P X).
 Proof.
@@ -31,6 +31,15 @@ Proof.
   intros.
   intro.
   specialize (H Phi H1).
+  firstorder.
+Qed.
+
+Lemma not_superset_preserved_subset_preserved: forall P,
+  superset_preserved P ->
+  subset_preserved (fun X => ~ P X).
+Proof.
+  intros.
+  hnf in H |- *.
   firstorder.
 Qed.
 

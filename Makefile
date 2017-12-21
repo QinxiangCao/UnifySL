@@ -29,7 +29,8 @@ GeneralLogic_Semantics_FILES = \
   Kripke.v
 
 GeneralLogic_Complete_FILES = \
-  ContextProperty_Trivial.v ContextProperty_Kripke.v ContextProperty.v Canonical_Kripke.v
+  ContextProperty_Trivial.v ContextProperty_Kripke.v ContextProperty.v \
+  Canonical_Kripke.v Lindenbaum.v
 
 GeneralLogic_ShallowEmbedded_FILES = \
   PredicateAsLang.v MonoPredicateAsLang.v
@@ -50,7 +51,7 @@ MinimunLogic_Semantics_FILES = \
   Kripke.v Trivial.v
 
 MinimunLogic_Complete_FILES = \
-  Lindenbaum_Kripke.v Truth_Kripke.v
+  ContextProperty_Kripke.v Lindenbaum_Kripke.v Truth_Kripke.v
 
 MinimunLogic_FILES = \
   Syntax.v \

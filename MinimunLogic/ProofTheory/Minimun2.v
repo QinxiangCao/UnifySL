@@ -337,37 +337,8 @@ Context {L: Language}
         {Gamma: ProofTheory L}
         {bSC: BasicSequentCalculus L Gamma}.
 
-Lemma deduction_weaken1: forall Phi x y,
-  Phi |-- y ->
-  Union _ Phi (Singleton _ x) |-- y.
-Proof.
-  intros.
-  eapply deduction_weaken; eauto.
-  intros ? ?; left; auto.
-Qed.
-
-Lemma deduction_weaken0 {SC: NormalSequentCalculus L Gamma}: forall Phi y,
-  |-- y ->
-  Phi |-- y.
-Proof.
-  intros.
-  rewrite provable_derivable in H.
-  eapply deduction_weaken; eauto.
-  intros ? [].
-Qed.
-
-Lemma derivable_assum1: forall (Phi: context) (x: expr), Union _ Phi (Singleton _ x) |-- x.
-Proof.
-  intros.
-  apply derivable_assum.
-  right; constructor.
-Qed.
-
 Context {minL: MinimunLanguage L}
         {minSC: MinimunSequentCalculus L Gamma}.
-
-Ltac solve_assum :=
-  (first [apply derivable_assum1 | assumption | apply deduction_weaken1; solve_assum] || fail 1000 "Cannot find the conclusion in assumption").
 
 Lemma deduction_impp_elim: forall Phi x y,
   Phi |-- impp x y ->
@@ -454,9 +425,6 @@ Proof.
 Qed.
 
 End DerivableRulesFromSequentCalculus.
-
-Ltac solve_assum :=
-  (first [apply derivable_assum1 | assumption | apply deduction_weaken1; solve_assum] || fail 1000 "Cannot find the conclusion in assumption").
 
 Section SequentCalculus2Axiomatization.
 
