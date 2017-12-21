@@ -18,6 +18,8 @@ Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 
+(* TODO: delete this file. *)
+
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Local Open Scope kripke_model.

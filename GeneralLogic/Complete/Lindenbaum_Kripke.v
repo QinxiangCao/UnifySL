@@ -12,6 +12,7 @@ Require Import Logic.lib.EnsemblesProperties.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.GeneralLogic.Complete.Lindenbaum.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 
 Local Open Scope logic_base.
@@ -21,6 +22,22 @@ Section Lindenbaum.
 Context {L: Language}
         {Gamma: ProofTheory L}
         {bSC: BasicSequentCalculus L Gamma}.
+
+Lemma Linderbaum_suffice: forall (P cP: context -> Prop),
+  Countable expr ->
+  finite_captured P ->
+  subset_preserved P ->
+  Lindenbaum_ensures P cP ->
+  Lindenbaum_constructable P cP.
+Proof.
+  intros.
+  hnf; intros.
+  pose proof Lindenbaum_preserve_omega X _ _ H2 H H0.
+  pose proof H1 X Phi H2.
+  exists (exist cP (LindenbaumConstruction X Phi P) H4).
+  split; auto.
+  apply Lindenbaum_included; auto.
+Qed.
 
 Lemma Lindenbaum_for_derivable_closed: forall P,
   finite_captured P ->

@@ -8,6 +8,7 @@ Local Open Scope kripke_model.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
+(* TODO: This should be reformulated. Add a typeclass called kiMD: KripkeIntuitionisticModel, so that on every model, a preorder relation is defined. *)
 Class KripkeIntuitionisticSemantics (L: Language) (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
   denote_closed: forall x, upwards_closed_Kdenote (Kdenotation M x)
 }.

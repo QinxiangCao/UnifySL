@@ -160,18 +160,3 @@ Proof.
   rewrite Intersection_spec; auto.
 Qed.
 
-Lemma Linderbaum_suffice: forall (A: Type) (init: Ensemble A) (P cP: Ensemble A -> Prop),
-  Countable A ->
-  finite_captured P ->
-  subset_preserved P ->
-  Lindenbaum_ensures P cP ->
-  P init ->
-  exists Phi: sig cP, Included _ init (proj1_sig Phi) /\ P (proj1_sig Phi).
-Proof.
-  intros.
-  pose proof Lindenbaum_preserve_omega X _ _ H2 H H0.
-  pose proof H1 X init H2.
-  exists (exist cP (LindenbaumConstruction X init P) H4).
-  split; auto.
-  apply Lindenbaum_included; auto.
-Qed.

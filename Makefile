@@ -30,7 +30,7 @@ GeneralLogic_Semantics_FILES = \
 
 GeneralLogic_Complete_FILES = \
   ContextProperty_Trivial.v ContextProperty_Kripke.v ContextProperty.v \
-  Canonical_Kripke.v Lindenbaum.v
+  Canonical_Kripke.v Lindenbaum.v Complete_Kripke.v 
 
 GeneralLogic_ShallowEmbedded_FILES = \
   PredicateAsLang.v MonoPredicateAsLang.v
@@ -53,11 +53,18 @@ MinimunLogic_Semantics_FILES = \
 MinimunLogic_Complete_FILES = \
   ContextProperty_Kripke.v Lindenbaum_Kripke.v Truth_Kripke.v
 
+MinimunLogic_ShallowEmbedded_FILES = \
+
+MinimunLogic_DeepEmbedded_FILES = \
+  MinimunLanguage.v KripkeSemantics.v MinimunLogic.v \
+  Complete_Kripke.v
+
 MinimunLogic_FILES = \
   Syntax.v \
   $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(MinimunLogic_Semantics_FILES:%.v=Semantics/%.v) \
-  $(MinimunLogic_Complete_FILES:%.v=Complete/%.v)
+  $(MinimunLogic_Complete_FILES:%.v=Complete/%.v) \
+  $(MinimunLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v)
 
 PropositionalLogic_ProofTheory_FILES = \
   Intuitionistic.v DeMorgan.v \

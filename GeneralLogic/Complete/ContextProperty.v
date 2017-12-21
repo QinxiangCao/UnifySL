@@ -14,7 +14,7 @@ Definition at_least (P cP: context -> Prop): Prop :=
 Definition maximal (P: context -> Prop): context -> Prop :=
   fun Phi => P Phi /\ forall Psi, P Psi -> Included _ Phi Psi -> Included _ Psi Phi.
 
-Definition Linderbaum_constructable (P cP: context -> Prop): Prop :=
+Definition Lindenbaum_constructable (P cP: context -> Prop): Prop :=
   forall Phi, P Phi -> exists Psi: sig cP, Included _ Phi (proj1_sig Psi) /\ P (proj1_sig Psi).
 
 Lemma sig_context_ext: forall (cP: context -> Prop) (Phi Psi: sig cP),

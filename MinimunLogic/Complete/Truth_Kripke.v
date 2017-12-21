@@ -4,15 +4,14 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.HenkinCompleteness.
-Require Import Logic.GeneralLogic.KripkeModel.
-Require Import Logic.GeneralLogic.Complete.ContextProperty.
-Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -41,7 +40,7 @@ Hypothesis H_R: forall m n Phi Psi, rel m Phi -> rel n Psi -> (m <= n <-> Includ
 
 Lemma truth_lemma_impp
       (DER: at_least derivable_closed cP)
-      (LIN_DER: forall x, Linderbaum_constructable (cannot_derive x) cP)
+      (LIN_DER: forall x, Lindenbaum_constructable (cannot_derive x) cP)
       (x y: expr)
       (IHx: forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x))
       (IHy: forall m Phi, rel m Phi -> (KRIPKE: M, m |= y <-> proj1_sig Phi y)):
