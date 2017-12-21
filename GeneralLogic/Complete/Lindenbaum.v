@@ -16,10 +16,6 @@ Context {A: Type}
         (init: Ensemble A)
         (P: Ensemble A -> Prop).
 
-Hypothesis H_init: P init.
-
-Hypothesis P_Proper: Proper (Same_set A ==> iff) P.
-
 Fixpoint LindenbaumChain (n: nat): Ensemble A :=
   match n with
   | 0 => init
@@ -96,10 +92,13 @@ Proof.
       apply Max.le_max_l.
 Qed.
 
+Hypothesis H_init: P init.
+
 Lemma Lindenbaum_preserve_n:
+  Proper (Same_set A ==> iff) P ->
   forall n, P (LindenbaumChain n).
 Proof.
-  intros.
+  intros P_Proper n.
   induction n; auto.
   simpl.
   destruct (classic (exists a, CA a n /\ P (Union A (LindenbaumChain n) (Singleton A a)))).
@@ -142,18 +141,18 @@ Proof.
   destruct H1 as [n ?].
   rewrite Forall_forall in H1.
   eapply H0; [exact H1 |].
-  apply Lindenbaum_preserve_n.
+  apply Lindenbaum_preserve_n, subset_preserved_same_set_preserved; auto.
 Qed.
 
 End Lindenbaum.
 
-Definition Lindenbaum_ensures {A: Type} (CA: Countable A) (P cP: Ensemble A -> Prop): Prop :=
-  forall init, P init -> cP (LindenbaumConstruction CA init P).
+Definition Lindenbaum_ensures {A: Type} (P cP: Ensemble A -> Prop): Prop :=
+  forall (CA: Countable A) init, P init -> cP (LindenbaumConstruction CA init P).
 
-Lemma Lindenbaum_ensures_conjunct {A: Type} (CA: Countable A): forall P cP1 cP2: Ensemble A -> Prop,
-  Lindenbaum_ensures CA P cP1 ->
-  Lindenbaum_ensures CA P cP2 ->
-  Lindenbaum_ensures CA P (Intersection _ cP1 cP2).
+Lemma Lindenbaum_ensures_conjunct {A: Type}: forall P cP1 cP2: Ensemble A -> Prop,
+  Lindenbaum_ensures P cP1 ->
+  Lindenbaum_ensures P cP2 ->
+  Lindenbaum_ensures P (Intersection _ cP1 cP2).
 Proof.
   intros.
   hnf.
@@ -161,18 +160,18 @@ Proof.
   rewrite Intersection_spec; auto.
 Qed.
 
-Lemma Linderbaum_suffice: forall (A: Type) (CA: Countable A) (init: Ensemble A) (P cP: Ensemble A -> Prop),
+Lemma Linderbaum_suffice: forall (A: Type) (init: Ensemble A) (P cP: Ensemble A -> Prop),
+  Countable A ->
   finite_captured P ->
   subset_preserved P ->
-  Proper (Same_set A ==> iff) P ->
-  Lindenbaum_ensures CA P cP ->
+  Lindenbaum_ensures P cP ->
   P init ->
   exists Phi: sig cP, Included _ init (proj1_sig Phi) /\ P (proj1_sig Phi).
 Proof.
   intros.
-  pose proof Lindenbaum_preserve_omega CA _ _ H3 H1 H H0.
-  pose proof H2 init H3.
-  exists (exist cP (LindenbaumConstruction CA init P) H5).
+  pose proof Lindenbaum_preserve_omega X _ _ H2 H H0.
+  pose proof H1 X init H2.
+  exists (exist cP (LindenbaumConstruction X init P) H4).
   split; auto.
   apply Lindenbaum_included; auto.
 Qed.

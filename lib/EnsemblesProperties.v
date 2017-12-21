@@ -1,5 +1,7 @@
 Require Import Coq.Sets.Ensembles.
+Require Import Coq.Classes.Morphisms.
 Require Import Coq.Lists.List.
+Require Import Logic.lib.Ensembles_ext.
 
 Section Properties.
 
@@ -41,6 +43,38 @@ Proof.
   intros.
   hnf in H |- *.
   firstorder.
+Qed.
+
+Lemma superset_preserved_same_set_preserved: forall P,
+  superset_preserved P ->
+  Proper (Same_set _ ==> iff) P.
+Proof.
+  intros.
+  hnf; intros.
+  rewrite Same_set_spec in H0.
+  split; apply H.
+  + unfold Included, Ensembles.In.
+    hnf in H0.
+    firstorder.
+  + unfold Included, Ensembles.In.
+    hnf in H0.
+    firstorder.
+Qed.
+
+Lemma subset_preserved_same_set_preserved: forall P,
+  subset_preserved P ->
+  Proper (Same_set _ ==> iff) P.
+Proof.
+  intros.
+  hnf; intros.
+  rewrite Same_set_spec in H0.
+  split; apply H.
+  + unfold Included, Ensembles.In.
+    hnf in H0.
+    firstorder.
+  + unfold Included, Ensembles.In.
+    hnf in H0.
+    firstorder.
 Qed.
 
 End Properties.
