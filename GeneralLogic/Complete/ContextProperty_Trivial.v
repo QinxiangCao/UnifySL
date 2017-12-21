@@ -1,13 +1,11 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.ContextProperty.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun1.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 
 Local Open Scope logic_base.
-Local Open Scope syntax.
 
 Section ContextProperty.
 

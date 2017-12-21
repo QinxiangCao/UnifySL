@@ -2,6 +2,7 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -40,17 +41,6 @@ Next Obligation.
 Defined.
 
 End SemanticsMono.
-
-Class KripkeIntuitionisticSemantics (L: Language) (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
-  denote_closed: forall x, upwards_closed_Kdenote (Kdenotation M x)
-}.
-
-Lemma sat_mono {L: Language} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}: forall m n x, m <= n -> KRIPKE: M , m |= x -> KRIPKE: M , n |= x.
-Proof.
-  intros ? ? ? ?.
-  unfold satisfies.
-  apply (denote_closed x); auto.
-Qed.
 
 Class KripkeMinimunSemantics (L: Language) {minL: MinimunLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
   denote_impp: forall x y, Same_set _ (Kdenotation M (x --> y)) (Semantics.impp (Kdenotation M x) (Kdenotation M y))

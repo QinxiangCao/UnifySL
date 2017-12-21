@@ -16,29 +16,41 @@ DEP_DEMO = -R $(CURRENT_DIR) Logic
 DEP_FLAG = $(DEP_DEMO) 
 
 lib_FILES = \
-  Coqlib.v Ensembles_ext.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
+  Coqlib.v Ensembles_ext.v EnsemblesProperties.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
   Bijection.v Countable.v NatChoice.v StrongInduction.v \
   Bisimulation.v RelationPairs_ext.v \
   SublistT.v \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
+
+GeneralLogic_ProofTheory_FILES = \
+  BasicSequentCalculus.v
+
+GeneralLogic_Semantics_FILES = \
+  Kripke.v
+
+GeneralLogic_Complete_FILES = \
+  ContextProperty_Trivial.v ContextProperty_Kripke.v ContextProperty.v Canonical_Kripke.v
 
 GeneralLogic_ShallowEmbedded_FILES = \
   PredicateAsLang.v MonoPredicateAsLang.v
 
 GeneralLogic_FILES = \
   Base.v HenkinCompleteness.v \
-  KripkeModel.v ContextProperty.v \
-  $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) 
+  KripkeModel.v \
+  $(GeneralLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(GeneralLogic_Semantics_FILES:%.v=Semantics/%.v) \
+  $(GeneralLogic_Complete_FILES:%.v=Complete/%.v) \
+  $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 MinimunLogic_ProofTheory_FILES = \
-  Minimun1.v Minimun2.v Minimun.v Adjoint.v AdjointLemmas.v \
+  Minimun2.v Minimun.v Adjoint.v AdjointLemmas.v \
   RewriteClass.v TheoryOfSequentCalculus.v
 
 MinimunLogic_Semantics_FILES = \
   Kripke.v Trivial.v
 
 MinimunLogic_Complete_FILES = \
-  ContextProperty_Kripke.v ContextProperty_Trivial.v
+  Lindenbaum_Kripke.v Truth_Kripke.v
 
 MinimunLogic_FILES = \
   Syntax.v \

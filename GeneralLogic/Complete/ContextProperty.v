@@ -4,19 +4,20 @@ Require Import Logic.GeneralLogic.Base.
 
 Local Open Scope logic_base.
 
-Definition at_least {L: Language} (P cP: context -> Prop): Prop :=
+Section ContextProperty.
+
+Context {L: Language}.
+
+Definition at_least (P cP: context -> Prop): Prop :=
   forall (Phi: context), cP Phi -> P Phi.
 
-Definition maximal {L: Language} (P: context -> Prop): context -> Prop :=
+Definition maximal (P: context -> Prop): context -> Prop :=
   fun Phi => P Phi /\ forall Psi, P Psi -> Included _ Phi Psi -> Included _ Psi Phi.
 
-Definition Linderbaum_constructable
-           {L: Language}
-           {Gamma: ProofTheory L}
-           (P cP: context -> Prop): Prop :=
+Definition Linderbaum_constructable (P cP: context -> Prop): Prop :=
   forall Phi, P Phi -> exists Psi: sig cP, Included _ Phi (proj1_sig Psi) /\ P (proj1_sig Psi).
-  
-Lemma sig_context_ext: forall {L: Language} (cP: context -> Prop) (Phi Psi: sig cP),
+
+Lemma sig_context_ext: forall (cP: context -> Prop) (Phi Psi: sig cP),
   (forall x, proj1_sig Phi x <-> proj1_sig Psi x) -> Phi = Psi.
 Proof.
   intros.
@@ -27,4 +28,8 @@ Proof.
   subst.
   auto.
 Qed.
+
+End ContextProperty.
+
+
 

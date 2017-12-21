@@ -1,11 +1,13 @@
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun1.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.ProofTheory.TheoryOfSequentCalculus.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
+
+(* TODO: Change this file name to minimun. *)
 
 Definition multi_imp {L: Language} {minL: MinimunLanguage L} (xs: list expr) (y: expr): expr :=
   fold_right impp y xs.

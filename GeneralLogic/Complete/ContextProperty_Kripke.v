@@ -1,6 +1,5 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun1.
-
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Local Open Scope logic_base.
 
 Definition derivable_closed {L: Language} {Gamma: ProofTheory L}: context -> Prop :=

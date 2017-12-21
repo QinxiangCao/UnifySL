@@ -3,10 +3,10 @@ Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.List_Func_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Adjoint.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun1.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimunLogic.ProofTheory.Adjoint.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
