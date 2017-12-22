@@ -146,10 +146,41 @@ Qed.
 
 End Lindenbaum.
 
+Definition Lindenbaum_preserves {A: Type} (P: Ensemble A -> Prop): Prop :=
+  forall (CA: Countable A) init, P init -> P (LindenbaumConstruction CA init P).
+
 Definition Lindenbaum_ensures {A: Type} (P cP: Ensemble A -> Prop): Prop :=
   forall (CA: Countable A) init, P init -> cP (LindenbaumConstruction CA init P).
 
-Lemma Lindenbaum_ensures_conjunct {A: Type}: forall P cP1 cP2: Ensemble A -> Prop,
+Definition Lindenbaum_constructable {A: Type} (P cP: Ensemble A -> Prop): Prop :=
+  forall Phi, P Phi -> exists Psi: sig cP, Included _ Phi (proj1_sig Psi) /\ P (proj1_sig Psi).
+
+Lemma Lindenbaum_constructable_suffice {A: Type} (P cP: Ensemble A -> Prop):
+  Countable A ->
+  Lindenbaum_preserves P ->
+  Lindenbaum_ensures P cP ->
+  Lindenbaum_constructable P cP.
+Proof.
+  intros.
+  hnf; intros.
+  specialize (H X _ H1).
+  specialize (H0 X _ H1).
+  exists (exist _ _ H0).
+  split; auto.
+  apply Lindenbaum_included.
+Qed.
+
+Lemma Lindenbaum_preserves_by_finiteness {A: Type}: forall P: Ensemble A -> Prop,
+  finite_captured P ->
+  subset_preserved P ->
+  Lindenbaum_preserves P.
+Proof.
+  intros.
+  hnf; intros.
+  apply Lindenbaum_preserve_omega; auto.
+Qed.
+
+Lemma Lindenbaum_ensures_by_conjunct {A: Type}: forall P cP1 cP2: Ensemble A -> Prop,
   Lindenbaum_ensures P cP1 ->
   Lindenbaum_ensures P cP2 ->
   Lindenbaum_ensures P (Intersection _ cP1 cP2).

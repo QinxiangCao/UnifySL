@@ -73,7 +73,7 @@ Proof.
   + apply H.
 Qed.
 
-Instance kpSM (M: Kmodel): KripkeMinimunSemantics L MD M SM.
+Instance kminSM (M: Kmodel): KripkeMinimunSemantics L MD M SM.
 Proof.
   apply Build_KripkeMinimunSemantics.
   intros; apply Same_set_refl.

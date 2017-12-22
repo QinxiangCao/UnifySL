@@ -23,12 +23,18 @@ Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
 
 Instance AX: NormalAxiomatization L G := Build_AxiomaticProofTheory_AX provable.
 
-Instance minAx: MinimunAxiomatization L G.
+Instance minAX: MinimunAxiomatization L G.
 Proof.
   constructor.
   + apply modus_ponens.
   + apply axiom1.
   + apply axiom2.
 Qed.
+
+Instance SC: NormalSequentCalculus L G := Axiomatization2SequentCalculus_SC.
+
+Instance bSC: BasicSequentCalculus L G := Axiomatization2SequentCalculus_bSC.
+
+Instance minSC: MinimunSequentCalculus L G := Axiomatization2SequentCalculus_minSC.
 
 End MinimunLogic.

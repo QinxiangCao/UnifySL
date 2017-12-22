@@ -23,35 +23,17 @@ Context {L: Language}
         {Gamma: ProofTheory L}
         {bSC: BasicSequentCalculus L Gamma}.
 
-Lemma Linderbaum_suffice: forall (P cP: context -> Prop),
-  Countable expr ->
-  finite_captured P ->
-  subset_preserved P ->
-  Lindenbaum_ensures P cP ->
-  Lindenbaum_constructable P cP.
-Proof.
-  intros.
-  hnf; intros.
-  pose proof Lindenbaum_preserve_omega X _ _ H2 H H0.
-  pose proof H1 X Phi H2.
-  exists (exist cP (LindenbaumConstruction X Phi P) H4).
-  split; auto.
-  apply Lindenbaum_included; auto.
-Qed.
-
 Lemma Lindenbaum_for_derivable_closed: forall P,
-  finite_captured P ->
-  subset_preserved P ->
+  Lindenbaum_preserves P ->
   derivable_subset_preserved P ->
   Lindenbaum_ensures P derivable_closed.
 Proof.
-  intros; hnf; intros.
-  pose proof Lindenbaum_preserve_omega CA _ _ H2 H H0.
-  hnf; intros.
+  intros; hnf; intros; hnf; intros.
+  pose proof H CA _ H1.
   destruct (im_inj _ _ CA x) as [n ?].
   rewrite <- Lindenbaum_pointwise_finite_decided by eauto.
   simpl; right; split; auto.
-  eapply H1; [| exact H3].
+  eapply H0; [| exact H3].
   unfold Included, Ensembles.In; intros.
   eapply deduction_subst; eauto.
   eapply deduction_weaken; eauto.

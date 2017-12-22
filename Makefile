@@ -30,7 +30,9 @@ GeneralLogic_Semantics_FILES = \
 
 GeneralLogic_Complete_FILES = \
   ContextProperty_Trivial.v ContextProperty_Kripke.v ContextProperty.v \
-  Canonical_Kripke.v Lindenbaum.v Complete_Kripke.v 
+  Canonical_Kripke.v \
+  Lindenbaum.v Lindenbaum_Kripke.v \
+  Complete_Kripke.v 
 
 GeneralLogic_ShallowEmbedded_FILES = \
   PredicateAsLang.v MonoPredicateAsLang.v
