@@ -2,9 +2,9 @@
 (* K. G¨odel. On the intuitionistic propositional calculus. In S. Feferman, J. W. D. Jr, S. C. Kleene, G. H. Moore, R. M. Solovay, and J. van Heijenoort, editors, Collected Works, volume 1. Oxford University Press, 1986. *)
 
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
@@ -14,11 +14,24 @@ Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
-Class GodelDummettPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
+Class GodelDummettPropositionalLogic (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   impp_choice: forall x y, |-- (x --> y) || (y --> x)
 }.
 
-Lemma derivable_impp_choice: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {wpGamma: GodelDummettPropositionalLogic L Gamma} (Phi: context) (x y: expr),
+Section GodelDummett.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {gdpGamma: GodelDummettPropositionalLogic L Gamma}.
+
+Lemma derivable_impp_choice: forall (Phi: context) (x y: expr),
   Phi |-- (x --> y) || (y --> x).
 Proof.
   intros.
@@ -26,16 +39,16 @@ Proof.
   apply deduction_weaken0; auto.
 Qed.
 
-Instance GodelDummett2DeMorgan (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {gdpGamma: GodelDummettPropositionalLogic L Gamma}: DeMorganPropositionalLogic L Gamma.
+Instance GodelDummett2DeMorgan: DeMorganPropositionalLogic L Gamma.
 Proof.
   constructor.
   intros.
   rewrite provable_derivable.
   set (Phi := empty_context).
   clearbody Phi.
- 
+
   pose proof derivable_impp_choice Phi x (~~ x).
-  
+
   assert (Phi |-- (x --> ~~ x) --> (x --> FF)).
   Focus 1. {
     rewrite <- deduction_theorem.
@@ -68,3 +81,5 @@ Proof.
   pose proof deduction_modus_ponens _ _ _ H H2.
   auto.
 Qed.
+
+End GodelDummett.

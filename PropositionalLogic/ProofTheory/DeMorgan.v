@@ -1,7 +1,7 @@
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
@@ -10,11 +10,24 @@ Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
-Class DeMorganPropositionalLogic (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
+Class DeMorganPropositionalLogic (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   weak_excluded_middle: forall x, |-- ~~ x || ~~ ~~ x
 }.
 
-Lemma derivable_weak_excluded_middle: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {dmpGamma: DeMorganPropositionalLogic L Gamma} (Phi: context) (x: expr),
+Section DeMorgan.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {dmpGamma: DeMorganPropositionalLogic L Gamma}.
+
+Lemma derivable_weak_excluded_middle: forall (Phi: context) (x: expr),
   Phi |-- ~~ x || ~~ ~~ x.
 Proof.
   intros.
@@ -22,7 +35,7 @@ Proof.
   apply deduction_weaken0; auto.
 Qed.
 
-Lemma demorgan_negp_andp: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {dmpGamma: DeMorganPropositionalLogic L Gamma} (x y: expr),
+Lemma demorgan_negp_andp: forall (x y: expr),
   |-- ~~ (x && y) <--> (~~ x || ~~ y).
 Proof.
   intros.
@@ -45,3 +58,4 @@ Proof.
     - apply deduction_weaken1; apply derivable_assum1.
 Qed.
 
+End DeMorgan.
