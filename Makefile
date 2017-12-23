@@ -50,7 +50,10 @@ MinimunLogic_ProofTheory_FILES = \
   RewriteClass.v TheoryOfSequentCalculus.v
 
 MinimunLogic_Semantics_FILES = \
-  Kripke.v Trivial.v
+  Kripke.v Trivial.v SemanticEquiv.v
+
+MinimunLogic_Sound_FILES = \
+  Sound_Kripke.v Sound_Classical_Trivial.v
 
 MinimunLogic_Complete_FILES = \
   ContextProperty_Kripke.v Lindenbaum_Kripke.v Truth_Kripke.v
@@ -65,6 +68,7 @@ MinimunLogic_FILES = \
   Syntax.v \
   $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
   $(MinimunLogic_Semantics_FILES:%.v=Semantics/%.v) \
+  $(MinimunLogic_Sound_FILES:%.v=Sound/%.v) \
   $(MinimunLogic_Complete_FILES:%.v=Complete/%.v) \
   $(MinimunLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v)
 
@@ -74,7 +78,7 @@ PropositionalLogic_ProofTheory_FILES = \
   RewriteClass.v
 
 PropositionalLogic_Semantics_FILES = \
-  Kripke.v Trivial.v SemanticEquiv.v
+  Kripke.v Trivial.v
 
 PropositionalLogic_Sound_FILES = \
   Sound_Kripke.v Sound_Classical_Trivial.v
