@@ -1,7 +1,7 @@
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 
-Class PropositionalLanguage (L: Language) {MinL: MinimunLanguage L}: Type := {
+Class PropositionalLanguage (L: Language): Type := {
   andp : expr -> expr -> expr;
   orp : expr -> expr -> expr;
   falsep: expr

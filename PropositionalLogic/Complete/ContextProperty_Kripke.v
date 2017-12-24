@@ -4,23 +4,38 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.HenkinCompleteness.
-Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
-Definition orp_witnessed {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L}: context -> Prop :=
+Section ContextPropertu.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}.
+
+Definition orp_witnessed: context -> Prop :=
   fun Phi => forall x y, Phi (orp x y) -> Phi x \/ Phi y.
 
-Lemma DCS_andp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
+Context {Gamma: ProofTheory L}
+        {AX: NormalAxiomatization L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+
+Lemma DCS_andp_iff: forall (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).
 Proof.
@@ -35,7 +50,7 @@ Proof.
     auto.
 Qed.
 
-Lemma DCS_orp_iff: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi: context),
+Lemma DCS_orp_iff: forall (Phi: context),
   derivable_closed Phi ->
   orp_witnessed Phi ->
   (forall x y: expr, Phi (x || y) <-> (Phi x \/ Phi y)).
@@ -50,12 +65,15 @@ Proof.
     - pose proof deduction_orp_intros2 Phi x y H; auto.
 Qed.
 
-Lemma derivable_closed_union_derivable: forall {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} (Phi Psi: context) (x: expr),
+Lemma derivable_closed_union_derivable: forall (Phi Psi: context) (x: expr),
   derivable_closed Psi ->
   Union _ Phi Psi |-- x ->
   exists y, Psi y /\ Phi |-- y --> x.
 Proof.
   intros.
+  rewrite derivable_provable in H0.
+  destruct H0 as [xs [? ?]].
+  pose proof provable_multi_imp_split _ _ _ _ H0 H1 as [xs1 [xs2 [? [? ?]]]].
   apply union_derivable in H0.
   destruct H0 as [ys [? ?]].
   revert x H1; induction H0; intros.
@@ -88,7 +106,7 @@ Proof.
       apply deduction_weaken1, derivable_assum1.
 Qed.
 
-Lemma consistent_spec {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}:
+Lemma consistent_spec:
   forall (Phi: context), consistent Phi <-> ~ Phi |-- FF.
 Proof.
   intros.
