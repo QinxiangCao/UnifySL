@@ -465,26 +465,61 @@ Definition Build_SequentCalculus {L: Language} (Derivable: context -> expr -> Pr
 Definition Build_SequentCalculus_SC {L: Language} (Derivable: context -> expr -> Prop): NormalSequentCalculus L (Build_SequentCalculus Derivable) :=
   Build_NormalSequentCalculus L (Build_SequentCalculus Derivable) (fun _ => iff_refl _).
 
+Definition Typeclass_Rewrite (l: list (sig (fun X: Prop => X))): Prop := True.
+
 Definition OpaqueProp (P: Prop): Prop := P.
 
-Lemma MakeSequentCalculus_MinimunAxiomatization: forall {L: Language} {minL: MinimunLanguage L} {Gamma: ProofTheory L} (P: Prop),
-  OpaqueProp
-  (NormalAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma)) ->
-   MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma)) ->
-   NormalSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)) ->
-   BasicSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)) ->
-   MinimunSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)) ->
-   P) <->
-  (Basics.impl (MinimunAxiomatization L Gamma) P).
+Ltac revert_dep_rec T :=
+  match goal with
+  | H: context [T] |- _ =>
+      first [ revert H | revert_dep_rec H]; revert_dep_rec T
+  | _ => idtac
+  end.
+
+Ltac AddSC_revert Gamma :=
+  match goal with
+  | |- ?G => change (OpaqueProp G)
+  end;
+  revert_dep_rec Gamma.
+
+Lemma ready_for_intros: forall G: Prop, OpaqueProp (Typeclass_Rewrite nil -> G) -> OpaqueProp G.
 Proof.
-  unfold OpaqueProp.
+  unfold OpaqueProp, Typeclass_Rewrite.
+  intros; auto.
+Qed.
+
+Ltac AddSC_intros :=
+  match goal with
+  | |- ?G => change (OpaqueProp G); apply ready_for_intros
+  end;
+  repeat
+    match goal with
+    | |-  OpaqueProp (Typeclass_Rewrite _ -> OpaqueProp _) => fail
+    | _ => autorewrite with AddSC; intros
+    end.
+
+Lemma MakeSequentCalculus_MinimunAxiomatization {L: Language} {minL: MinimunLanguage L} {Gamma: ProofTheory L}:
+  forall (P: MinimunAxiomatization L Gamma -> Prop) (l: list (sig (fun X: Prop => X))),
+  (forall
+     (AX: NormalAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma)))
+     (minAX: MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma)))
+     (SC: NormalSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
+     (bSC: BasicSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
+     (minSC: MinimunSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
+     (_____: MinimunAxiomatization L Gamma),
+     OpaqueProp (
+       Typeclass_Rewrite ((exist (fun X: Prop => X) (MinimunAxiomatization L Gamma) _____) :: l) ->
+       P _____)) <->
+  OpaqueProp (Typeclass_Rewrite l -> forall x: MinimunAxiomatization L Gamma, P x).
+Proof.
+  unfold OpaqueProp, Typeclass_Rewrite.
   intros.
   split; intros.
-  + intro.
+  + clear H0.
     assert (NormalAxiomatization L (Build_AxiomaticProofTheory provable))
       by (apply Build_AxiomaticProofTheory_AX).
     assert (MinimunAxiomatization L (Build_AxiomaticProofTheory provable))
-      by (destruct H0; constructor; auto).
+      by (destruct x; constructor; auto).
     assert (NormalSequentCalculus L (Build_AxiomaticProofTheory provable))
       by (apply Axiomatization2SequentCalculus_SC).
     assert (BasicSequentCalculus L (Build_AxiomaticProofTheory provable))
@@ -492,37 +527,39 @@ Proof.
     assert (MinimunSequentCalculus L (Build_AxiomaticProofTheory provable))
       by (apply Axiomatization2SequentCalculus_minSC).
     apply H; auto.
-  + apply H.
-    destruct H1; constructor; auto.
+  + apply H; auto.
 Qed.
 
 Hint Rewrite <- @MakeSequentCalculus_MinimunAxiomatization: AddSC.
 
-Ltac addSC_revert_dep T :=
+Lemma finish_clear: forall (G: Prop) (l: list (sig (fun X: Prop => X))), G -> OpaqueProp (Typeclass_Rewrite l -> OpaqueProp G).
+Proof.
+  unfold OpaqueProp, Typeclass_Rewrite.
+  intros; auto.
+Qed.
+
+Ltac clear_rec L :=
+  match L with
+  | nil => idtac
+  | exist _ _ ?H :: ?L' => clear H; clear_rec L'
+  end.
+
+Ltac AddSC_clear :=
   match goal with
-  | H: context [T] |- ?G =>
-      match type of H with
-      | ?HH =>
-          first [ revert H; change (Basics.impl HH G);
-                  (progress autorewrite with AddSC || fail 1000)
-                | addSC_revert_dep H];
-          addSC_revert_dep T;
-          unfold OpaqueProp at 1;
-          intros
-      end
-  | _ => idtac
+  | |- OpaqueProp (Typeclass_Rewrite ?L -> _) => apply finish_clear; clear_rec L
   end.
 
 Ltac AddSequentCalculus Gamma :=
-  addSC_revert_dep Gamma;
-  let Gamma' := fresh "Gamma" in
+  AddSC_revert Gamma;
+  AddSC_intros;
+  AddSC_clear;
   change (@provable _ Gamma) with (@provable _ (Build_AxiomaticProofTheory provable));
   set (Gamma' := (Build_AxiomaticProofTheory provable)) in *;
   clearbody Gamma';
   clear Gamma;
   rename Gamma' into Gamma.
 
-Section DerivableRulesFromAxiomatization'.
+Section Test.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
@@ -532,9 +569,10 @@ Context {L: Language}
 Lemma provable_impp_refl': forall (x: expr), |-- x --> x.
 Proof.
   AddSequentCalculus Gamma.
+  intros.
   rewrite provable_derivable.
   rewrite <- deduction_theorem.
   solve_assum.
 Abort.
 
-End DerivableRulesFromAxiomatization'.
+End Test.
