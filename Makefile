@@ -46,7 +46,7 @@ GeneralLogic_FILES = \
   $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 MinimunLogic_ProofTheory_FILES = \
-  Minimun2.v Minimun.v Adjoint.v AdjointLemmas.v \
+  Minimun2.v Minimun.v ProofTheoryPatterns.v \
   RewriteClass.v TheoryOfSequentCalculus.v
 
 MinimunLogic_Semantics_FILES = \

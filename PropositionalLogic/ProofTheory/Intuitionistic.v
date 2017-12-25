@@ -3,7 +3,7 @@ Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.Adjoint.
+Require Import Logic.MinimunLogic.ProofTheory.ProofTheoryPatterns.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -31,13 +31,12 @@ Class IntuitionisticPropositionalSequentCalculus (L: Language) {pL: Propositiona
   deduction_falsep_elim: forall Phi x, Phi |-- FF -> Phi |-- x
 }.
 
-Section DerivableRulesFromSequentCalculus.
+Section DerivableRulesFromSequentCalculus1.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
@@ -161,31 +160,64 @@ Proof.
   apply deduction_andp_intros; apply derivable_impp_refl.
 Qed.
 
-Existing Instance SequentCalculus2Axiomatization_minAX.
+End DerivableRulesFromSequentCalculus1.
 
-Lemma deduction_contrapositivePP: forall Phi (x y: expr),
-  Phi |-- y --> x ->
-  Phi |-- ~~ x --> ~~ y.
+Section SequentCalculus2Axiomatization.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}.
+
+Lemma SequentCalculus2Axiomatization_ipGamma: IntuitionisticPropositionalLogic L Gamma.
 Proof.
-  intros.
-  eapply deduction_modus_ponens; eauto.
-  apply deduction_weaken0.
-  apply contrapositivePP.
+  constructor; intros; rewrite provable_derivable.
+  + apply derivable_andp_intros.
+  + apply derivable_andp_elim1.
+  + apply derivable_andp_elim2.
+  + apply derivable_orp_intros1.
+  + apply derivable_orp_intros2.
+  + apply derivable_orp_elim.
+  + apply derivable_falsep_elim.
 Qed.
 
-Lemma deduction_contrapositivePN: forall Phi (x y: expr),
-  Phi |-- y --> ~~ x ->
-  Phi |-- x --> ~~ y.
+End SequentCalculus2Axiomatization.
+
+Lemma MakeAxiomatization_IntuitionisticPropositionalSequentCalculus {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {bSC: BasicSequentCalculus L Gamma} {minSC: MinimunSequentCalculus L Gamma} {minAX': MinimunAxiomatization L (Build_SequentCalculus (@derivable L Gamma))} (ipSC: IntuitionisticPropositionalSequentCalculus L Gamma):
+  Typeclass_Rewrite ((exist (fun X: Prop => X) (MinimunAxiomatization L (Build_SequentCalculus (@derivable L Gamma))) minAX') :: nil) ->
+  forall (G: Prop) (l: list (sig (fun X: Prop => X))),
+  (forall
+     (ipSC: IntuitionisticPropositionalSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
+     (ipGamma: IntuitionisticPropositionalLogic L (Build_SequentCalculus (@derivable L Gamma))),
+     OpaqueProp (Typeclass_Rewrite l -> G)) <->
+  OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (IntuitionisticPropositionalSequentCalculus L Gamma) ipSC) :: l) -> G).
 Proof.
+  unfold OpaqueProp.
+  intros _.
   intros.
-  eapply deduction_modus_ponens; eauto.
-  apply deduction_weaken0.
-  apply contrapositivePN.
+  split; intros.
+  + clear H0.
+    pose proof Build_SequentCalculus_SC (@derivable L Gamma).
+    assert (BasicSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
+      by (destruct bSC; constructor; auto).
+    assert (MinimunSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
+      by (destruct minSC; constructor; auto).
+    assert (IntuitionisticPropositionalSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
+      by (destruct ipSC; constructor; auto).
+    assert (IntuitionisticPropositionalLogic L (Build_SequentCalculus (@derivable L Gamma)))
+      by (apply SequentCalculus2Axiomatization_ipGamma).
+    apply H; auto.
+    apply Typeclass_Rewrite_I.
+  + apply H; auto.
+    apply Typeclass_Rewrite_I.
 Qed.
 
-
-End DerivableRulesFromSequentCalculus.
-
+Hint Rewrite <- @MakeAxiomatization_IntuitionisticPropositionalSequentCalculus using first [typeclasses eauto | instantiate (1 := _); apply Typeclass_Rewrite_I]: AddAX.
 
 Section Axiomatization2SequentCalculus.
 
@@ -223,34 +255,33 @@ Qed.
 
 Check derivable_modus_ponens.
 
-Lemma MakeSequentCalculus_IntuitionisticPropositionalLogic {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {minAX: MinimunAxiomatization L Gamma} (minAX': MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma))):
+Lemma MakeSequentCalculus_IntuitionisticPropositionalLogic {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {minAX: MinimunAxiomatization L Gamma} (minAX': MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma))) (ipGamma: IntuitionisticPropositionalLogic L Gamma):
   Typeclass_Rewrite ((exist (fun X: Prop => X) (MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma))) minAX') :: nil) ->
-  forall (P: IntuitionisticPropositionalLogic L Gamma -> Prop) (l: list (sig (fun X: Prop => X))),
+  forall (G: Prop) (l: list (sig (fun X: Prop => X))),
   (forall
      (ipSC: IntuitionisticPropositionalSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
-     (ipGamma: IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma)))
-     (_____: IntuitionisticPropositionalLogic L Gamma),
-     OpaqueProp (
-       Typeclass_Rewrite ((exist (fun X: Prop => X) (IntuitionisticPropositionalLogic L Gamma) _____) :: l) ->
-       P _____)) <->
-  OpaqueProp (Typeclass_Rewrite l -> forall x: IntuitionisticPropositionalLogic L Gamma, P x).
+     (ipGamma: IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))),
+     OpaqueProp (Typeclass_Rewrite l -> G)) <->
+  OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (IntuitionisticPropositionalLogic L Gamma) ipGamma) :: l) -> G).
 Proof.
-  unfold OpaqueProp, Typeclass_Rewrite.
+  unfold OpaqueProp.
   intros _.
   intros.
   split; intros.
   + clear H0.
     pose proof Build_AxiomaticProofTheory_AX (@provable L Gamma).
     assert (IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma)))
-      by (destruct x; constructor; auto).
+      by (destruct ipGamma; constructor; auto).
     apply H; auto.
     apply Axiomatization2SequentCalculus_ipSC.
+    apply Typeclass_Rewrite_I.
   + apply H; auto.
+    apply Typeclass_Rewrite_I.
 Qed.
 
-Hint Rewrite <- @MakeSequentCalculus_IntuitionisticPropositionalLogic using (instantiate (1 := _); exact I): AddSC.
-(*
-Section Intuitionistic.
+Hint Rewrite <- @MakeSequentCalculus_IntuitionisticPropositionalLogic using (instantiate (1 := _); apply Typeclass_Rewrite_I): AddSC.
+
+Section DerivableRulesFromAxiomatization1.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
@@ -259,27 +290,10 @@ Context {L: Language}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
-Definition impp_andp_Adjoint: AdjointProofTheory L Gamma andp impp.
-Proof.
-  constructor; AddSequentCalculus Gamma.
-Abort.
-*)
-
-
-Section DerivableRulesAxiomatization_derivable.
-
-Context {L: Language}
-        {minL: MinimunLanguage L}
-        {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}.
-
 Lemma double_negp_intros: forall (x: expr),
   |-- x --> ~~ ~~ x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply derivable_double_negp_intros.
@@ -288,6 +302,7 @@ Qed.
 Lemma provable_iffp_refl: forall (x: expr),
   |-- x <--> x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply derivable_iffp_refl.
@@ -308,9 +323,55 @@ Proof.
   apply provable_impp_arg_switch.
 Qed.
 
+End DerivableRulesFromAxiomatization1.
+
+Section DerivableRulesFromSequentCalculus2.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
+
+Lemma deduction_contrapositivePP: forall Phi (x y: expr),
+  Phi |-- y --> x ->
+  Phi |-- ~~ x --> ~~ y.
+Proof.
+  AddAxiomatization Gamma.
+  intros.
+  eapply deduction_modus_ponens; eauto.
+  apply deduction_weaken0.
+  apply contrapositivePP.
+Qed.
+
+Lemma deduction_contrapositivePN: forall Phi (x y: expr),
+  Phi |-- y --> ~~ x ->
+  Phi |-- x --> ~~ y.
+Proof.
+  AddAxiomatization Gamma.
+  intros.
+  eapply deduction_modus_ponens; eauto.
+  apply deduction_weaken0.
+  apply contrapositivePN.
+Qed.
+
+End DerivableRulesFromSequentCalculus2.
+
+Section DerivableRulesFromAxiomatization2.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+
 Lemma demorgan_orp_negp: forall (x y: expr),
   |-- ~~ x || ~~ y --> ~~ (x && y).
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   unfold negp at 3.
@@ -318,7 +379,7 @@ Proof.
   apply (deduction_modus_ponens _ (~~ x || ~~ y)).
   + apply deduction_weaken1.
     apply derivable_assum1.
-  + apply deduction_orp_elim.
+  + apply deduction_orp_elim'.
     - rewrite <- deduction_theorem.
       apply (deduction_modus_ponens _ x); [| apply derivable_assum1].
       apply deduction_weaken1.
@@ -334,6 +395,7 @@ Qed.
 Lemma demorgan_negp_orp: forall (x y: expr),
   |-- ~~ (x || y) <--> (~~ x && ~~ y).
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
@@ -348,7 +410,7 @@ Proof.
       rewrite <- provable_derivable.
       apply orp_intros2.
   + rewrite <- deduction_theorem.
-    apply deduction_orp_elim.
+    apply deduction_orp_elim'.
     - eapply deduction_andp_elim1.
       apply derivable_assum1.
     - eapply deduction_andp_elim2.
@@ -358,6 +420,7 @@ Qed.
 Lemma andp_comm: forall (x y: expr),
   |-- x && y <--> y && x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
@@ -378,6 +441,7 @@ Qed.
 Lemma andp_assoc: forall (x y z: expr),
   |-- x && y && z <--> x && (y && z).
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
@@ -406,13 +470,14 @@ Qed.
 Lemma orp_comm: forall (x y: expr),
   |-- x || y <--> y || x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
-  + apply deduction_orp_elim; rewrite <- provable_derivable.
+  + apply deduction_orp_elim'; rewrite <- provable_derivable.
     - apply orp_intros2.
     - apply orp_intros1.
-  + apply deduction_orp_elim; rewrite <- provable_derivable.
+  + apply deduction_orp_elim'; rewrite <- provable_derivable.
     - apply orp_intros2.
     - apply orp_intros1.
 Qed.
@@ -420,10 +485,11 @@ Qed.
 Lemma orp_assoc: forall (x y z: expr),
   |-- x || y || z <--> x || (y || z).
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
-  + apply deduction_orp_elim; [apply deduction_orp_elim |]; rewrite <- deduction_theorem.
+  + apply deduction_orp_elim'; [apply deduction_orp_elim' |]; rewrite <- deduction_theorem.
     - apply deduction_orp_intros1.
       apply derivable_assum1.
     - apply deduction_orp_intros2.
@@ -432,7 +498,7 @@ Proof.
     - apply deduction_orp_intros2.
       apply deduction_orp_intros2.
       apply derivable_assum1.
-  + apply deduction_orp_elim; [| apply deduction_orp_elim]; rewrite <- deduction_theorem.
+  + apply deduction_orp_elim'; [| apply deduction_orp_elim']; rewrite <- deduction_theorem.
     - apply deduction_orp_intros1.
       apply deduction_orp_intros1.
       apply derivable_assum1.
@@ -446,6 +512,7 @@ Qed.
 Lemma andp_truep: forall (x: expr),
   |-- x && TT <--> x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
@@ -459,6 +526,7 @@ Qed.
 Lemma truep_andp: forall (x: expr),
   |-- TT && x <--> x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
@@ -472,10 +540,11 @@ Qed.
 Lemma falsep_orp: forall (x: expr),
   |-- FF || x <--> x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
-  + apply deduction_orp_elim.
+  + apply deduction_orp_elim'.
     - apply derivable_falsep_elim.
     - apply derivable_impp_refl.
   + apply derivable_orp_intros2.
@@ -484,10 +553,11 @@ Qed.
 Lemma orp_falsep: forall (x: expr),
   |-- x || FF <--> x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
-  + apply deduction_orp_elim.
+  + apply deduction_orp_elim'.
     - apply derivable_impp_refl.
     - apply derivable_falsep_elim.
   + apply derivable_orp_intros1.
@@ -496,6 +566,7 @@ Qed.
 Lemma andp_dup: forall (x: expr),
   |-- x && x <--> x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
@@ -507,13 +578,75 @@ Qed.
 Lemma orp_dup: forall (x: expr),
   |-- x || x <--> x.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   apply deduction_andp_intros.
-  + apply deduction_orp_elim; apply derivable_impp_refl.
+  + apply deduction_orp_elim'; apply derivable_impp_refl.
   + apply derivable_orp_intros1.
 Qed.
 
-End DerivableRulesAxiomatization_derivable.
+Lemma impp_curry: forall (x y z: expr),
+  |-- (x --> y --> z) --> (x && y --> z).
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable.
+  rewrite <- !deduction_theorem.
+  apply deduction_modus_ponens with y.
+  + apply deduction_andp_elim2 with x.
+    solve_assum.
+  + apply deduction_modus_ponens with x.
+    - apply deduction_andp_elim1 with y.
+      solve_assum.
+    - solve_assum.
+Qed.
 
-End Intuitionistic.
+Lemma impp_uncurry: forall (x y z: expr),
+  |-- (x && y --> z) --> (x --> y --> z).
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable.
+  rewrite <- !deduction_theorem.
+  apply deduction_modus_ponens with (x && y).
+  + apply deduction_andp_intros;
+    solve_assum.
+  + solve_assum.
+Qed.
+
+Lemma impp_curry_uncurry: forall (x y z: expr),
+  |-- (x --> y --> z) <--> (x && y --> z).
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + apply deduction_weaken0.
+    apply impp_curry.
+  + apply deduction_weaken0.
+    apply impp_uncurry.
+Qed.
+
+End DerivableRulesFromAxiomatization2.
+
+Section DerivableAdjoint.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+
+Lemma impp_andp_Adjoint: Adjointness L Gamma andp impp.
+Proof.
+  constructor; AddSequentCalculus Gamma.
+  intros; split; intros.
+  + eapply modus_ponens; [| exact H].
+    apply impp_uncurry.
+  + eapply modus_ponens; [| exact H].
+    apply impp_curry.
+Qed.
+
+End DerivableAdjoint.
