@@ -1,3 +1,10 @@
 Should a typeclass A (about language, about proof theory) dependent on another B?
 
 It depends on whether A's critical feature requires the existence of B. For example, proposition axiomatization should be dependent on axiomatization of implication. But it should not be the case of sequent calculus.
+
+
+===============================
+
+Should connective (pattern) be components of proof-theory-pattern type classes or arguments of proof-theory-pattern?
+
+Arguments! Because we sometimes want to prove properties about two or more proof-theory-patterns.
