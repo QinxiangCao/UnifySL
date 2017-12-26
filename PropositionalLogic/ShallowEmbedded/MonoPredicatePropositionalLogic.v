@@ -17,7 +17,7 @@ Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Sound.Sound_Kripke.
 
 Instance MonoPred_minL (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: MinimunLanguage (MonoPred_L A) := Build_MinimunLanguage (MonoPred_L A) SemanticsMono.impp.
-Instance MonoPred_pL (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: PropositionalLanguage (MonoPred_L A) := Build_PropositionalLanguage (MonoPred_L A) (MonoPred_minL A) SemanticsMono.andp SemanticsMono.orp SemanticsMono.falsep.
+Instance MonoPred_pL (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: PropositionalLanguage (MonoPred_L A) := Build_PropositionalLanguage (MonoPred_L A) SemanticsMono.andp SemanticsMono.orp SemanticsMono.falsep.
 
 Instance MonoPred_kiSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: KripkeIntuitionisticSemantics (MonoPred_L A) (Build_Model A) (tt: @Kmodel _ (unit_kMD (Build_Model A))) (MonoPred_SM A).
 Proof.

@@ -18,19 +18,38 @@ Class GodelDummettPropositionalLogic (L: Language) {minL: MinimunLanguage L} {pL
   impp_choice: forall x y, |-- (x --> y) || (y --> x)
 }.
 
+Lemma MakeSequentCalculus_GodelDummettPropositionalLogic {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {minAX: MinimunAxiomatization L Gamma} (minAX': MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma))) (ipGamma: IntuitionisticPropositionalLogic L Gamma) {ipGamma': IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))} {gdpGamma: GodelDummettPropositionalLogic L Gamma}:
+  Typeclass_Rewrite (exist (fun X: Prop => X) (IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))) ipGamma' :: nil) ->
+  forall (G: Prop) (l: list (sig (fun X: Prop => X))),
+  (forall
+     (gdpGamma: GodelDummettPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))),
+     OpaqueProp (Typeclass_Rewrite l -> G)) <->
+  OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (GodelDummettPropositionalLogic L Gamma) gdpGamma) :: l) -> G).
+Proof.
+  unfold OpaqueProp.
+  intros _.
+  intros.
+  split; intros.
+  + clear H0.
+    apply H; auto.
+    - destruct gdpGamma; constructor; auto.
+    - apply Typeclass_Rewrite_I.
+  + apply H; auto.
+    apply Typeclass_Rewrite_I.
+Qed.
+
+Hint Rewrite <- @MakeSequentCalculus_GodelDummettPropositionalLogic using (instantiate (1 := _); apply Typeclass_Rewrite_I): AddSC.
+
 Section GodelDummett.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {gdpGamma: GodelDummettPropositionalLogic L Gamma}.
-
+(*
 Lemma derivable_impp_choice: forall (Phi: context) (x y: expr),
   Phi |-- (x --> y) || (y --> x).
 Proof.
@@ -38,16 +57,18 @@ Proof.
   pose proof impp_choice x.
   apply deduction_weaken0; auto.
 Qed.
-
+*)
 Instance GodelDummett2DeMorgan: DeMorganPropositionalLogic L Gamma.
 Proof.
   constructor.
+  AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable.
   set (Phi := empty_context).
   clearbody Phi.
 
-  pose proof derivable_impp_choice Phi x (~~ x).
+  pose proof impp_choice x (~~ x).
+  apply deduction_weaken0 with (Phi0 := Phi) in H.
 
   assert (Phi |-- (x --> ~~ x) --> (x --> FF)).
   Focus 1. {
@@ -77,7 +98,7 @@ Proof.
   apply (deduction_orp_intros1 _ _ (~~ x --> FF)) in H0.
   apply (deduction_orp_intros2 _ (x --> FF)) in H1.
   rewrite deduction_theorem in H0, H1.
-  pose proof deduction_orp_elim _ _ _ _ H0 H1.
+  pose proof deduction_orp_elim' _ _ _ _ H0 H1.
   pose proof deduction_modus_ponens _ _ _ H H2.
   auto.
 Qed.

@@ -16,7 +16,7 @@ Require Import Logic.PropositionalLogic.Sound.Sound_Classical_Trivial.
 (* TODO: split part of this file into MinimunLogic folder. *)
 
 Instance Pred_minL (A: Type): MinimunLanguage (Pred_L A) := Build_MinimunLanguage (Pred_L A) Semantics.impp.
-Instance Pred_pL (A: Type): PropositionalLanguage (Pred_L A) := Build_PropositionalLanguage (Pred_L A) (Pred_minL A) Semantics.andp Semantics.orp Semantics.falsep.
+Instance Pred_pL (A: Type): PropositionalLanguage (Pred_L A) := Build_PropositionalLanguage (Pred_L A) Semantics.andp Semantics.orp Semantics.falsep.
 
 Instance Pred_tminSM (A: Type): TrivialMinimunSemantics (Pred_L A) (Build_Model A) (Pred_SM A).
 Proof.

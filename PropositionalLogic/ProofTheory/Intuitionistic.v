@@ -253,7 +253,7 @@ Proof.
     apply falsep_elim.
 Qed.
 
-Check derivable_modus_ponens.
+End Axiomatization2SequentCalculus.
 
 Lemma MakeSequentCalculus_IntuitionisticPropositionalLogic {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {minAX: MinimunAxiomatization L Gamma} (minAX': MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma))) (ipGamma: IntuitionisticPropositionalLogic L Gamma):
   Typeclass_Rewrite ((exist (fun X: Prop => X) (MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma))) minAX') :: nil) ->

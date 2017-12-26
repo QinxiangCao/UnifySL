@@ -28,12 +28,10 @@ Definition orp_witnessed: context -> Prop :=
   fun Phi => forall x y, Phi (orp x y) -> Phi x \/ Phi y.
 
 Context {Gamma: ProofTheory L}
-        {AX: NormalAxiomatization L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
         {SC: NormalSequentCalculus L Gamma}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
 
 Lemma DCS_andp_iff: forall (Phi: context),
   derivable_closed Phi ->
@@ -65,7 +63,9 @@ Proof.
     - pose proof deduction_orp_intros2 Phi x y H; auto.
 Qed.
 
-Lemma derivable_closed_union_derivable: forall (Phi Psi: context) (x: expr),
+Existing Instance SequentCalculus2Axiomatization_minAX.
+
+Lemma derivable_closed_union_derivable {AX: NormalAxiomatization L Gamma}: forall (Phi Psi: context) (x: expr),
   derivable_closed Psi ->
   Union _ Phi Psi |-- x ->
   exists y, Psi y /\ Phi |-- y --> x.

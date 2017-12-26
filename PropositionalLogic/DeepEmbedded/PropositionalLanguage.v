@@ -26,7 +26,7 @@ Instance minL (Var: Type): MinimunLanguage (L Var) :=
   Build_MinimunLanguage (L Var) impp.
 
 Instance pL (Var: Type): PropositionalLanguage (L Var) :=
-  Build_PropositionalLanguage (L Var) (minL Var) andp orp falsep.
+  Build_PropositionalLanguage (L Var) andp orp falsep.
 
 Definition rank {Var: Type}: expr Var -> nat :=
   fix rank (x: expr Var): nat :=

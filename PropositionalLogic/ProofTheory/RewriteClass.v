@@ -13,20 +13,18 @@ Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
-Section RewriteClass.
+Section RewriteClass1.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
 Instance andp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) andp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable.
@@ -43,10 +41,11 @@ Qed.
 
 Instance orp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) orp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H, H0 |- *.
-  apply deduction_orp_elim.
+  apply deduction_orp_elim'.
   + eapply deduction_impp_trans; [exact H |].
     apply derivable_orp_intros1.
   + eapply deduction_impp_trans; [exact H0 |].
@@ -55,6 +54,7 @@ Qed.
 
 Instance negp_proper_impp: Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y)) negp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   unfold negp.
   apply impp_proper_impp; auto.
@@ -65,6 +65,7 @@ Instance provable_iffp_rewrite: RewriteRelation (fun x y => |-- x <--> y).
 
 Instance provable_iffp_equiv: Equivalence (fun x y => |-- x <--> y).
 Proof.
+  AddSequentCalculus Gamma.
   constructor.
   + hnf; intros.
     rewrite provable_derivable.
@@ -85,6 +86,7 @@ Qed.
 
 Instance provable_proper_iffp : Proper ((fun x y => |-- x <--> y) ==> iff) provable.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   hnf; intros.
   rewrite provable_derivable in H.
@@ -96,19 +98,9 @@ Proof.
   eapply deduction_modus_ponens; eauto.
 Qed.
 
-Instance derivable_proper_iffp : Proper (eq ==> (fun x y => |-- x <--> y) ==> iff) derivable.
-Proof.
-  hnf; intros Phi Phi' ?; subst Phi'.
-  hnf; intros x1 x2 ?.
-  apply (deduction_weaken0 Phi) in H.
-  pose proof deduction_andp_elim1 _ _ _ H.
-  pose proof deduction_andp_elim2 _ _ _ H.
-  split; intro;
-  eapply deduction_modus_ponens; eauto.
-Qed.
-
 Instance impp_proper_iffp : Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) impp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H.
@@ -129,6 +121,7 @@ Qed.
 
 Instance andp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) andp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H.
@@ -149,6 +142,7 @@ Qed.
 
 Instance orp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) orp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H.
@@ -169,6 +163,7 @@ Qed.
 
 Instance iffp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) iffp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   unfold iffp.
@@ -178,13 +173,38 @@ Qed.
 
 Instance negp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) negp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   unfold negp.
   apply impp_proper_iffp; auto.
   apply provable_iffp_refl.
 Qed.
 
-End RewriteClass.
+End RewriteClass1.
+
+Section RewriteClass2.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
+
+Instance derivable_proper_iffp : Proper (eq ==> (fun x y => |-- x <--> y) ==> iff) derivable.
+Proof.
+  hnf; intros Phi Phi' ?; subst Phi'.
+  hnf; intros x1 x2 ?.
+  apply (deduction_weaken0 Phi) in H.
+  pose proof deduction_andp_elim1 _ _ _ H.
+  pose proof deduction_andp_elim2 _ _ _ H.
+  split; intro;
+  eapply deduction_modus_ponens; eauto.
+Qed.
+
+End RewriteClass2.
 
 Existing Instances andp_proper_impp orp_proper_impp negp_proper_impp
                    provable_iffp_rewrite provable_iffp_equiv
