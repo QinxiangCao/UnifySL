@@ -417,6 +417,11 @@ Proof.
       apply derivable_assum1.
 Qed.
 
+Lemma provable_truep: |-- TT.
+Proof.
+  apply provable_impp_refl.
+Qed.
+
 Lemma andp_comm: forall (x y: expr),
   |-- x && y <--> y && x.
 Proof.
@@ -563,6 +568,21 @@ Proof.
   + apply derivable_orp_intros1.
 Qed.
 
+Lemma truep_impp: forall (x: expr),
+  |-- (TT --> x) <--> x.
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable.
+  apply deduction_andp_intros.
+  + rewrite <- deduction_theorem.
+    apply deduction_modus_ponens with TT.
+    - apply deduction_weaken0.
+      apply provable_truep.
+    - solve_assum.
+  + apply derivable_axiom1.
+Qed.
+
 Lemma andp_dup: forall (x: expr),
   |-- x && x <--> x.
 Proof.
@@ -630,7 +650,7 @@ Qed.
 
 End DerivableRulesFromAxiomatization2.
 
-Section DerivableAdjoint.
+Section ProofTheoryPatterns.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
@@ -649,4 +669,60 @@ Proof.
     apply impp_curry.
 Qed.
 
+Lemma andp_Comm: Commutativity L Gamma andp.
+Proof.
+  constructor.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable.
+  eapply deduction_andp_elim1.
+  rewrite <- provable_derivable.
+  apply andp_comm.
+Qed.
+
+Lemma andp_Mono: Monotonicity L Gamma andp.
+Proof.
+  eapply @Adjoint2Mono.
+  + auto.
+  + apply impp_andp_Adjoint.
+  + apply andp_Comm.
+Qed.
+
+Lemma andp_LU: LeftUnit L Gamma TT andp.
+Proof.
+  intros.
+  constructor.
+
+  (* TODO: need a better constructor for these patterns. *)
+
 End DerivableAdjoint.
+
+
+Definition multi_and (xs: list expr): expr := fold_left andp xs truep.
+
+Lemma multi_and_multi_imp: forall (xs: list expr) (y: expr),
+  |-- (multi_and xs --> y) <--> (multi_imp xs y).
+Proof.
+  intros.
+  unfold multi_and, multi_imp.
+  pose proof fold_left_rev_right (fun x y => y && x) xs TT.
+  simpl in H.
+  change (fun x y => x && y) with andp in H.
+  rewrite <- H.
+  clear H.
+  induction xs as [| x xs].
+  + simpl.
+    apply truep_impp.
+  + 
+  pose proof @adjoint_iter _ _ _ _ _ impp_andp_Adjoint TT xs y.
+  unfold multi_imp, multi_and.
+  rewrite H; clear H.
+  generalize (fold_right impp y xs); clear xs y; intros.
+  AddSequentCalculus Gamma.
+  rewrite !provable_derivable.
+  split; intros.
+  + apply deduction_modus_ponens with TT; auto.
+    rewrite <- provable_derivable; apply provable_truep.
+  + rewrite <- deduction_theorem; solve_assum.
+Qed.
+

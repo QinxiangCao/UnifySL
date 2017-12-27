@@ -1,6 +1,7 @@
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
+Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
@@ -13,6 +14,7 @@ Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
 Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -33,6 +35,15 @@ Context {Gamma: ProofTheory L}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
 
+Lemma DCS_truep: forall (Phi: context),
+  derivable_closed Phi ->
+  Phi TT.
+Proof.
+  intros.
+  apply H.
+  apply derivable_impp_refl.
+Qed.
+
 Lemma DCS_andp_iff: forall (Phi: context),
   derivable_closed Phi ->
   (forall x y: expr, Phi (x && y) <-> (Phi x /\ Phi y)).
@@ -46,6 +57,33 @@ Proof.
   + destruct H.
     pose proof deduction_andp_intros Phi x y H H0.
     auto.
+Qed.
+
+Lemma DCS_multi_and_iff: forall (Phi: context),
+  derivable_closed Phi ->
+  (forall xs: list expr, Phi (multi_and xs) <-> Forall Phi xs).
+Proof.
+  intros.
+  unfold multi_and.
+  pose proof fold_left_rev_right (fun x y => y && x) xs TT.
+  simpl in H0.
+  change (fun x y => x && y) with andp in H0.
+  rewrite <- H0.
+  clear H0.
+  rewrite <- Forall_rev.
+  generalize (rev xs) as ys; clear xs.
+  induction ys.
+  + split; intros.
+    - constructor.
+    - simpl.
+      apply DCS_truep; auto.
+  + simpl.
+    rewrite DCS_andp_iff by auto.
+    rewrite IHys.
+    clear.
+    split; intros.
+    - constructor; tauto.
+    - inversion H; auto.
 Qed.
 
 Lemma DCS_orp_iff: forall (Phi: context),
@@ -64,6 +102,7 @@ Proof.
 Qed.
 
 Existing Instance SequentCalculus2Axiomatization_minAX.
+Existing Instance SequentCalculus2Axiomatization_ipGamma.
 
 Lemma derivable_closed_union_derivable {AX: NormalAxiomatization L Gamma}: forall (Phi Psi: context) (x: expr),
   derivable_closed Psi ->
@@ -74,6 +113,23 @@ Proof.
   rewrite derivable_provable in H0.
   destruct H0 as [xs [? ?]].
   pose proof provable_multi_imp_split _ _ _ _ H0 H1 as [xs1 [xs2 [? [? ?]]]].
+  pose proof H4.
+  apply multi_and_multi_imp in H4.
+  eapply modus_ponens in H4; [| apply provable_multi_imp_arg_switch1].
+  exists (multi_and xs2).
+  split.
+  + apply DCS_multi_and_iff; auto.
+  + rewrite derivable_provable.
+    exists xs1.
+    split; auto.
+    eapply modus_ponens.
+    - apply provable_multi_imp_weaken.
+      rewrite <- multi_and_multi_imp.
+    SearchAbout multi_imp.
+
+
+  apply multi_and_multi_imp in H4.
+  
   apply union_derivable in H0.
   destruct H0 as [ys [? ?]].
   revert x H1; induction H0; intros.
