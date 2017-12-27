@@ -5,7 +5,7 @@ Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.ShallowEmbedded.MonoPredicateAsLang.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Sound.Sound_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.

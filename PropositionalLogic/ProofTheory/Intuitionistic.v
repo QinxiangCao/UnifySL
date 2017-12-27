@@ -1,7 +1,7 @@
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ProofTheoryPatterns.
 Require Import Logic.PropositionalLogic.Syntax.
@@ -194,7 +194,7 @@ Lemma MakeAxiomatization_IntuitionisticPropositionalSequentCalculus {L: Language
   (forall
      (ipSC: IntuitionisticPropositionalSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
      (ipGamma: IntuitionisticPropositionalLogic L (Build_SequentCalculus (@derivable L Gamma))),
-     OpaqueProp (Typeclass_Rewrite l -> G)) <->
+     OpaqueProp (OpaqueProp (Typeclass_Rewrite l -> G))) <->
   OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (IntuitionisticPropositionalSequentCalculus L Gamma) ipSC) :: l) -> G).
 Proof.
   unfold OpaqueProp.
@@ -261,7 +261,7 @@ Lemma MakeSequentCalculus_IntuitionisticPropositionalLogic {L: Language} {minL: 
   (forall
      (ipSC: IntuitionisticPropositionalSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
      (ipGamma: IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))),
-     OpaqueProp (Typeclass_Rewrite l -> G)) <->
+     OpaqueProp (OpaqueProp (Typeclass_Rewrite l -> G))) <->
   OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (IntuitionisticPropositionalLogic L Gamma) ipGamma) :: l) -> G).
 Proof.
   unfold OpaqueProp.
@@ -289,7 +289,7 @@ Context {L: Language}
         {Gamma: ProofTheory L}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
-
+  
 Lemma solve_andp_intros: forall x y: expr,
   |-- x -> |-- y -> |-- x && y.
 Proof.

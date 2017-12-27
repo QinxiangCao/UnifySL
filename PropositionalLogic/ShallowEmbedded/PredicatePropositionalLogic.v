@@ -4,7 +4,7 @@ Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.GeneralLogic.ShallowEmbedded.PredicateAsLang.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.Semantics.Trivial.
 Require Import Logic.MinimunLogic.Sound.Sound_Classical_Trivial.
 Require Import Logic.PropositionalLogic.Syntax.

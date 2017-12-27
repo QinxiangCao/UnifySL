@@ -13,7 +13,7 @@ Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.GeneralLogic.Complete.Canonical_Kripke.
 Require Import Logic.GeneralLogic.Complete.Complete_Kripke.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.MinimunLogic.Complete.Truth_Kripke.

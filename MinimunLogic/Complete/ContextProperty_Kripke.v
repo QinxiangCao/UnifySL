@@ -2,7 +2,7 @@ Require Import Logic.lib.EnsemblesProperties.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 
 Local Open Scope logic_base.

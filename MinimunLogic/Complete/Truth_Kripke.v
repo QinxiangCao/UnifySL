@@ -11,7 +11,7 @@ Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun2.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.Semantics.Kripke.
 
 Local Open Scope logic_base.
