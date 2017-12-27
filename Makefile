@@ -75,7 +75,7 @@ MinimunLogic_FILES = \
 PropositionalLogic_ProofTheory_FILES = \
   Intuitionistic.v DeMorgan.v \
   GodelDummett.v Classical.v \
-  RewriteClass.v
+  RewriteClass.v ProofTheoryPatterns.v
 
 PropositionalLogic_Semantics_FILES = \
   Kripke.v Trivial.v

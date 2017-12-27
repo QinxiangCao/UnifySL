@@ -290,6 +290,15 @@ Context {L: Language}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
+Lemma solve_andp_intros: forall x y: expr,
+  |-- x -> |-- y -> |-- x && y.
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable in H, H0 |- *.
+  apply deduction_andp_intros; auto.
+Qed.
+
 Lemma double_negp_intros: forall (x: expr),
   |-- x --> ~~ ~~ x.
 Proof.
@@ -304,8 +313,8 @@ Lemma provable_iffp_refl: forall (x: expr),
 Proof.
   AddSequentCalculus Gamma.
   intros.
-  rewrite provable_derivable.
-  apply derivable_iffp_refl.
+  apply solve_andp_intros;
+  apply provable_impp_refl.
 Qed.
 
 Lemma contrapositivePP: forall (x y: expr),
@@ -640,89 +649,10 @@ Lemma impp_curry_uncurry: forall (x y z: expr),
 Proof.
   AddSequentCalculus Gamma.
   intros.
-  rewrite provable_derivable.
-  apply deduction_andp_intros.
-  + apply deduction_weaken0.
-    apply impp_curry.
-  + apply deduction_weaken0.
-    apply impp_uncurry.
+  apply solve_andp_intros.
+  + apply impp_curry.
+  + apply impp_uncurry.
 Qed.
 
 End DerivableRulesFromAxiomatization2.
-
-Section ProofTheoryPatterns.
-
-Context {L: Language}
-        {minL: MinimunLanguage L}
-        {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
-
-Lemma impp_andp_Adjoint: Adjointness L Gamma andp impp.
-Proof.
-  constructor; AddSequentCalculus Gamma.
-  intros; split; intros.
-  + eapply modus_ponens; [| exact H].
-    apply impp_uncurry.
-  + eapply modus_ponens; [| exact H].
-    apply impp_curry.
-Qed.
-
-Lemma andp_Comm: Commutativity L Gamma andp.
-Proof.
-  constructor.
-  AddSequentCalculus Gamma.
-  intros.
-  rewrite provable_derivable.
-  eapply deduction_andp_elim1.
-  rewrite <- provable_derivable.
-  apply andp_comm.
-Qed.
-
-Lemma andp_Mono: Monotonicity L Gamma andp.
-Proof.
-  eapply @Adjoint2Mono.
-  + auto.
-  + apply impp_andp_Adjoint.
-  + apply andp_Comm.
-Qed.
-
-Lemma andp_LU: LeftUnit L Gamma TT andp.
-Proof.
-  intros.
-  constructor.
-
-  (* TODO: need a better constructor for these patterns. *)
-
-End DerivableAdjoint.
-
-
-Definition multi_and (xs: list expr): expr := fold_left andp xs truep.
-
-Lemma multi_and_multi_imp: forall (xs: list expr) (y: expr),
-  |-- (multi_and xs --> y) <--> (multi_imp xs y).
-Proof.
-  intros.
-  unfold multi_and, multi_imp.
-  pose proof fold_left_rev_right (fun x y => y && x) xs TT.
-  simpl in H.
-  change (fun x y => x && y) with andp in H.
-  rewrite <- H.
-  clear H.
-  induction xs as [| x xs].
-  + simpl.
-    apply truep_impp.
-  + 
-  pose proof @adjoint_iter _ _ _ _ _ impp_andp_Adjoint TT xs y.
-  unfold multi_imp, multi_and.
-  rewrite H; clear H.
-  generalize (fold_right impp y xs); clear xs y; intros.
-  AddSequentCalculus Gamma.
-  rewrite !provable_derivable.
-  split; intros.
-  + apply deduction_modus_ponens with TT; auto.
-    rewrite <- provable_derivable; apply provable_truep.
-  + rewrite <- deduction_theorem; solve_assum.
-Qed.
 

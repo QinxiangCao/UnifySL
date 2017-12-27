@@ -15,6 +15,7 @@ Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
+Require Import Logic.PropositionalLogic.ProofTheory.ProofTheoryPatterns.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -59,12 +60,20 @@ Proof.
     auto.
 Qed.
 
+Lemma DCS_iffp: forall (Phi: context) (x y: expr),
+  derivable_closed Phi ->
+  |-- x <--> y ->
+  (Phi x <-> Phi y).
+Proof.
+  intros.
+
 Lemma DCS_multi_and_iff: forall (Phi: context),
   derivable_closed Phi ->
   (forall xs: list expr, Phi (multi_and xs) <-> Forall Phi xs).
 Proof.
   intros.
   unfold multi_and.
+  
   pose proof fold_left_rev_right (fun x y => y && x) xs TT.
   simpl in H0.
   change (fun x y => x && y) with andp in H0.
