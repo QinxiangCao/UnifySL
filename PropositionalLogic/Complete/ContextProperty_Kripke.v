@@ -153,12 +153,3 @@ Proof.
 Qed.
 
 End ContextProperties.
-
-Definition at_least_orp_witnessed
-           {L: Language}
-           {minL: MinimunLanguage L}
-           {pL: PropositionalLanguage L}
-           {Gamma: ProofTheory L}
-           (P: context -> Prop): Prop :=
-  forall Phi, P Phi -> orp_witnessed Phi.
-

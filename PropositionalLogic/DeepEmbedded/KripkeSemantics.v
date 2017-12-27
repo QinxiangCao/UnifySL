@@ -4,7 +4,9 @@ Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
@@ -22,8 +24,12 @@ Local Open Scope TheKripkeSemantics.
 
 Definition sem (f: frame) := @Ensemble (underlying_set f).
 
-Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
-  fix denotation (x: expr Var): sem F:=
+Section KripkeSemantics.
+
+Context {Sigma: PropositionalVariables}.
+
+Definition denotation (F: frame) (eval: Var -> sem F): expr Sigma -> sem F :=
+  fix denotation (x: expr Sigma): sem F:=
   match x with
   | andp y z => @Semantics.andp F (denotation y) (denotation z)
   | orp y z => @Semantics.orp F (denotation y) (denotation z)
@@ -31,9 +37,6 @@ Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> s
   | falsep => @Semantics.falsep F
   | varp p => eval p
   end.
-
-Section KripkeSemantics.
-Context (Var: Type).
 
 Record Kmodel : Type := {
   underlying_frame :> frame;
@@ -45,7 +48,6 @@ Record model: Type := {
   elm: underlying_model
 }.
 
-Instance L: Language := PropositionalLanguage.L Var.
 Instance MD: Model := Build_Model model.
 
 Instance kMD: KripkeModel MD :=
@@ -88,19 +90,18 @@ Proof.
   + apply H.
 Qed.
 
+Instance kminSM (M: Kmodel): KripkeMinimunSemantics L MD M SM.
+Proof.
+  apply Build_KripkeMinimunSemantics.
+  intros; apply Same_set_refl.
+Defined.
+
 Instance kpSM (M: Kmodel): KripkePropositionalSemantics L MD M SM.
 Proof.
   apply Build_KripkePropositionalSemantics.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
-  + intros; apply Same_set_refl.
 Defined.
 
 End KripkeSemantics.
-
-Arguments Kmodel_Monotonic {Var} _.
-Arguments Kmodel_PreOrder {Var} _.
-Arguments Kmodel_Identity {Var} _.
-Arguments Kmodel_NoBranch {Var} _.
-Arguments Kmodel_BranchJoin {Var} _.

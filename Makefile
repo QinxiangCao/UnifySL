@@ -90,9 +90,7 @@ PropositionalLogic_Complete_FILES = \
   Lindenbaum_Trivial.v Truth_Trivial.v Complete_Trivial.v
 
 PropositionalLogic_DeepEmbedded_FILES = \
-  PropositionalLanguage.v \
-  IntuitionisticLogic.v DeMorganLogic.v \
-  GodelDummettLogic.v ClassicalLogic.v \
+  PropositionalLanguage.v ProofTheories.v \
   KripkeSemantics.v TrivialSemantics.v \
   Soundness.v Complete_Kripke.v Complete_Classical_Trivial.v
 
