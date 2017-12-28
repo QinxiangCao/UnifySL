@@ -7,8 +7,6 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 
-Module TrivialSemantics.
-
 Section TrivialSemantics.
 
 Context {Sigma: PropositionalVariables}.
@@ -49,7 +47,5 @@ Proof.
   + simpl; intros.
     apply Same_set_refl.
 Qed.
-
-End TrivialSemantics.
 
 End TrivialSemantics.

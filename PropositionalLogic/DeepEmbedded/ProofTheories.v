@@ -16,7 +16,7 @@ Module IntuitionisticPropositionalLogic.
 
 Section IntuitionisticPropositionalLogic.
 
-Context (Sigma: PropositionalLanguage.PropositionalVariables).
+Context {Sigma: PropositionalLanguage.PropositionalVariables}.
 
 Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
 
@@ -64,7 +64,7 @@ Module DeMorganPropositionalLogic.
 
 Section DeMorganPropositionalLogic.
 
-Context (Sigma: PropositionalLanguage.PropositionalVariables).
+Context {Sigma: PropositionalLanguage.PropositionalVariables}.
 
 Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
 
@@ -119,7 +119,7 @@ Module GodelDummettPropositionalLogic.
 
 Section GodelDummettPropositionalLogic.
 
-Context (Sigma: PropositionalLanguage.PropositionalVariables).
+Context {Sigma: PropositionalLanguage.PropositionalVariables}.
 
 Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
 
@@ -179,7 +179,7 @@ Module ClassicalPropositionalLogic.
 
 Section ClassicalPropositionalLogic.
 
-Context (Sigma: PropositionalLanguage.PropositionalVariables).
+Context {Sigma: PropositionalLanguage.PropositionalVariables}.
 
 Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
 

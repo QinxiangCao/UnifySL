@@ -4,7 +4,6 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.HenkinCompleteness.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.GeneralLogic.Semantics.Kripke.

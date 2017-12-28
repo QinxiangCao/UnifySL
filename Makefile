@@ -62,7 +62,7 @@ MinimunLogic_ShallowEmbedded_FILES = \
 
 MinimunLogic_DeepEmbedded_FILES = \
   MinimunLanguage.v KripkeSemantics.v MinimunLogic.v \
-  Complete_Kripke.v
+  Complete_Kripke.v Soundness.v
 
 MinimunLogic_FILES = \
   Syntax.v \

@@ -144,6 +144,25 @@ Proof.
   apply Lindenbaum_preserve_n, subset_preserved_same_set_preserved; auto.
 Qed.
 
+Lemma Lindenbaum_pointwise_finite_decided': forall a n,
+  CA a n ->
+  Proper (Same_set A ==> iff) P ->
+  P (Union _ (LindenbaumChain n) (Singleton _ a)) <-> (LindenbaumConstruction a).
+Proof.
+  intros.
+  rewrite <- Lindenbaum_pointwise_finite_decided by eauto.
+  simpl.
+  split; intros; auto.
+  destruct H1 as [? | [? ?]]; auto.
+  eapply H0; [| apply (Lindenbaum_preserve_n H0 n)].
+  rewrite Same_set_spec; intros a0.
+  rewrite Union_spec.
+  split; intros; [| auto].
+  destruct H2; auto.
+  inversion H2; subst.
+  auto.
+Qed.
+
 End Lindenbaum.
 
 Definition Lindenbaum_preserves {A: Type} (P: Ensemble A -> Prop): Prop :=

@@ -29,14 +29,35 @@ Context {L: Language}
 Definition orp_witnessed: context -> Prop :=
   fun Phi => forall x y, Phi (orp x y) -> Phi x \/ Phi y.
 
-Context {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
+Context {Gamma: ProofTheory L}.
+
+Definition context_orp (Phi Psi: context): context :=
+  fun z => exists x y, z = x || y /\ Phi |-- x /\ Psi |-- y.
+
+Definition context_orp_captured (P: context -> Prop): Prop :=
+  forall Phi Psi, P (context_orp Phi Psi) -> P Phi \/ P Psi.
+
+Context {SC: NormalSequentCalculus L Gamma}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
 
 Existing Instances SequentCalculus2Axiomatization_minAX
                    SequentCalculus2Axiomatization_ipGamma.
+
+Lemma cannot_derive_context_orp_captured: forall (x: expr),
+  context_orp_captured (cannot_derive x).
+Proof.
+  intros.
+  unfold cannot_derive.
+  hnf; intros.
+  apply not_and_or.
+  intros [? ?]; apply H; clear H.
+  rewrite <- (orp_dup x).
+  apply derivable_assum.
+  exists x, x.
+  split; [| split]; auto.
+Qed.
 
 Lemma DCS_truep: forall (Phi: context),
   derivable_closed Phi ->

@@ -3,116 +3,77 @@ Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
+Require Import Logic.lib.EnsemblesProperties.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.HenkinCompleteness.
-Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum_Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimunLogic.Complete.Lindenbaum_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
-Local Open Scope kripke_model.
 Import PropositionalLanguageNotation.
-Import KripkeModelFamilyNotation.
-Import KripkeModelNotation_Intuitionistic.
 
 Section Lindenbaum_Kripke.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {AX: NormalAxiomatization L Gamma}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
 
-Hypothesis CE: Countable expr.
+Lemma Lindenbaum_for_orp_witnessed: forall P,
+  Lindenbaum_preserves P ->
+  subset_preserved P ->
+  context_orp_captured P ->
+  Lindenbaum_ensures P derivable_closed ->
+  Lindenbaum_ensures P orp_witnessed.
+Proof.
+  intros; hnf; intros.
+  specialize (H2 CA init H3).
+  rename H2 into DC.
+  hnf; intros.
+  pose proof H0.
+  apply subset_preserved_same_set_preserved in H4.
+  pose proof H CA _ H3.
+  destruct (im_inj _ _ CA x) as [n ?].
+  destruct (im_inj _ _ CA y) as [m ?].
+  rewrite <- !Lindenbaum_pointwise_finite_decided' by eauto.
+  apply H1.
+  eapply H0; [| exact H5].
+  unfold Included, Ensembles.In; intros z ?.
+  destruct H8 as [x0 [y0 [? [? ?]]]]; subst z.
+  apply deduction_orp_intros1 with (y1 := y0) in H9.
+  apply deduction_orp_intros2 with (x1 := x0) in H10.
+  rewrite deduction_theorem in H9, H10.
+  eapply deduction_weaken in H9; [| apply Lindenbaum_included_n_omega].
+  eapply deduction_weaken in H10; [| apply Lindenbaum_included_n_omega].
+  pose proof deduction_orp_elim' _ _ _ _ H9 H10.
+  apply derivable_assum in H2.
+  pose proof deduction_modus_ponens _ _ _ H2 H8.
+  apply DC; auto.
+Qed.
 
-Lemma Lindenbaum_lemma:
-  forall Phi x,
-    ~ Phi |-- x ->
-    exists Psi,
-      Included _ Phi Psi /\
-      ~ Psi |-- x /\
-      derivable_closed Psi /\
-      orp_witnessed Psi /\
-      consistent Psi.
+Lemma Lindenbaum_cannot_derive_ensures_orp_witnessed: forall x, Lindenbaum_ensures (cannot_derive x) orp_witnessed.
 Proof.
   intros.
-  set (step :=
-          fun n Phi x0 =>
-             Phi x0 \/
-            (CE x0 n /\
-             ~ (Union _ Phi (Singleton _ x0)) |-- x)).
-  exists (LindenbaumConstruction step Phi).
-  assert (Included expr Phi (LindenbaumConstruction step Phi) /\
-          ~ LindenbaumConstruction step Phi |-- x /\
-          (~ LindenbaumConstruction step Phi |-- x ->
-           derivable_closed (LindenbaumConstruction step Phi)) /\
-          (~ LindenbaumConstruction step Phi |-- x ->
-           orp_witnessed (LindenbaumConstruction step Phi))).
-  Focus 2. {
-    destruct H0 as [? [? [? ?]]].
-    split; [| split; [| split; [| split]]]; auto.
-    rewrite consistent_spec.
-    intro; apply H1.
-    pose proof deduction_falsep_elim _ x H4.
-    auto.
-  } Unfocus.
-  split; [| split; [| split]].
-  + apply (Lindenbaum_spec_included _ _ 0).
-  + apply (Lindenbaum_spec_pos _ _
-            (fun xs => |-- multi_imp xs x)
-            (fun Phi => Phi |-- x)).
-    - intros; apply derivable_provable.
-    - intros ? ? ? ?; left; auto.
-    - apply H.
-    - intros.
-      destruct (Classical_Prop.classic (exists x0, CE x0 n /\ ~ (Union _ S (Singleton _ x0)) |-- x)) as [[x0 [? ?]] |].
-      * intro; apply H2; clear H2.
-        eapply deduction_weaken; [| exact H3].
-        hnf; intros ? [? | [? ?]]; [left; auto |].
-        pose proof in_inj _ _ CE _ _ _ H1 H2.
-        subst; right; constructor.
-      * intro; apply H0; clear H0.
-        eapply deduction_weaken; [| exact H2].
-        hnf; intros ? [? | [? ?]]; [auto |].
-        exfalso; apply H1; clear H1.
-        exists x0; auto.
-  + intros; hnf; intros.
-    destruct (im_inj _ _ CE x0) as [n ?].
-    apply (Lindenbaum_spec_neg _ _ _ (S n)).
-    simpl.
-    unfold step at 1.
-    right; split; auto.
-    intro.
-    rewrite deduction_theorem in H3.
-    eapply deduction_weaken in H3; [| apply (Lindenbaum_spec_included _ _ n)].
-    pose proof deduction_modus_ponens _ _ _ H1 H3.
-    auto.
-  + intros; hnf; intros x0 y0 ?.
-    destruct (im_inj _ _ CE x0) as [nx ?].
-    destruct (im_inj _ _ CE y0) as [ny ?].
-    assert (LindenbaumChain step Phi (S nx) x0 \/ LindenbaumChain step Phi (S ny) y0) as HH;
-      [| destruct HH as [HH | HH]; apply Lindenbaum_spec_neg in HH; auto].
-    simpl.
-    unfold step at 1 3.
-    assert (~ Union _ (LindenbaumChain step Phi nx) (Singleton _ x0) |-- x \/
-            ~ Union _ (LindenbaumChain step Phi ny) (Singleton _ y0) |-- x) as HH;
-      [| destruct HH as [HH | HH]; auto].
-    apply Classical_Prop.not_and_or; intros [? ?].
-    rewrite deduction_theorem in H4, H5.
-    eapply deduction_weaken in H4; [| apply (Lindenbaum_spec_included _ _ nx)].
-    eapply deduction_weaken in H5; [| apply (Lindenbaum_spec_included _ _ ny)].
-    pose proof deduction_orp_elim (LindenbaumConstruction step Phi) x0 y0 x H4 H5.
-    apply (derivable_assum _ (x0 || y0)) in H1.
-    pose proof deduction_modus_ponens _ _ _ H1 H6.
-    auto.
+  apply Lindenbaum_for_orp_witnessed.
+  - apply Lindenbaum_preserves_cannot_derive.
+  - apply cannot_derive_subset_preserved.
+  - apply cannot_derive_context_orp_captured.
+  - apply Lindenbaum_cannot_derive_ensures_derivable_closed.
 Qed.
 
 End Lindenbaum_Kripke.
