@@ -28,7 +28,6 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: ProofTheory L}
-        {AX: NormalAxiomatization L Gamma}
         {SC: NormalSequentCalculus L Gamma}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
@@ -66,7 +65,7 @@ Proof.
   apply DC; auto.
 Qed.
 
-Lemma Lindenbaum_cannot_derive_ensures_orp_witnessed: forall x, Lindenbaum_ensures (cannot_derive x) orp_witnessed.
+Lemma Lindenbaum_cannot_derive_ensures_orp_witnessed {AX: NormalAxiomatization L Gamma}: forall x, Lindenbaum_ensures (cannot_derive x) orp_witnessed.
 Proof.
   intros.
   apply Lindenbaum_for_orp_witnessed.
@@ -74,6 +73,27 @@ Proof.
   - apply cannot_derive_subset_preserved.
   - apply cannot_derive_context_orp_captured.
   - apply Lindenbaum_cannot_derive_ensures_derivable_closed.
+Qed.
+
+Lemma Lindenbaum_for_consistent: forall P,
+  Lindenbaum_preserves P ->
+  at_least consistent P ->
+  Lindenbaum_ensures P consistent.
+Proof.
+  intros.
+  hnf; intros.
+  apply H0.
+  apply H; auto.
+Qed.
+
+Lemma Lindenbaum_cannot_derive_ensures_consistent {AX: NormalAxiomatization L Gamma}: forall x, Lindenbaum_ensures (cannot_derive x) consistent.
+Proof.
+  intros.
+  apply Lindenbaum_for_consistent.
+  - apply Lindenbaum_preserves_cannot_derive.
+  - unfold cannot_derive.
+    hnf; intros.
+    exists x; auto.
 Qed.
 
 End Lindenbaum_Kripke.

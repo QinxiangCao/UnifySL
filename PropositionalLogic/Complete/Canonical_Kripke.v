@@ -9,6 +9,7 @@ Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.Semantics.Kripke.
@@ -45,16 +46,16 @@ Context {L: Language}
         {kminSM: KripkeMinimunSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}.
 
-Context (P: context -> Prop)
-        (rel: bijection (Kworlds M) (sig P)).
+Context (cP: context -> Prop)
+        (rel: bijection (Kworlds M) (sig cP)).
 
 Hypothesis H_R: forall m n Phi Psi, rel m Phi -> rel n Psi -> (m <= n <-> Included _ (proj1_sig Phi) (proj1_sig Psi)).
 
 Lemma classical_canonical_ident
       {cpSC: ClassicalPropositionalSequentCalculus L Gamma}
-      (AL_DC: at_least derivable_closed P)
-      (AL_OW: at_least orp_witnessed P)
-      (AL_CONSI: at_least consistent P):
+      (AL_DC: at_least derivable_closed cP)
+      (AL_OW: at_least orp_witnessed cP)
+      (AL_CONSI: at_least consistent cP):
   IdentityKripkeIntuitionisticModel (Kworlds M).
 Proof.
   constructor.
@@ -82,9 +83,12 @@ Proof.
 Qed.
 
 Lemma GodelDummett_canonical_no_branch
+      {SC: NormalSequentCalculus L Gamma}
+      {minAX: MinimunAxiomatization L Gamma}
+      {ipGamma: IntuitionisticPropositionalLogic L Gamma}
       {gdpGamma: GodelDummettPropositionalLogic L Gamma}
-      (DER: at_least_derivable_closed P)
-      (ORP: at_least_orp_witnessed P):
+      (AL_DC: at_least derivable_closed cP)
+      (AL_OW: at_least orp_witnessed cP):
   NoBranchKripkeIntuitionisticModel (Kworlds M).
 Proof.
   constructor.
@@ -101,34 +105,38 @@ Proof.
   apply not_all_ex_not in H1.
   apply not_all_ex_not in H2.
   destruct H1 as [x1 ?], H2 as [x2 ?].
-  pose proof derivable_impp_choice (proj1_sig Phi) x1 x2.
-  rewrite <- derivable_closed_element_derivable in H3 by (apply DER, (proj2_sig Phi)).
-  apply ORP in H3; [| apply (proj2_sig Phi)].
+  pose proof deduction_weaken0 (proj1_sig Phi) _ (impp_choice x1 x2).
+  rewrite <- derivable_closed_element_derivable in H3 by (apply AL_DC, (proj2_sig Phi)).
+  apply AL_OW in H3; [| apply (proj2_sig Phi)].
   destruct H3; pose proof H3; apply H in H3; apply H0 in H4.
-  + rewrite derivable_closed_element_derivable in H3 by (apply DER, (proj2_sig Psi1)).
-    rewrite derivable_closed_element_derivable in H4 by (apply DER, (proj2_sig Psi2)).
+  + rewrite derivable_closed_element_derivable in H3 by (apply AL_DC, (proj2_sig Psi1)).
+    rewrite derivable_closed_element_derivable in H4 by (apply AL_DC, (proj2_sig Psi2)).
     pose proof (fun HH => deduction_modus_ponens _ _ _ HH H3).
     pose proof (fun HH => deduction_modus_ponens _ _ _ HH H4).
-    rewrite <- !derivable_closed_element_derivable in H5 by (apply DER, (proj2_sig Psi1)).
-    rewrite <- !derivable_closed_element_derivable in H6 by (apply DER, (proj2_sig Psi2)).
+    rewrite <- !derivable_closed_element_derivable in H5 by (apply AL_DC, (proj2_sig Psi1)).
+    rewrite <- !derivable_closed_element_derivable in H6 by (apply AL_DC, (proj2_sig Psi2)).
     clear - H1 H2 H5 H6.
     tauto.
-  + rewrite derivable_closed_element_derivable in H3 by (apply DER, (proj2_sig Psi1)).
-    rewrite derivable_closed_element_derivable in H4 by (apply DER, (proj2_sig Psi2)).
+  + rewrite derivable_closed_element_derivable in H3 by (apply AL_DC, (proj2_sig Psi1)).
+    rewrite derivable_closed_element_derivable in H4 by (apply AL_DC, (proj2_sig Psi2)).
     pose proof (fun HH => deduction_modus_ponens _ _ _ HH H3).
     pose proof (fun HH => deduction_modus_ponens _ _ _ HH H4).
-    rewrite <- !derivable_closed_element_derivable in H5 by (apply DER, (proj2_sig Psi1)).
-    rewrite <- !derivable_closed_element_derivable in H6 by (apply DER, (proj2_sig Psi2)).
+    rewrite <- !derivable_closed_element_derivable in H5 by (apply AL_DC, (proj2_sig Psi1)).
+    rewrite <- !derivable_closed_element_derivable in H6 by (apply AL_DC, (proj2_sig Psi2)).
     clear - H1 H2 H5 H6.
     tauto.
 Qed.
 
 Lemma DeMorgan_canonical_branch_join
+      {SC: NormalSequentCalculus L Gamma}
+      {AX: NormalAxiomatization L Gamma}
+      {minAX: MinimunAxiomatization L Gamma}
+      {ipGamma: IntuitionisticPropositionalLogic L Gamma}
       {dmpGamma: DeMorganPropositionalLogic L Gamma}
-      (DER: at_least_derivable_closed P)
-      (ORP: at_least_orp_witnessed P)
-      (CONSI: at_least_consistent P)
-      (LIN_DER: Linderbaum_derivable P):
+      (AL_DC: at_least derivable_closed cP)
+      (AL_OW: at_least orp_witnessed cP)
+      (AL_CONSI: at_least consistent cP)
+      (LIN_CD: forall x, Lindenbaum_constructable (cannot_derive x) cP):
   BranchJoinKripkeIntuitionisticModel (Kworlds M).
 Proof.
   constructor.
@@ -137,8 +145,8 @@ Proof.
   destruct (im_bij _ _ rel m1) as [Psi1 ?].
   destruct (im_bij _ _ rel m2) as [Psi2 ?].
   erewrite !H_R in H, H0 by eauto.
-  assert (exists Psi: sig P, Included _ (proj1_sig Psi1) (proj1_sig Psi) /\
-                             Included _ (proj1_sig Psi2) (proj1_sig Psi)).
+  assert (exists Psi: sig cP, Included _ (proj1_sig Psi1) (proj1_sig Psi) /\
+                              Included _ (proj1_sig Psi2) (proj1_sig Psi)).
   Focus 2. {
     destruct H4 as [Psi [? ?]].
     destruct (su_bij _ _ rel Psi) as [m ?].
@@ -149,26 +157,26 @@ Proof.
 
   assert (~ (Union _ (proj1_sig Psi1) (proj1_sig Psi2)) |-- FF).
   + intro.
-    apply derivable_closed_union_derivable in H1; [| apply DER, (proj2_sig Psi2)].
+    apply derivable_closed_union_derivable in H1; [| apply AL_DC, (proj2_sig Psi2)].
     destruct H1 as [x [? ?]].
-    rewrite derivable_closed_element_derivable in H1 by (apply DER, (proj2_sig Psi2)).
-    pose proof derivable_weak_excluded_middle (proj1_sig Phi) x.
-    rewrite <- derivable_closed_element_derivable in H3 by (apply DER, (proj2_sig Phi)).
-    apply ORP in H3; [| apply (proj2_sig Phi)].
+    rewrite derivable_closed_element_derivable in H1 by (apply AL_DC, (proj2_sig Psi2)).
+    pose proof deduction_weaken0 (proj1_sig Phi) _ (weak_excluded_middle x).
+    rewrite <- derivable_closed_element_derivable in H3 by (apply AL_DC, (proj2_sig Phi)).
+    apply AL_OW in H3; [| apply (proj2_sig Phi)].
     destruct H3.
     - apply H0 in H3; unfold Ensembles.In in H3.
-      rewrite derivable_closed_element_derivable in H3 by (apply DER, (proj2_sig Psi2)).
+      rewrite derivable_closed_element_derivable in H3 by (apply AL_DC, (proj2_sig Psi2)).
       pose proof deduction_modus_ponens _ _ _ H1 H3.
       revert H4; change (~ proj1_sig Psi2 |-- FF).
       rewrite <- consistent_spec.
-      apply CONSI, (proj2_sig Psi2).
+      apply AL_CONSI, (proj2_sig Psi2).
     - apply H in H3; unfold Ensembles.In in H3.
-      rewrite derivable_closed_element_derivable in H3 by (apply DER, (proj2_sig Psi1)).
+      rewrite derivable_closed_element_derivable in H3 by (apply AL_DC, (proj2_sig Psi1)).
       pose proof deduction_modus_ponens _ _ _ H2 H3.
       revert H4; change (~ proj1_sig Psi1 |-- FF).
       rewrite <- consistent_spec.
-      apply CONSI, (proj2_sig Psi1).
-  + apply LIN_DER in H1.
+      apply AL_CONSI, (proj2_sig Psi1).
+  + apply LIN_CD in H1.
     destruct H1 as [Psi [? ?]]; exists Psi.
     split; intros ? ?; apply H1; [left | right]; auto.
 Qed.
