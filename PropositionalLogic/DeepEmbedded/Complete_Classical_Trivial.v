@@ -4,27 +4,26 @@ Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum_Kripke.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Classical.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Trivial.
 Require Import Logic.PropositionalLogic.Complete.Lindenbaum_Trivial.
 Require Import Logic.PropositionalLogic.Complete.Truth_Trivial.
 Require Import Logic.PropositionalLogic.Complete.Complete_Trivial.
 Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
-Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.DeMorganLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.GodelDummettLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.ProofTheories.
 Require Logic.PropositionalLogic.DeepEmbedded.TrivialSemantics.
 
 Local Open Scope logic_base.
@@ -38,29 +37,27 @@ Import KripkeModelClass.
 
 Section Complete.
 
-Context (Var: Type) (CV: Countable Var).
+Context {Sigma: PropositionalLanguage.PropositionalVariables}
+        {CV: Countable PropositionalLanguage.Var}.
 
-Instance L: Language := PropositionalLanguage.L Var.
-Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
-Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
 
-Instance Classical_G: ProofTheory L := ClassicalLogic.G Var.
-Instance Trivial_MD: Model := TrivialSemantics.MD Var.
-Instance Trivial_SM: Semantics L Trivial_MD := TrivialSemantics.SM Var.
+Existing Instances TrivialSemantics.MD TrivialSemantics.SM TrivialSemantics.tminSM TrivialSemantics.tpSM.
+
+Existing Instances ProofTheories.ClassicalPropositionalLogic.G ProofTheories.ClassicalPropositionalLogic.AX ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipG  ProofTheories.ClassicalPropositionalLogic.cpG.
+
+Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC Axiomatization2SequentCalculus_cpSC.
 
 Section General_Completeness.
 
-Context {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {cpGamma: ClassicalPropositionalLogic L Gamma}.
+Definition cP: context -> Prop := maximal consistent.
 
-Lemma MC: at_least_maximal_consistent maximal_consistent.
-Proof. hnf; intros; auto. Qed.
+Lemma AL_MC: at_least (maximal consistent) cP.
+Proof. solve_at_least. Qed.
 
-Lemma LIN_CONSI: Linderbaum_consistent maximal_consistent.
+Lemma LIN_CONSI: Lindenbaum_constructable consistent cP.
 Proof.
+  SearchAbout Lindenbaum_constructable consistent.
   hnf; intros.
   pose proof Lindenbaum_lemma
     (PropositionalLanguage.formula_countable Var CV) _ H

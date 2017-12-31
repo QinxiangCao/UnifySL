@@ -4,19 +4,21 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.HenkinCompleteness.
-Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Trivial.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Semantics.Trivial.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Classical.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Trivial.
 
@@ -25,30 +27,30 @@ Local Open Scope syntax.
 Local Open Scope kripke_model.
 Import PropositionalLanguageNotation.
 Import KripkeModelFamilyNotation.
-Import KripkeModelNotation_Intuitionistic.
 
 Section Completeness.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {cpGamma: ClassicalPropositionalLogic L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {mpSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
+        {cpSC: ClassicalPropositionalSequentCalculus L Gamma}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
         {SM: Semantics L MD}
+        {tminSM: TrivialMinimunSemantics L MD SM}
         {tpSM: TrivialPropositionalSemantics L MD SM}
         {kMC: Kmodel -> Prop}.
 
-Context (P: context -> Prop)
-        (rel: bijection (Kworlds M) (sig P)).
+Context (cP: context -> Prop)
+        (rel: bijection (Kworlds M) (sig cP)).
 
-Hypothesis MC: at_least_maximal_consistent P.
-Hypothesis LIN_CONSI: Linderbaum_consistent P.
+Hypothesis AL_MC: at_least (maximal consistent) cP.
+Hypothesis LIN_CONSI: Lindenbaum_constructable consistent cP.
 Hypothesis TRUTH: forall x: expr, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x).
 Hypothesis CANON: kMC M.
 

@@ -57,4 +57,15 @@ Proof.
   + apply H6; auto.
 Qed.
 
+Lemma Lindenbaum_consistent_ensures_max_consistent {AX: NormalAxiomatization L Gamma}: Lindenbaum_ensures consistent (maximal consistent).
+Proof.
+  intros.
+  apply Lindenbaum_for_max_consistent.
+  - apply Lindenbaum_preserves_cannot_derivable.
+  - unfold cannot_derive.
+    hnf; intros.
+    exists x; auto.
+Qed.
+
+
 End Lindenbaum_Trivial.

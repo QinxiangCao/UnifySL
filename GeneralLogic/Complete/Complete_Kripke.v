@@ -6,7 +6,6 @@ Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
@@ -26,7 +25,6 @@ Context {L: Language}
         {M: Kmodel}
         {R: Relation (Kworlds M)}
         {SM: Semantics L MD}
-        {kiSM: KripkeIntuitionisticSemantics L MD M SM}
         {kMC: Kmodel -> Prop}.
 
 Context (cP: context -> Prop)
