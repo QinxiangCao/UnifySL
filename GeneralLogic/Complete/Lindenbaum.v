@@ -165,48 +165,6 @@ Qed.
 
 End Lindenbaum.
 
-Section Lindenbaum_equiv.
-
-Context {A: Type}
-        (CA: Countable A)
-        (init: Ensemble A)
-        (P Q: Ensemble A -> Prop)
-        (PP: Proper (Same_set A ==> iff) P)
-        (SS: Same_set _ P Q).
-
-Lemma Lindenbaum_equiv_n: forall n, Same_set _ (LindenbaumChain CA init P n) (LindenbaumChain CA init Q n).
-Proof.
-  intros.
-  rewrite Same_set_spec in SS.
-  induction n.
-  + simpl.
-    reflexivity.
-  + simpl.
-    rewrite Same_set_spec in IHn |- *.
-    intros x.
-    apply Morphisms_Prop.or_iff_morphism; auto.
-    apply Morphisms_Prop.and_iff_morphism; [reflexivity |].
-    etransitivity; [| apply SS].
-    apply PP.
-    rewrite Same_set_spec; intro.
-    rewrite !Union_spec.
-    apply Morphisms_Prop.or_iff_morphism; [| reflexivity].
-    auto.
-Qed.
-
-Lemma Lindenbaum_equiv_omega: Same_set _ (LindenbaumConstruction CA init P) (LindenbaumConstruction CA init Q).
-Proof.
-  intros.
-  rewrite Same_set_spec; intro.
-  apply Morphisms_Prop.ex_iff_morphism.
-  intro n.
-  pose proof Lindenbaum_equiv_n n.
-  rewrite Same_set_spec in H.
-  auto.
-Qed.
-
-End Lindenbaum_equiv.
-
 Definition Lindenbaum_preserves {A: Type} (P: Ensemble A -> Prop): Prop :=
   forall (CA: Countable A) init, P init -> P (LindenbaumConstruction CA init P).
 
@@ -216,25 +174,20 @@ Definition Lindenbaum_ensures {A: Type} (P cP: Ensemble A -> Prop): Prop :=
 Definition Lindenbaum_constructable {A: Type} (P cP: Ensemble A -> Prop): Prop :=
   forall Phi, P Phi -> exists Psi: sig cP, Included _ Phi (proj1_sig Psi) /\ P (proj1_sig Psi).
 
-Lemma Lindenbaum_preserves_Same_set {A: Type}: forall P Q: Ensemble A -> Prop,
-  Proper (Same_set A ==> iff) P ->
+Lemma Lindenbaum_constructable_Same_set {A: Type}: forall P Q cP: Ensemble A -> Prop,
   Same_set _ P Q ->
-  (Lindenbaum_preserves P <-> Lindenbaum_preserves Q).
+  (Lindenbaum_constructable P cP <-> Lindenbaum_constructable Q cP).
 Proof.
   intros.
-  pose proof H0.
-  rewrite Same_set_spec in H0.
-  split; intros.
-  + hnf; intros.
-    rewrite <- H0 in H3.
-    specialize (H2 CA _ H3).
-    rewrite Lindenbaum_equiv_omega in H2 by eauto.
-    apply H0; auto.
-  + hnf; intros.
-    rewrite H0 in H3.
-    specialize (H2 CA _ H3).
-    rewrite Lindenbaum_equiv_omega by eauto.
-    apply H0; auto.
+  pose proof H.
+  rewrite Same_set_spec in H.
+  apply Morphisms_Prop.all_iff_morphism.
+  intros Phi.
+  apply Morphisms_Prop.iff_iff_iff_impl_morphism_obligation_1; auto.
+  apply Morphisms_Prop.ex_iff_morphism.
+  intros [Psi ?H].
+  apply Morphisms_Prop.and_iff_morphism; [tauto |].
+  auto.
 Qed.
 
 Lemma Lindenbaum_constructable_suffice {A: Type} (P cP: Ensemble A -> Prop):

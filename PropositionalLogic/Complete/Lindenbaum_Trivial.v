@@ -39,33 +39,23 @@ Context {L: Language}
         {cpSC: ClassicalPropositionalSequentCalculus L Gamma}.
 
 Lemma Lindenbaum_for_max_consistent: forall P,
-  Lindenbaum_preserves P ->
-  context_orp_captured P ->
-  at_least consistent P ->
-  derivable_subset_preserved P ->
+  Lindenbaum_ensures P derivable_closed ->
+  Lindenbaum_ensures P orp_witnessed ->
+  Lindenbaum_ensures P consistent ->
   Lindenbaum_ensures P (maximal consistent).
 Proof.
   intros.
-  pose proof derivable_subset_preserved_subset_preserved _ H2.
-  pose proof Lindenbaum_for_derivable_closed _ H H2.
-  pose proof Lindenbaum_for_orp_witnessed _ H H3 H0 H4.
-  pose proof Lindenbaum_for_consistent _ H H1.
   hnf; intros.
-  apply DDCS_MCS.
-  + apply H4; auto.
-  + apply H5; auto.
-  + apply H6; auto.
+  apply DDCS_MCS; auto.
 Qed.
 
-Lemma Lindenbaum_consistent_ensures_max_consistent {AX: NormalAxiomatization L Gamma}: Lindenbaum_ensures consistent (maximal consistent).
+Lemma Lindenbaum_cannot_derive_ensures_max_consistent {AX: NormalAxiomatization L Gamma}: forall x, Lindenbaum_ensures (cannot_derive x) (maximal consistent).
 Proof.
   intros.
   apply Lindenbaum_for_max_consistent.
-  - apply Lindenbaum_preserves_cannot_derivable.
-  - unfold cannot_derive.
-    hnf; intros.
-    exists x; auto.
+  - apply Lindenbaum_cannot_derive_ensures_derivable_closed.
+  - apply Lindenbaum_cannot_derive_ensures_orp_witnessed.
+  - apply Lindenbaum_cannot_derive_ensures_consistent.
 Qed.
-
 
 End Lindenbaum_Trivial.
