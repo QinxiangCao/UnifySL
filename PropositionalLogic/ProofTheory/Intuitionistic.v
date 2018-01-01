@@ -289,13 +289,75 @@ Context {L: Language}
         {Gamma: ProofTheory L}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
-  
+
 Lemma solve_andp_intros: forall x y: expr,
   |-- x -> |-- y -> |-- x && y.
 Proof.
   AddSequentCalculus Gamma.
   intros.
   rewrite provable_derivable in H, H0 |- *.
+  apply deduction_andp_intros; auto.
+Qed.
+
+Lemma solve_andp_elim1: forall x y: expr,
+  |-- x && y -> |-- x.
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable in H |- *.
+  eapply deduction_andp_elim1; eauto.
+Qed.
+
+Lemma solve_andp_elim2: forall x y: expr,
+  |-- x && y -> |-- y.
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable in H |- *.
+  eapply deduction_andp_elim2; eauto.
+Qed.
+
+Lemma solve_impp_elim_left: forall x y: expr,
+  |-- y -> |-- x --> y.
+Proof.
+  intros.
+  eapply modus_ponens.
+  + apply axiom1.
+  + auto.
+Qed.
+
+Lemma solve_orp_impp: forall x y z: expr,
+  |-- x --> z -> |-- y --> z -> |-- x || y --> z.
+Proof.
+  intros.
+  eapply modus_ponens; [| exact H0].
+  eapply modus_ponens; [| exact H].
+  apply orp_elim.
+Qed.
+
+Lemma solve_orp_intros1: forall x y: expr,
+  |-- x -> |-- x || y.
+Proof.
+  intros.
+  eapply modus_ponens; [| exact H].
+  apply orp_intros1.
+Qed.
+
+Lemma solve_orp_intros2: forall x y: expr,
+  |-- y -> |-- x || y.
+Proof.
+  intros.
+  eapply modus_ponens; [| exact H].
+  apply orp_intros2.
+Qed.
+
+Lemma solve_impp_andp: forall x y z: expr,
+  |-- x --> y -> |-- x --> z -> |-- x --> y && z.
+Proof.
+  AddSequentCalculus Gamma.
+  intros.
+  rewrite provable_derivable in H, H0 |- *.
+  rewrite <- deduction_theorem in H, H0 |- *.
   apply deduction_andp_intros; auto.
 Qed.
 
