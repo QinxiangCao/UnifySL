@@ -105,6 +105,24 @@ End ListFun1.
 
 (* Above is copied from RamifyCoq project *)
 
+Section ListFun2'.
+
+Context {A B: Type}.
+Context {RA: relation A}.
+Context {RB: relation B}.
+
+Instance proper_fold_left': forall (f: A -> B -> A) {Proper_f: Proper (RA ==> RB ==> RA) f}, Proper (Forall2 RB ==> RA ==> RA) (fold_left f).
+Proof.
+  intros.
+  hnf; intros.
+  induction H; hnf; intros; simpl.
+  + auto.
+  + apply IHForall2.
+    apply Proper_f; auto.
+Qed.
+
+End ListFun2'.
+
 Definition not_nil {A: Type} (l: list A): Prop := l <> nil.
 
 Lemma not_nil_app_l {A: Type}: forall (l l': list A), not_nil l -> not_nil (l ++ l').
