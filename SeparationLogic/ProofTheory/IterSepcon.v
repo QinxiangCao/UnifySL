@@ -5,17 +5,17 @@ Require Import Coq.Sorting.Permutation.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.List_Func_ext.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
+Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
@@ -25,32 +25,29 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Definition iter_sepcon' {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (default: expr) (xs: list expr) : expr := semi_group_fold default sepcon xs.
+Definition iter_sepcon {L: Language} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (xs: list expr) : expr := fold_left sepcon xs emp.
 
-Definition iter_sepcon {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (xs: list expr) : expr := iter_sepcon' emp xs.
+Definition iter_wand {L: Language} {sL: SeparationLanguage L} (xs: list expr) (y: expr) : expr := fold_right wand y xs.
 
-Definition iter_wand {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (xs: list expr) (y: expr) : expr := fold_right wand y xs.
+Section IterSepconRules.
 
-Lemma sepcon_iter_sepcon' {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}:
-  forall (default: expr) x xs y ys,
-    |-- iter_sepcon' default (x :: xs) * iter_sepcon' default (y :: ys) <-->
-        iter_sepcon' default ((x :: xs) ++ (y :: ys)).
-Proof.
-  intros.
-  apply (@Equivalence_Symmetric _ _ provable_iffp_equiv).
-  apply (@semi_group_fold_app expr _ provable_iffp_equiv sepcon sepcon_proper_iffp default).
-  + intros.
-    apply (@Equivalence_Symmetric _ _ provable_iffp_equiv).
-    apply sepcon_assoc.
-  + intro; congruence.
-  + intro; congruence.
-Qed.
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {sL: SeparationLanguage L}
+        {s'L: SeparationEmpLanguage L}
+        {Gamma: ProofTheory L}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {sGamma: SeparationLogic L Gamma}
+        {EmpGamma: EmpSeparationLogic L Gamma}.
 
-Lemma sepcon_iter_sepcon {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {EmpGamma: EmpSeparationLogic L Gamma}:
+Lemma sepcon_iter_sepcon:
   forall xs ys,
     |-- iter_sepcon xs * iter_sepcon ys <--> iter_sepcon (xs ++ ys).
 Proof.
   intros.
+  apply 
   destruct xs as [| x xs], ys as [| y ys].
   + simpl.
     apply sepcon_emp.

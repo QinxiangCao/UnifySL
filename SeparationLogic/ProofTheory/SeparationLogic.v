@@ -10,6 +10,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
+Require Import Logic.PropositionalLogic.ProofTheory.ProofTheoryPatterns.
 Require Import Logic.SeparationLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -25,7 +26,7 @@ Class SeparationLogic
         (Gamma: ProofTheory L)
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
-  sepcon_comm: forall x y, |-- x * y --> y * x;
+  sepcon_comm_impp: forall x y, |-- x * y --> y * x;
   sepcon_assoc: forall x y z, |-- x * (y * z) <--> (x * y) * z;
   wand_sepcon_adjoint: forall x y z, |-- x * y --> z <-> |-- x --> (y -* z)
 }.
@@ -130,16 +131,71 @@ Proof.
   apply wand_sepcon_adjoint.
 Qed.
 
+Lemma sepcon_orp_distr_l: forall (x y z: expr),
+  |-- (x || y) * z <--> x * z || y * z.
+Proof.
+  intros.
+  apply (@prodp_orp_distr_l _ _ _ _ _ _ _ _ wand_sepcon_Adj).
+Qed.
+
+Lemma falsep_sepcon: forall (x: expr),
+  |-- FF * x <--> FF.
+Proof.
+  intros.
+  apply (@falsep_prodp _ _ _ _ _ _ _ _ wand_sepcon_Adj).
+Qed.
+
+Lemma provable_wand_sepcon_modus_ponens1: forall (x y: expr),
+  |-- (x -* y) * x --> y.
+Proof.
+  intros.
+  apply (@adjoint_modus_ponens _ _ _ _ _ _ wand_sepcon_Adj).
+Qed.
+
 Lemma sepcon_Comm: Commutativity L Gamma sepcon.
 Proof.
   constructor.
   intros.
-  apply sepcon_comm.
+  apply sepcon_comm_impp.
+Qed.
+
+Lemma sepcon_comm: forall (x y: expr),
+  |-- x * y <--> y * x.
+Proof.
+  intros.
+  apply (@prodp_comm _ _ _ _ _ _ _ sepcon_Comm).
+Qed.
+
+Lemma sepcon_orp_distr_r: forall (x y z: expr),
+  |-- x * (y || z) <--> x * y || x * z.
+Proof.
+  intros.
+  apply (@prodp_orp_distr_r _ _ _ _ _ _ _ _ wand_sepcon_Adj sepcon_Comm).
+Qed.
+
+Lemma sepcon_falsep: forall (x: expr),
+  |-- x * FF <--> FF.
+Proof.
+  intros.
+  apply (@prodp_falsep _ _ _ _ _ _ _ _ wand_sepcon_Adj sepcon_Comm).
+Qed.
+
+Lemma provable_wand_sepcon_modus_ponens2: forall (x y: expr),
+  |-- x * (x -* y) --> y.
+Proof.
+  intros.
+  rewrite (sepcon_comm x (x -* y)).
+  apply provable_wand_sepcon_modus_ponens1.
+Qed.
+
+Lemma wand_mono: forall x1 x2 y1 y2, |-- x2 --> x1 -> |-- y1 --> y2 -> |-- (x1 -* y1) --> (x2 -* y2).
+Proof.
+  intros.
+  apply (@funcp_mono _ _ _ _ _ _ wand_sepcon_Adj sepcon_Comm); auto.
 Qed.
 
 Lemma sepcon_Mono: Monotonicity L Gamma sepcon.
 Proof.
-  intros.
   apply @Adjoint2Mono with (funcp := wand).
   + auto.
   + apply wand_sepcon_Adj.
@@ -152,10 +208,27 @@ Proof.
   apply (@prodp_mono _ _ _ _ sepcon_Mono); auto.
 Qed.
 
-Lemma wand_mono: forall x1 x2 y1 y2, |-- x2 --> x1 -> |-- y1 --> y2 -> |-- (x1 -* y1) --> (x2 -* y2).
+Lemma sepcon_Assoc: Associativity L Gamma sepcon.
 Proof.
+  apply Build_Associativity'.
   intros.
-  apply (@funcp_mono _ _ _ _ _ _ wand_sepcon_Adj sepcon_Comm); auto.
+  rewrite sepcon_assoc.
+  apply provable_iffp_refl.
+Qed.
+
+Lemma sepcon_LU {s'L: SeparationEmpLanguage L} {eGamma: EmpSeparationLogic L Gamma}: LeftUnit L Gamma emp sepcon.
+Proof.
+  apply Build_LeftUnit'.
+  intros.
+  rewrite sepcon_comm.
+  apply sepcon_emp.
+Qed.
+
+Lemma sepcon_RU {s'L: SeparationEmpLanguage L} {eGamma: EmpSeparationLogic L Gamma}: RightUnit L Gamma emp sepcon.
+Proof.
+  apply Build_RightUnit'.
+  intros.
+  apply sepcon_emp.
 Qed.
 
 Lemma sepcon_elim2: forall {gcsGamma: GarbageCollectSeparationLogic L Gamma} (x y: expr),

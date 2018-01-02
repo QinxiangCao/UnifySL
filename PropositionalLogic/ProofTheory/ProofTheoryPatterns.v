@@ -20,8 +20,70 @@ Context {L: Language}
         {Gamma: ProofTheory L}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {prodp: expr -> expr -> expr}
-        {e: expr}
+        {prodp: expr -> expr -> expr}.
+
+Lemma prodp_comm {Comm: Commutativity L Gamma prodp}: forall x y,
+  |-- prodp x y <--> prodp y x.
+Proof.
+  intros.
+  apply solve_andp_intros; apply prodp_comm_impp.
+Qed.
+
+Section AdjointTheorems.
+
+Context {funcp: expr -> expr -> expr}
+        {Adj: Adjointness L Gamma prodp funcp}.
+
+Lemma prodp_orp_distr_l: forall x y z: expr,
+  |-- prodp (x || y) z <--> (prodp x z || prodp y z).
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply adjoint.
+    apply solve_orp_impp; apply adjoint.
+    - apply orp_intros1.
+    - apply orp_intros2.
+  + apply solve_orp_impp.
+    - apply prodp_mono1.
+      apply orp_intros1.
+    - apply prodp_mono1.
+      apply orp_intros2.
+Qed.
+
+Lemma prodp_orp_distr_r {Comm: Commutativity L Gamma prodp}: forall x y z: expr,
+  |-- prodp x (y || z) <--> (prodp x y || prodp x z).
+Proof.
+  intros.
+  rewrite prodp_comm.
+  rewrite prodp_orp_distr_l.
+  rewrite !(prodp_comm _ x).
+  apply provable_iffp_refl.
+Qed.
+
+Lemma falsep_prodp: forall x: expr,
+  |-- prodp falsep x <--> falsep.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply adjoint.
+    apply falsep_elim.
+  + apply falsep_elim.
+Qed.
+
+Lemma prodp_falsep {Comm: Commutativity L Gamma prodp}: forall x: expr,
+  |-- prodp x falsep <--> falsep.
+Proof.
+  intros.
+  rewrite prodp_comm.
+  rewrite falsep_prodp.
+  apply provable_iffp_refl.
+Qed.
+
+End AdjointTheorems.
+
+Section AssocTheorems.
+
+Context {e: expr}
         {Mono: Monotonicity L Gamma prodp}
         {Assoc: Associativity L Gamma prodp}
         {LU: LeftUnit L Gamma e prodp}
@@ -35,6 +97,17 @@ Proof.
   + apply assoc_fold_left_fold_right.
   + apply assoc_fold_right_fold_left.
 Qed.
+
+Lemma assoc_prodp_fold_left_equiv: forall xs1 xs2,
+  |-- prodp (fold_left prodp xs1 e) (fold_left prodp xs2 e) <--> fold_left prodp (xs1 ++ xs2) e.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply assoc_prodp_fold_left.
+  + apply assoc_fold_left_app.
+Qed.
+
+End AssocTheorems.
 
 End DerivableRulesFromPatterns.
 
@@ -163,6 +236,34 @@ Context {L: Language}
         {Gamma: ProofTheory L}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+
+Lemma falsep_andp: forall x: expr,
+  |-- FF && x <--> FF.
+Proof.
+  intros.
+  apply (@falsep_prodp _ _ _ _ _ _ _ _ impp_andp_Adjoint).
+Qed.
+
+Lemma andp_falsep: forall x: expr,
+  |-- x && FF <--> FF.
+Proof.
+  intros.
+  apply (@prodp_falsep _ _ _ _ _ _ _ _ impp_andp_Adjoint andp_Comm).
+Qed.
+
+Lemma andp_orp_distr_l: forall x y z: expr,
+  |-- (x || y) && z <--> (x && z) || (y && z).
+Proof.
+  intros.
+  apply (@prodp_orp_distr_l _ _ _ _ _ _ _ _ impp_andp_Adjoint).
+Qed.
+
+Lemma andp_orp_distr_r: forall x y z: expr,
+  |-- x && (y || z) <--> (x && y) || (x && z).
+Proof.
+  intros.
+  apply (@prodp_orp_distr_r _ _ _ _ _ _ _ _ impp_andp_Adjoint andp_Comm).
+Qed.
 
 Definition multi_and (xs: list expr): expr := fold_left andp xs truep.
 

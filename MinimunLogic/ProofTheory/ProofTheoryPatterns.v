@@ -208,6 +208,38 @@ Proof.
     apply assoc_fold_right_cons.
 Qed.
 
+Lemma assoc_prodp_fold_left: forall xs1 xs2,
+  |-- prodp (fold_left prodp xs1 e) (fold_left prodp xs2 e) --> fold_left prodp (xs1 ++ xs2) e.
+Proof.
+  intros.
+  eapply aux_minimun_rule02; [apply prodp_mono; apply assoc_fold_left_fold_right |].
+  rewrite <- assoc_fold_right_fold_left.
+  induction xs1.
+  + simpl.
+    rewrite left_unit1.
+    apply provable_impp_refl.
+  + simpl.
+    rewrite prodp_assoc2.
+    apply prodp_mono; [apply provable_impp_refl |].
+    auto.
+Qed.
+
+Lemma assoc_fold_left_app: forall xs1 xs2,
+  |-- fold_left prodp (xs1 ++ xs2) e --> prodp (fold_left prodp xs1 e) (fold_left prodp xs2 e).
+Proof.
+  intros.
+  eapply aux_minimun_rule02; [| apply prodp_mono; apply assoc_fold_right_fold_left].
+  rewrite assoc_fold_left_fold_right.
+  induction xs1.
+  + simpl.
+    rewrite <- left_unit2.
+    apply provable_impp_refl.
+  + simpl.
+    rewrite <- prodp_assoc1.
+    apply prodp_mono; [apply provable_impp_refl |].
+    auto.
+Qed.
+
 End AssocTheorems.
 
 
