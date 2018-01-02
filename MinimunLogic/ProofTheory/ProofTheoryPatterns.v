@@ -111,6 +111,68 @@ End AdjointCommutativeTheorems.
 
 End AdjointTheorems.
 
+Section MonoTheorems.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {Gamma: ProofTheory L}
+        {minAX: MinimunAxiomatization L Gamma}
+        {prodp: expr -> expr -> expr}
+        {Mono: Monotonicity L Gamma prodp}.
+
+(* TODO: Maybe this should be abstracted to non-logic level about generic "Proper" vs. fold_left? *)
+Lemma fold_left_mono: forall x1 x2 xs1 xs2,
+  (Forall2 (fun x1 x2 => |-- x1 --> x2) xs1 xs2) ->
+  |-- x1 --> x2 ->
+  |-- fold_left prodp xs1 x1 --> fold_left prodp xs2 x2.
+Proof.
+  intros.
+  revert x1 x2 H0.
+  induction H; intros.
+  + simpl; auto.
+  + simpl.
+    apply IHForall2.
+    apply prodp_mono; auto.
+Qed.
+
+Lemma fold_right_mono: forall x1 x2 xs1 xs2,
+  (Forall2 (fun x1 x2 => |-- x1 --> x2) xs1 xs2) ->
+  |-- x1 --> x2 ->
+  |-- fold_right prodp x1 xs1 --> fold_right prodp x2 xs2.
+Proof.
+  intros.
+  induction H; intros.
+  + simpl; auto.
+  + simpl.
+    apply prodp_mono; auto.
+Qed.
+
+Lemma fold_left_mono2: forall x1 x2 xs,
+  |-- x1 --> x2 ->
+  |-- fold_left prodp xs x1 --> fold_left prodp xs x2.
+Proof.
+  intros.
+  apply fold_left_mono; auto.
+  induction xs.
+  + constructor.
+  + constructor; auto.
+    apply provable_impp_refl.
+Qed.
+
+Lemma fold_right_mono2: forall x1 x2 xs,
+  |-- x1 --> x2 ->
+  |-- fold_right prodp x1 xs --> fold_right prodp x2 xs.
+Proof.
+  intros.
+  apply fold_right_mono; auto.
+  induction xs.
+  + constructor.
+  + constructor; auto.
+    apply provable_impp_refl.
+Qed.
+
+End MonoTheorems.
+
 Section AssocTheorems.
 
 Context {L: Language}
@@ -119,36 +181,8 @@ Context {L: Language}
         {minAX: MinimunAxiomatization L Gamma}
         {prodp: expr -> expr -> expr}
         {e: expr}
-        {Mono: Monotonicity L Gamma prodp}.
-
-Lemma fold_left_mono: forall x1 x2 xs,
-  |-- x1 --> x2 ->
-  |-- fold_left prodp xs x1 --> fold_left prodp xs x2.
-Proof.
-  intros.
-  revert x1 x2 H.
-  induction xs; intros.
-  + simpl; auto.
-  + simpl.
-    apply IHxs.
-    apply prodp_mono; auto.
-    apply provable_impp_refl.
-Qed.
-
-Lemma fold_right_mono: forall x1 x2 xs,
-  |-- x1 --> x2 ->
-  |-- fold_right prodp x1 xs --> fold_right prodp x2 xs.
-Proof.
-  intros.
-  revert x1 x2 H.
-  induction xs; intros.
-  + simpl; auto.
-  + simpl.
-    apply prodp_mono; auto.
-    apply provable_impp_refl.
-Qed.
-
-Context {Assoc: Associativity L Gamma prodp}
+        {Mono: Monotonicity L Gamma prodp}
+        {Assoc: Associativity L Gamma prodp}
         {LU: LeftUnit L Gamma e prodp}
         {RU: RightUnit L Gamma e prodp}.
 
@@ -166,7 +200,7 @@ Proof.
   + simpl.
     rewrite <- prodp_assoc2.
     eapply aux_minimun_rule02; [| apply IHxs].
-    apply fold_left_mono.
+    apply fold_left_mono2.
     apply prodp_assoc2.
 Qed.
 
@@ -182,7 +216,7 @@ Proof.
   + simpl.
     rewrite prodp_assoc1.
     eapply aux_minimun_rule02; [apply IHxs |].
-    apply fold_left_mono.
+    apply fold_left_mono2.
     apply prodp_assoc1.
 Qed.
 
@@ -241,6 +275,4 @@ Proof.
 Qed.
 
 End AssocTheorems.
-
-
 

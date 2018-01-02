@@ -77,10 +77,7 @@ Instance proper_iter_sepcon_Permutation: Proper (@Permutation expr ==> (fun x y 
 Proof.
   intros.
   hnf; intros.
-  apply (@comm_semi_group_fold_perm expr _ provable_iffp_equiv sepcon sepcon_proper_iffp default); auto.
-  + intros.
-    apply provable_sepcon_comm_iffp.
-  + intros.
-    apply (@Equivalence_Symmetric _ _ provable_iffp_equiv).
-    apply sepcon_assoc.
+  apply (@assoc_fold_left_Permutation _ _ _ _ _ _ _ sepcon_Mono sepcon_Comm sepcon_Assoc); auto.
 Qed.
+
+End IterSepconRules.

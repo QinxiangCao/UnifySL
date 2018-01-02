@@ -1,3 +1,5 @@
+Require Import Coq.Sorting.Permutation.
+Require Import Logic.lib.List_Func_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
@@ -81,12 +83,62 @@ Qed.
 
 End AdjointTheorems.
 
+Section MonoTheorems.
+
+Context {Mono: Monotonicity L Gamma prodp}.
+
+Lemma prodp_iffp: forall x1 x2 y1 y2,
+  |-- x1 <--> x2 ->
+  |-- y1 <--> y2 ->
+  |-- prodp x1 y1 <--> prodp x2 y2.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply prodp_mono.
+    - eapply solve_andp_elim1; exact H.
+    - eapply solve_andp_elim1; exact H0.
+  + apply prodp_mono.
+    - eapply solve_andp_elim2; exact H.
+    - eapply solve_andp_elim2; exact H0.
+Qed.
+
+Lemma fold_left_iffp: forall x1 x2 xs1 xs2,
+  (Forall2 (fun x1 x2 => |-- x1 <--> x2) xs1 xs2) ->
+  |-- x1 <--> x2 ->
+  |-- fold_left prodp xs1 x1 <--> fold_left prodp xs2 x2.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply fold_left_mono.
+    - revert H; apply Forall2_impl.
+      intros.
+      eapply solve_andp_elim1; exact H.
+    - eapply solve_andp_elim1; exact H0.
+  + apply fold_left_mono.
+    - apply Forall2_rev.
+      revert H; apply Forall2_impl.
+      intros.
+      eapply solve_andp_elim2; exact H.
+    - eapply solve_andp_elim2; exact H0.
+Qed.
+
+End MonoTheorems.
+
 Section AssocTheorems.
 
 Context {e: expr}
         {Mono: Monotonicity L Gamma prodp}
-        {Assoc: Associativity L Gamma prodp}
-        {LU: LeftUnit L Gamma e prodp}
+        {Assoc: Associativity L Gamma prodp}.
+
+Lemma prodp_assoc: forall x y z, |-- prodp x (prodp y z) <--> prodp (prodp x y) z.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply prodp_assoc1.
+  + apply prodp_assoc2.
+Qed.
+
+Context {LU: LeftUnit L Gamma e prodp}
         {RU: RightUnit L Gamma e prodp}.
 
 Lemma assoc_fold_left_fold_right_equiv: forall xs,
@@ -108,6 +160,35 @@ Proof.
 Qed.
 
 End AssocTheorems.
+
+Section CommAssocTheorems.
+
+Context {e: expr}
+        {Mono: Monotonicity L Gamma prodp}
+        {Comm: Commutativity L Gamma prodp}
+        {Assoc: Associativity L Gamma prodp}.
+
+Lemma assoc_fold_left_Permutation: forall x ys1 ys2,
+  Permutation ys1 ys2 ->
+  |-- fold_left prodp ys1 x <--> fold_left prodp ys2 x.
+Proof.
+  intros.
+  pose proof @proper_permutation_fold_left _ _ _ _ prodp.
+  assert (forall x y, |-- x <--> y -> forall z1 z2, z1 = z2 -> |-- prodp x z1 <--> prodp y z2)
+    by (intros; subst; apply prodp_iffp; [auto | apply provable_iffp_refl]).
+  specialize (H0 H1); clear H1.
+  assert (forall x1 x2 y z, |-- x1 <--> x2 -> |-- prodp (prodp x1 y) z <--> prodp (prodp x2 z) y).
+  {
+    intros.
+    rewrite <- !prodp_assoc.
+    apply prodp_iffp; [auto | apply prodp_comm].
+  }
+  specialize (H0 H1); clear H1.
+  apply H0; auto.
+  apply provable_iffp_refl.
+Qed.
+
+End CommAssocTheorems.
 
 End DerivableRulesFromPatterns.
 

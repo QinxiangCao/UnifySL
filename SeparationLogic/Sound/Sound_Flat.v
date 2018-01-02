@@ -1,13 +1,14 @@
-Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
-Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 
 Local Open Scope logic_base.
@@ -21,7 +22,7 @@ Import KripkeModelNotation_Intuitionistic.
 Section Sound_Flat.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {MD: Model}
@@ -31,10 +32,10 @@ Context {L: Language}
         {po_R: PreOrder Krelation}
         {J: Join (Kworlds M)}
         {SA: SeparationAlgebra (Kworlds M)}
-        {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)}
         {dSA: DownwardsClosedSeparationAlgebra (Kworlds M)}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
+        {kminSM: KripkeMinimunSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}
         {fsSM: FlatSemantics.SeparatingSemantics L MD M SM}.
 
