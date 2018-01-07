@@ -186,6 +186,23 @@ Proof.
   apply context_sepcon_included_l_derivable_subset_preserved.
 Qed.
 
+Lemma context_sepcon_included_l_finite_captured: forall Phi2 Psi,
+  finite_captured (context_sepcon_included_l Phi2 Psi).
+Proof.
+  intros.
+  unfold context_sepcon_included_l.
+  hnf; intros.
+  unfold Included, Ensembles.In; intros z ?.
+  apply context_sepcon_derivable in H0.
+  destruct H0 as [x [y [? [? ?]]]].
+  rewrite <- H0; clear z H0.
+  apply can_derive_finite_witnessed in H1.
+  destruct H1 as [xs [? ?]].
+  apply (H xs); auto; unfold Ensembles.In.
+  apply derivable_assum.
+  exists x, y; split; [| split]; auto.
+Qed.
+(*
 Lemma context_sepcon_included_r_derivable_subset_preserved: forall Phi1 Psi,
   derivable_subset_preserved (context_sepcon_included_r Phi1 Psi).
 Proof.
@@ -209,7 +226,7 @@ Proof.
   apply derivable_subset_preserved_subset_preserved.
   apply context_sepcon_included_r_derivable_subset_preserved.
 Qed.
-
+*)
 Lemma wand_deduction_theorem:
   forall (Phi: context) x y,
     context_sepcon Phi (Union _ empty_context (Singleton _ x)) |-- y <->
@@ -230,6 +247,15 @@ Proof.
     rewrite deduction_theorem.
     apply derivable_impp_refl.
 Qed.
+
+Lemma context_sepcon_included_equiv: forall Phi Psi,
+  Same_set _ (context_sepcon_included_l Phi Psi) (context_sepcon_included_r Phi Psi).
+Proof.
+  intros.
+  rewrite Same_set_spec; intros ?; split; intros.
+  + hnf; intros.
+    apply H; clear H.
+    (* we need something like: Phi |-- Psi, Psi |-- x -> Phi |-- x *)
 (*
 Lemma Linderbaum_sepcon_equiv {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall P, Linderbaum_sepcon_left P <-> Linderbaum_sepcon_right P.
 Proof.
