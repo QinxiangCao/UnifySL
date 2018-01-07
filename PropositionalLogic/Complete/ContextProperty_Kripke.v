@@ -1,6 +1,4 @@
-Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.Classical_Prop.
-Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
@@ -40,10 +38,9 @@ Definition context_orp_captured (P: context -> Prop): Prop :=
 Context {SC: NormalSequentCalculus L Gamma}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
-
-Existing Instances SequentCalculus2Axiomatization_minAX
-                   SequentCalculus2Axiomatization_ipGamma.
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma cannot_derive_context_orp_captured: forall (x: expr),
   context_orp_captured (cannot_derive x).

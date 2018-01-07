@@ -76,9 +76,18 @@ Qed.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Semantics.SemanticEquiv.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
 
 Instance Pred_kiSM (A: Type): @KripkeIntuitionisticSemantics (Pred_L A) (Build_Model A) (unit_kMD _) tt eq (Pred_SM A) :=
   @eqR_KripkeIntuitionistic _ _ _.
 
 Instance Pred_kminSM (A: Type): @KripkeMinimunSemantics (Pred_L A) (Pred_minL A) (Build_Model A) (unit_kMD _) tt eq (Pred_SM A) :=
   @Trivial2Kripke _ _ _ _ (Pred_tminSM A).
+
+Instance Pred_kpSM (A: Type): @KripkePropositionalSemantics (Pred_L A) (Pred_minL A) (Pred_pL A) (Build_Model A) (unit_kMD _) tt eq (Pred_SM A) (Pred_kminSM A).
+Proof.
+  constructor.
+  + intros; apply Same_set_refl.
+  + intros; apply Same_set_refl.
+  + apply Same_set_refl.
+Qed.

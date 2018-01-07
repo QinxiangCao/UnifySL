@@ -38,6 +38,8 @@ Context {L: Language}
         {mpSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
         {cpSC: ClassicalPropositionalSequentCalculus L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}

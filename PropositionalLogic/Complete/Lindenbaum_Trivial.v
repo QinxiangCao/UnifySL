@@ -36,7 +36,9 @@ Context {L: Language}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {cpSC: ClassicalPropositionalSequentCalculus L Gamma}.
+        {cpSC: ClassicalPropositionalSequentCalculus L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma Lindenbaum_for_max_consistent: forall P,
   Lindenbaum_ensures P derivable_closed ->

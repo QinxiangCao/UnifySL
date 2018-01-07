@@ -9,7 +9,6 @@ Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -19,7 +18,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 
 Local Open Scope logic_base.

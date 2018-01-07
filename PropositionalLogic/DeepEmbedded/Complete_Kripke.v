@@ -65,11 +65,13 @@ Proof. solve_at_least. Qed.
 Lemma AL_CONSI: at_least consistent cP.
 Proof. solve_at_least. Qed.
 
-Context {AX: NormalAxiomatization _ Gamma}
-        {SC: NormalSequentCalculus _ Gamma}
+Context {SC: NormalSequentCalculus _ Gamma}
         {bSC: BasicSequentCalculus _ Gamma}
         {minSC: MinimunSequentCalculus _ Gamma}
-        {spSC: IntuitionisticPropositionalSequentCalculus _ Gamma}.
+        {spSC: IntuitionisticPropositionalSequentCalculus _ Gamma}
+        {AX: NormalAxiomatization _ Gamma}
+        {minAX: MinimunAxiomatization _ Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic _ Gamma}.
 
 Lemma LIN_CD: forall x: expr, Lindenbaum_constructable (cannot_derive x) cP.
 Proof.

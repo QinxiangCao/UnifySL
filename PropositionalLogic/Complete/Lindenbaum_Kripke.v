@@ -31,7 +31,9 @@ Context {L: Language}
         {SC: NormalSequentCalculus L Gamma}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma Lindenbaum_for_orp_witnessed: forall P,
   Lindenbaum_preserves P ->

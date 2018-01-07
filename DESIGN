@@ -8,3 +8,12 @@ It depends on whether A's critical feature requires the existence of B. For exam
 Should connective (pattern) be components of proof-theory-pattern type classes or arguments of proof-theory-pattern?
 
 Arguments! Because we sometimes want to prove properties about two or more proof-theory-patterns.
+
+
+===============================
+
+Should context properties proved by sequent calculus theories or axiomatization theories?
+
+The assumption should be a mixture of both! On one hand, context properties are mainly about context and derivable. On the other hand, the very basic context property that "derivable" is finite-witnessed is based on NormalAxiomatization. Because of that, there is no way to put a limitation there.
+
+However, if in the future we prove some weak completeness instead of strong completeness. At the time, we should rethink about this problem.
