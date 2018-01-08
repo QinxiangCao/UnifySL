@@ -47,7 +47,7 @@ Proof.
     destruct H as [[y ?] _].
     exists y.
     intro.
-    pose proof deduction_subst _ _ _ H0 H1.
+    pose proof deduction_subst1 _ _ _ H0 H1.
     auto.
   } Unfocus.
   destruct H.

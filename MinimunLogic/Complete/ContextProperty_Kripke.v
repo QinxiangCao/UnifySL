@@ -17,17 +17,8 @@ Context {L: Language}
 Lemma can_derive_finite_witnessed: forall x,
   finite_witnessed (can_derive x).
 Proof.
-  intros.
-  unfold can_derive.
-  hnf; intros.
-  rewrite derivable_provable in H.
-  destruct H as [xs [? ?]].
-  exists xs.
-  split; auto.
-  rewrite derivable_provable.
-  exists xs.
-  split; auto.
-  rewrite Forall_forall; auto.
+  intros; hnf; intros.
+  apply derivable_finite_witnessed; auto.
 Qed.
 
 Lemma cannot_derive_finite_captured: forall x,

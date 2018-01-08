@@ -189,6 +189,7 @@ Proof.
   + apply aux_minimun_rule01; auto.
 Qed.
 
+(* TODO: maybe this one is also not useful now. *)
 Lemma provable_multi_imp_split:
   forall Phi1 Phi2 (xs: list expr) (y: expr),
     Forall (Union _ Phi1 Phi2) xs ->
@@ -275,6 +276,19 @@ Qed.
 
 Context {minAX: MinimunAxiomatization L Gamma}.
 
+Lemma derivable_finite_witnessed: DerivableFiniteWitnessed L Gamma.
+Proof.
+  hnf; intros.
+  rewrite derivable_provable in H.
+  destruct H as [xs [? ?]].
+  exists xs.
+  split; auto.
+  rewrite derivable_provable.
+  exists xs.
+  split; auto.
+  rewrite Forall_forall; auto.
+Qed.
+
 Lemma Axiomatization2SequentCalculus_minSC: MinimunSequentCalculus L Gamma.
 Proof.
   constructor.
@@ -309,22 +323,30 @@ Qed.
 
 Lemma Axiomatization2SequentCalculus_bSC: BasicSequentCalculus L Gamma.
 Proof.
-  constructor.
-  + intros.
+  assert (DW: DeductionWeaken L Gamma).
+  {
+    hnf; intros.
     rewrite derivable_provable in H0 |- *.
     destruct H0 as [xs [? ?]].
     exists xs; split; auto.
     revert H0; apply Forall_impl.
     auto.
+  }
+  constructor; auto.
   + intros.
     rewrite derivable_provable.
     exists (x :: nil); split.
     - constructor; auto.
     - simpl.
       apply provable_impp_refl.
-  + apply DeductionImpIntro_DeductionMP_2_DeductionSubst.
-    - exact (@deduction_impp_intros _ _ _ Axiomatization2SequentCalculus_minSC).
-    - exact (@deduction_modus_ponens _ _ _ Axiomatization2SequentCalculus_minSC).
+  + apply DeductionWeaken_ContextualDerivableFiniteWitnessed_DeductionSubst1_2_DeductionSubst.
+    - exact DW.
+    - apply DeductionWeaken_DerivableFiniteWitnessed_2_ContextualDerivableFiniteWitnessed.
+      * exact DW.
+      * apply derivable_finite_witnessed.
+    - apply DeductionImpIntro_DeductionMP_2_DeductionSubst1.
+      * exact (@deduction_impp_intros _ _ _ Axiomatization2SequentCalculus_minSC).
+      * exact (@deduction_modus_ponens _ _ _ Axiomatization2SequentCalculus_minSC).
 Qed.
 
 End Axiomatization2SequentCalculus.

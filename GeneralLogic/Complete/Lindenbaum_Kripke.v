@@ -40,7 +40,9 @@ Proof.
   rewrite Union_Included; split.
   + eapply Included_trans; [| apply left_Included_Union].
     apply Lindenbaum_included_n_omega.
-  + apply right_Included_Union.
+  + eapply Included_trans; [| apply right_Included_Union].
+    intros ? ?.
+    inversion H6; subst; auto.
 Qed.
 
 End Lindenbaum.
