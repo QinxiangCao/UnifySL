@@ -36,6 +36,7 @@ Context {L: Language}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
+        {AX: NormalAxiomatization L Gamma}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}.
@@ -45,7 +46,8 @@ Lemma Lindenbaum_preserves_context_sepcon_included_l: forall Phi2 Psi,
 Proof.
   intros.
   apply Lindenbaum_preserves_by_finiteness.
-  - apply cannot_derive_finite_captured.
-  - apply cannot_derive_subset_preserved.
+  - apply context_sepcon_included_l_finite_captured.
+  - apply context_sepcon_included_l_subset_preserved.
 Qed.
+
 End Lindenbaum_Flat.

@@ -255,24 +255,24 @@ Proof.
   rewrite Same_set_spec; intros ?; split; intros.
   + hnf; intros.
     apply H; clear H.
-    (* we need something like: Phi |-- Psi, Psi |-- x -> Phi |-- x *)
-(*
-Lemma Linderbaum_sepcon_equiv {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma}: forall P, Linderbaum_sepcon_left P <-> Linderbaum_sepcon_right P.
-Proof.
-  intros; split; intros.
+    eapply derivable_trans; [| exact H0].
+    clear H0.
+    intros.
+    destruct H as [? [? [? [? ?]]]].
+    subst x0.
+    rewrite <- sepcon_comm.
+    apply derivable_assum.
+    exists x2, x1; split; [| split]; auto.
   + hnf; intros.
-    apply context_join_comm in H0.
-    specialize (H Phi2 Phi1 Psi H0).
-    destruct H as [Psi2 [? ?]]; exists Psi2.
-    split; auto.
-    apply context_join_comm; auto.
-  + hnf; intros.
-    apply context_join_comm in H0.
-    specialize (H Phi2 Phi1 Psi H0).
-    destruct H as [Psi2 [? ?]]; exists Psi2.
-    split; auto.
-    apply context_join_comm; auto.
+    apply H; clear H.
+    eapply derivable_trans; [| exact H0].
+    clear H0.
+    intros.
+    destruct H as [? [? [? [? ?]]]].
+    subst x0.
+    rewrite <- sepcon_comm.
+    apply derivable_assum.
+    exists x2, x1; split; [| split]; auto.
 Qed.
-*)
 
 End ContextProperties.

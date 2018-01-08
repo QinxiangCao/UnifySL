@@ -3,27 +3,26 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.HenkinCompleteness.
+Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
-Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
-Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
-Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
-Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
-Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
-Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.SeparationLogic.Complete.ContextProperty_Flat.
 
 Local Open Scope logic_base.
@@ -37,12 +36,15 @@ Import KripkeModelNotation_Intuitionistic.
 Section TruthLemma.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
+        {AX: NormalAxiomatization L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}
         {MD: Model}
@@ -58,7 +60,7 @@ Context (P: context -> Prop)
 
 Hypothesis H_R: forall m n Phi Psi, rel m Phi -> rel n Psi -> (m <= n <-> Included _ (proj1_sig Phi) (proj1_sig Psi)).
 
-Hypothesis H_J: forall m1 m2 m Phi1 Phi2 Phi, rel m1 Phi1 -> rel m2 Phi2 -> rel m Phi -> (join m1 m2 m <-> context_join (proj1_sig Phi1) (proj1_sig Phi2) (proj1_sig Phi)).
+Hypothesis H_J: forall m1 m2 m Phi1 Phi2 Phi, rel m1 Phi1 -> rel m2 Phi2 -> rel m Phi -> (join m1 m2 m <-> Included (proj1_sig Phi1) (proj1_sig Phi2) (proj1_sig Phi)).
 
 Lemma truth_lemma_sepcon
       (DER: at_least_derivable_closed P)

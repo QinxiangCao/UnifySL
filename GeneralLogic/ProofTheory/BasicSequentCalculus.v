@@ -1,4 +1,5 @@
 Require Import Logic.lib.Coqlib.
+Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 
 Local Open Scope logic_base.
@@ -26,6 +27,14 @@ Proof.
   intros.
   inversion H1; subst.
   auto.
+Qed.
+
+Lemma derivable_trans: forall (Phi Psi: context) y, (forall x, Psi x -> Phi |-- x) -> Psi |-- y -> Phi |-- y.
+Proof.
+  intros.
+  eapply deduction_subst; eauto.
+  eapply deduction_weaken; eauto.
+  apply right_Included_Union.
 Qed.
 
 Lemma deduction_weaken1: forall Phi x y,
