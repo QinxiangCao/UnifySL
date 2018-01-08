@@ -26,11 +26,11 @@ Arguments expr: clear implicits.
 Instance L (Var: Type): Language :=
   Build_Language (expr Var).
 
-Instance nL (Var: Type): NormalLanguage (L Var) :=
-  Build_NormalLanguage (L Var) impp.
+Instance minL (Var: Type): MinimunLanguage (L Var) :=
+  Build_MinimunLanguage (L Var) impp.
 
 Instance pL (Var: Type): PropositionalLanguage (L Var) :=
-  Build_PropositionalLanguage (L Var) (nL Var) andp orp falsep.
+  Build_PropositionalLanguage (L Var) andp orp falsep.
 
 Instance sL (Var: Type): SeparationLanguage (L Var) :=
   Build_SeparationLanguage (L Var) sepcon wand.

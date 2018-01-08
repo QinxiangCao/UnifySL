@@ -37,10 +37,10 @@ Definition context_sepcon (Phi Psi: context): context :=
   fun z => exists x y, z = x * y /\ Phi |-- x /\ Psi |-- y.
 
 Definition context_sepcon_included_l (Phi2 Psi: context): context -> Prop :=
-  fun Phi1 => Included _ (derivable (context_sepcon Phi1 Phi2)) (derivable Psi).
+  fun Phi1 => Included _ (context_sepcon Phi1 Phi2) Psi.
 
 Definition context_sepcon_included_r (Phi1 Psi: context): context -> Prop :=
-  fun Phi2 => Included _ (derivable (context_sepcon Phi1 Phi2)) (derivable Psi).
+  fun Phi2 => Included _ (context_sepcon Phi1 Phi2) Psi.
 
 (*
 Definition context_join {L: Language} {sL: SeparationLanguage L} {Gamma: ProofTheory L} (Phi1 Phi2 Phi: context): Prop :=
@@ -129,6 +129,7 @@ Context {SC: NormalSequentCalculus L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}.
 
+(* TODO: maybe this one because not useful any longer? *)
 Lemma context_sepcon_derivable:
   forall (Phi Psi: context) z,
     context_sepcon Phi Psi |-- z ->
@@ -170,10 +171,7 @@ Proof.
   hnf; intros Phi1 Phi1' ? ?.
   eapply Included_trans; [clear Psi H0 | exact H0].
   unfold Included, Ensembles.In; intros z ?.
-  apply context_sepcon_derivable in H0.
   destruct H0 as [x [y [? [? ?]]]].
-  rewrite <- H0.
-  apply derivable_assum.
   exists x, y; split; [| split]; auto.
   apply H; auto.
 Qed.
@@ -193,40 +191,15 @@ Proof.
   unfold context_sepcon_included_l.
   hnf; intros.
   unfold Included, Ensembles.In; intros z ?.
-  apply context_sepcon_derivable in H0.
   destruct H0 as [x [y [? [? ?]]]].
-  rewrite <- H0; clear z H0.
-  apply can_derive_finite_witnessed in H1.
+  apply derivable_finite_witnessed in H1.
   destruct H1 as [xs [? ?]].
-  apply (H xs); auto; unfold Ensembles.In.
-  apply derivable_assum.
+  specialize (H _ H1).
+  subst z.
+  apply H; auto; unfold Ensembles.In.
   exists x, y; split; [| split]; auto.
-Qed.
-(*
-Lemma context_sepcon_included_r_derivable_subset_preserved: forall Phi1 Psi,
-  derivable_subset_preserved (context_sepcon_included_r Phi1 Psi).
-Proof.
-  intros.
-  unfold context_sepcon_included_r.
-  hnf; intros Phi2 Phi2' ? ?.
-  eapply Included_trans; [clear Psi H0 | exact H0].
-  unfold Included, Ensembles.In; intros z ?.
-  apply context_sepcon_derivable in H0.
-  destruct H0 as [x [y [? [? ?]]]].
-  rewrite <- H0.
-  apply derivable_assum.
-  exists x, y; split; [| split]; auto.
-  apply H; auto.
 Qed.
 
-Lemma context_sepcon_included_r_subset_preserved: forall Phi1 Psi,
-  subset_preserved (context_sepcon_included_r Phi1 Psi).
-Proof.
-  intros.
-  apply derivable_subset_preserved_subset_preserved.
-  apply context_sepcon_included_r_derivable_subset_preserved.
-Qed.
-*)
 Lemma wand_deduction_theorem:
   forall (Phi: context) x y,
     context_sepcon Phi (Union _ empty_context (Singleton _ x)) |-- y <->
@@ -249,30 +222,27 @@ Proof.
 Qed.
 
 Lemma context_sepcon_included_equiv: forall Phi Psi,
+  derivable_closed Psi ->
   Same_set _ (context_sepcon_included_l Phi Psi) (context_sepcon_included_r Phi Psi).
 Proof.
   intros.
-  rewrite Same_set_spec; intros ?; split; intros.
+  rewrite Same_set_spec; intros Phi'; split; intros.
   + hnf; intros.
-    apply H; clear H.
-    eapply derivable_trans; [| exact H0].
-    clear H0.
-    intros.
-    destruct H as [? [? [? [? ?]]]].
-    subst x0.
+    destruct H1 as [y [z [? [? ?]]]].
+    subst x.
+    apply H.
     rewrite <- sepcon_comm.
     apply derivable_assum.
-    exists x2, x1; split; [| split]; auto.
+    apply H0.
+    exists z, y; split; [| split]; auto.
   + hnf; intros.
-    apply H; clear H.
-    eapply derivable_trans; [| exact H0].
-    clear H0.
-    intros.
-    destruct H as [? [? [? [? ?]]]].
-    subst x0.
+    destruct H1 as [y [z [? [? ?]]]].
+    subst x.
+    apply H.
     rewrite <- sepcon_comm.
     apply derivable_assum.
-    exists x2, x1; split; [| split]; auto.
+    apply H0.
+    exists z, y; split; [| split]; auto.
 Qed.
 
 End ContextProperties.
