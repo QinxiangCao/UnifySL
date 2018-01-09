@@ -60,16 +60,28 @@ Proof.
   + apply context_sepcon_included_l_derivable_subset_preserved.
 Qed.
 
-Lemma Lindenbaum_context_sepcon_included_l_ensures_orp_witnessed: forall Phi Psi,
+Lemma Lindenbaum_context_sepcon_included_l_ensures_orp_witnessed: forall Phi Psi
+      (DC: derivable_closed Psi)
+      (OW: orp_witnessed Psi),
   Lindenbaum_ensures (context_sepcon_included_l Phi Psi) orp_witnessed.
 Proof.
   intros.
   apply Lindenbaum_for_orp_witnessed.
   + apply Lindenbaum_preserves_context_sepcon_included_l.
   + apply context_sepcon_included_l_subset_preserved.
-  + admit.
+  + apply context_sepcon_included_l_context_orp_captured; auto.
   + apply Lindenbaum_context_sepcon_included_l_ensures_derivable_closed.
-  SearchAbout Lindenbaum_ensures  orp_witnessed.
+Qed.
+
+Lemma Lindenbaum_context_sepcon_included_l_ensures_consistent: forall Phi Psi
+  (CONSI: consistent Psi),
+  Lindenbaum_ensures (context_sepcon_included_l Phi Psi) consistent.
+Proof.
+  intros.
+  apply Lindenbaum_for_consistent.
+  + apply Lindenbaum_preserves_context_sepcon_included_l.
+  + intros Phi' ?.
+    eapply context_sepcon_consistent_rev_left; eauto.
 Qed.
 
 End Lindenbaum_Flat.

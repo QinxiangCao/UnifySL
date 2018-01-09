@@ -52,7 +52,6 @@ Proof.
   eapply deduction_weaken; eauto.
 Qed.
 
-(* TODO: is the following one still useful? since we have made the proofs pretty high order. *)
 Lemma derivable_closed_element_derivable: forall (Phi: context),
   derivable_closed Phi ->
   (forall x: expr, Phi x <-> Phi |-- x).

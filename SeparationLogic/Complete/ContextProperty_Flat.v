@@ -1,4 +1,5 @@
 Require Import Coq.Logic.Classical_Prop.
+Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.lib.EnsemblesProperties.
@@ -54,10 +55,10 @@ Definition Linderbaum_sepcon_right
            {Gamma: ProofTheory L}
            (P: context -> Prop): Prop :=
   forall (Phi1 Phi2: context) (Psi: sig P),
-    context_join Phi1 Phi2 (proj1_sig Psi) ->
+    context_join Phi1 Phi2 (Psi) ->
     exists Psi2: sig P,
-      Included _ Phi2 (proj1_sig Psi2) /\
-      context_join Phi1 (proj1_sig Psi2) (proj1_sig Psi).
+      Included _ Phi2 (Psi2) /\
+      context_join Phi1 (Psi2) (Psi).
 
 Definition Linderbaum_sepcon_left
            {L: Language}
@@ -65,10 +66,10 @@ Definition Linderbaum_sepcon_left
            {Gamma: ProofTheory L}
            (P: context -> Prop): Prop :=
   forall (Phi1 Phi2: context) (Psi: sig P),
-    context_join Phi1 Phi2 (proj1_sig Psi) ->
+    context_join Phi1 Phi2 (Psi) ->
     exists Psi1: sig P,
-      Included _ Phi1 (proj1_sig Psi1) /\
-      context_join (proj1_sig Psi1) Phi2 (proj1_sig Psi).
+      Included _ Phi1 (Psi1) /\
+      context_join (Psi1) Phi2 (Psi).
 
 Lemma context_sepcon_context_join {L: Language} {nL: NormalLanguage L} {sL: SeparationLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma}:
   forall Phi1 Phi2,
@@ -131,7 +132,6 @@ Context {SC: NormalSequentCalculus L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}.
 
-(* TODO: maybe this one because not useful any longer? *)
 Lemma context_sepcon_derivable:
   forall (Phi Psi: context) z,
     context_sepcon Phi Psi |-- z ->
@@ -163,6 +163,21 @@ Proof.
       auto.
     - apply deduction_andp_intros; auto.
     - apply deduction_andp_intros; auto.
+Qed.
+
+Lemma context_sepcon_consistent_rev_left:
+  forall (Phi1 Phi2 Psi: context),
+    Included _ (context_sepcon Phi1 Phi2) Psi ->
+    consistent Psi ->
+    consistent Phi1.
+Proof.
+  intros.
+  rewrite consistent_spec in H0 |- *.
+  intro; apply H0; clear H0.
+  rewrite <- (falsep_sepcon TT).
+  apply derivable_assum.
+  apply H; exists FF, TT; split; [| split]; auto.
+  apply derivable_impp_refl.
 Qed.
 
 Lemma context_sepcon_included_l_derivable_subset_preserved: forall Phi2 Psi,
@@ -202,14 +217,53 @@ Proof.
   exists x, y; split; [| split]; auto.
 Qed.
 
-Lemma context_sepcon_included_l_context_orp_captured: forall Phi2 Psi,
+Lemma context_sepcon_included_l_context_orp_captured: forall Phi2 Psi
+      (DC: derivable_closed Psi)
+      (OW: orp_witnessed Psi),
   context_orp_captured (context_sepcon_included_l Phi2 Psi).
 Proof.
   intros.
   unfold context_sepcon_included_l.
   hnf; intros Phi1 Phi1' ?.
-  
-  
+  assert (forall z1 z2,
+            context_sepcon Phi1 Phi2 z1  ->
+            ~ Psi z1 ->
+            context_sepcon Phi1' Phi2 z2 ->
+            ~ Psi z2 ->
+            False) as HH.
+  Focus 2. {
+    clear - HH; unfold Included, Ensembles.In.
+    apply NNPP; intro.
+    apply not_or_and in H; destruct H.
+    apply not_all_ex_not in H.
+    apply not_all_ex_not in H0.
+    destruct H as [z1 ?], H0 as [z2 ?].
+    specialize (HH z1 z2).
+    tauto.
+  } Unfocus.
+  intros.
+  destruct H0 as [x1 [y1 [? [? ?]]]], H2 as [x2 [y2 [? [? ?]]]].
+  subst z1 z2.
+  assert (context_orp Phi1 Phi1' (x1 || x2));
+  [| assert (context_sepcon (context_orp Phi1 Phi1') Phi2 ((x1 || x2) * (y1 && y2)));
+     [| assert (Psi |-- (x1 * y1) || (x2 * y2))]].
+  + exists x1, x2.
+    split; [| split]; auto.
+  + exists (x1 || x2), (y1 && y2).
+    split; [| split]; auto.
+    - apply derivable_assum; auto.
+    - apply deduction_andp_intros; auto.
+  + apply H in H2.
+    apply derivable_assum in H2.
+    rewrite sepcon_orp_distr_l in H2.
+    rewrite (andp_elim1 y1 y2) in H2 at 1.
+    rewrite (andp_elim2 y1 y2) in H2 at 1.
+    auto.
+  + rewrite <- derivable_closed_element_derivable in H8 by auto.
+    apply OW in H8.
+    tauto.
+Qed.
+
 Lemma wand_deduction_theorem:
   forall (Phi: context) x y,
     context_sepcon Phi (Union _ empty_context (Singleton _ x)) |-- y <->
