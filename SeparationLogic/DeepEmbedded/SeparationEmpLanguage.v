@@ -12,7 +12,11 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Inductive expr {Var: Type}: Type :=
+Class PropositionalVariables: Type := {
+  Var: Type
+}.
+
+Inductive expr {Sigma: PropositionalVariables}: Type :=
   | andp : expr -> expr -> expr
   | orp : expr -> expr -> expr
   | impp : expr -> expr -> expr
@@ -24,7 +28,7 @@ Inductive expr {Var: Type}: Type :=
 
 Arguments expr: clear implicits.
 
-Definition expr_eqb {Var: Type} (eqb: Var -> Var -> bool): expr Var -> expr Var -> bool :=
+Definition expr_eqb {Sigma: PropositionalVariables} (eqb: Var -> Var -> bool): expr Sigma -> expr Sigma -> bool :=
   fix expr_eqb x1 x2 :=
     match x1, x2 with
     | andp y1 z1, andp y2 z2 => andb (expr_eqb y1 y2) (expr_eqb z1 z2)
@@ -38,7 +42,7 @@ Definition expr_eqb {Var: Type} (eqb: Var -> Var -> bool): expr Var -> expr Var 
     | _, _ => false
     end.
 
-Lemma expr_eqb_true {Var: Type} (eqb: Var -> Var -> bool):
+Lemma expr_eqb_true {Sigma: PropositionalVariables} (eqb: Var -> Var -> bool):
   (forall p q, eqb p q = true <-> p = q) ->
   (forall x y, expr_eqb eqb x y = true <-> x = y).
 Proof.
@@ -92,23 +96,23 @@ Proof.
     split; intros; congruence.
 Qed.
 
-Instance L (Var: Type): Language :=
-  Build_Language (expr Var).
+Instance L {Sigma: PropositionalVariables}: Language :=
+  Build_Language (expr Sigma).
 
-Instance minL (Var: Type): MinimunLanguage (L Var) :=
-  Build_MinimunLanguage (L Var) impp.
+Instance minL {Sigma: PropositionalVariables}: MinimunLanguage L :=
+  Build_MinimunLanguage L impp.
 
-Instance pL (Var: Type): PropositionalLanguage (L Var) :=
-  Build_PropositionalLanguage (L Var) andp orp falsep.
+Instance pL {Sigma: PropositionalVariables}: PropositionalLanguage L :=
+  Build_PropositionalLanguage L andp orp falsep.
 
-Instance sL (Var: Type): SeparationLanguage (L Var) :=
-  Build_SeparationLanguage (L Var) sepcon wand.
+Instance sL {Sigma: PropositionalVariables}: SeparationLanguage L :=
+  Build_SeparationLanguage L sepcon wand.
 
-Instance s'L (Var: Type): SeparationEmpLanguage (L Var) :=
-  Build_SeparationEmpLanguage (L Var) (sL Var) emp.
+Instance s'L {Sigma: PropositionalVariables}: SeparationEmpLanguage L :=
+  Build_SeparationEmpLanguage L sL emp.
 
-Definition rank {Var: Type}: expr Var -> nat :=
-  fix rank (x: expr Var): nat :=
+Definition rank {Sigma: PropositionalVariables}: expr Sigma -> nat :=
+  fix rank (x: expr Sigma): nat :=
     match x with
     | andp y z => 1 + rank y + rank z
     | orp y z => 1 + rank y + rank z
@@ -120,17 +124,17 @@ Definition rank {Var: Type}: expr Var -> nat :=
     | varp p => 0
     end.
 
-Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
+Definition formula_countable {Sigma: PropositionalVariables}: Countable Var -> Countable (expr Sigma).
   intros.
-  assert (forall n, Countable (sig (fun x: expr Var => rank x <= n))).
+  assert (forall n, Countable (sig (fun x: expr Sigma => rank x <= n))).
   + induction n.
     - apply (@bijection_Countable _ (Var + unit + unit)%type); [| solve_Countable].
       apply bijection_sym.
       apply (FBuild_bijection _ _ (fun x =>
                match x with
-               | inl (inl p) => exist (fun x: expr Var => rank x <= 0) (varp p) (le_n 0)
-               | inl (inr _) => exist (fun x: expr Var => rank x <= 0) emp (le_n 0)
-               | inr _ => exist (fun x: expr Var => rank x <= 0) falsep (le_n 0)
+               | inl (inl p) => exist (fun x: expr Sigma => rank x <= 0) (varp p) (le_n 0)
+               | inl (inr _) => exist (fun x: expr Sigma => rank x <= 0) emp (le_n 0)
+               | inr _ => exist (fun x: expr Sigma => rank x <= 0) falsep (le_n 0)
                end)).
       * hnf; intros.
         destruct a1 as [[? | []] | []], a2 as [[? | []] | []]; inversion H; auto.
@@ -139,7 +143,7 @@ Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
         1: exists (inl (inr tt)); eauto; f_equal; apply proof_irrelevance.
         1: exists (inr tt); eauto; f_equal; apply proof_irrelevance.
         1: exists (inl (inl v)); eauto; f_equal; apply proof_irrelevance.
-    - set (s := sig (fun x: expr Var => rank x <= n)).
+    - set (s := sig (fun x: expr Sigma => rank x <= n)).
       apply (@injection_Countable _ (s * s + s * s + s * s + s * s + s * s + unit + unit + Var)%type); [| solve_Countable].
 
       apply (Build_injection _ _ (fun x y =>
@@ -192,7 +196,7 @@ Definition formula_countable: forall Var, Countable Var -> Countable (expr Var).
         (* 6 *) f_equal; apply proof_irrelevance.
         (* 7 *) f_equal; apply proof_irrelevance.
         (* 8 *) inversion H; inversion H0; subst; subst; repeat f_equal; apply proof_irrelevance.
-  + apply (@injection_Countable _ (sigT (fun n => sig (fun x: expr Var => rank x <= n)))); [| solve_Countable; auto].
+  + apply (@injection_Countable _ (sigT (fun n => sig (fun x: expr Sigma => rank x <= n)))); [| solve_Countable; auto].
     apply (FBuild_injection _ _ (fun x0 => existT (fun n => sig (fun x => rank x <= n)) (rank x0) (exist (fun x => rank x <= rank x0) x0 (le_n (rank x0))))).
     hnf; intros.
     simpl in H.

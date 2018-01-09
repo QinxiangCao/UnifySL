@@ -1,15 +1,15 @@
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
+Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 Require Logic.SeparationLogic.DeepEmbedded.SeparationLanguage.
@@ -23,14 +23,11 @@ Import SeparationLogicNotation.
 Module ReynoldsLogic.
 Section ReynoldsLogic.
 
-Context (Var: Type).
+Context {Sigma: SeparationLanguage.PropositionalVariables}.
 
-Instance L: Language := SeparationLanguage.L Var.
-Instance nL: NormalLanguage L := SeparationLanguage.nL Var.
-Instance pL: PropositionalLanguage L := SeparationLanguage.pL Var.
-Instance SL: SeparationLanguage L := SeparationLanguage.sL Var.
+Existing Instances SeparationLanguage.L SeparationLanguage.minL SeparationLanguage.pL SeparationLanguage.sL.
 
-Inductive provable: expr -> Prop :=
+Inductive provable: SeparationLanguage.expr Sigma -> Prop :=
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
@@ -47,11 +44,11 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_elim1: forall x y, provable (x * y --> x).
 
-Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
+Instance G: ProofTheory SeparationLanguage.L := Build_AxiomaticProofTheory provable.
 
-Instance nG: NormalProofTheory L G := Build_nAxiomaticProofTheory provable.
+Instance AX: NormalAxiomatization SeparationLanguage.L G := Build_AxiomaticProofTheory_AX provable.
 
-Instance mpG: MinimunPropositionalLogic L G.
+Instance minAX: MinimunAxiomatization SeparationLanguage.L G.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -59,7 +56,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic L G.
+Instance ipG: IntuitionisticPropositionalLogic SeparationLanguage.L G.
 Proof.
   constructor.
   + apply andp_intros.
@@ -71,7 +68,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance sG: SeparationLogic L G.
+Instance sG: SeparationLogic SeparationLanguage.L G.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -81,7 +78,7 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance gcsG: GarbageCollectSeparationLogic L G.
+Instance gcsG: GarbageCollectSeparationLogic SeparationLanguage.L G.
 Proof.
   constructor.
   apply sepcon_elim1.
@@ -93,15 +90,11 @@ End ReynoldsLogic.
 Module OHearnLogic.
 Section OHearnLogic.
 
-Context (Var: Type).
+Context {Sigma: SeparationEmpLanguage.PropositionalVariables}.
 
-Instance L: Language := SeparationEmpLanguage.L Var.
-Instance nL: NormalLanguage L := SeparationEmpLanguage.nL Var.
-Instance pL: PropositionalLanguage L := SeparationEmpLanguage.pL Var.
-Instance SL: SeparationLanguage L := SeparationEmpLanguage.sL Var.
-Instance s'L: SeparationEmpLanguage L := SeparationEmpLanguage.s'L Var.
+Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sL SeparationEmpLanguage.s'L.
 
-Inductive provable: expr -> Prop :=
+Inductive provable: SeparationEmpLanguage.expr Sigma -> Prop :=
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
@@ -119,11 +112,11 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_emp: forall x, provable (x * emp <--> x).
 
-Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
+Instance G: ProofTheory SeparationEmpLanguage.L := Build_AxiomaticProofTheory provable.
 
-Instance nG: NormalProofTheory L G := Build_nAxiomaticProofTheory provable.
+Instance AX: NormalAxiomatization SeparationEmpLanguage.L G := Build_AxiomaticProofTheory_AX provable.
 
-Instance mpG: MinimunPropositionalLogic L G.
+Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -131,7 +124,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic L G.
+Instance ipG: IntuitionisticPropositionalLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply andp_intros.
@@ -143,13 +136,13 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance cpG: ClassicalPropositionalLogic L G.
+Instance cpG: ClassicalPropositionalLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   apply excluded_middle.
 Qed.
 
-Instance sG: SeparationLogic L G.
+Instance sG: SeparationLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -159,7 +152,7 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance EmpsG: EmpSeparationLogic L G.
+Instance EmpsG: EmpSeparationLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   apply sepcon_emp.
@@ -171,15 +164,11 @@ End OHearnLogic.
 Module LogicOnModuResModel.
 Section LogicOnModuResModel.
 
-Context (Var: Type).
+Context {Sigma: SeparationEmpLanguage.PropositionalVariables}.
 
-Instance L: Language := SeparationEmpLanguage.L Var.
-Instance nL: NormalLanguage L := SeparationEmpLanguage.nL Var.
-Instance pL: PropositionalLanguage L := SeparationEmpLanguage.pL Var.
-Instance SL: SeparationLanguage L := SeparationEmpLanguage.sL Var.
-Instance s'L: SeparationEmpLanguage L := SeparationEmpLanguage.s'L Var.
+Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sL SeparationEmpLanguage.s'L.
 
-Inductive provable: expr -> Prop :=
+Inductive provable: SeparationEmpLanguage.expr Sigma -> Prop :=
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
@@ -197,11 +186,11 @@ Inductive provable: expr -> Prop :=
 | sepcon_emp: forall x, provable (x * emp <--> x)
 | sepcon_elim1: forall x y, provable (x * y --> x).
 
-Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
+Instance G: ProofTheory SeparationEmpLanguage.L := Build_AxiomaticProofTheory provable.
 
-Instance nG: NormalProofTheory L G := Build_nAxiomaticProofTheory provable.
+Instance AX: NormalAxiomatization SeparationEmpLanguage.L G := Build_AxiomaticProofTheory_AX provable.
 
-Instance mpG: MinimunPropositionalLogic L G.
+Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -209,7 +198,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic L G.
+Instance ipG: IntuitionisticPropositionalLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply andp_intros.
@@ -221,7 +210,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance sG: SeparationLogic L G.
+Instance sG: SeparationLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -231,13 +220,13 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance EmpsG: EmpSeparationLogic L G.
+Instance EmpsG: EmpSeparationLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   apply sepcon_emp.
 Qed.
 
-Instance gcsG: GarbageCollectSeparationLogic L G.
+Instance gcsG: GarbageCollectSeparationLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   apply sepcon_elim1.
@@ -249,15 +238,11 @@ End LogicOnModuResModel.
 Module LogicOnMSL.
 Section LogicOnMSL.
 
-Context (Var: Type).
+Context {Sigma: SeparationEmpLanguage.PropositionalVariables}.
 
-Instance L: Language := SeparationEmpLanguage.L Var.
-Instance nL: NormalLanguage L := SeparationEmpLanguage.nL Var.
-Instance pL: PropositionalLanguage L := SeparationEmpLanguage.pL Var.
-Instance SL: SeparationLanguage L := SeparationEmpLanguage.sL Var.
-Instance s'L: SeparationEmpLanguage L := SeparationEmpLanguage.s'L Var.
+Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sL SeparationEmpLanguage.s'L.
 
-Inductive provable: expr -> Prop :=
+Inductive provable: SeparationEmpLanguage.expr Sigma -> Prop :=
 | modus_ponens: forall x y, provable (x --> y) -> provable x -> provable y
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z))
@@ -275,11 +260,11 @@ Inductive provable: expr -> Prop :=
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_emp: forall x, provable (x * emp <--> x).
 
-Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
+Instance G: ProofTheory SeparationEmpLanguage.L := Build_AxiomaticProofTheory provable.
 
-Instance nG: NormalProofTheory L G := Build_nAxiomaticProofTheory provable.
+Instance AX: NormalAxiomatization SeparationEmpLanguage.L G := Build_AxiomaticProofTheory_AX provable.
 
-Instance mpG: MinimunPropositionalLogic L G.
+Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -287,7 +272,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic L G.
+Instance ipG: IntuitionisticPropositionalLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply andp_intros.
@@ -299,13 +284,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance gdpG: GodelDummettPropositionalLogic L G.
-Proof.
-  constructor.
-  apply impp_choice.
-Qed.
-
-Instance sG: SeparationLogic L G.
+Instance sG: SeparationLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -315,11 +294,12 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance EmpsG: EmpSeparationLogic L G.
+Instance EmpsG: EmpSeparationLogic SeparationEmpLanguage.L G.
 Proof.
   constructor.
   apply sepcon_emp.
 Qed.
+
 
 End LogicOnMSL.
 End LogicOnMSL.

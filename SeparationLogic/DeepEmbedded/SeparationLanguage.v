@@ -12,7 +12,11 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Inductive expr {Var: Type}: Type :=
+Class PropositionalVariables: Type := {
+  Var: Type
+}.
+
+Inductive expr {Sigma: PropositionalVariables}: Type :=
   | andp : expr -> expr -> expr
   | orp : expr -> expr -> expr
   | impp : expr -> expr -> expr
@@ -23,14 +27,14 @@ Inductive expr {Var: Type}: Type :=
 
 Arguments expr: clear implicits.
 
-Instance L (Var: Type): Language :=
-  Build_Language (expr Var).
+Instance L {Sigma: PropositionalVariables}: Language :=
+  Build_Language (expr Sigma).
 
-Instance minL (Var: Type): MinimunLanguage (L Var) :=
-  Build_MinimunLanguage (L Var) impp.
+Instance minL {Sigma: PropositionalVariables}: MinimunLanguage L :=
+  Build_MinimunLanguage L impp.
 
-Instance pL (Var: Type): PropositionalLanguage (L Var) :=
-  Build_PropositionalLanguage (L Var) andp orp falsep.
+Instance pL {Sigma: PropositionalVariables}: PropositionalLanguage L :=
+  Build_PropositionalLanguage L andp orp falsep.
 
-Instance sL (Var: Type): SeparationLanguage (L Var) :=
-  Build_SeparationLanguage (L Var) sepcon wand.
+Instance sL {Sigma: PropositionalVariables}: SeparationLanguage L :=
+  Build_SeparationLanguage L sepcon wand.

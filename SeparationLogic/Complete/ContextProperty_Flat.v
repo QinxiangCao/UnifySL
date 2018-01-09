@@ -15,6 +15,7 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.ProofTheory.ProofTheoryPatterns.
+Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
@@ -42,6 +43,7 @@ Definition context_sepcon_included_l (Phi2 Psi: context): context -> Prop :=
 Definition context_sepcon_included_r (Phi1 Psi: context): context -> Prop :=
   fun Phi2 => Included _ (context_sepcon Phi1 Phi2) Psi.
 
+(* TODO: remove these commented out code. *)
 (*
 Definition context_join {L: Language} {sL: SeparationLanguage L} {Gamma: ProofTheory L} (Phi1 Phi2 Phi: context): Prop :=
   forall x y, Phi1 |-- x -> Phi2 |-- y -> Phi |-- x * y.
@@ -200,6 +202,14 @@ Proof.
   exists x, y; split; [| split]; auto.
 Qed.
 
+Lemma context_sepcon_included_l_context_orp_captured: forall Phi2 Psi,
+  context_orp_captured (context_sepcon_included_l Phi2 Psi).
+Proof.
+  intros.
+  unfold context_sepcon_included_l.
+  hnf; intros Phi1 Phi1' ?.
+  
+  
 Lemma wand_deduction_theorem:
   forall (Phi: context) x y,
     context_sepcon Phi (Union _ empty_context (Singleton _ x)) |-- y <->

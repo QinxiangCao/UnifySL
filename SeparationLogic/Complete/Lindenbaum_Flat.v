@@ -14,6 +14,7 @@ Require Import Logic.MinimunLogic.Complete.Lindenbaum_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Complete.Lindenbaum_Kripke.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
@@ -46,8 +47,29 @@ Lemma Lindenbaum_preserves_context_sepcon_included_l: forall Phi2 Psi,
 Proof.
   intros.
   apply Lindenbaum_preserves_by_finiteness.
-  - apply context_sepcon_included_l_finite_captured.
-  - apply context_sepcon_included_l_subset_preserved.
+  + apply context_sepcon_included_l_finite_captured.
+  + apply context_sepcon_included_l_subset_preserved.
+Qed.
+
+Lemma Lindenbaum_context_sepcon_included_l_ensures_derivable_closed: forall Phi Psi,
+  Lindenbaum_ensures (context_sepcon_included_l Phi Psi) derivable_closed.
+Proof.
+  intros.
+  apply Lindenbaum_for_derivable_closed.
+  + apply Lindenbaum_preserves_context_sepcon_included_l.
+  + apply context_sepcon_included_l_derivable_subset_preserved.
+Qed.
+
+Lemma Lindenbaum_context_sepcon_included_l_ensures_orp_witnessed: forall Phi Psi,
+  Lindenbaum_ensures (context_sepcon_included_l Phi Psi) orp_witnessed.
+Proof.
+  intros.
+  apply Lindenbaum_for_orp_witnessed.
+  + apply Lindenbaum_preserves_context_sepcon_included_l.
+  + apply context_sepcon_included_l_subset_preserved.
+  + admit.
+  + apply Lindenbaum_context_sepcon_included_l_ensures_derivable_closed.
+  SearchAbout Lindenbaum_ensures  orp_witnessed.
 Qed.
 
 End Lindenbaum_Flat.

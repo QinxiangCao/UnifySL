@@ -3,29 +3,38 @@ Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum_Kripke.
+Require Import Logic.GeneralLogic.Complete.Canonical_Kripke.
+Require Import Logic.GeneralLogic.Complete.Complete_Kripke.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimunLogic.Complete.Lindenbaum_Kripke.
+Require Import Logic.MinimunLogic.Complete.Truth_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
-Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
-Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
-Require Import Logic.GeneralLogic.KripkeModel.
-Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
-Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
-Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Complete.Lindenbaum_Kripke.
 Require Import Logic.PropositionalLogic.Complete.Truth_Kripke.
 Require Import Logic.PropositionalLogic.Complete.Canonical_Kripke.
-Require Import Logic.PropositionalLogic.Complete.Complete_Kripke.
+Require Import Logic.SeparationLogic.Syntax.
+Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
+Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
+Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.SeparationLogic.Model.OrderedSA.
+Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.SeparationLogic.Complete.ContextProperty_Flat.
 Require Import Logic.SeparationLogic.Complete.Lindenbaum_Flat.
 Require Import Logic.SeparationLogic.Complete.Truth_Flat.
@@ -47,62 +56,50 @@ Import KripkeModelClass.
 
 Section Complete.
 
-Context (Var: Type).
-Context (CV: Countable Var).
-Context (SLP: SL_Parameter).
+Context {Sigma: SeparationEmpLanguage.PropositionalVariables}
+        {CV: Countable SeparationEmpLanguage.Var}
+        (SLP: SL_Parameter).
 
-Instance L: Language := SeparationEmpLanguage.L Var.
-Instance nL: NormalLanguage L := SeparationEmpLanguage.nL Var.
-Instance pL: PropositionalLanguage L := SeparationEmpLanguage.pL Var.
-Instance sL: SeparationLanguage L := SeparationEmpLanguage.sL Var.
-Instance s'L: SeparationEmpLanguage L := SeparationEmpLanguage.s'L Var.
+Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sL SeparationEmpLanguage.s'L.
 
-Instance G: ProofTheory L := ParametricSeparationLogic.G Var SLP.
-Instance nG: NormalProofTheory L G := ParametricSeparationLogic.nG Var SLP.
-Instance mpG: MinimunPropositionalLogic L G := ParametricSeparationLogic.mpG Var SLP.
-Instance ipG: IntuitionisticPropositionalLogic L G := ParametricSeparationLogic.ipG Var SLP.
-Instance sG: SeparationLogic L G := ParametricSeparationLogic.sG Var SLP.
-Instance eG: EmpSeparationLogic L G := ParametricSeparationLogic.eG Var SLP.
-Instance ParG: ParametricSeparationLogic.Parametric_SeparationLogic SLP L G := ParametricSeparationLogic.ParG Var SLP.
+Existing Instances ParametricSeparationLogic.G ParametricSeparationLogic.AX ParametricSeparationLogic.minAX  ParametricSeparationLogic.ipG ParametricSeparationLogic.sG ParametricSeparationLogic.eG ParametricSeparationLogic.ParG.
 
-Instance MD: Model := FlatSemantics.MD Var.
-Instance kMD: KripkeModel MD := FlatSemantics.kMD Var.
-Instance R (M: Kmodel): Relation (Kworlds M):= FlatSemantics.R Var M.
-Instance J (M: Kmodel): Join (Kworlds M):= FlatSemantics.J Var M.
+Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC.
 
-Instance SM: Semantics L MD := FlatSemantics.SM Var.
-Instance kpSM (M: Kmodel): KripkePropositionalSemantics L MD M SM := FlatSemantics.kpSM Var M.
-Instance fsSM (M: Kmodel): FlatSemantics.SeparatingSemantics L MD M SM := FlatSemantics.fsSM Var M.
-Instance feSM (M: Kmodel): FlatSemantics.EmpSemantics L MD M SM := FlatSemantics.feSM Var M.
+Existing Instances FlatSemantics.MD FlatSemantics.kMD FlatSemantics.R FlatSemantics.SM FlatSemantics.kminSM FlatSemantics.kpSM FlatSemantics.fsSM FlatSemantics.feSM.
 
-Definition DDC: context -> Prop := fun Psi =>
-  derivable_closed Psi /\ orp_witnessed Psi /\ consistent Psi.
+Definition cP : context -> Prop := Intersection _ (Intersection _ derivable_closed orp_witnessed) consistent.
 
-Lemma DER: at_least_derivable_closed DDC.
-Proof. hnf; intros ? [? [? ?]]; auto. Qed.
+Lemma AL_DC: at_least derivable_closed cP.
+Proof. solve_at_least. Qed.
 
-Lemma ORP: at_least_orp_witnessed DDC.
-Proof. hnf; intros ? [? [? ?]]; auto. Qed.
+Lemma AL_OW: at_least orp_witnessed cP.
+Proof. solve_at_least. Qed.
 
-Lemma CONSI: at_least_consistent DDC.
-Proof. hnf; intros ? [? [? ?]]; auto. Qed.
+Lemma AL_CONSI: at_least consistent cP.
+Proof. solve_at_least. Qed.
 
-Lemma LIN_DER: Linderbaum_derivable DDC.
+Lemma LIN_CD: forall x: expr, Lindenbaum_constructable (cannot_derive x) cP.
 Proof.
-  hnf; intros.
-  pose proof Lindenbaum_lemma
-    (SeparationEmpLanguage.formula_countable Var CV) _ _ H
-  as [Psi [? [? ?]]].
-  exists (exist _ Psi H2); auto.
+  intros.
+  apply Lindenbaum_constructable_suffice; auto.
+  + apply SeparationEmpLanguage.formula_countable; auto.
+  + apply Lindenbaum_preserves_cannot_derive.
+  + unfold cP.
+    repeat apply Lindenbaum_ensures_by_conjunct.
+    - apply Lindenbaum_cannot_derive_ensures_derivable_closed.
+    - apply Lindenbaum_cannot_derive_ensures_orp_witnessed.
+    - apply Lindenbaum_cannot_derive_ensures_consistent.
 Qed.
 
-Lemma LIN_SR: Linderbaum_sepcon_right DDC.
+Lemma LIN_SL: forall (Phi: context) (Psi: sig cP), Lindenbaum_constructable (context_sepcon_included_l Phi (proj1_sig Psi)) cP.
 Proof.
-  hnf; intros.
-  pose proof Lindenbaum_lemma_right
-    (SeparationEmpLanguage.formula_countable Var CV) _ _  _ H (proj2_sig Psi)
-  as [Psi2 [? [? ?]]].
-  exists (exist _ Psi2 H2); auto.
+  intros.
+  apply Lindenbaum_constructable_suffice; auto.
+  + apply SeparationEmpLanguage.formula_countable; auto.
+  + apply Lindenbaum_preserves_context_sepcon_included_l.
+  + unfold cP.
+    repeat apply Lindenbaum_ensures_by_conjunct.
 Qed.
 
 Lemma LIN_SL: Linderbaum_sepcon_left DDC.
