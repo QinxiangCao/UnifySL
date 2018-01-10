@@ -80,3 +80,5 @@ Proof.
   + rewrite sat_orp.
     destruct H; [left | right]; auto.
 Qed.
+
+End Sound_Kripke.
