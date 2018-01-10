@@ -3,12 +3,14 @@ Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.ModalLogic.Model.KripkeModel.
 Require Import Logic.ModalLogic.Model.OrderedKripkeModel.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.ModalLogic.Syntax.
-Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.ModalLogic.Semantics.Flat.
 
 Local Open Scope logic_base.
@@ -22,7 +24,7 @@ Import KripkeModelNotation_Intuitionistic.
 Section Sound_Flat.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {mL: ModalLanguage L}
         {MD: Model}
@@ -34,6 +36,7 @@ Context {L: Language}
         {ukmM: UpwardsClosedOrderedKripkeModel (Kworlds M)}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
+        {kminSM: KripkeMinimunSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}
         {fmSM: FlatModalSemantics L MD M SM}.
 
