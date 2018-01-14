@@ -13,7 +13,7 @@ Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
-Require Logic.SeparationLogic.Semantics.WeakSemanticsMono.
+Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
 Require Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
 

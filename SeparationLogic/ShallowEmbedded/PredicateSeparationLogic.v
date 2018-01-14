@@ -13,7 +13,8 @@ Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.SeparationLogic.Model.OSAGenerators.
-Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
+Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
+Require Import Logic.SeparationLogic.Semantics.StrongSemantics.
 Require Import Logic.SeparationLogic.Sound.Sound_Flat.
 
 Instance Pred_sL (A: Type) {J: Join A}: SeparationLanguage (Pred_L A) :=

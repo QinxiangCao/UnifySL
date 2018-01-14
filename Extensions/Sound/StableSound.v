@@ -20,6 +20,7 @@ Require Logic.GeneralLogic.Semantics.Kripke.
 Require Logic.MinimunLogic.Semantics.Kripke.
 Require Logic.PropositionalLogic.Semantics.Kripke.
 Require Logic.ModalLogic.Semantics.Flat.
+Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
 Require Logic.SeparationLogic.Semantics.FlatSemantics.
 
 Local Open Scope logic_base.

@@ -158,7 +158,6 @@ SeparationLogic_Model_FILES = \
 
 SeparationLogic_Semantics_FILES = \
   WeakSemantics.v StrongSemantics.v \
-  WeakSemanticsMono.v StrongSemanticsMono.v \
   UpwardsSemantics.v DownwardsSemantics.v FlatSemantics.v \
   DownUpSemantics_Fail.v \
   Down2Flat.v Up2Flat.v \

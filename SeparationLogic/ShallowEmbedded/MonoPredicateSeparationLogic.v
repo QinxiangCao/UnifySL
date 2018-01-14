@@ -14,7 +14,7 @@ Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.SeparationLogic.Model.OSAGenerators.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
-Require Logic.SeparationLogic.Semantics.WeakSemanticsMono.
+Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
 Require Import Logic.SeparationLogic.Sound.Sound_Flat.
 
 Instance MonoPred_sL (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: SeparationLanguage (MonoPred_L A) :=

@@ -13,8 +13,10 @@ Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.SeparationLogic.Model.DownwardsClosure.
-Require Logic.SeparationLogic.Semantics.UpwardsSemantics.
-Require Logic.SeparationLogic.Semantics.FlatSemantics.
+Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
+Require Import Logic.SeparationLogic.Semantics.StrongSemantics.
+Require Import Logic.SeparationLogic.Semantics.UpwardsSemantics.
+Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
