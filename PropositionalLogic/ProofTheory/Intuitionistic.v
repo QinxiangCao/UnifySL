@@ -217,7 +217,7 @@ Proof.
     apply Typeclass_Rewrite_I.
 Qed.
 
-Hint Rewrite <- @MakeAxiomatization_IntuitionisticPropositionalSequentCalculus using first [typeclasses eauto | instantiate (1 := _); apply Typeclass_Rewrite_I]: AddAX.
+Hint Rewrite <- @MakeAxiomatization_IntuitionisticPropositionalSequentCalculus using first [typeclasses eauto | instantiate_must_succeed; apply Typeclass_Rewrite_I]: AddAX.
 
 Section Axiomatization2SequentCalculus.
 
@@ -279,7 +279,7 @@ Proof.
     apply Typeclass_Rewrite_I.
 Qed.
 
-Hint Rewrite <- @MakeSequentCalculus_IntuitionisticPropositionalLogic using (instantiate (1 := _); apply Typeclass_Rewrite_I): AddSC.
+Hint Rewrite <- @MakeSequentCalculus_IntuitionisticPropositionalLogic using (instantiate_must_succeed; apply Typeclass_Rewrite_I): AddSC.
 
 Section DerivableRulesFromAxiomatization1.
 

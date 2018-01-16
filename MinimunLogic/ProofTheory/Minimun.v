@@ -646,6 +646,8 @@ Ltac AddAxiomatization Gamma :=
   clear Gamma;
   rename Gamma' into Gamma.
 
+Ltac instantiate_must_succeed := instantiate (1 := _); try (instantiate (1 := _); fail 2 || fail 1).
+
 Lemma MakeSequentCalculus_MinimunAxiomatization {L: Language} {minL: MinimunLanguage L} {Gamma: ProofTheory L} {minAX: MinimunAxiomatization L Gamma}:
   forall (G: Prop) (l: list (sig (fun X: Prop => X))),
   (forall

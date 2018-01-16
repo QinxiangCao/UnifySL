@@ -86,7 +86,7 @@ Qed.
 
 End AddSequentCalculus.
 
-Hint Rewrite <- @MakeSequentCalculus_ClassicalPropositionalLogic using first [typeclasses eauto | instantiate (1 := _); instantiate (1 := _); instantiate (1 := _); instantiate (1 := _); apply Typeclass_Rewrite_I]: AddSC.
+Hint Rewrite <- @MakeSequentCalculus_ClassicalPropositionalLogic using first [typeclasses eauto | instantiate (1 := _); instantiate (1 := _); instantiate (1 := _); instantiate_must_succeed; apply Typeclass_Rewrite_I]: AddSC.
 
 Section SequentCalculus2Axiomatization.
 
@@ -155,7 +155,7 @@ Qed.
 
 End AddAxiomatization.
 
-Hint Rewrite <- @MakeAxiomatization_ClassicalPropositionalSequentCalculus using first [typeclasses eauto | instantiate (1 := _); instantiate (1 := _); instantiate (1 := _); instantiate (1 := _); apply Typeclass_Rewrite_I]: AddAX.
+Hint Rewrite <- @MakeAxiomatization_ClassicalPropositionalSequentCalculus using first [typeclasses eauto | instantiate (1 := _); instantiate (1 := _); instantiate (1 := _); instantiate_must_succeed; apply Typeclass_Rewrite_I]: AddAX.
 
 Section DerivableRulesFromAxiomatization1.
 
