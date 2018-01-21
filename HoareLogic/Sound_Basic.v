@@ -71,4 +71,82 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma hoare_conjunction_partial_sound: forall c P1 P2 Q1 Q2,
+    triple_partial_valid P1 c Q1 ->
+    triple_partial_valid P2 c Q2 ->
+    triple_partial_valid (P1 && P2) c (Q1 && Q2).
+Proof.
+  intros.
+  unfold triple_partial_valid in *.
+  intros.
+  specialize (H s_pre ms_post).
+  specialize (H0 s_pre ms_post).
+  rewrite sat_andp in H1. destruct H1.
+  apply H in H1. apply H0 in H3.
+  destruct ms_post; auto.
+  apply sat_andp. split; assumption.
+  * assumption.
+  * assumption.
+Qed.
+
+Lemma hoare_conjuntion_total_sound: forall c P1 P2 Q1 Q2,
+    triple_total_valid P1 c Q1 ->
+    triple_total_valid P2 c Q2 ->
+    triple_total_valid (P1 && P2) c (Q1 && Q2).
+Proof.
+  intros.
+  unfold triple_total_valid in *.
+  intros.
+  specialize (H s_pre ms_post).
+  specialize (H0 s_pre ms_post).
+  apply sat_andp in H1. destruct H1.
+  apply H in H1. apply H0 in H3.
+  destruct ms_post; auto.
+  apply sat_andp. split; assumption.
+  * assumption.
+  * assumption.
+Qed.
+
+Lemma hoare_disjunction_parial_sound: forall c P1 P2 Q1 Q2,
+    triple_partial_valid P1 c Q1 ->
+    triple_partial_valid P2 c Q2 ->
+    triple_partial_valid (P1 || P2) c (Q1 || Q2).
+Proof.
+  intros.
+  unfold triple_partial_valid in *.
+  intros.
+  specialize (H s_pre ms_post).
+  specialize (H0 s_pre ms_post).
+  rewrite sat_orp in H1. destruct H1.
+  - apply H in H1.
+    destruct ms_post; auto.
+    apply sat_orp. left. assumption.
+    * assumption.
+  - apply H0 in H1.
+    destruct ms_post; auto.
+    apply sat_orp. right. assumption.
+    * assumption.
+Qed.
+    
+Lemma hoare_disjunction_total_sound: forall c P1 P2 Q1 Q2,
+    triple_total_valid P1 c Q1 ->
+    triple_total_valid P2 c Q2 ->
+    triple_total_valid (P1 || P2) c (Q1 || Q2).
+Proof.
+  intros.
+  unfold triple_total_valid in *.
+  intros.
+  specialize (H s_pre ms_post).
+  specialize (H0 s_pre ms_post).
+  rewrite sat_orp in H1. destruct H1.
+  - apply H in H1.
+    destruct ms_post; auto.
+    rewrite sat_orp. left. assumption.
+    * assumption.
+  - apply H0 in H1.
+    destruct ms_post; auto.
+    rewrite sat_orp. right. assumption.
+    * assumption.
+Qed.
+
 End soundness.
