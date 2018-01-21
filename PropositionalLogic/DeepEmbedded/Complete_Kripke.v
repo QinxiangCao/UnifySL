@@ -4,26 +4,32 @@ Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum_Kripke.
+Require Import Logic.GeneralLogic.Complete.Canonical_Kripke.
+Require Import Logic.GeneralLogic.Complete.Complete_Kripke.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimunLogic.Complete.Lindenbaum_Kripke.
+Require Import Logic.MinimunLogic.Complete.Truth_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
 Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Complete.Lindenbaum_Kripke.
 Require Import Logic.PropositionalLogic.Complete.Truth_Kripke.
 Require Import Logic.PropositionalLogic.Complete.Canonical_Kripke.
-Require Import Logic.PropositionalLogic.Complete.Complete_Kripke.
 Require Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
-Require Logic.PropositionalLogic.DeepEmbedded.IntuitionisticLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.DeMorganLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.GodelDummettLogic.
-Require Logic.PropositionalLogic.DeepEmbedded.ClassicalLogic.
+Require Logic.PropositionalLogic.DeepEmbedded.ProofTheories.
 Require Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Local Open Scope logic_base.
@@ -37,60 +43,59 @@ Import KripkeModelClass.
 
 Section Complete.
 
-Context (Var: Type) (CV: Countable Var).
+Context {Sigma: PropositionalLanguage.PropositionalVariables}
+        {CV: Countable PropositionalLanguage.Var}.
 
-Instance L: Language := PropositionalLanguage.L Var.
-Instance nL: NormalLanguage L := PropositionalLanguage.nL Var.
-Instance pL: PropositionalLanguage L := PropositionalLanguage.pL Var.
+Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
 
-Instance Intuitionistic_G: ProofTheory L := IntuitionisticLogic.G Var.
-Instance DeMorgan_G: ProofTheory L := DeMorganLogic.G Var.
-Instance GodelDummett_G: ProofTheory L := GodelDummettLogic.G Var.
-Instance Classical_G: ProofTheory L := ClassicalLogic.G Var.
-Instance Kripke_MD: Model := KripkeSemantics.MD Var.
-Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
-Instance Kripke_R (M: Kmodel): Relation (Kworlds M) := KripkeSemantics.R Var M.
-Instance Kripke_SM: Semantics L Kripke_MD := KripkeSemantics.SM Var.
-Instance Kripke_kpSM (M: Kmodel): KripkePropositionalSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kpSM Var M.
+Existing Instances KripkeSemantics.MD KripkeSemantics.kMD KripkeSemantics.R KripkeSemantics.SM KripkeSemantics.kminSM KripkeSemantics.kpSM.
 
 Section General_Completeness.
 
-Context {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+Context {Gamma: ProofTheory PropositionalLanguage.L}.
 
-Definition DDC: context -> Prop := fun Psi =>
-  derivable_closed Psi /\ orp_witnessed Psi /\ consistent Psi.
+Definition cP : context -> Prop := Intersection _ (Intersection _ derivable_closed orp_witnessed) consistent.
 
-Lemma DER: at_least_derivable_closed DDC.
-Proof. hnf; intros ? [? [? ?]]; auto. Qed.
+Lemma AL_DC: at_least derivable_closed cP.
+Proof. solve_at_least. Qed.
 
-Lemma ORP: at_least_orp_witnessed DDC.
-Proof. hnf; intros ? [? [? ?]]; auto. Qed.
+Lemma AL_OW: at_least orp_witnessed cP.
+Proof. solve_at_least. Qed.
 
-Lemma CONSI: at_least_consistent DDC.
-Proof. hnf; intros ? [? [? ?]]; auto. Qed.
+Lemma AL_CONSI: at_least consistent cP.
+Proof. solve_at_least. Qed.
 
-Lemma LIN_DER: Linderbaum_derivable DDC.
+Context {SC: NormalSequentCalculus _ Gamma}
+        {bSC: BasicSequentCalculus _ Gamma}
+        {minSC: MinimunSequentCalculus _ Gamma}
+        {spSC: IntuitionisticPropositionalSequentCalculus _ Gamma}
+        {AX: NormalAxiomatization _ Gamma}
+        {minAX: MinimunAxiomatization _ Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic _ Gamma}.
+
+Lemma LIN_CD: forall x: expr, Lindenbaum_constructable (cannot_derive x) cP.
 Proof.
-  hnf; intros.
-  pose proof Lindenbaum_lemma
-    (PropositionalLanguage.formula_countable Var CV)  _ _ H
-  as [Psi [? [? ?]]].
-  exists (exist _ Psi H2); auto.
+  intros.
+  apply Lindenbaum_constructable_suffice; auto.
+  + apply PropositionalLanguage.formula_countable; auto.
+  + apply Lindenbaum_preserves_cannot_derive.
+  + unfold cP.
+    repeat apply Lindenbaum_ensures_by_conjunct.
+    - apply Lindenbaum_cannot_derive_ensures_derivable_closed.
+    - apply Lindenbaum_cannot_derive_ensures_orp_witnessed.
+    - apply Lindenbaum_cannot_derive_ensures_consistent.
 Qed.
 
 Definition canonical_frame: KripkeSemantics.frame :=
-  KripkeSemantics.Build_frame (sig DDC) (fun a b => Included _ (proj1_sig a) (proj1_sig b)).
+  KripkeSemantics.Build_frame (sig cP) (fun a b => Included _ (proj1_sig a) (proj1_sig b)).
 
-Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
+Definition canonical_eval: PropositionalLanguage.Var -> KripkeSemantics.sem canonical_frame :=
   fun p a => proj1_sig a (PropositionalLanguage.varp p).
 
-Definition canonical_Kmodel: @Kmodel (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) :=
-  KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
+Definition canonical_Kmodel: @Kmodel KripkeSemantics.MD KripkeSemantics.kMD :=
+  KripkeSemantics.Build_Kmodel canonical_frame canonical_eval.
 
-Definition rel: bijection (Kworlds canonical_Kmodel) (sig DDC) := bijection_refl.
+Definition rel: bijection (Kworlds canonical_Kmodel) (sig cP) := bijection_refl.
 
 Definition H_R:
   forall m n Phi Psi, rel m Phi -> rel n Psi ->
@@ -101,16 +106,17 @@ Proof.
   change (n = Psi) in H0.
   subst; reflexivity.
 Qed.
+Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
 
 Lemma TRUTH:
-  forall x: expr, forall m Phi, rel m Phi ->
+  forall x:  expr, forall m Phi, rel m Phi ->
     (KRIPKE: canonical_Kmodel, m |= x <-> proj1_sig Phi x).
 Proof.
   induction x.
-  + exact (truth_lemma_andp DDC rel DER x1 x2 IHx1 IHx2).
-  + exact (truth_lemma_orp DDC rel DER ORP x1 x2 IHx1 IHx2).
-  + exact (truth_lemma_impp DDC rel H_R DER LIN_DER x1 x2 IHx1 IHx2).
-  + exact (truth_lemma_falsep DDC rel CONSI).
+  + exact (truth_lemma_andp cP rel AL_DC x1 x2 IHx1 IHx2).
+  + exact (truth_lemma_orp cP rel AL_DC AL_OW x1 x2 IHx1 IHx2).
+  + exact (truth_lemma_impp cP rel H_R AL_DC LIN_CD x1 x2 IHx1 IHx2).
+  + exact (truth_lemma_falsep cP rel AL_CONSI).
   + intros; change (m = Phi) in H; subst; reflexivity.
 Qed.
 
@@ -118,98 +124,95 @@ End General_Completeness.
 
 Section Intuitionistic_Completeness.
 
-Instance Intuitionistic_nG: NormalProofTheory L Intuitionistic_G := IntuitionisticLogic.nG Var.
-Instance Intuitionistic_mpG: MinimunPropositionalLogic L Intuitionistic_G := IntuitionisticLogic.mpG Var.
-Instance Intuitionistic_ipG: IntuitionisticPropositionalLogic L Intuitionistic_G := IntuitionisticLogic.ipG Var.
+Existing Instances ProofTheories.IntuitionisticPropositionalLogic.G ProofTheories.IntuitionisticPropositionalLogic.AX ProofTheories.IntuitionisticPropositionalLogic.minAX ProofTheories.IntuitionisticPropositionalLogic.ipG.
+
+Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC.
 
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem complete_intuitionistic_Kripke_all:
-  strongly_complete Intuitionistic_G Kripke_SM
+  strongly_complete ProofTheories.IntuitionisticPropositionalLogic.G KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
 Proof.
-  apply (@general_completeness _ _ _ _ _ _ _ _ _ _ DDC rel LIN_DER DER TRUTH).
+  apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).
   constructor; hnf.
   + intros.
-    exact (denote_monotonic DDC rel H_R
+    exact (denote_monotonic cP rel H_R
              (PropositionalLanguage.varp v)
              (TRUTH (PropositionalLanguage.varp v))).
-  + exact (po_R DDC rel H_R).
+  + exact (po_R cP rel H_R).
 Qed.
 
 End Intuitionistic_Completeness.
-  
+
 Section DeMorgan_Completeness.
 
-Instance DeMorgan_nG: NormalProofTheory L DeMorgan_G := DeMorganLogic.nG Var.
-Instance DeMorgan_mpG: MinimunPropositionalLogic L DeMorgan_G := DeMorganLogic.mpG Var.
-Instance DeMorgan_ipG: IntuitionisticPropositionalLogic L DeMorgan_G := DeMorganLogic.ipG Var.
-Instance DeMorgan_dmpG: DeMorganPropositionalLogic L DeMorgan_G := DeMorganLogic.dmpG Var.
+Existing Instances ProofTheories.DeMorganPropositionalLogic.G ProofTheories.DeMorganPropositionalLogic.AX ProofTheories.DeMorganPropositionalLogic.minAX ProofTheories.DeMorganPropositionalLogic.ipG  ProofTheories.DeMorganPropositionalLogic.dmpG.
+
+Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC.
 
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem complete_DeMorgan_Kripke_branch_join:
-  strongly_complete DeMorgan_G Kripke_SM
+  strongly_complete ProofTheories.DeMorganPropositionalLogic.G KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_BranchJoin)).
 Proof.
-  apply (@general_completeness _ _ _ _ _ _ _ _ _ _ DDC rel LIN_DER DER TRUTH).
+  apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).
   constructor; [split |]; hnf.
   + intros.
-    exact (denote_monotonic DDC rel H_R
+    exact (denote_monotonic cP rel H_R
              (PropositionalLanguage.varp v)
              (TRUTH (PropositionalLanguage.varp v))).
-  + exact (po_R DDC rel H_R).
-  + exact (DeMorgan_canonical_branch_join DDC rel H_R DER ORP CONSI LIN_DER).
+  + exact (po_R cP rel H_R).
+  + exact (DeMorgan_canonical_branch_join cP rel H_R AL_DC AL_OW AL_CONSI LIN_CD).
 Qed.
 
 End DeMorgan_Completeness.
 
 Section GodelDummett_Completeness.
 
-Instance GodelDummett_nG: NormalProofTheory L GodelDummett_G := GodelDummettLogic.nG Var.
-Instance GodelDummett_mpG: MinimunPropositionalLogic L GodelDummett_G := GodelDummettLogic.mpG Var.
-Instance GodelDummett_ipG: IntuitionisticPropositionalLogic L GodelDummett_G := GodelDummettLogic.ipG Var.
-Instance GodelDummett_gdpG: GodelDummettPropositionalLogic L GodelDummett_G := GodelDummettLogic.gdpG Var.
+Existing Instances ProofTheories.GodelDummettPropositionalLogic.G ProofTheories.GodelDummettPropositionalLogic.AX ProofTheories.GodelDummettPropositionalLogic.minAX ProofTheories.GodelDummettPropositionalLogic.ipG  ProofTheories.GodelDummettPropositionalLogic.gdpG.
+
+Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC.
 
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem complete_GodelDummett_Kripke_no_branch:
-  strongly_complete GodelDummett_G Kripke_SM
+  strongly_complete ProofTheories.GodelDummettPropositionalLogic.G KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_NoBranch)).
 Proof.
-  apply (@general_completeness _ _ _ _ _ _ _ _ _ _ DDC rel LIN_DER DER TRUTH).
+  apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).
   constructor; [split |]; hnf.
   + intros.
-    exact (denote_monotonic DDC rel H_R
+    exact (denote_monotonic cP rel H_R
              (PropositionalLanguage.varp v)
              (TRUTH (PropositionalLanguage.varp v))).
-  + exact (po_R DDC rel H_R).
-  + exact (GodelDummett_canonical_no_branch DDC rel H_R DER ORP).
+  + exact (po_R cP rel H_R).
+  + exact (GodelDummett_canonical_no_branch cP rel H_R AL_DC AL_OW).
 Qed.
 
 End GodelDummett_Completeness.
 
 Section Classical_Completeness.
 
-Instance Classical_nG: NormalProofTheory L Classical_G := ClassicalLogic.nG Var.
-Instance Classical_mpG: MinimunPropositionalLogic L Classical_G := ClassicalLogic.mpG Var.
-Instance Classical_ipG: IntuitionisticPropositionalLogic L Classical_G := ClassicalLogic.ipG Var.
-Instance Classical_cpG: ClassicalPropositionalLogic L Classical_G := ClassicalLogic.cpG Var.
-
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
+Existing Instances ProofTheories.ClassicalPropositionalLogic.G ProofTheories.ClassicalPropositionalLogic.AX ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipG  ProofTheories.ClassicalPropositionalLogic.cpG.
+
+Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC Axiomatization2SequentCalculus_cpSC.
+
 Theorem complete_Classical_Kripke_identity:
-  strongly_complete Classical_G Kripke_SM
+  strongly_complete ProofTheories.ClassicalPropositionalLogic.G KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_Identity)).
 Proof.
-  apply (@general_completeness _ _ _ _ _ _ _ _ _ _ DDC rel LIN_DER DER TRUTH).
+  apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).
   constructor; [split |]; hnf.
   + intros.
-    exact (denote_monotonic DDC rel H_R
+    exact (denote_monotonic cP rel H_R
              (PropositionalLanguage.varp v)
              (TRUTH (PropositionalLanguage.varp v))).
-  + exact (po_R DDC rel H_R).
-  + exact (classical_canonical_ident DDC rel H_R DER ORP CONSI).
+  + exact (po_R cP rel H_R).
+  + exact (classical_canonical_ident cP rel H_R AL_DC AL_OW AL_CONSI).
 Qed.
 
 End Classical_Completeness.

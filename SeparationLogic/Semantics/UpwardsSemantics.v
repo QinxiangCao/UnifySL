@@ -7,8 +7,8 @@ Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
-Require Logic.SeparationLogic.Semantics.WeakSemantics.
-Require Logic.SeparationLogic.Semantics.StrongSemantics.
+Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
+Require Import Logic.SeparationLogic.Semantics.StrongSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.

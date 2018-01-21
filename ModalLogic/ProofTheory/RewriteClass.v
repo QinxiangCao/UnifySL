@@ -1,12 +1,12 @@
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.Classes.RelationClasses.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
@@ -22,42 +22,29 @@ Import ModalLanguageNotation.
 Section RewriteClass.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {mL: ModalLanguage L}
         {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
+        {AX: NormalAxiomatization L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {KmGamma: SystemK L Gamma}.
 
 Instance boxp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) boxp.
 Proof.
   hnf; intros x y ?.
-  rewrite provable_derivable.
-  apply deduction_axiom_K.
-  rewrite <- provable_derivable.
-  apply rule_N; auto.
+  apply rule_N in H.
+  eapply modus_ponens; eauto.
+  apply axiom_K.
 Qed.
 
 Instance boxp_proper_iffp: Proper ((fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y)) boxp.
 Proof.
   hnf; intros x y ?.
-  rewrite provable_derivable.
-  apply deduction_andp_intros;
-  apply deduction_axiom_K.
-  + rewrite <- provable_derivable.
-    apply rule_N.
-    rewrite provable_derivable.
-    eapply deduction_andp_elim1.
-    rewrite <- provable_derivable.
-    eauto.
-  + rewrite <- provable_derivable.
-    apply rule_N.
-    rewrite provable_derivable.
-    eapply deduction_andp_elim2.
-    rewrite <- provable_derivable.
-    eauto.
+  apply solve_andp_intros; apply boxp_proper_impp.
+  + eapply solve_andp_elim1; eauto.
+  + eapply solve_andp_elim2; eauto.
 Qed.
 
 Instance diamondp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) diamondp.

@@ -41,11 +41,11 @@ Qed.
 Lemma same_relation_Transitive {A}: Transitive (same_relation A).
 Proof.
   hnf; intros.
-  rewrite same_relation_spec in *.
+  rewrite same_relation_spec in H, H0 |- *.
   unfold pointwise_relation in *.
-  split; intros.
-  + apply H0. apply H. assumption.
-  + apply H. apply H0. assumption.
+  intros.
+  rewrite H, H0.
+  tauto.
 Qed.
 
 Instance same_relation_Equivalence {A}: Equivalence (same_relation A).

@@ -2,8 +2,8 @@ Require Import Coq.Classes.Morphisms.
 Require Import Coq.Classes.RelationClasses.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.Syntax.
@@ -13,8 +13,18 @@ Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
-Instance andp_proper_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) andp.
+Section RewriteClass1.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+
+Instance andp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) andp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable.
@@ -29,30 +39,33 @@ Proof.
   apply deduction_andp_intros; auto.
 Qed.
 
-Instance orp_proper_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) orp.
+Instance orp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) orp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H, H0 |- *.
-  apply deduction_orp_elim.
+  apply deduction_orp_elim'.
   + eapply deduction_impp_trans; [exact H |].
     apply derivable_orp_intros1.
   + eapply deduction_impp_trans; [exact H0 |].
     apply derivable_orp_intros2.
 Qed.
 
-Instance negp_proper_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y)) negp.
+Instance negp_proper_impp: Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y)) negp.
 Proof.
+  AddSequentCalculus Gamma.
   hnf; intros x1 x2 ?.
   unfold negp.
   apply impp_proper_impp; auto.
   apply provable_impp_refl.
 Qed.
 
-Instance provable_iffp_rewrite {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: RewriteRelation (fun x y => |-- x <--> y).
+Instance provable_iffp_rewrite: RewriteRelation (fun x y => |-- x <--> y).
 
-Instance provable_iffp_equiv {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Equivalence (fun x y => |-- x <--> y).
+Instance provable_iffp_equiv: Equivalence (fun x y => |-- x <--> y).
 Proof.
+  AddSequentCalculus Gamma.
   constructor.
   + hnf; intros.
     rewrite provable_derivable.
@@ -71,8 +84,9 @@ Proof.
     apply deduction_andp_intros; eapply deduction_impp_trans; eauto.
 Qed.
 
-Instance provable_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} : Proper ((fun x y => |-- x <--> y) ==> iff) provable.
+Instance provable_proper_iffp : Proper ((fun x y => |-- x <--> y) ==> iff) provable.
 Proof.
+  AddSequentCalculus Gamma.
   intros.
   hnf; intros.
   rewrite provable_derivable in H.
@@ -84,7 +98,102 @@ Proof.
   eapply deduction_modus_ponens; eauto.
 Qed.
 
-Instance derivable_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} : Proper (eq ==> (fun x y => |-- x <--> y) ==> iff) derivable.
+Instance impp_proper_iffp : Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) impp.
+Proof.
+  AddSequentCalculus Gamma.
+  hnf; intros x1 x2 ?.
+  hnf; intros y1 y2 ?.
+  rewrite provable_derivable in H.
+  rewrite provable_derivable in H0.
+  rewrite provable_derivable.
+  pose proof deduction_andp_elim1 _ _ _ H.
+  pose proof deduction_andp_elim2 _ _ _ H.
+  pose proof deduction_andp_elim1 _ _ _ H0.
+  pose proof deduction_andp_elim2 _ _ _ H0.
+  rewrite <- provable_derivable in H1.
+  rewrite <- provable_derivable in H2.
+  rewrite <- provable_derivable in H3.
+  rewrite <- provable_derivable in H4.
+  apply deduction_andp_intros; rewrite <- provable_derivable.
+  + apply impp_proper_impp; auto.
+  + apply impp_proper_impp; auto.
+Qed.
+
+Instance andp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) andp.
+Proof.
+  AddSequentCalculus Gamma.
+  hnf; intros x1 x2 ?.
+  hnf; intros y1 y2 ?.
+  rewrite provable_derivable in H.
+  rewrite provable_derivable in H0.
+  rewrite provable_derivable.
+  pose proof deduction_andp_elim1 _ _ _ H.
+  pose proof deduction_andp_elim2 _ _ _ H.
+  pose proof deduction_andp_elim1 _ _ _ H0.
+  pose proof deduction_andp_elim2 _ _ _ H0.
+  rewrite <- provable_derivable in H1.
+  rewrite <- provable_derivable in H2.
+  rewrite <- provable_derivable in H3.
+  rewrite <- provable_derivable in H4.
+  apply deduction_andp_intros; rewrite <- provable_derivable.
+  + apply andp_proper_impp; auto.
+  + apply andp_proper_impp; auto.
+Qed.
+
+Instance orp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) orp.
+Proof.
+  AddSequentCalculus Gamma.
+  hnf; intros x1 x2 ?.
+  hnf; intros y1 y2 ?.
+  rewrite provable_derivable in H.
+  rewrite provable_derivable in H0.
+  rewrite provable_derivable.
+  pose proof deduction_andp_elim1 _ _ _ H.
+  pose proof deduction_andp_elim2 _ _ _ H.
+  pose proof deduction_andp_elim1 _ _ _ H0.
+  pose proof deduction_andp_elim2 _ _ _ H0.
+  rewrite <- provable_derivable in H1.
+  rewrite <- provable_derivable in H2.
+  rewrite <- provable_derivable in H3.
+  rewrite <- provable_derivable in H4.
+  apply deduction_andp_intros; rewrite <- provable_derivable.
+  + apply orp_proper_impp; auto.
+  + apply orp_proper_impp; auto.
+Qed.
+
+Instance iffp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) iffp.
+Proof.
+  AddSequentCalculus Gamma.
+  hnf; intros x1 x2 ?.
+  hnf; intros y1 y2 ?.
+  unfold iffp.
+  rewrite H, H0.
+  apply provable_iffp_refl.
+Qed.
+
+Instance negp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) negp.
+Proof.
+  AddSequentCalculus Gamma.
+  hnf; intros x1 x2 ?.
+  unfold negp.
+  apply impp_proper_iffp; auto.
+  apply provable_iffp_refl.
+Qed.
+
+End RewriteClass1.
+
+Section RewriteClass2.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: ProofTheory L}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
+
+Instance derivable_proper_iffp : Proper (eq ==> (fun x y => |-- x <--> y) ==> iff) derivable.
 Proof.
   hnf; intros Phi Phi' ?; subst Phi'.
   hnf; intros x1 x2 ?.
@@ -95,79 +204,9 @@ Proof.
   eapply deduction_modus_ponens; eauto.
 Qed.
 
-Instance impp_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} : Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) impp.
-Proof.
-  hnf; intros x1 x2 ?.
-  hnf; intros y1 y2 ?.
-  rewrite provable_derivable in H.
-  rewrite provable_derivable in H0.
-  rewrite provable_derivable.
-  pose proof deduction_andp_elim1 _ _ _ H.
-  pose proof deduction_andp_elim2 _ _ _ H.
-  pose proof deduction_andp_elim1 _ _ _ H0.
-  pose proof deduction_andp_elim2 _ _ _ H0.
-  rewrite <- provable_derivable in H1.
-  rewrite <- provable_derivable in H2.
-  rewrite <- provable_derivable in H3.
-  rewrite <- provable_derivable in H4.
-  apply deduction_andp_intros; rewrite <- provable_derivable.
-  + apply impp_proper_impp; auto.
-  + apply impp_proper_impp; auto.
-Qed.
+End RewriteClass2.
 
-Instance andp_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) andp.
-Proof.
-  hnf; intros x1 x2 ?.
-  hnf; intros y1 y2 ?.
-  rewrite provable_derivable in H.
-  rewrite provable_derivable in H0.
-  rewrite provable_derivable.
-  pose proof deduction_andp_elim1 _ _ _ H.
-  pose proof deduction_andp_elim2 _ _ _ H.
-  pose proof deduction_andp_elim1 _ _ _ H0.
-  pose proof deduction_andp_elim2 _ _ _ H0.
-  rewrite <- provable_derivable in H1.
-  rewrite <- provable_derivable in H2.
-  rewrite <- provable_derivable in H3.
-  rewrite <- provable_derivable in H4.
-  apply deduction_andp_intros; rewrite <- provable_derivable.
-  + apply andp_proper_impp; auto.
-  + apply andp_proper_impp; auto.
-Qed.
-
-Instance orp_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) orp.
-Proof.
-  hnf; intros x1 x2 ?.
-  hnf; intros y1 y2 ?.
-  rewrite provable_derivable in H.
-  rewrite provable_derivable in H0.
-  rewrite provable_derivable.
-  pose proof deduction_andp_elim1 _ _ _ H.
-  pose proof deduction_andp_elim2 _ _ _ H.
-  pose proof deduction_andp_elim1 _ _ _ H0.
-  pose proof deduction_andp_elim2 _ _ _ H0.
-  rewrite <- provable_derivable in H1.
-  rewrite <- provable_derivable in H2.
-  rewrite <- provable_derivable in H3.
-  rewrite <- provable_derivable in H4.
-  apply deduction_andp_intros; rewrite <- provable_derivable.
-  + apply orp_proper_impp; auto.
-  + apply orp_proper_impp; auto.
-Qed.
-
-Instance iffp_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) iffp.
-Proof.
-  hnf; intros x1 x2 ?.
-  hnf; intros y1 y2 ?.
-  unfold iffp.
-  rewrite H, H0.
-  apply provable_iffp_refl.
-Qed.
-
-Instance negp_proper_iffp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma}: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) negp.
-Proof.
-  hnf; intros x1 x2 ?.
-  unfold negp.
-  apply impp_proper_iffp; auto.
-  apply provable_iffp_refl.
-Qed.
+Existing Instances andp_proper_impp orp_proper_impp negp_proper_impp
+                   provable_iffp_rewrite provable_iffp_equiv
+                   provable_proper_iffp derivable_proper_iffp
+                   impp_proper_iffp andp_proper_iffp orp_proper_iffp iffp_proper_iffp negp_proper_iffp.

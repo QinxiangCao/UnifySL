@@ -46,6 +46,13 @@ Proof.
     intro; apply H with x; tauto.
 Qed.
 
+Lemma Singleton_spec: forall U x y, (Singleton U x) y <-> x = y.
+Proof.
+  intros; split; intro.
+  + inversion H; auto.
+  + subst; constructor.
+Qed.
+
 Lemma Included_Full_set: forall A P, Included A P (Full_set A).
 Proof.
   intros.

@@ -4,14 +4,16 @@ Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
-Require Import Logic.PropositionalLogic.Semantics.Kripke.
-Require Logic.SeparationLogic.Semantics.WeakSemanticsMono.
+Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
 Require Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
 
@@ -32,10 +34,14 @@ Infix "<=" := (underlying_relation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
 
+Section FlatSemantics.
+
+Context {Sigma: PropositionalVariables}.
+
 Definition sem (f: frame) := @Ensemble (underlying_set f).
 
-Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> sem F :=
-  fix denotation (x: expr Var): sem F:=
+Definition denotation (F: frame) (eval: Var -> sem F): expr Sigma -> sem F :=
+  fix denotation (x: expr Sigma): sem F:=
   match x with
   | andp y z => @Semantics.andp F (denotation y) (denotation z)
   | orp y z => @Semantics.orp F (denotation y) (denotation z)
@@ -47,9 +53,6 @@ Definition denotation {Var: Type} (F: frame) (eval: Var -> sem F): expr Var -> s
   | varp p => eval p
   end.
 
-Section KripkeSemantics.
-Context (Var: Type).
-
 Record Kmodel : Type := {
   underlying_frame :> frame;
   sem_var: Var -> sem underlying_frame
@@ -60,7 +63,6 @@ Record model: Type := {
   elm: underlying_model
 }.
 
-Instance L: Language := SeparationEmpLanguage.L Var.
 Instance MD: Model := Build_Model model.
 
 Instance kMD: KripkeModel MD :=
@@ -78,10 +80,15 @@ Instance R (M: Kmodel): Relation (Kworlds M) :=
 Instance J (M: Kmodel): Join (Kworlds M) :=
   @underlying_join M.
 
+Instance kminSM (M: Kmodel): KripkeMinimunSemantics L MD M SM.
+Proof.
+  apply Build_KripkeMinimunSemantics.
+  intros; apply Same_set_refl.
+Defined.
+
 Instance kpSM (M: Kmodel): KripkePropositionalSemantics L MD M SM.
 Proof.
   apply Build_KripkePropositionalSemantics.
-  + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
   + intros; apply Same_set_refl.
@@ -140,20 +147,13 @@ Definition Kmodel_IncreasingJoinSelf: Kmodel -> Prop := fun M =>
 Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 
 Record Parametric_Kmodel_Class (PAR: SA_Parameter) (M: Kmodel): Prop := {
-  SA_ID: ID PAR = true -> IdentityKripkeIntuitionisticModel (Kworlds M);
-  SA_NB: NB PAR = true -> NoBranchKripkeIntuitionisticModel (Kworlds M);
-  SA_BJ: BJ PAR = true -> BranchJoinKripkeIntuitionisticModel (Kworlds M);
-  SA_INCR: INCR PAR = true -> IncreasingSeparationAlgebra (Kworlds M);
-  SA_UNI: ISS PAR = true -> IncreasingSplitSmallerSeparationAlgebra (Kworlds M);
-  SA_RES: IJS PAR = true -> IncreasingJoinSelfSeparationAlgebra (Kworlds M)
+  SA_ID: ID = true -> IdentityKripkeIntuitionisticModel (Kworlds M);
+  SA_NB: NB = true -> NoBranchKripkeIntuitionisticModel (Kworlds M);
+  SA_BJ: BJ = true -> BranchJoinKripkeIntuitionisticModel (Kworlds M);
+  SA_INCR: INCR = true -> IncreasingSeparationAlgebra (Kworlds M);
+  SA_UNI: ISS = true -> IncreasingSplitSmallerSeparationAlgebra (Kworlds M);
+  SA_RES: IJS = true -> IncreasingJoinSelfSeparationAlgebra (Kworlds M)
 }.
 
-End KripkeSemantics.
+End FlatSemantics.
 
-Arguments Kmodel_Monotonic {Var} _.
-Arguments Kmodel_PreOrder {Var} _.
-Arguments Kmodel_SeparationAlgebra {Var} _.
-Arguments Kmodel_UpwardsClosed {Var} _.
-Arguments Kmodel_DownwardsClosed {Var} _.
-Arguments Kmodel_Unital {Var} _.
-Arguments Parametric_Kmodel_Class {Var} _ _.

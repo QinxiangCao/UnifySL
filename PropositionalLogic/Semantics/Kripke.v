@@ -2,7 +2,9 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -12,10 +14,8 @@ Import PropositionalLanguageNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
+(* TODO: It is so obvious that this file is very similar with Trivial.v. The should be merged. The obstacle is the way that we formalize Kripke Semantics. See the "TODO" in GeneralLogic/Semantics/Kripke.v *)
 Module Semantics.
-
-Definition impp {worlds: Type} {R: Relation worlds} (X: Ensemble worlds) (Y: Ensemble worlds): Ensemble worlds :=
-  fun m => forall n, m <= n -> X n -> Y n.
 
 Definition andp {worlds: Type} (X: Ensemble worlds) (Y: Ensemble worlds): Ensemble worlds :=
   fun m => X m /\ Y m.
@@ -24,19 +24,6 @@ Definition orp {worlds: Type} (X: Ensemble worlds) (Y: Ensemble worlds): Ensembl
   fun m => X m \/ Y m.
 
 Definition falsep {worlds: Type}: Ensemble worlds := fun m => False.
-
-Lemma impp_closed {worlds: Type} {R: Relation worlds} {po_R: PreOrder Krelation}:
-  forall (X: Ensemble worlds) (Y: Ensemble worlds),
-    upwards_closed_Kdenote X ->
-    upwards_closed_Kdenote Y ->
-    upwards_closed_Kdenote (impp X Y).
-Proof.
-  intros.
-  hnf; intros.
-  hnf in H2 |- *.
-  intros ? ?; apply H2.
-  etransitivity; eauto.
-Qed.
 
 Lemma andp_closed {worlds: Type} {R: Relation worlds} {po_R: PreOrder Krelation}:
   forall (X: Ensemble worlds) (Y: Ensemble worlds),
@@ -77,13 +64,6 @@ End Semantics.
 
 Module SemanticsMono.
 
-Program Definition impp {worlds: Type} {R: Relation worlds} {po_R: PreOrder Krelation} (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
-  Semantics.impp X Y.
-Next Obligation.
-  apply (@Semantics.impp_closed worlds R po_R);
-  apply (proj2_sig _).
-Defined.
-
 Program Definition andp {worlds: Type} {R: Relation worlds} {po_R: PreOrder Krelation} (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
   Semantics.andp X Y.
 Next Obligation.
@@ -107,33 +87,26 @@ Defined.
 
 End SemanticsMono.
 
-Class KripkeIntuitionisticSemantics (L: Language) (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
-  denote_closed: forall x, upwards_closed_Kdenote (Kdenotation M x)
-}.
-
-Class KripkePropositionalSemantics (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
-  denote_impp: forall x y, Same_set _ (Kdenotation M (x --> y)) (Semantics.impp (Kdenotation M x) (Kdenotation M y));
+Class KripkePropositionalSemantics (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) {kminSM: KripkeMinimunSemantics L MD M SM}: Type := {
   denote_andp: forall x y, Same_set _ (Kdenotation M (x && y)) (Semantics.andp (Kdenotation M x) (Kdenotation M y));
   denote_orp: forall x y, Same_set _ (Kdenotation M (x || y)) (Semantics.orp (Kdenotation M x) (Kdenotation M y));
   denote_falsep: Same_set _ (Kdenotation M FF) Semantics.falsep
 }.
 
-Lemma sat_mono {L: Language} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM}: forall m n x, m <= n -> KRIPKE: M , m |= x -> KRIPKE: M , n |= x.
-Proof.
-  intros ? ? ? ?.
-  unfold satisfies.
-  apply (denote_closed x); auto.
-Qed.
+Section KripkeSemantics.
 
-Lemma sat_impp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kpSM: KripkePropositionalSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x --> y <-> (forall n, m <= n -> KRIPKE: M , n |= x -> KRIPKE: M , n |= y).
-Proof.
-  intros; simpl.
-  unfold satisfies.
-  destruct (denote_impp x y).
-  split; [apply H | apply H0].
-Qed.
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {MD: Model}
+        {kMD: KripkeModel MD}
+        {M: Kmodel}
+        {R: Relation (Kworlds M)}
+        {SM: Semantics L MD}
+        {kminSM: KripkeMinimunSemantics L MD M SM}
+        {kpSM: KripkePropositionalSemantics L MD M SM}.
 
-Lemma sat_andp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kpSM: KripkePropositionalSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y).
+Lemma sat_andp: forall m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y).
 Proof.
   intros; simpl.
   unfold satisfies.
@@ -141,7 +114,7 @@ Proof.
   split; [apply H | apply H0].
 Qed.
 
-Lemma sat_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kpSM: KripkePropositionalSemantics L MD M SM}: forall m x y, KRIPKE: M , m |= x || y <-> (KRIPKE: M , m |= x \/ KRIPKE: M , m |= y).
+Lemma sat_orp: forall m x y, KRIPKE: M , m |= x || y <-> (KRIPKE: M , m |= x \/ KRIPKE: M , m |= y).
 Proof.
   intros; simpl.
   unfold satisfies.
@@ -149,10 +122,12 @@ Proof.
   split; [apply H | apply H0].
 Qed.
 
-Lemma sat_falsep {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {kpSM: KripkePropositionalSemantics L MD M SM}: forall m, KRIPKE: M , m |= FF <-> False.
+Lemma sat_falsep: forall m, KRIPKE: M , m |= FF <-> False.
 Proof.
   intros; simpl.
   unfold satisfies.
   destruct denote_falsep.
   split; [apply H | apply H0].
 Qed.
+
+End KripkeSemantics.

@@ -1,10 +1,12 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.KripkeModel.
-Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
+Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.SeparationLogic.Syntax.
+Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.SeparationLogic.Semantics.SemanticsExtension.
 Require Import Logic.HoareLogic.ImperativeLanguage.
@@ -116,7 +118,7 @@ Definition sem_precise
 
 Lemma sem_precise_spec
         {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {SL: SeparationLanguage L}
         {MD: Model}
@@ -151,7 +153,7 @@ Context {P: ProgrammingLanguage}
       {CPR: ConcurrentProgrammingLanguage_Sresource P Res}
  {MD: Model} {TLBSS: ThreadLocalBigStepSemantics P model (list (resource * (model -> Prop)))} {J: Join model} {R: Relation model} {po_R: PreOrder Krelation} {R_BSS: Resource_BigStepSemantics P model TLBSS}.
 
-Context {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
+Context {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
 
 Lemma hoare_resource_partial_sound: forall
   (r: resource)

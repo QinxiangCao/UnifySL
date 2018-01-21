@@ -1,31 +1,36 @@
+Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
+Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.GeneralLogic.HenkinCompleteness.
+Require Import Logic.GeneralLogic.KripkeModel.
+Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
+Require Import Logic.GeneralLogic.Complete.ContextProperty.
+Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
-Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
+Require Import Logic.PropositionalLogic.Semantics.Kripke.
+Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.PropositionalLogic.Complete.Canonical_Kripke.
+Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
 Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.
 Require Import Logic.SeparationLogic.ProofTheory.DerivedRules.
-Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OrderedSA.
-Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Intuitionistic.
-Require Import Logic.PropositionalLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.SeparationLogic.Complete.ContextProperty_Flat.
-Require Import Logic.PropositionalLogic.Complete.Canonical_Kripke.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -38,12 +43,16 @@ Import KripkeModelNotation_Intuitionistic.
 Section Canonical.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
+        {SC: NormalSequentCalculus L Gamma}
+        {bSC: BasicSequentCalculus L Gamma}
+        {minSC: MinimunSequentCalculus L Gamma}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
+        {AX: NormalAxiomatization L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}
         {MD: Model}
@@ -54,15 +63,16 @@ Context {L: Language}
         {SM: Semantics L MD}
         {fsSM: SeparatingSemantics L MD M SM}.
 
-Context (P: context -> Prop)
-        (rel: bijection (Kworlds M) (sig P)).
+Context (cP: context -> Prop)
+        (rel: bijection (Kworlds M) (sig cP)).
 
 Hypothesis H_R: forall m n Phi Psi, rel m Phi -> rel n Psi -> (m <= n <-> Included _ (proj1_sig Phi) (proj1_sig Psi)).
 
-Hypothesis H_J: forall m1 m2 m Phi1 Phi2 Phi, rel m1 Phi1 -> rel m2 Phi2 -> rel m Phi -> (join m1 m2 m <-> context_join (proj1_sig Phi1) (proj1_sig Phi2) (proj1_sig Phi)).
+Hypothesis H_J: forall m1 m2 m Phi1 Phi2 Phi, rel m1 Phi1 -> rel m2 Phi2 -> rel m Phi -> (join m1 m2 m <-> Included _ (context_sepcon (proj1_sig Phi1) (proj1_sig Phi2)) (proj1_sig Phi)).
 
 Instance SA
-         (LIN_SR: Linderbaum_sepcon_right P):
+         (AL_DC: at_least derivable_closed cP)
+         (LIN_SR: forall (Phi: context) (Psi: sig cP), Lindenbaum_constructable (context_sepcon_included_r Phi (proj1_sig Psi)) cP):
   SeparationAlgebra (Kworlds M).
 Proof.
   constructor.
@@ -72,8 +82,13 @@ Proof.
     destruct (im_bij _ _ rel m) as [Phi ?].
     erewrite H_J in H |- * by eauto.
     hnf; intros.
-    rewrite <- sepcon_comm.
-    apply H; auto.
+    destruct H3 as [y [z [? [? ?]]]].
+    subst.
+    rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
+    rewrite sepcon_comm.
+    rewrite <- derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
+    apply H.
+    exists z, y; split; [| split]; auto.
   + intros.
     destruct (im_bij _ _ rel mx) as [Phi_x ?].
     destruct (im_bij _ _ rel my) as [Phi_y ?].
@@ -81,16 +96,23 @@ Proof.
     destruct (im_bij _ _ rel mxy) as [Phi_xy ?].
     destruct (im_bij _ _ rel mxyz) as [Phi_xyz ?].
     erewrite H_J in H, H0 by eauto.
-    assert (context_join (proj1_sig Phi_x)
-             (context_sepcon (proj1_sig Phi_y) (proj1_sig Phi_z)) (proj1_sig Phi_xyz)).
-    - hnf; intros x yz ? ?.
-      apply context_sepcon_derivable in H7.
-      destruct H7 as [y [z [? [? ?]]]].
-      rewrite <- H7, sepcon_assoc.
-      apply H0; auto.
+    assert (Included _ (context_sepcon (proj1_sig Phi_x)
+             (context_sepcon (proj1_sig Phi_y) (proj1_sig Phi_z))) (proj1_sig Phi_xyz)).
+    - hnf; intros xyz ?.
+      destruct H6 as [x [yz [? [? ?]]]]; subst xyz.
+      apply context_sepcon_derivable in H8.
+      destruct H8 as [y [z [? [? ?]]]].
+      rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi_xyz)).
+      rewrite <- H6, sepcon_assoc.
+      rewrite <- derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi_xyz)).
+      apply H0.
+      exists (x * y), z; split; [| split]; auto.
+      rewrite <- derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi_xy)).
+      apply H.
+      exists x, y; split; [| split]; auto.
     - apply LIN_SR in H6.
       destruct H6 as [Phi_yz [? ?]].
-      apply context_sepcon_context_join' in H6.
+      unfold context_sepcon_included_r in H7.
       destruct (su_bij _ _ rel Phi_yz) as [myz ?].
       exists myz.
       erewrite !H_J by eauto.
@@ -98,7 +120,7 @@ Proof.
 Qed.
 
 Instance uSA
-         (DER: at_least_derivable_closed P):
+         (AL_DC: at_least derivable_closed cP):
   UpwardsClosedSeparationAlgebra (Kworlds M).
 Proof.
   hnf; intros.
@@ -111,15 +133,13 @@ Proof.
   erewrite H_R in H0 by eauto.
   do 2 erewrite H_R by eauto.
   split; [| split].
-  + rewrite context_join_spec in H by (apply DER, (proj2_sig Phi)).
-    rewrite context_join_spec by (apply DER, (proj2_sig Psi)).
-    hnf; intros; apply H0, H; auto.
+  + eapply Included_trans; eauto.
   + hnf; intros; auto.
   + hnf; intros; auto.
 Qed.
 
 Instance dSA
-         (DER: at_least_derivable_closed P):
+         (AL_DC: at_least derivable_closed cP):
   DownwardsClosedSeparationAlgebra (Kworlds M).
 Proof.
   hnf; intros.
@@ -132,9 +152,8 @@ Proof.
   erewrite H_J in H |- * by eauto.
   erewrite H_R in H0, H1 |- * by eauto.
   split.
-  + rewrite context_join_spec in H |- * by (apply DER, (proj2_sig Phi)).
-    hnf; intros z ?; apply H; auto.
-    destruct H7 as [x [y [? [? ?]]]]; subst.
+  + eapply Included_trans; eauto.
+    hnf; intros z [x [y [? [? ?]]]]; subst.
     exists x, y.
     split; [| split]; auto.
     - eapply deduction_weaken; eauto.
@@ -144,7 +163,7 @@ Qed.
 
 Lemma garbage_collected_canonical_increaing
       {gcsGamma: GarbageCollectSeparationLogic L Gamma}
-      (DER: at_least_derivable_closed P):
+      (AL_DC: at_least derivable_closed cP):
   IncreasingSeparationAlgebra (Kworlds M).
 Proof.
   constructor.
@@ -155,25 +174,31 @@ Proof.
   erewrite H_R by eauto.
   erewrite H_J in H by eauto.
   unfold Included, Ensembles.In; intros.
-  rewrite derivable_closed_element_derivable in H3 by (apply DER, (proj2_sig Psi1)).
-  rewrite derivable_closed_element_derivable by (apply DER, (proj2_sig Psi2)).
+  rewrite derivable_closed_element_derivable in H3 by (apply AL_DC, (proj2_sig Psi1)).
+  rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Psi2)).
   rewrite <- (sepcon_elim2 TT).
+  rewrite <- derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Psi2)).
   apply H; auto.
+  exists TT, x; split; [| split]; auto.
   apply derivable_impp_refl.
 Qed.
 
 Lemma ext_canonical_residual
       {ExtSGamma: ExtSeparationLogic L Gamma}
-      (LIN_SL: Linderbaum_sepcon_left P):
+      (AL_DC: at_least derivable_closed cP)
+      (LIN_SL: forall (Phi: context) (Psi: sig cP), Lindenbaum_constructable (context_sepcon_included_l Phi (proj1_sig Psi)) cP):
   ResidualSeparationAlgebra (Kworlds M).
 Proof.
   constructor.
   intros.
   destruct (im_bij _ _ rel n) as [Phi ?].
-  assert (context_join (Union _ empty_context (Singleton _ TT)) (proj1_sig Phi) (proj1_sig Phi)).
+  assert (Included _ (context_sepcon (Union _ empty_context (Singleton _ TT)) (proj1_sig Phi)) (proj1_sig Phi)).
   + hnf; intros.
-    rewrite deduction_theorem, <- provable_derivable in H0.
-    rewrite <- H0, <- sepcon_comm, <- sepcon_ext; auto.
+    destruct H0 as [y [z [? [? ?]]]].
+    rewrite deduction_theorem, <- provable_derivable in H1.
+    rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
+    subst; rewrite <- H1.
+    rewrite <- sepcon_comm, <- sepcon_ext; auto.
   + apply LIN_SL in H0.
     destruct H0 as [Psi [? ?]].
     destruct (su_bij _ _ rel Psi) as [m ?].
@@ -190,8 +215,8 @@ Context {s'L: SeparationEmpLanguage L}
         {feSM: EmpSemantics L MD M SM}.
 
 Instance unitSA
-         (DER: at_least_derivable_closed P)
-         (LIN_SR: Linderbaum_sepcon_right P)
+         (AL_DC: at_least derivable_closed cP)
+         (LIN_SR: forall (Phi: context) (Psi: sig cP), Lindenbaum_constructable (context_sepcon_included_r Phi (proj1_sig Psi)) cP)
          (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   UnitalSeparationAlgebra (Kworlds M).
 Proof.
@@ -199,16 +224,18 @@ Proof.
   constructor.
   intros.
   destruct (im_bij _ _ rel n) as [Phi ?].
-  assert (context_join (proj1_sig Phi) (Union _ empty_context (Singleton _ emp)) (proj1_sig Phi)).
+  assert (Included _ (context_sepcon (proj1_sig Phi) (Union _ empty_context (Singleton _ emp))) (proj1_sig Phi)).
   + hnf; intros.
-    rewrite deduction_theorem, <- provable_derivable in H1.
-    rewrite <- H1, sepcon_emp; auto.
+    destruct H0 as [y [z [? [? ?]]]].
+    rewrite deduction_theorem, <- provable_derivable in H2.
+    rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
+    subst; rewrite <- H2, sepcon_emp; auto.
   + apply LIN_SR in H0.
     destruct H0 as [Psi [? ?]].
     destruct (su_bij _ _ rel Psi) as [m ?].
     exists m.
     split; [exists n; split |].
-    - apply (@join_comm _ _ (SA LIN_SR)).
+    - apply (@join_comm _ _ (SA AL_DC LIN_SR)).
       erewrite H_J by eauto.
       auto.
     - erewrite H_R by eauto.
@@ -222,7 +249,7 @@ Qed.
 
 Lemma nonsplit_canonical_split_smaller
       {nssGamma: NonsplitEmpSeparationLogic L Gamma}
-      (DER: at_least_derivable_closed P)
+      (AL_DC: at_least derivable_closed cP)
       (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   IncreasingSplitSmallerSeparationAlgebra (Kworlds M).
 Proof.
@@ -233,33 +260,35 @@ Proof.
   erewrite H_J in H0 by eauto.
   erewrite H_R by eauto.
   unfold Included, Ensembles.In; intros x ?.
-  rewrite derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)).
+  rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
   rewrite <- (emp_sepcon_truep_elim x).
   apply deduction_andp_intros.
-  + apply H0.
-    - rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi1)); auto.
+  + apply derivable_assum; apply H0.
+    exists x, TT; split; [| split]; auto.
+    - apply derivable_assum; auto.
     - apply derivable_impp_refl.
-  + rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)).
+  + rewrite <- derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
     rewrite <- (TRUTH emp) by eauto.
     rewrite sat_emp; auto.
 Qed.
 
 Lemma dup_canonical_incr_join
       {desGamma: DupEmpSeparationLogic L Gamma}
-      (DER: at_least_derivable_closed P)
+      (AL_DC: at_least derivable_closed cP)
       (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   IncreasingJoinSelfSeparationAlgebra (Kworlds M).
 Proof.
   hnf; intros.
   destruct (im_bij _ _ rel m) as [Phi ?].
   erewrite H_J by eauto.
-  intros x y ? ?.
+  intros z [x [y [? [? ?]]]]; subst.
+  rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)); auto.
   rewrite <- (andp_elim1 x y).
   rewrite <- (andp_elim2 x y) at 2.
   rewrite <- emp_dup.
   apply deduction_andp_intros; [apply deduction_andp_intros |]; auto.
-  rewrite <- derivable_closed_element_derivable by (apply DER, (proj2_sig Phi)); auto.
-  rewrite <- (TRUTH emp) by eauto.
+  rewrite <- derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)); auto.
+  unfold Ensembles.In; rewrite <- (TRUTH emp) by eauto.
   rewrite sat_emp; auto.
 Qed.
 

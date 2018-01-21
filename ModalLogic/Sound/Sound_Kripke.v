@@ -1,13 +1,15 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Coq.Logic.Classical_Pred_Type.
 Require Import Logic.lib.Ensembles_ext.
-Require Import Logic.lib.Relation_ext.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.ModalLogic.Model.KripkeModel.
+Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.Syntax.
-Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
+Require Import Logic.ModalLogic.Syntax.
+Require Import Logic.ModalLogic.Model.KripkeModel.
+Require Import Logic.ModalLogic.Model.OrderedKripkeModel.
 Require Import Logic.ModalLogic.Semantics.Kripke.
 
 Local Open Scope logic_base.
@@ -17,7 +19,22 @@ Import PropositionalLanguageNotation.
 Import ModalLanguageNotation.
 Import KripkeModelFamilyNotation.
 
-Lemma sound_axiom_K {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {tpSM: TrivialPropositionalSemantics L MD SM} {kmSM: KripkeModalSemantics L MD M SM}:
+Section Sound_Kripke.
+
+Context {L: Language}
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {mL: ModalLanguage L}
+        {MD: Model}
+        {kMD: KripkeModel MD}
+        {M: Kmodel}
+        {R: Relation (Kworlds M)}
+        {SM: Semantics L MD}
+        {tminSM: TrivialMinimunSemantics L MD SM}
+        {tpSM: TrivialPropositionalSemantics L MD SM}
+        {kmSM: KripkeModalSemantics L MD M SM}.
+
+Lemma sound_axiom_K:
   forall x y (m: Kworlds M),
     KRIPKE: M, m |= boxp (x --> y) --> (boxp x --> boxp y).
 Proof.
@@ -30,7 +47,7 @@ Proof.
   auto.
 Qed.
 
-Lemma sound_rule_N {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}  {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {SM: Semantics L MD} {tpSM: TrivialPropositionalSemantics L MD SM} {kmSM: KripkeModalSemantics L MD M SM}:
+Lemma sound_rule_N:
   forall x,
     (forall (m: Kworlds M), KRIPKE: M, m |= x) ->
     (forall (m: Kworlds M), KRIPKE: M, m |= boxp x).
@@ -40,7 +57,7 @@ Proof.
   intros; apply H; auto.
 Qed.
 
-Lemma sound_boxp_orp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R: Relation (Kworlds M)} {pf_R: PartialFunctional KM.Krelation} {SM: Semantics L MD} {tpSM: TrivialPropositionalSemantics L MD SM} {kmSM: KripkeModalSemantics L MD M SM}:
+Lemma sound_boxp_orp {pf_R: PartialFunctional KM.Krelation}:
   forall x y (m: Kworlds M),
     KRIPKE: M, m |= boxp (x || y) <--> (boxp x || boxp y).
 Proof.
@@ -63,3 +80,5 @@ Proof.
   + rewrite sat_orp.
     destruct H; [left | right]; auto.
 Qed.
+
+End Sound_Kripke.

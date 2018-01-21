@@ -2,13 +2,20 @@ Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimunLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.DeepEmbedded.PropositionalLanguage.
 
-Definition model (Var: Type): Type := Var -> Prop.
+Section TrivialSemantics.
 
-Fixpoint denotation {Var: Type} (x: expr Var): Ensemble (model Var) :=
+Context {Sigma: PropositionalVariables}.
+
+Existing Instances L minL pL.
+
+Definition model: Type := Var -> Prop.
+
+Fixpoint denotation (x: expr Sigma): Ensemble model :=
   match x with
   | andp y z => Semantics.andp (denotation y) (denotation z)
   | orp y z => Semantics.orp (denotation y) (denotation z)
@@ -17,13 +24,20 @@ Fixpoint denotation {Var: Type} (x: expr Var): Ensemble (model Var) :=
   | varp p => fun m => m p
   end.
 
-Instance MD (Var: Type): Model :=
-  Build_Model (model Var).
+Instance MD: Model :=
+  Build_Model model.
 
-Instance SM (Var: Type): Semantics (PropositionalLanguage.L Var) (MD Var)  :=
-  Build_Semantics (PropositionalLanguage.L Var) (MD Var) denotation.
+Instance SM: Semantics L MD :=
+  Build_Semantics L MD denotation.
 
-Instance tpSM (Var: Type): TrivialPropositionalSemantics (L Var) (MD Var) (SM Var).
+Instance tminSM: TrivialMinimunSemantics L MD SM.
+Proof.
+  constructor.
+  simpl; intros.
+  apply Same_set_refl.
+Qed.
+
+Instance tpSM: TrivialPropositionalSemantics L MD SM.
 Proof.
   constructor.
   + simpl; intros.
@@ -32,6 +46,6 @@ Proof.
     apply Same_set_refl.
   + simpl; intros.
     apply Same_set_refl.
-  + simpl; intros.
-    apply Same_set_refl.
 Qed.
+
+End TrivialSemantics.
