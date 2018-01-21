@@ -43,7 +43,10 @@ Proof.
   hnf; intros.
   rewrite same_relation_spec in *.
   unfold pointwise_relation in *.
-  firstorder.
+  (*  firstorder.  *)
+  split; intros.
+  apply H0. apply H. assumption.
+  apply H. apply H0. assumption.
 Qed.
 
 Instance same_relation_Equivalence {A}: Equivalence (same_relation A).
