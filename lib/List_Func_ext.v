@@ -105,6 +105,54 @@ End ListFun1.
 
 (* Above is copied from RamifyCoq project *)
 
+Section ListFun2'.
+
+Context {A B: Type}.
+Context {RA: relation A}.
+Context {RB: relation B}.
+
+Instance proper_fold_left': forall (f: A -> B -> A) {Proper_f: Proper (RA ==> RB ==> RA) f}, Proper (Forall2 RB ==> RA ==> RA) (fold_left f).
+Proof.
+  intros.
+  hnf; intros.
+  induction H; hnf; intros; simpl.
+  + auto.
+  + apply IHForall2.
+    apply Proper_f; auto.
+Qed.
+
+Context {EqRA: Equivalence RA}.
+
+Lemma proper_permutation_fold_left: forall (f: A -> B -> A) {Proper_f: Proper (RA ==> eq ==> RA) f},
+  (forall x1 x2 y z, x1 === x2 -> f (f x1 y) z === f (f x2 z) y) ->
+  Proper (@Permutation _ ==> RA ==> RA) (fold_left f).
+Proof.
+  intros.
+  hnf; intros.
+  hnf; intros.
+  revert x0 y0 H1.
+  induction H0; intros.
+  + simpl.
+    auto.
+  + simpl.
+    apply IHPermutation.
+    apply Proper_f; auto.
+  + simpl.
+    assert (RA (f (f x0 y) x) (f (f y0 x) y)) by (apply H; auto).
+    revert H0; generalize (f (f x0 y) x) (f (f y0 x) y).
+    induction l; intros.
+    - simpl; auto.
+    - simpl.
+      apply IHl.
+      apply Proper_f; auto.
+  + etransitivity.
+    - apply IHPermutation1, H1.
+    - apply IHPermutation2.
+      reflexivity.
+Qed.
+
+End ListFun2'.
+
 Definition not_nil {A: Type} (l: list A): Prop := l <> nil.
 
 Lemma not_nil_app_l {A: Type}: forall (l l': list A), not_nil l -> not_nil (l ++ l').
@@ -234,3 +282,27 @@ Proof.
 Qed.
 
 End ListFun1'.
+
+Lemma Forall2_impl: forall {A B: Type} (P Q: A -> B -> Prop),
+  (forall a b, P a b -> Q a b) ->
+  (forall (lA: list A) (lB: list B), Forall2 P lA lB -> Forall2 Q lA lB).
+Proof.
+  intros.
+  induction H0.
+  + constructor.
+  + constructor.
+    - auto.
+    - auto.
+Qed.
+
+Lemma Forall2_rev: forall {A B: Type} (P: A -> B -> Prop),
+  forall (lA: list A) (lB: list B), Forall2 (fun b a => P a b) lB lA -> Forall2 P lA lB.
+Proof.
+  intros.
+  induction H.
+  + constructor.
+  + constructor.
+    - auto.
+    - auto.
+Qed.
+

@@ -10,6 +10,8 @@ Require Import Logic.SeparationLogic.Model.OrderedSA.
 Local Open Scope kripke_model.
 Import KripkeModelNotation_Intuitionistic.
 
+Module WeakSemantics.
+
 Definition sepcon {worlds: Type} {J: Join worlds} (X: Ensemble worlds) (Y: Ensemble worlds): Ensemble worlds :=
   fun m => exists m1 m2, join m1 m2 m /\ X m1 /\ Y m2.
 
@@ -78,3 +80,50 @@ Proof.
   destruct (join_Korder_down _ _ _ _ _ H1 H ltac:(reflexivity)) as [n'' [? ?]].
   etransitivity; eauto.
 Qed.
+
+End WeakSemantics.
+
+Module WeakSemanticsMono.
+
+Program Definition sepcon
+      {worlds: Type}
+      {R: Relation worlds}
+      {po_R: PreOrder Krelation}
+      {J: Join worlds}
+      {SA: SeparationAlgebra worlds}
+      {uSA: UpwardsClosedSeparationAlgebra worlds}
+      (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
+  WeakSemantics.sepcon X Y.
+Next Obligation.
+  apply (@WeakSemantics.sepcon_closed worlds R po_R J SA uSA);
+  apply (proj2_sig _).
+Defined.
+
+Program Definition wand
+      {worlds: Type}
+      {R: Relation worlds}
+      {po_R: PreOrder Krelation}
+      {J: Join worlds}
+      {SA: SeparationAlgebra worlds}
+      {dSA: DownwardsClosedSeparationAlgebra worlds}
+      (X Y: MonoEnsemble worlds): MonoEnsemble worlds :=
+  WeakSemantics.wand X Y.
+Next Obligation.
+  apply (@WeakSemantics.wand_closed worlds R po_R J SA dSA);
+  apply (proj2_sig _).
+Defined.
+
+Program Definition emp
+      {worlds: Type}
+      {R: Relation worlds}
+      {po_R: PreOrder Krelation}
+      {J: Join worlds}
+      {SA: SeparationAlgebra worlds}
+      {dSA: DownwardsClosedSeparationAlgebra worlds}: MonoEnsemble worlds :=
+  WeakSemantics.emp.
+Next Obligation.
+  apply (@WeakSemantics.emp_closed worlds R po_R J SA dSA);
+  apply (proj2_sig _).
+Defined.
+
+End WeakSemanticsMono.

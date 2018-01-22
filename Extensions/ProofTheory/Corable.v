@@ -4,7 +4,6 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
@@ -22,7 +21,7 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Class Corable (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
+Class Corable (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} := {
   corable: expr -> Prop;
   corable_pstable: PropositionalStable L Gamma corable;
   corable_sstable: SeparationStable L Gamma corable;
@@ -32,12 +31,11 @@ Class Corable (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L}
 Section Corable.
 
 Context {L: Language}
-        {nL: NormalLanguage L}
+        {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {Gamma: ProofTheory L}
-        {nGamma: NormalProofTheory L Gamma}
-        {mpGamma: MinimunPropositionalLogic L Gamma}
+        {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}
         {CosGamma: Corable L Gamma}.
@@ -82,8 +80,8 @@ Qed.
 Lemma corable_sepcon_andp1: forall x y z, corable y -> |-- x * (y && z) <--> y && (x * z).
 Proof.
   intros.
-  rewrite provable_sepcon_comm_iffp.
-  rewrite (provable_sepcon_comm_iffp x z).
+  rewrite sepcon_comm.
+  rewrite (sepcon_comm x z).
   apply corable_andp_sepcon1; auto.
 Qed.
 

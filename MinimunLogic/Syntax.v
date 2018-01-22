@@ -1,6 +1,6 @@
 Require Import Logic.GeneralLogic.Base.
 
-Class NormalLanguage (L: Language): Type := {
+Class MinimunLanguage (L: Language): Type := {
   impp: expr -> expr -> expr
 }.
 

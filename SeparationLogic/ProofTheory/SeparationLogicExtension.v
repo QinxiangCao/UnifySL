@@ -1,12 +1,8 @@
-Require Import Coq.Classes.Morphisms.
-Require Import Coq.Classes.RelationClasses.
-Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
@@ -21,8 +17,15 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-
-Class SeparationLogic_Precise (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sL: SeparationLogic L Gamma}:= {
+Class SeparationLogic_Precise
+        (L: Language)
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {sL: SeparationLanguage L}
+        (Gamma: ProofTheory L)
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {sGamma: SeparationLogic L Gamma} := {
   precise: expr -> Prop;
   precise_sepcon: forall x y, precise x -> precise y -> precise (x * y)
 }.
@@ -35,7 +38,15 @@ The following is not sound e.g. when x := a = 0 && emp, y := a = 1, z := a = 0
 sepcon_cancel: forall x y z, |-- (x * z) --> (y * z) -> precise z -> |-- (x --> y)
 *)
 
-Class SeparationLogic_PureFact (L: Language) {nL: NormalLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: ProofTheory L) {nGamma: NormalProofTheory L Gamma} {mpGamma: MinimunPropositionalLogic L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {SL: SeparationLogic L Gamma}:= {
+Class SeparationLogic_PureFact
+        (L: Language)
+        {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
+        {sL: SeparationLanguage L}
+        (Gamma: ProofTheory L)
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {sGamma: SeparationLogic L Gamma} := {
   pure_fact: expr -> Prop;
   pure_falsep: pure_fact FF;
   pure_andp: forall x y, pure_fact x -> pure_fact y -> pure_fact (x && y);

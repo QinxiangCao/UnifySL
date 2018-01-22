@@ -6,7 +6,7 @@ Class ModalLanguage (L: Language): Type := {
   boxp : expr -> expr
 }.
 
-Definition diamondp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}: expr -> expr :=
+Definition diamondp {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L}: expr -> expr :=
   fun x => negp (boxp (negp x)).
 
 Module ModalLanguageNotation.

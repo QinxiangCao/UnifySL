@@ -133,3 +133,10 @@ Proof.
     omega.
 Qed.
 
+Lemma Forall_rev: forall {A} (P: A -> Prop) (l: list A), Forall P (rev l) <-> Forall P l.
+Proof.
+  intros.
+  rewrite !Forall_forall.
+  pose proof in_rev l.
+  firstorder.
+Qed.

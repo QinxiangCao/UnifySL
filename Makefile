@@ -16,11 +16,23 @@ DEP_DEMO = -R $(CURRENT_DIR) Logic
 DEP_FLAG = $(DEP_DEMO) 
 
 lib_FILES = \
-  Coqlib.v Ensembles_ext.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
+  Coqlib.v Ensembles_ext.v EnsemblesProperties.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
   Bijection.v Countable.v NatChoice.v StrongInduction.v \
   Bisimulation.v RelationPairs_ext.v \
   SublistT.v \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
+
+GeneralLogic_ProofTheory_FILES = \
+  BasicSequentCalculus.v
+
+GeneralLogic_Semantics_FILES = \
+  Kripke.v
+
+GeneralLogic_Complete_FILES = \
+  ContextProperty_Trivial.v ContextProperty_Kripke.v ContextProperty.v \
+  Canonical_Kripke.v \
+  Lindenbaum.v Lindenbaum_Kripke.v \
+  Complete_Kripke.v 
 
 GeneralLogic_ShallowEmbedded_FILES = \
   PredicateAsLang.v MonoPredicateAsLang.v
@@ -28,41 +40,57 @@ GeneralLogic_ShallowEmbedded_FILES = \
 GeneralLogic_FILES = \
   Base.v HenkinCompleteness.v \
   KripkeModel.v \
-  $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v) 
+  $(GeneralLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(GeneralLogic_Semantics_FILES:%.v=Semantics/%.v) \
+  $(GeneralLogic_Complete_FILES:%.v=Complete/%.v) \
+  $(GeneralLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 MinimunLogic_ProofTheory_FILES = \
-  Normal.v Minimun.v Adjoint.v AdjointLemmas.v \
-  RewriteClass.v
+  Minimun.v ProofTheoryPatterns.v \
+  RewriteClass.v TheoryOfSequentCalculus.v
+
+MinimunLogic_Semantics_FILES = \
+  Kripke.v Trivial.v SemanticEquiv.v
+
+MinimunLogic_Sound_FILES = \
+  Sound_Kripke.v Sound_Classical_Trivial.v
 
 MinimunLogic_Complete_FILES = \
- ContextProperty_Intuitionistic.v ContextProperty_Classical.v
+  ContextProperty_Kripke.v Lindenbaum_Kripke.v Truth_Kripke.v
+
+MinimunLogic_ShallowEmbedded_FILES = \
+
+MinimunLogic_DeepEmbedded_FILES = \
+  MinimunLanguage.v KripkeSemantics.v MinimunLogic.v \
+  Complete_Kripke.v Soundness.v
 
 MinimunLogic_FILES = \
   Syntax.v \
   $(MinimunLogic_ProofTheory_FILES:%.v=ProofTheory/%.v) \
-  $(MinimunLogic_Complete_FILES:%.v=Complete/%.v)
+  $(MinimunLogic_Semantics_FILES:%.v=Semantics/%.v) \
+  $(MinimunLogic_Sound_FILES:%.v=Sound/%.v) \
+  $(MinimunLogic_Complete_FILES:%.v=Complete/%.v) \
+  $(MinimunLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v)
 
 PropositionalLogic_ProofTheory_FILES = \
   Intuitionistic.v DeMorgan.v \
   GodelDummett.v Classical.v \
-  RewriteClass.v
+  RewriteClass.v ProofTheoryPatterns.v
 
 PropositionalLogic_Semantics_FILES = \
-  Kripke.v Trivial.v SemanticEquiv.v
+  Kripke.v Trivial.v
 
 PropositionalLogic_Sound_FILES = \
   Sound_Kripke.v Sound_Classical_Trivial.v
 
 PropositionalLogic_Complete_FILES = \
   ContextProperty_Kripke.v \
-  Lindenbaum_Kripke.v Canonical_Kripke.v Truth_Kripke.v Complete_Kripke.v \
+  Lindenbaum_Kripke.v Canonical_Kripke.v Truth_Kripke.v \
   ContextProperty_Trivial.v \
   Lindenbaum_Trivial.v Truth_Trivial.v Complete_Trivial.v
 
 PropositionalLogic_DeepEmbedded_FILES = \
-  PropositionalLanguage.v \
-  IntuitionisticLogic.v DeMorganLogic.v \
-  GodelDummettLogic.v ClassicalLogic.v \
+  PropositionalLanguage.v ProofTheories.v \
   KripkeSemantics.v TrivialSemantics.v \
   Soundness.v Complete_Kripke.v Complete_Classical_Trivial.v
 
@@ -130,7 +158,6 @@ SeparationLogic_Model_FILES = \
 
 SeparationLogic_Semantics_FILES = \
   WeakSemantics.v StrongSemantics.v \
-  WeakSemanticsMono.v StrongSemanticsMono.v \
   UpwardsSemantics.v DownwardsSemantics.v FlatSemantics.v \
   DownUpSemantics_Fail.v \
   Down2Flat.v Up2Flat.v \
