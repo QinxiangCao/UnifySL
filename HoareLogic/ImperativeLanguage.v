@@ -6,8 +6,28 @@ Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
   bool_expr: Type;
   Ssequence: cmd -> cmd -> cmd;
   Sifthenelse: bool_expr -> cmd -> cmd -> cmd;
-  Swhile: bool_expr -> cmd -> cmd;
   Sskip: cmd
+}.
+
+Class ControlStack: Type:= {
+  frame: Type;
+  stack: Type;
+  empty: stack;
+  frames: frame -> stack -> stack
+}.
+
+Class StackMachine (P: ProgrammingLanguage) (S: ControlStack): Type := {
+  machine: Type;
+  eval_state: stack -> cmd -> machine;
+  return_state: stack -> cmd -> machine
+}.
+
+Class ImperativeStackMachine_Kwhile (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (S: ControlStack): Type := {
+  Swhile: bool_expr -> cmd -> cmd;
+  Sbreak: cmd;
+  Scontinue: cmd;
+  Shalt: cmd;
+  Kwhile: bool_expr -> cmd -> frame
 }.
 
 Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := {
