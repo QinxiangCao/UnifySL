@@ -152,6 +152,13 @@ Proof.
   apply (@adjoint_modus_ponens _ _ _ _ _ _ wand_sepcon_Adj).
 Qed.
 
+Lemma wand_andp: forall x y z: expr,
+  |-- x -* y && z <--> (x -* y) && (x -* z).
+Proof.
+  intros.
+  apply (@funcp_andp_distr_r _ _ _ _ _ _ _ _ wand_sepcon_Adj); auto.
+Qed.
+
 Lemma sepcon_Comm: Commutativity L Gamma sepcon.
 Proof.
   constructor.
@@ -192,6 +199,13 @@ Lemma wand_mono: forall x1 x2 y1 y2, |-- x2 --> x1 -> |-- y1 --> y2 -> |-- (x1 -
 Proof.
   intros.
   apply (@funcp_mono _ _ _ _ _ _ wand_sepcon_Adj sepcon_Comm); auto.
+Qed.
+
+Lemma orp_wand: forall x y z: expr,
+  |-- (x || y) -* z <--> (x -* z) && (y -* z).
+Proof.
+  intros.
+  apply (@orp_funcp _ _ _ _ _ _ _ _ wand_sepcon_Adj sepcon_Comm); auto.
 Qed.
 
 Lemma sepcon_Mono: Monotonicity L Gamma sepcon.

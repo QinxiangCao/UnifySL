@@ -62,6 +62,41 @@ Proof.
   apply provable_iffp_refl.
 Qed.
 
+Lemma orp_funcp {Comm: Commutativity L Gamma prodp}: forall x y z: expr,
+  |-- funcp (x || y) z <--> (funcp x z && funcp y z).
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply solve_impp_andp.
+    - apply funcp_mono.
+      * apply orp_intros1.
+      * apply provable_impp_refl.
+    - apply funcp_mono.
+      * apply orp_intros2.
+      * apply provable_impp_refl.
+  + apply adjoint.
+    rewrite prodp_orp_distr_r.
+    apply solve_orp_impp; apply adjoint.
+    - apply andp_elim1.
+    - apply andp_elim2.
+Qed.
+
+Lemma funcp_andp_distr_r: forall x y z: expr,
+  |-- funcp x (y && z)  <--> (funcp x y && funcp x z).
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply solve_impp_andp.
+    - apply funcp_mono2.
+      apply andp_elim1.
+    - apply funcp_mono2.
+      apply andp_elim2.
+  + apply adjoint.
+    apply solve_impp_andp; apply adjoint.
+    - apply andp_elim1.
+    - apply andp_elim2.
+Qed.
+
 Lemma falsep_prodp: forall x: expr,
   |-- prodp falsep x <--> falsep.
 Proof.
