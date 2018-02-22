@@ -3,6 +3,21 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Local Open Scope logic_base.
 
+Section ContextProperty.
+
+Context {L: Language}
+        {Gamma: ProofTheory L}
+        {bSC: BasicSequentCalculus L Gamma}.
+
+Lemma Included_derivable_self: forall (Phi: context),
+  Included _ Phi (derivable Phi).
+Proof.
+  intros; hnf; intros.
+  apply derivable_assum; auto.
+Qed.
+
+End ContextProperty.
+
 Section CanonicalProperties.
 
 Context {L: Language}
