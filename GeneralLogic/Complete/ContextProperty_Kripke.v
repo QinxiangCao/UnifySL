@@ -9,7 +9,7 @@ Context {L: Language}
         {Gamma: ProofTheory L}
         {bSC: BasicSequentCalculus L Gamma}.
 
-Lemma Included_derivable_self: forall (Phi: context),
+Lemma Included_derivable: forall (Phi: context),
   Included _ Phi (derivable Phi).
 Proof.
   intros; hnf; intros.

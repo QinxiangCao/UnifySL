@@ -43,8 +43,8 @@ Context {SC: NormalSequentCalculus L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma context_orp_mono: forall Phi Psi Phi' Psi',
-  Included _ Phi Phi' ->
-  Included _ Psi Psi' ->
+  Included _ (derivable Phi) (derivable Phi') ->
+  Included _ (derivable Psi) (derivable Psi') ->
   Included _ (context_orp Phi Psi) (context_orp Phi' Psi').
 Proof.
   intros.
@@ -53,8 +53,17 @@ Proof.
   destruct H1 as [y [z [? [? ?]]]]; subst.
   exists y, z.
   split; [| split]; auto.
-  + eapply deduction_weaken; eauto.
-  + eapply deduction_weaken; eauto.
+  + apply H; auto.
+  + apply H0; auto.
+Qed.
+
+Lemma context_orp_mono': forall Phi Psi Phi' Psi',
+  Included _ Phi Phi' ->
+  Included _ Psi Psi' ->
+  Included _ (context_orp Phi Psi) (context_orp Phi' Psi').
+Proof.
+  intros.
+  apply context_orp_mono; hnf; intros; eapply deduction_weaken; eauto.
 Qed.
 
 Lemma cannot_derive_context_orp_captured: forall (x: expr),
