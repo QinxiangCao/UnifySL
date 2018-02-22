@@ -1,36 +1,23 @@
 Class ProgrammingLanguage: Type := {
-  cmd: Type
+  cmd: Type;
+  normal_form: cmd -> Prop;
 }.
 
-(*
-Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
-  bool_expr: Type;
-  Ssequence: cmd -> cmd -> cmd;
-  Sifthenelse: bool_expr -> cmd -> cmd -> cmd;
-  Sskip: cmd
+Class ControlStack: Type := {
+    stack: Type;
+    empty_stack: stack;
 }.
 
-Class ControlStack: Type:= {
+Class Continuation (P: ProgrammingLanguage) (CS: ControlStack): Type := {
+  continuation: Type;
+  Ceval: cmd -> stack -> continuation;
+  Creturn: cmd -> stack -> continuation;
+}.
+
+Class LinearControlStack (CS: ControlStack): Type := {
   frame: Type;
-  stack: Type;
-  empty: stack;
-  frames: frame -> stack -> stack
+  cons: frame -> stack -> stack;
 }.
-
-Class StackMachine (P: ProgrammingLanguage) (S: ControlStack): Type := {
-  machine: Type;
-  eval_state: stack -> cmd -> machine;
-  return_state: stack -> cmd -> machine
-}.
-
-Class ImperativeStackMachine_Kwhile (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (S: ControlStack): Type := {
-  Swhile: bool_expr -> cmd -> cmd;
-  Sbreak: cmd;
-  Scontinue: cmd;
-  Shalt: cmd;
-  Kwhile: bool_expr -> cmd -> cmd -> frame; (* while (cond) body; following *)
-}.
-*)
 
 Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
   bool_expr: Type;
@@ -40,20 +27,14 @@ Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
   Sskip: cmd
 }.
 
-Class ControlStackProgrammingLanguage (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P}: Type := {
-  frame: Type;
-  stack: Type;
-  empty: stack;
-  frames: frame -> stack -> stack;
-  Seval_stack: cmd -> stack -> cmd; (* evaluate the current sub-expression *)
-  Sreturn_stack: cmd -> stack -> cmd; (* evaluate the return stack *)
+Class ImperativeProgrammingLanguageContinuation {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) {iP: ImperativeProgrammingLanguage P} {lCS: LinearControlStack CS}: Type := {
+  Fsequence: cmd -> frame;
+  Fwhile: bool_expr -> cmd -> frame;
 }.
 
-Class ControlStackProgrammingLanguage_Fwhile (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} {csP: ControlStackProgrammingLanguage P} := {
-  Fwhile: bool_expr -> cmd -> cmd -> frame; (* while (cond) body; following *)
+Class ImperativeProgrammingLanguage_SbreakScontinue (P: ProgrammingLanguage): Type := {
   Sbreak: cmd;
   Scontinue: cmd;
-  Shalt: cmd;
 }.
 
 Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := {
@@ -92,5 +73,4 @@ Class NormalImperativeProgrammingLanguage (P: ProgrammingLanguage) {iP: Imperati
   Swhile_Sskip: forall b c, Swhile b c <> Sskip;
   Ssequence_Swhile: forall c1 c2 b c, Ssequence c1 c2 <> Swhile b c
 }.
-
 
