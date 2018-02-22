@@ -16,6 +16,31 @@ Proof.
   apply derivable_assum; auto.
 Qed.
 
+Lemma derivable_mono: forall (Phi Psi: context),
+  Included _ Phi Psi ->
+  Included _ (derivable Phi) (derivable Psi).
+Proof.
+  intros.
+  hnf; intros.
+  eapply deduction_weaken; eauto.
+Qed.
+
+Lemma derivable_derivable: forall (Phi: context),
+  Included _ (derivable (derivable Phi)) (derivable Phi).
+Proof.
+  intros.
+  hnf; unfold Ensembles.In; intros.
+  eapply derivable_trans with (derivable Phi); auto.
+Qed.
+
+Lemma derivable_derivable_Same_set: forall (Phi: context),
+  Same_set _ (derivable (derivable Phi)) (derivable Phi).
+Proof.
+  intros; split.
+  + apply derivable_derivable.
+  + apply Included_derivable.
+Qed.
+
 End ContextProperty.
 
 Section CanonicalProperties.
