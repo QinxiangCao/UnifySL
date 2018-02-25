@@ -141,7 +141,7 @@ Class ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingL
     (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Creturn Sskip cs)) ms');
 }.
 
-Class ImpSmallStepSemantics_SbreakScontinue {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {iP_breakccontinue: ImperativeProgrammingLanguage_SbreakScontinue P} {CS: ControlStack} {lCS: LinearControlStack CS} (Cont: Continuation P CS) {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} (SSS: SmallStepSemantics Cont state): Type := {
+Class ImpSmallStepSemantics_SbreakScontinue {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {iP_breakccontinue: ImperativeProgrammingLanguage_SbreakScontinue P} {CS: ControlStack} {lCS: LinearControlStack CS} (Cont: Continuation P CS) {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} (SSS: SmallStepSemantics Cont state) {iSSS: ImpSmallStepSemantics Cont state SSS}: Type := {
   step_Creturn_Sbreak_Fsequence: forall c cs s mcs,
     step (Creturn Sbreak (cons (Fsequence c) cs), s) mcs ->
     mcs = Terminating (Creturn Sbreak cs, s);
@@ -153,11 +153,8 @@ Class ImpSmallStepSemantics_SbreakScontinue {P: ProgrammingLanguage} {iP: Impera
     mcs = Terminating (Creturn Scontinue cs, s);
   step_Creturn_Scontinue_Fwhile: forall b c cs s mcs,
     step (Creturn Scontinue (cons (Fwhile b c) cs), s) mcs ->
-    mcs = Terminating (Creturn Sskip (cons (Fwhile b c) cs), s);
-    (* Unable to satisfy the constraints 
     (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c (cons (Fwhile b c) cs))) ms') \/
     (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Creturn Sskip cs)) ms');
-    *)
 }.
 
 End ImpSmallStepSemantics.
