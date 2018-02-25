@@ -1,6 +1,6 @@
 Class ProgrammingLanguage: Type := {
   cmd: Type;
-  normal_form: cmd -> Prop; (* TODO: need a better implement *)
+  normal_form: cmd -> Prop;
 }.
 
 Class ControlStack: Type := {
