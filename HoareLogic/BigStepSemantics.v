@@ -7,42 +7,48 @@ Require Import Logic.HoareLogic.ProgramState.
 Local Open Scope kripke_model.
 Import KripkeModelNotation_Intuitionistic.
 
-Class BigStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
-  access: state -> cmd -> MetaState state -> Prop
+Class BigStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS)  (state: Type): Type := {
+  access: state -> continuation -> MetaState state -> Prop
 }.
 
-Class NormalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (BBS: BigStepSemantics P state): Type := {
+Class NormalBigStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) (state: Type) (BBS: BigStepSemantics Cont state): Type := {
   access_defined: forall s c, exists ms, access s c ms
 }.
 
 Definition lift_access
           {P: ProgrammingLanguage}
+          {CS: ControlStack}
+          {Cont: Continuation P CS}
           {state: Type}
-          {BSS: BigStepSemantics P state}
+          {BSS: BigStepSemantics Cont state}
           (ms1: MetaState state)
-          (c: cmd)
+          (c: continuation)
           (ms2: MetaState state): Prop :=
   lift_relation (fun s => access s c) ms1 ms2.
 
 Definition safe
            {P: ProgrammingLanguage}
+           {CS: ControlStack}
+           {Cont: Continuation P CS}
            {state: Type}
-           {BSS: BigStepSemantics P state}
+           {BSS: BigStepSemantics Cont state}
            (s: state)
-           (c: cmd):
+           (c: continuation):
   Prop :=
   ~ access s c Error.
 
 Definition term_norm
            {P: ProgrammingLanguage}
+           {CS: ControlStack}
+           {Cont: Continuation P CS}
            {state: Type}
-           {BSS: BigStepSemantics P state}
+           {BSS: BigStepSemantics Cont state}
            (s: state)
-           (c: cmd):
+           (c: continuation):
   Prop :=
   ~ access s c Error /\ ~ access s c NonTerminating.
 
-Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (BSS: BigStepSemantics P state): Type := {
+Class SABigStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) (state: Type) {J: Join state} {state_R: Relation state} (BSS: BigStepSemantics Cont state): Type := {
   frame_property: forall m mf m' c n', join m mf m' -> access m' c n' -> exists n nf, mf <= nf /\ lift_join n (Terminating nf) n' /\ access m c n
 }.
 
@@ -89,11 +95,11 @@ Inductive loop_access_inf
       (forall n, s3 n <= s1 (S n)) ->
       loop_access_inf R test (s1 0).
 
-Class ImpBigStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} (BSS: BigStepSemantics P state): Type := {
+Class ImpBigStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} (Cont: Continuation P CS) {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} (BSS: BigStepSemantics Cont state): Type := {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
   access_Ssequence: forall c1 c2 s ms,
-    access s (Ssequence c1 c2) ms ->
+    access s (Ceval Ssequence c1 c2) ms ->
     exists ms' ms'',
       access s c1 ms' /\ forward ms' ms'' /\ lift_access ms'' c2 ms;
   access_Sifthenelse: forall b c1 c2 s ms,
