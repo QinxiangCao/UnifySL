@@ -115,7 +115,6 @@ Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingL
 Class ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} (Cont: Continuation P CS) {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} (SSS: SmallStepSemantics Cont state): Type := {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
-  step_Ceval_defined: forall c cs s, ~ normal_form c -> exists mcs, step (Ceval c cs, s) mcs;
   step_Ceval_normalform: forall c cs s mcs,
     normal_form c ->
     step (Ceval c cs, s) mcs ->
@@ -199,8 +198,7 @@ Qed.
 Instance Total2Partial_ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} {Cont: Continuation P CS} {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} {SSS: SmallStepSemantics Cont state} (iSSS: Total.ImpSmallStepSemantics Cont state SSS): Partial.ImpSmallStepSemantics Cont state SSS.
 Proof.
   Print Partial.Build_ImpSmallStepSemantics.
-  refine (Partial.Build_ImpSmallStepSemantics _ _ _ _ _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _ _ _ _ _ _).
-  + apply Total.step_Ceval_defined.
+  refine (Partial.Build_ImpSmallStepSemantics _ _ _ _ _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _ _ _ _ _).
   + apply Total.step_Ceval_normalform.
   + apply Total.step_Ceval_Ssequence.
   + intros.
