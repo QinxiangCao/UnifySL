@@ -35,6 +35,8 @@ Instance SC: NormalSequentCalculus L G := Axiomatization2SequentCalculus_SC.
 
 Instance bSC: BasicSequentCalculus L G := Axiomatization2SequentCalculus_bSC.
 
+Instance fwSC: FiniteWitnessedSequentCalculus L G := Axiomatization2SequentCalculus_fwSC.
+
 Instance minSC: MinimunSequentCalculus L G := Axiomatization2SequentCalculus_minSC.
 
 End MinimunLogic.

@@ -278,8 +278,9 @@ Qed.
 
 Context {minAX: MinimunAxiomatization L Gamma}.
 
-Lemma Axiomatization2SequentCalculus_fwSC: DerivableFiniteWitnessed L Gamma.
+Lemma Axiomatization2SequentCalculus_fwSC: FiniteWitnessedSequentCalculus L Gamma.
 Proof.
+  constructor.
   hnf; intros.
   rewrite derivable_provable in H.
   destruct H as [xs [? ?]].
@@ -345,7 +346,7 @@ Proof.
     - exact DW.
     - apply DeductionWeaken_DerivableFiniteWitnessed_2_ContextualDerivableFiniteWitnessed.
       * exact DW.
-      * apply Axiomatization2SequentCalculus_fwSC.
+      * exact (@derivable_finite_witnessed _ _ Axiomatization2SequentCalculus_fwSC).
     - apply DeductionImpIntro_DeductionMP_2_DeductionSubst1.
       * exact (@deduction_impp_intros _ _ _ Axiomatization2SequentCalculus_minSC).
       * exact (@deduction_modus_ponens _ _ _ Axiomatization2SequentCalculus_minSC).
@@ -705,6 +706,7 @@ Lemma MakeSequentCalculus_MinimunAxiomatization {L: Language} {minL: MinimunLang
      (minAX: MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma)))
      (SC: NormalSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
      (bSC: BasicSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
+     (fwSC: FiniteWitnessedSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma)))
      (minSC: MinimunSequentCalculus L (Build_AxiomaticProofTheory (@provable L Gamma))),
      OpaqueProp (OpaqueProp (Typeclass_Rewrite l -> G))) <->
   OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (MinimunAxiomatization L Gamma) minAX) :: l) -> G).
@@ -723,6 +725,8 @@ Proof.
       by (apply Axiomatization2SequentCalculus_bSC).
     assert (MinimunSequentCalculus L (Build_AxiomaticProofTheory provable))
       by (apply Axiomatization2SequentCalculus_minSC).
+    assert (FiniteWitnessedSequentCalculus L (Build_AxiomaticProofTheory provable))
+      by (apply Axiomatization2SequentCalculus_fwSC).
     apply H; auto.
     apply Typeclass_Rewrite_I.
   + apply H; auto.
@@ -755,7 +759,7 @@ Qed.
 
 Hint Rewrite <- @MakeAxiomatization_BasicSequentCalculus: AddAX.
 
-Lemma MakeAxiomatization_MinimunSequentCalculus {L: Language} {minL: MinimunLanguage L} {Gamma: ProofTheory L}{minSC: MinimunSequentCalculus L Gamma} {bSC': BasicSequentCalculus L (Build_SequentCalculus (@derivable L Gamma))}:
+Lemma MakeAxiomatization_MinimunSequentCalculus {L: Language} {minL: MinimunLanguage L} {Gamma: ProofTheory L} {minSC: MinimunSequentCalculus L Gamma} {bSC': BasicSequentCalculus L (Build_SequentCalculus (@derivable L Gamma))}:
   forall (G: Prop) (l: list (sig (fun X: Prop => X))),
   (forall
      (minSC: MinimunSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
@@ -781,6 +785,31 @@ Qed.
 
 Hint Rewrite <- @MakeAxiomatization_MinimunSequentCalculus using (typeclasses eauto): AddAX.
 
+Lemma MakeAxiomatization_FiniteWitnessedSequentCalculus {L: Language} {minL: MinimunLanguage L} {Gamma: ProofTheory L} {fwSC: FiniteWitnessedSequentCalculus L Gamma} {bSC': BasicSequentCalculus L (Build_SequentCalculus (@derivable L Gamma))} {minSC': MinimunSequentCalculus L (Build_SequentCalculus (@derivable L Gamma))}:
+  forall (G: Prop) (l: list (sig (fun X: Prop => X))),
+  (forall
+     (fwSC: FiniteWitnessedSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
+     (AX: NormalAxiomatization L (Build_SequentCalculus (@derivable L Gamma))),
+     OpaqueProp (OpaqueProp (Typeclass_Rewrite l -> G))) <->
+  OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (FiniteWitnessedSequentCalculus L Gamma) fwSC) :: l) -> G).
+Proof.
+  unfold OpaqueProp.
+  intros.
+  split; intros.
+  + clear H0.
+    assert (NormalSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
+      by (apply Build_SequentCalculus_SC).
+    assert (FiniteWitnessedSequentCalculus L (Build_SequentCalculus (@derivable L Gamma)))
+      by (destruct fwSC; constructor; auto).
+    assert (NormalAxiomatization L (Build_SequentCalculus (@derivable L Gamma)))
+      by (apply SequentCalculus2Axiomatization_AX).
+    apply H; auto.
+    apply Typeclass_Rewrite_I.
+  + apply H; auto.
+    apply Typeclass_Rewrite_I.
+Qed.
+
+Hint Rewrite <- @MakeAxiomatization_FiniteWitnessedSequentCalculus using (typeclasses eauto): AddAX.
 
 Section Test_AddSC.
 
@@ -802,7 +831,8 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {Gamma: ProofTheory L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}.
+        {minSC: MinimunSequentCalculus L Gamma}
+        {fwSC: FiniteWitnessedSequentCalculus L Gamma}.
 
 Lemma derivable_axiom2': forall Phi (x y z: expr), Phi |-- (x --> y --> z) --> (x --> y) --> (x --> z).
 Proof.

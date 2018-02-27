@@ -22,8 +22,8 @@ Section Lindenbaum_Kripke.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {Gamma: ProofTheory L}
-        {AX: NormalAxiomatization L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}.
+        {bSC: BasicSequentCalculus L Gamma}
+        {fwSC: FiniteWitnessedSequentCalculus L Gamma}.
 
 Lemma Lindenbaum_preserves_cannot_derive: forall x, Lindenbaum_preserves (cannot_derive x).
 Proof.

@@ -46,6 +46,7 @@ Definition context_sepcon_included_r (Phi1 Psi: context): context -> Prop :=
 
 Context {SC: NormalSequentCalculus L Gamma}
         {bSC: BasicSequentCalculus L Gamma}
+        {fwSC: FiniteWitnessedSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
         {AX: NormalAxiomatization L Gamma}

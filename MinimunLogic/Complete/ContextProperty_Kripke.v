@@ -12,7 +12,7 @@ Section ContextProperty.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {Gamma: ProofTheory L}
-        {AX: NormalAxiomatization L Gamma}.
+        {fwSC: FiniteWitnessedSequentCalculus L Gamma}.
 
 Lemma can_derive_finite_witnessed: forall x,
   finite_witnessed (can_derive x).
