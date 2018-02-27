@@ -1,7 +1,9 @@
 Require Import Logic.lib.Coqlib.
+Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.GeneralLogic.ProofTheory.TheoryOfSequentCalculus.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
+Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.TheoryOfSequentCalculus.
 
 Local Open Scope logic_base.
@@ -276,7 +278,7 @@ Qed.
 
 Context {minAX: MinimunAxiomatization L Gamma}.
 
-Lemma derivable_finite_witnessed: DerivableFiniteWitnessed L Gamma.
+Lemma Axiomatization2SequentCalculus_fwSC: DerivableFiniteWitnessed L Gamma.
 Proof.
   hnf; intros.
   rewrite derivable_provable in H.
@@ -343,7 +345,7 @@ Proof.
     - exact DW.
     - apply DeductionWeaken_DerivableFiniteWitnessed_2_ContextualDerivableFiniteWitnessed.
       * exact DW.
-      * apply derivable_finite_witnessed.
+      * apply Axiomatization2SequentCalculus_fwSC.
     - apply DeductionImpIntro_DeductionMP_2_DeductionSubst1.
       * exact (@deduction_impp_intros _ _ _ Axiomatization2SequentCalculus_minSC).
       * exact (@deduction_modus_ponens _ _ _ Axiomatization2SequentCalculus_minSC).
@@ -376,6 +378,32 @@ Proof.
   intros; split.
   + apply deduction_impp_intros; auto.
   + apply deduction_impp_elim; auto.
+Qed.
+
+Theorem deduction_theorem_multi_imp:
+  forall (Phi: context) (xs: list expr) (y: expr),
+    Union _ Phi (fun x => In x xs) |-- y <->
+    Phi |-- multi_imp xs y.
+Proof.
+  intros.
+  revert Phi; induction xs; intros.
+  + simpl.
+    split; apply deduction_weaken;
+    unfold Included, Ensembles.In; intros.
+    - rewrite Union_spec in H.
+      tauto.
+    - rewrite Union_spec.
+      tauto.
+  + simpl.
+    rewrite <- deduction_theorem, <- IHxs.
+    split; apply deduction_weaken;
+    unfold Included, Ensembles.In; intros.
+    - rewrite Union_spec in H.
+      rewrite !Union_spec, Singleton_spec.
+      tauto.
+    - rewrite !Union_spec, Singleton_spec in H.
+      rewrite !Union_spec.
+      tauto.
 Qed.
 
 Lemma derivable_impp_refl: forall (Phi: context) (x: expr), Phi |-- x --> x.
@@ -468,6 +496,28 @@ Proof.
   + intros x y z.
     rewrite provable_derivable.
     apply derivable_axiom2.
+Qed.
+
+Theorem SequentCalculus2Axiomatization_AX {fwSC: FiniteWitnessedSequentCalculus L Gamma}: NormalAxiomatization L Gamma.
+Proof.
+  constructor; intros.
+  split; intros.
+  + apply derivable_finite_witnessed in H.
+    destruct H as [xs [? ?]]; exists xs.
+    split; auto.
+    apply provable_derivable.
+    apply deduction_theorem_multi_imp.
+    eapply deduction_weaken; eauto.
+    apply right_Included_Union.
+  + destruct H as [xs [? ?]].
+    apply provable_derivable in H0.
+    apply deduction_theorem_multi_imp in H0.
+    eapply deduction_weaken; eauto.
+    unfold Included, Ensembles.In; intros.
+    rewrite Union_spec in H1.
+    destruct H1 as [[] |].
+    revert x H1.
+    rewrite Forall_forall in H; auto.
 Qed.
 
 End SequentCalculus2Axiomatization.
