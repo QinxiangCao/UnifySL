@@ -1,6 +1,7 @@
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.ProofTheory.TheoryOfSequentCalculus.
 
 Local Open Scope logic_base.
 
@@ -12,6 +13,10 @@ Class BasicSequentCalculus (L: Language) (Gamma: ProofTheory L) := {
   deduction_weaken: forall Phi Psi x, Included _ Phi Psi -> Phi |-- x -> Psi |-- x;
   derivable_assum: forall Phi x, Ensembles.In _ Phi x -> Phi |-- x;
   deduction_subst: forall (Phi Psi: context) y, (forall x, Psi x -> Phi |-- x) -> Union _ Phi Psi |-- y -> Phi |-- y
+}.
+
+Class FiniteWitnessedSequentCalculus (L: Language) (Gamma: ProofTheory L) := {
+  derivable_finite_witnessed: forall (Phi: context) (y: expr), Phi |-- y -> exists xs, Forall Phi xs /\ (fun x => In x xs) |-- y
 }.
 
 Section DerivableRulesFromSequentCalculus.
@@ -53,9 +58,14 @@ Proof.
   right; constructor.
 Qed.
 
-Context {SC: NormalSequentCalculus L Gamma}.
+Lemma contextual_derivable_finite_witnessed {fwSC: FiniteWitnessedSequentCalculus L Gamma}: forall (Phi Psi: context) (y: expr), Union _ Phi Psi |-- y -> exists xs, Forall Psi xs /\ Union _ Phi (fun x => In x xs) |-- y.
+Proof.
+  apply DeductionWeaken_DerivableFiniteWitnessed_2_ContextualDerivableFiniteWitnessed.
+  + hnf; intros; eapply deduction_weaken; eauto.
+  + hnf; intros; eapply derivable_finite_witnessed; eauto.
+Qed.
 
-Lemma deduction_weaken0: forall Phi y,
+Lemma deduction_weaken0 {SC: NormalSequentCalculus L Gamma}: forall Phi y,
   |-- y ->
   Phi |-- y.
 Proof.

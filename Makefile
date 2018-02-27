@@ -23,7 +23,7 @@ lib_FILES = \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
 GeneralLogic_ProofTheory_FILES = \
-  BasicSequentCalculus.v
+  BasicSequentCalculus.v TheoryOfSequentCalculus.v
 
 GeneralLogic_Semantics_FILES = \
   Kripke.v
