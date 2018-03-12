@@ -1,25 +1,22 @@
-Class ProgrammingLanguage: Type := {
-  cmd: Type;
+Class ProgrammingLanguage cmd : Type := {
   normal_form: cmd -> Prop;
 }.
 
-Class ControlStack: Type := {
-    stack: Type;
-    empty_stack: stack;
+Class ControlStack stack : Type := {
+  empty_stack: stack;
 }.
 
-Class Continuation (P: ProgrammingLanguage) (CS: ControlStack): Type := {
-  continuation: Type;
-  Ceval: cmd -> stack -> continuation;
-  Creturn: cmd -> stack -> continuation;
+Class Continuation cont {cmd stack} {P: ProgrammingLanguage cmd} {CS: ControlStack stack}: Type := {
+  Ceval: cmd -> stack -> cont;
+  Creturn: cmd -> stack -> cont;
 }.
 
-Class LinearControlStack (CS: ControlStack): Type := {
+Class LinearControlStack stack {CS: ControlStack stack}: Type := {
   frame: Type;
   cons: frame -> stack -> stack;
 }.
 
-Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
+Class ImperativeProgrammingLanguage cmd {P: ProgrammingLanguage cmd}: Type := {
   bool_expr: Type;
   Ssequence: cmd -> cmd -> cmd;
   Sifthenelse: bool_expr -> cmd -> cmd -> cmd;
@@ -27,16 +24,17 @@ Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
   Sskip: cmd
 }.
 
-Class ImperativeProgrammingLanguageContinuation {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) {iP: ImperativeProgrammingLanguage P} {lCS: LinearControlStack CS}: Type := {
+Class ImperativeProgrammingLanguageContinuation {cmd stack} cont {P: ProgrammingLanguage cmd} {CS: ControlStack stack} {Cont: Continuation cont} {iP: ImperativeProgrammingLanguage cmd} {lCS: LinearControlStack stack}: Type := {
   Fsequence: cmd -> frame;
   Fwhile: bool_expr -> cmd -> frame;
 }.
 
-Class ImperativeProgrammingLanguage_SbreakScontinue (P: ProgrammingLanguage): Type := {
+Class ImperativeProgrammingLanguage_SbreakScontinue cmd {P: ProgrammingLanguage cmd}: Type := {
   Sbreak: cmd;
   Scontinue: cmd;
 }.
 
+(* comment for future reconstruction
 Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := {
   Sparallel: cmd -> cmd -> cmd
 }.
@@ -74,3 +72,4 @@ Class NormalImperativeProgrammingLanguage (P: ProgrammingLanguage) {iP: Imperati
   Ssequence_Swhile: forall c1 c2 b c, Ssequence c1 c2 <> Swhile b c
 }.
 
+*)

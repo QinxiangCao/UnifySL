@@ -91,3 +91,56 @@ Inductive cstep : (cmd * state) -> (cmd * state) -> Prop :=
       (WHILE b DO c1 END) / st ==> SKIP / st
 
   where " t '/' st '==>' t' '/' st' " := (cstep (t,st) (t',st')).
+
+Require Import Logic.HoareLogic.ImperativeLanguage.
+Require Import Logic.HoareLogic.ProgramState.
+Require Import Logic.HoareLogic.SmallStepSemantics.
+
+Instance cexp_bare: ProgrammingLanguage cmd := {
+  normal_form := fun c => match c with
+                       | CSkip => True
+                       | _ => False
+                       end;
+}.
+
+Instance cexp_imp: ImperativeProgrammingLanguage cmd := {
+  bool_expr := bexp;
+}.
+Proof.
+  + apply CSeq.
+  + apply CIf.
+  + apply CWhile.
+  + apply CSkip.
+Qed.
+
+(* fake control stack using unit type *)
+Instance cexp_cs_bare : ControlStack unit:= {}.
+Proof.
+  apply tt.
+Qed.
+
+Instance cexp_cs : LinearControlStack unit :=
+  {
+    frame := unit;
+    cons f s := s;
+  }.
+
+Instance cexp_cont_bare : Continuation cmd := {}.
+Proof.
+  + apply (fun c _ => c).
+  + apply (fun c _ => c).
+Qed.
+
+Instance cexp_cont : ImperativeProgrammingLanguageContinuation cmd := {}.
+Proof.
+  + apply (fun _ => tt).
+  + apply (fun _ _ => tt).
+Qed.
+
+Inductive lift_ceval (eval: (cmd * state) -> (cmd * state) -> Prop) : (cmd * state) -> MetaState (cmd * state) -> Prop :=
+  lift_eval: forall cs1 cs2, eval cs1 cs2 -> lift_ceval eval cs1 (Terminating cs2).
+
+Instance cexp_sss : SmallStepSemantics cmd state := {}.
+Proof.
+  apply (lift_ceval cstep).
+Qed.
