@@ -1,40 +1,42 @@
-Class ProgrammingLanguage cmd : Type := {
+Class ProgrammingLanguage : Type := {
+  cmd : Type;
   normal_form: cmd -> Prop;
 }.
 
-Class ControlStack stack : Type := {
+Class ControlStack : Type := {
+  stack : Type;
   empty_stack: stack;
 }.
 
-Class Continuation cont {cmd stack} {P: ProgrammingLanguage cmd} {CS: ControlStack stack}: Type := {
+Class Continuation (P: ProgrammingLanguage) (CS: ControlStack): Type := {
+  cont: Type;
   Ceval: cmd -> stack -> cont;
   Creturn: cmd -> stack -> cont;
 }.
 
-Class LinearControlStack stack {CS: ControlStack stack}: Type := {
+Class LinearControlStack (CS: ControlStack): Type := {
   frame: Type;
   cons: frame -> stack -> stack;
 }.
 
-Class ImperativeProgrammingLanguage cmd {P: ProgrammingLanguage cmd}: Type := {
+Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
   bool_expr: Type;
   Ssequence: cmd -> cmd -> cmd;
   Sifthenelse: bool_expr -> cmd -> cmd -> cmd;
   Swhile: bool_expr -> cmd -> cmd;
-  Sskip: cmd
+  Sskip: cmd;
 }.
 
-Class ImperativeProgrammingLanguageContinuation {cmd stack} cont {P: ProgrammingLanguage cmd} {CS: ControlStack stack} {Cont: Continuation cont} {iP: ImperativeProgrammingLanguage cmd} {lCS: LinearControlStack stack}: Type := {
+Class ImperativeProgrammingLanguageContinuation {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) {iP: ImperativeProgrammingLanguage P} {lCS: LinearControlStack CS}: Type := {
   Fsequence: cmd -> frame;
   Fwhile: bool_expr -> cmd -> frame;
 }.
 
-Class ImperativeProgrammingLanguage_SbreakScontinue cmd {P: ProgrammingLanguage cmd}: Type := {
+Class ImperativeProgrammingLanguage_SbreakScontinue (P: ProgrammingLanguage): Type := {
   Sbreak: cmd;
   Scontinue: cmd;
 }.
 
-(* comment for future reconstruction
 Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := {
   Sparallel: cmd -> cmd -> cmd
 }.
@@ -71,5 +73,3 @@ Class NormalImperativeProgrammingLanguage (P: ProgrammingLanguage) {iP: Imperati
   Swhile_Sskip: forall b c, Swhile b c <> Sskip;
   Ssequence_Swhile: forall c1 c2 b c, Ssequence c1 c2 <> Swhile b c
 }.
-
-*)
