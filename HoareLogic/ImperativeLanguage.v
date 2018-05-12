@@ -5,18 +5,18 @@ Class ProgrammingLanguage : Type := {
 
 Class ControlStack : Type := {
   stack : Type;
+  frame : Type;
   empty_stack: stack;
+}.
+
+Class LinearControlStack (CS: ControlStack): Type := {
+  cons: frame -> stack -> stack;
 }.
 
 Class Continuation (P: ProgrammingLanguage) (CS: ControlStack): Type := {
   cont: Type;
   Ceval: cmd -> stack -> cont;
   Creturn: cmd -> stack -> cont;
-}.
-
-Class LinearControlStack (CS: ControlStack): Type := {
-  frame: Type;
-  cons: frame -> stack -> stack;
 }.
 
 Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {

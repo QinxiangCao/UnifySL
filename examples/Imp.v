@@ -96,14 +96,15 @@ Require Import Logic.HoareLogic.ImperativeLanguage.
 Require Import Logic.HoareLogic.ProgramState.
 Require Import Logic.HoareLogic.SmallStepSemantics.
 
-Instance cexp_bare: ProgrammingLanguage cmd := {
+Instance cexp_bare: ProgrammingLanguage:= {
+  cmd := Imp.cmd;
   normal_form := fun c => match c with
                        | CSkip => True
                        | _ => False
                        end;
 }.
 
-Instance cexp_imp: ImperativeProgrammingLanguage cmd := {
+Instance cexp_imp: ImperativeProgrammingLanguage _ := {
   bool_expr := bexp;
 }.
 Proof.
@@ -111,36 +112,46 @@ Proof.
   + apply CIf.
   + apply CWhile.
   + apply CSkip.
-Qed.
+Defined.
 
-(* fake control stack using unit type *)
-Instance cexp_cs_bare : ControlStack unit:= {}.
+Inductive cmd_frame : Type :=
+| seq_frame : cmd -> cmd_frame
+| while_frame : bexp -> cmd -> cmd_frame
+.
+
+Instance cexp_cs_bare : ControlStack:= {
+  stack := list cmd_frame;
+  frame := cmd_frame;
+  empty_stack := nil;
+}.
+
+Instance cexp_cs : LinearControlStack cexp_cs_bare := {}.
 Proof.
-  apply tt.
-Qed.
+  apply List.cons.
+Defined.
 
-Instance cexp_cs : LinearControlStack unit :=
-  {
-    frame := unit;
-    cons f s := s;
-  }.
+Inductive stepping : Type :=
+| evaluating: stepping
+| returning: stepping
+.
 
-Instance cexp_cont_bare : Continuation cmd := {}.
+Instance cexp_cont_bare : Continuation cexp_bare cexp_cs_bare := {
+  cont := cmd * stepping;
+}.
 Proof.
-  + apply (fun c _ => c).
-  + apply (fun c _ => c).
-Qed.
+  + apply (fun c _ => (c, evaluating)).
+  + apply (fun c _ => (c, returning)).
+Defined.
 
-Instance cexp_cont : ImperativeProgrammingLanguageContinuation cmd := {}.
+Instance cexp_cont : ImperativeProgrammingLanguageContinuation cexp_cont_bare := {}.
 Proof.
-  + apply (fun _ => tt).
-  + apply (fun _ _ => tt).
-Qed.
+  + apply seq_frame.
+  + apply while_frame.
+Defined.
 
-Inductive lift_ceval (eval: (cmd * state) -> (cmd * state) -> Prop) : (cmd * state) -> MetaState (cmd * state) -> Prop :=
-  lift_eval: forall cs1 cs2, eval cs1 cs2 -> lift_ceval eval cs1 (Terminating cs2).
+Inductive cstep_cont : (cmd * stepping) * state -> (cmd * stepping) * state -> Prop :=
+| cstep_lift: forall c1 c2 s1 s2, cstep (c1, s1) (c2, s2) -> cstep_cont ((c1, evaluating), s1) ((c2, evaluating), s2).
 
-Instance cexp_sss : SmallStepSemantics cmd state := {}.
-Proof.
-  apply (lift_ceval cstep).
-Qed.
+Instance cexp_sss : SmallStepSemantics cexp_cont_bare state := {
+  step := lift_step' cstep_cont;
+}.

@@ -36,6 +36,9 @@ Class SmallStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Cont
   step: cont * state -> MetaState (cont * state) -> Prop
 }.
 
+Inductive lift_step' {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} (step': (cont * state) -> (cont * state) -> Prop) : (cont * state) -> MetaState (cont * state) -> Prop :=
+  lift_eval: forall cs1 cs2, step' cs1 cs2 -> lift_step' step' cs1 (Terminating cs2).
+
 Definition step_safe
            {P: ProgrammingLanguage}
            {CS: ControlStack}
