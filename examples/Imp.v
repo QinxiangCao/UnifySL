@@ -125,10 +125,19 @@ Instance cexp_cs_bare : ControlStack:= {
   empty_stack := nil;
 }.
 
+Require Import List.
+
 Instance cexp_cs : LinearControlStack cexp_cs_bare := {}.
 Proof.
-  apply List.cons.
+  apply cons.
 Defined.
+
+Fixpoint cexp_restore (c : cmd) (s : list cmd_frame) : cmd :=
+  match s with
+  | nil => c
+  | (seq_frame c' :: s') => cexp_restore (c ;; c') s'
+  | (while_frame b c' :: s') => cexp_restore (c ;; WHILE b DO c' END) s'
+  end.
 
 Inductive stepping : Type :=
 | evaluating: stepping
@@ -139,8 +148,8 @@ Instance cexp_cont_bare : Continuation cexp_bare cexp_cs_bare := {
   cont := cmd * stepping;
 }.
 Proof.
-  + apply (fun c _ => (c, evaluating)).
-  + apply (fun c _ => (c, returning)).
+  + apply (fun c s => (cexp_restore c s, evaluating)).
+  + apply (fun c s => (cexp_restore c s, returning)).
 Defined.
 
 Instance cexp_cont : ImperativeProgrammingLanguageContinuation cexp_cont_bare := {}.
@@ -152,6 +161,81 @@ Defined.
 Inductive cstep_cont : (cmd * stepping) * state -> (cmd * stepping) * state -> Prop :=
 | cstep_lift: forall c1 c2 s1 s2, cstep (c1, s1) (c2, s2) -> cstep_cont ((c1, evaluating), s1) ((c2, evaluating), s2).
 
+Inductive cexp_zerostep: (cmd * stepping) -> (cmd * stepping) -> Prop :=
+| cexp_zerostep_skip: cexp_zerostep (SKIP, evaluating) (SKIP, returning)
+| cexp_zerostep_skip_seq: forall c, cexp_zerostep (SKIP ;; c, evaluating) (SKIP;; c, returning)
+.
+
 Instance cexp_sss : SmallStepSemantics cexp_cont_bare state := {
-  step := lift_step' cstep_cont;
+  step := lift_step_zero (lift_step_term cstep_cont) cexp_zerostep;
 }.
+
+Require Import Coq.Sets.Ensembles.
+
+Instance state_rel : KripkeModel.KI.Relation state := {}.
+Proof.
+  unfold Ensemble.
+  intros b1 b2.
+  apply (b1 = b2).
+Defined.
+
+(* Not complete
+Lemma cexp_restore_to_seq: 
+  forall c c' cs', exists c1 c2, cexp_restore c (c' :: cs') = (c1 ;; c2).
+Proof.
+  intros c c' cs'.
+  generalize dependent c'.
+  generalize dependent c.
+  induction cs'.
+  - intros.
+    exists c.
+    destruct c'.
+    + exists c0. reflexivity.
+    + exists (WHILE b DO c0 END). reflexivity.
+  - intros.
+    destruct cs'.
+    + destruct c'.
+      * exists (c ;; c0).
+        destruct a.
+        exists c1.
+        reflexivity.
+        exists (WHILE b DO c1 END).
+        reflexivity.
+      * exists (c ;; WHILE b DO c0 END).
+        destruct a.
+        exists c1.
+        reflexivity.
+        exists (WHILE b0 DO c1 END).
+        reflexivity.
+    + destruct c';
+        [ destruct (IHcs' (c ;; c1) a) as [x1 [x2 IH]] 
+        | destruct (IHcs' (c ;; WHILE b DO c1 END) a) as [x1 [x2 IH]]];
+        exists x1; exists x2;
+          apply IH.
+Qed. 
+
+Instance cexp_isss : Total.ImpSmallStepSemantics cexp_sss := {}.
+Proof.
+  - intros s bexp.
+    apply (Bool.Is_true (beval s bexp)).
+  - intros.
+    unfold KripkeModel.Krelation_stable_Kdenote.
+    unfold KripkeModel.KI.Krelation.
+    intros.
+    unfold state_rel in H. subst.
+    apply iff_refl.
+  - intros.
+    simpl in H.
+    destruct c; inversion H; clear H.
+    simpl in H0.
+    inversion H0; subst; clear H0.
+    + inversion H3; subst; clear H3.
+      * destruct cs.
+        reflexivity.
+        destruct (cexp_restore_to_seq SKIP c cs) as [c1 [c2 E]].
+        rewrite E in H0. inversion H0.
+      * destruct cs.
+        simpl in H0. inversion H0.
+        Admitted.
+
+*)

@@ -36,8 +36,19 @@ Class SmallStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Cont
   step: cont * state -> MetaState (cont * state) -> Prop
 }.
 
-Inductive lift_step' {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} (step': (cont * state) -> (cont * state) -> Prop) : (cont * state) -> MetaState (cont * state) -> Prop :=
-  lift_eval: forall cs1 cs2, step' cs1 cs2 -> lift_step' step' cs1 (Terminating cs2).
+Inductive lift_step_term {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} (step': (cont * state) -> (cont * state) -> Prop) : (cont * state) -> MetaState (cont * state) -> Prop :=
+| lift_term: forall cs1 cs2, step' cs1 cs2 -> lift_step_term step' cs1 (Terminating cs2)
+.
+
+Inductive access_zerostep {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} (zerostep: cont -> cont -> Prop) : cont -> cont -> Prop :=
+| access_zerostep_refl: forall ct, access_zerostep zerostep ct ct
+| access_zerostep_trans: forall ct1 ct2 ct3, zerostep ct2 ct3 -> access_zerostep zerostep ct1 ct2 -> access_zerostep zerostep ct1 ct3
+.
+
+Inductive lift_step_zero {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} (step': (cont * state) -> MetaState (cont * state) -> Prop) (zerostep: cont -> cont -> Prop) : (cont * state) -> MetaState (cont * state) -> Prop :=
+| step_zero: forall ct1 ct2 s, zerostep ct1 ct2 -> lift_step_zero step' zerostep (ct1, s) (Terminating (ct2, s))
+| step_back: forall ct1 ct2 s mcs, step' (ct1, s) mcs -> access_zerostep zerostep ct1 ct2 -> ~ (exists ct, zerostep ct2 ct) -> lift_step_zero step' zerostep (ct2, s) mcs
+.
 
 Definition step_safe
            {P: ProgrammingLanguage}
@@ -59,7 +70,7 @@ Definition step_term_norm
   Prop :=
   ~ step cs Error /\ ~ step cs NonTerminating.
 
-Class SASmallStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) (state: Type) {J: Join state} {state_R: Relation state} {SSS: SmallStepSemantics Cont state}: Type := {
+Class SASmallStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} {J: Join state} {state_R: Relation state} (SSS: SmallStepSemantics Cont state): Type := {
   frame_property: forall (m mf m': cont * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, snd nf <= snd mf /\ @lift_join _ (@prod_Join cont state (equiv_Join) J) n (Terminating nf) n' /\ step m n
 }.
 
@@ -115,7 +126,7 @@ Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingL
 }.
 *)
 
-Class ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} (Cont: Continuation P CS) {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} {SSS: SmallStepSemantics Cont state}: Type := {
+Class ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} {Cont: Continuation P CS} {iCont: ImperativeProgrammingLanguageContinuation Cont} {state: Type} {state_R: Relation state} (SSS: SmallStepSemantics Cont state): Type := {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
   step_Ceval_normalform: forall c cs s mcs,
@@ -143,7 +154,7 @@ Class ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingL
     (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Creturn Sskip cs)) ms');
 }.
 
-Class ImpSmallStepSemantics_SbreakScontinue {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {iP_breakccontinue: ImperativeProgrammingLanguage_SbreakScontinue P} {CS: ControlStack} {lCS: LinearControlStack CS} (Cont: Continuation P CS) {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} {SSS: SmallStepSemantics Cont state} {iSSS: ImpSmallStepSemantics Cont state}: Type := {
+Class ImpSmallStepSemantics_SbreakScontinue {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {iP_breakccontinue: ImperativeProgrammingLanguage_SbreakScontinue P} {CS: ControlStack} {lCS: LinearControlStack CS} {Cont: Continuation P CS} {iCont: ImperativeProgrammingLanguageContinuation Cont} {state: Type} {state_R: Relation state} (SSS: SmallStepSemantics Cont state) {iSSS: ImpSmallStepSemantics SSS}: Type := {
   step_Creturn_Sbreak_Fsequence: forall c cs s mcs,
     step (Creturn Sbreak (cons (Fsequence c) cs), s) mcs ->
     mcs = Terminating (Creturn Sbreak cs, s);
@@ -198,7 +209,7 @@ Proof.
 Qed.
 *)
 
-Instance Total2Partial_ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} {Cont: Continuation P CS} {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} {SSS: SmallStepSemantics Cont state} (iSSS: Total.ImpSmallStepSemantics Cont state): Partial.ImpSmallStepSemantics Cont state.
+Instance Total2Partial_ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} {Cont: Continuation P CS} {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} {SSS: SmallStepSemantics Cont state} (iSSS: Total.ImpSmallStepSemantics SSS): Partial.ImpSmallStepSemantics SSS.
 Proof.
   Print Partial.Build_ImpSmallStepSemantics.
   refine (Partial.Build_ImpSmallStepSemantics _ _ _ _ _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _ _ _ _ _).
