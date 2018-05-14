@@ -47,7 +47,8 @@ Inductive access_zerostep {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Con
 
 Inductive lift_step_zero {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} (step': (cont * state) -> MetaState (cont * state) -> Prop) (zerostep: cont -> cont -> Prop) : (cont * state) -> MetaState (cont * state) -> Prop :=
 | step_zero: forall ct1 ct2 s, zerostep ct1 ct2 -> lift_step_zero step' zerostep (ct1, s) (Terminating (ct2, s))
-| step_back: forall ct1 ct2 s mcs, step' (ct1, s) mcs -> access_zerostep zerostep ct1 ct2 -> ~ (exists ct, zerostep ct2 ct) -> lift_step_zero step' zerostep (ct2, s) mcs
+| step_post: forall ct1 ct2 s mcs, step' (ct1, s) mcs -> access_zerostep zerostep ct1 ct2 -> ~ (exists ct, zerostep ct2 ct) -> lift_step_zero step' zerostep (ct2, s) mcs
+| step_prev: forall ct1 ct2 s cs, step' cs (Terminating (ct2, s)) -> access_zerostep zerostep ct1 ct2 -> ~ (exists ct, zerostep ct ct1) -> lift_step_zero step' zerostep cs (Terminating (ct1, s))
 .
 
 Definition step_safe

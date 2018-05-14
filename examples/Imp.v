@@ -132,24 +132,21 @@ Proof.
   apply cons.
 Defined.
 
-Fixpoint cexp_restore (c : cmd) (s : list cmd_frame) : cmd :=
+Definition depth := nat.
+
+Fixpoint cexp_restore (c : cmd) (s : list cmd_frame) : cmd * depth :=
   match s with
-  | nil => c
-  | (seq_frame c' :: s') => cexp_restore (c ;; c') s'
-  | (while_frame b c' :: s') => cexp_restore (c ;; WHILE b DO c' END) s'
+  | nil => (c, 0)
+  | (seq_frame c' :: s') => let (c0, d) := cexp_restore (c ;; c') s' in (c0, S d)
+  | (while_frame b c' :: s') => let (c0, d) := cexp_restore (c ;; WHILE b DO c' END) s' in (c0, S d)
   end.
 
-Inductive stepping : Type :=
-| evaluating: stepping
-| returning: stepping
-.
-
 Instance cexp_cont_bare : Continuation cexp_bare cexp_cs_bare := {
-  cont := cmd * stepping;
+  cont := cmd * depth;
 }.
 Proof.
-  + apply (fun c s => (cexp_restore c s, evaluating)).
-  + apply (fun c s => (cexp_restore c s, returning)).
+  + apply (fun c s => cexp_restore c s).
+  + apply (fun c s => cexp_restore c s).
 Defined.
 
 Instance cexp_cont : ImperativeProgrammingLanguageContinuation cexp_cont_bare := {}.
@@ -158,12 +155,13 @@ Proof.
   + apply while_frame.
 Defined.
 
-Inductive cstep_cont : (cmd * stepping) * state -> (cmd * stepping) * state -> Prop :=
-| cstep_lift: forall c1 c2 s1 s2, cstep (c1, s1) (c2, s2) -> cstep_cont ((c1, evaluating), s1) ((c2, evaluating), s2).
+Inductive cstep_cont : (cmd * depth) * state -> (cmd * depth) * state -> Prop :=
+| cstep_lift: forall c1 c2 s1 s2 n, cstep (c1, s1) (c2, s2) -> cstep_cont ((c1, n), s1) ((c2, n), s2).
 
-Inductive cexp_zerostep: (cmd * stepping) -> (cmd * stepping) -> Prop :=
-| cexp_zerostep_skip: cexp_zerostep (SKIP, evaluating) (SKIP, returning)
-| cexp_zerostep_skip_seq: forall c, cexp_zerostep (SKIP ;; c, evaluating) (SKIP;; c, returning)
+(*
+Inductive cexp_zerostep: (cmd * depth) -> (cmd * depth) -> Prop :=
+| cexp_zerostep_skip_restore: forall c s, c = cexp_restore SKIP s -> cexp_zerostep (c, evaluating) (c, returning)
+| cexp_zerostep_seq_seq: forall c1 c2 s, cexp_zerostep (c1 ;; c2, evaluating) (c1
 .
 
 Instance cexp_sss : SmallStepSemantics cexp_cont_bare state := {
@@ -179,7 +177,7 @@ Proof.
   apply (b1 = b2).
 Defined.
 
-(* Not complete
+(*
 Lemma cexp_restore_to_seq: 
   forall c c' cs', exists c1 c2, cexp_restore c (c' :: cs') = (c1 ;; c2).
 Proof.
@@ -213,6 +211,7 @@ Proof.
         exists x1; exists x2;
           apply IH.
 Qed. 
+*)
 
 Instance cexp_isss : Total.ImpSmallStepSemantics cexp_sss := {}.
 Proof.
@@ -229,13 +228,19 @@ Proof.
     destruct c; inversion H; clear H.
     simpl in H0.
     inversion H0; subst; clear H0.
+    + simpl.
+      inversion H3; subst; clear H3.
+      reflexivity.
     + inversion H3; subst; clear H3.
-      * destruct cs.
+      * exfalso.
+        apply H5.
+        exists (cexp_restore SKIP cs, returning).
+        eapply cexp_zerostep_skip_restore with (s := cs).
         reflexivity.
-        destruct (cexp_restore_to_seq SKIP c cs) as [c1 [c2 E]].
-        rewrite E in H0. inversion H0.
-      * destruct cs.
-        simpl in H0. inversion H0.
-        Admitted.
+      * inversion H.
+  - intros.
+    inversion H; subst; clear H.
+    + inversion H3; subst; clear H3.
+      Admitted.
 
 *)
