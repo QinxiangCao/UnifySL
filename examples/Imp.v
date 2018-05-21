@@ -98,10 +98,6 @@ Require Import Logic.HoareLogic.SmallStepSemantics.
 
 Instance cexp_bare: ProgrammingLanguage:= {
   cmd := Imp.cmd;
-  normal_form := fun c => match c with
-                       | CSkip => True
-                       | _ => False
-                       end;
 }.
 
 Instance cexp_imp: ImperativeProgrammingLanguage _ := {
@@ -134,20 +130,35 @@ Defined.
 
 Definition depth := nat.
 
-Fixpoint cexp_restore (c : cmd) (s : list cmd_frame) : cmd * depth :=
+Inductive stacking : Type :=
+| to_expand: depth -> stacking
+| to_return: depth -> stacking
+.
+
+Fixpoint cexp_restore (c : cmd) (s : list cmd_frame) : cmd :=
   match s with
-  | nil => (c, 0)
-  | (seq_frame c' :: s') => let (c0, d) := cexp_restore (c ;; c') s' in (c0, S d)
-  | (while_frame b c' :: s') => let (c0, d) := cexp_restore (c ;; WHILE b DO c' END) s' in (c0, S d)
+  | nil => c
+  | (seq_frame c' :: s') => cexp_restore (c ;; c') s'
+  | (while_frame b c' :: s') => cexp_restore (c ;; WHILE b DO c' END) s'
+  end.
+
+Fixpoint cmd_expand_depth (c : cmd) : depth :=
+  match c with
+  | (c1 ;; _) => S (cmd_expand_depth c1)
+  | (WHILE _ DO c1 END) => 1 (* distinguish Ceval-while and Creturn-while *)
+  | _ => 0
   end.
 
 Instance cexp_cont_bare : Continuation cexp_bare cexp_cs_bare := {
-  cont := cmd * depth;
+  cont := cmd * stacking;
+  Ceval c s := (cexp_restore c s, to_expand (cmd_expand_depth c));
+  Creturn s :=
+    match s with
+    | nil => (SKIP, to_expand 0)
+    | (seq_frame c' :: s') => (cexp_restore c' s', to_return (cmd_expand_depth c'))
+    | (while_frame b c' :: s') => (cexp_restore (WHILE b DO c' END) s', to_return 0)
+    end;
 }.
-Proof.
-  + apply (fun c s => cexp_restore c s).
-  + apply (fun c s => cexp_restore c s).
-Defined.
 
 Instance cexp_cont : ImperativeProgrammingLanguageContinuation cexp_cont_bare := {}.
 Proof.
@@ -155,13 +166,12 @@ Proof.
   + apply while_frame.
 Defined.
 
-Inductive cstep_cont : (cmd * depth) * state -> (cmd * depth) * state -> Prop :=
-| cstep_lift: forall c1 c2 s1 s2 n, cstep (c1, s1) (c2, s2) -> cstep_cont ((c1, n), s1) ((c2, n), s2).
+Inductive cstep_cont : (cmd * stacking) * state -> (cmd * stacking) * state -> Prop :=
+| cstep_lift: forall c1 c2 s1 s2, cstep (c1, s1) (c2, s2) -> cstep_cont ((c1, to_expand 0), s1) ((c2, to_expand 0), s2).
 
-(*
-Inductive cexp_zerostep: (cmd * depth) -> (cmd * depth) -> Prop :=
-| cexp_zerostep_skip_restore: forall c s, c = cexp_restore SKIP s -> cexp_zerostep (c, evaluating) (c, returning)
-| cexp_zerostep_seq_seq: forall c1 c2 s, cexp_zerostep (c1 ;; c2, evaluating) (c1
+Inductive cexp_zerostep: (cmd * stacking) -> (cmd * stacking) -> Prop :=
+| cstep_expand : forall c n, cexp_zerostep (c, to_expand (S n)) (c, to_expand n)
+| cstep_return_expand : forall c n, cexp_zerostep (c, to_return n) (c, to_expand n)
 .
 
 Instance cexp_sss : SmallStepSemantics cexp_cont_bare state := {
@@ -177,42 +187,6 @@ Proof.
   apply (b1 = b2).
 Defined.
 
-(*
-Lemma cexp_restore_to_seq: 
-  forall c c' cs', exists c1 c2, cexp_restore c (c' :: cs') = (c1 ;; c2).
-Proof.
-  intros c c' cs'.
-  generalize dependent c'.
-  generalize dependent c.
-  induction cs'.
-  - intros.
-    exists c.
-    destruct c'.
-    + exists c0. reflexivity.
-    + exists (WHILE b DO c0 END). reflexivity.
-  - intros.
-    destruct cs'.
-    + destruct c'.
-      * exists (c ;; c0).
-        destruct a.
-        exists c1.
-        reflexivity.
-        exists (WHILE b DO c1 END).
-        reflexivity.
-      * exists (c ;; WHILE b DO c0 END).
-        destruct a.
-        exists c1.
-        reflexivity.
-        exists (WHILE b0 DO c1 END).
-        reflexivity.
-    + destruct c';
-        [ destruct (IHcs' (c ;; c1) a) as [x1 [x2 IH]] 
-        | destruct (IHcs' (c ;; WHILE b DO c1 END) a) as [x1 [x2 IH]]];
-        exists x1; exists x2;
-          apply IH.
-Qed. 
-*)
-
 Instance cexp_isss : Total.ImpSmallStepSemantics cexp_sss := {}.
 Proof.
   - intros s bexp.
@@ -225,22 +199,10 @@ Proof.
     apply iff_refl.
   - intros.
     simpl in H.
-    destruct c; inversion H; clear H.
-    simpl in H0.
-    inversion H0; subst; clear H0.
-    + simpl.
-      inversion H3; subst; clear H3.
-      reflexivity.
+    destruct f; inversion H; subst; clear H.
+    + inversion H3.
     + inversion H3; subst; clear H3.
-      * exfalso.
-        apply H5.
-        exists (cexp_restore SKIP cs, returning).
-        eapply cexp_zerostep_skip_restore with (s := cs).
-        reflexivity.
-      * inversion H.
-  - intros.
-    inversion H; subst; clear H.
-    + inversion H3; subst; clear H3.
-      Admitted.
-
-*)
+      * inversion H2; subst; clear H2.
+        inversion H1; subst; clear H1.
+        induction cs.
+        simpl in *.

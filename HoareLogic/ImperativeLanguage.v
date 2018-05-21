@@ -1,6 +1,5 @@
 Class ProgrammingLanguage : Type := {
   cmd : Type;
-  normal_form: cmd -> Prop;
 }.
 
 Class ControlStack : Type := {
@@ -16,7 +15,7 @@ Class LinearControlStack (CS: ControlStack): Type := {
 Class Continuation (P: ProgrammingLanguage) (CS: ControlStack): Type := {
   cont: Type;
   Ceval: cmd -> stack -> cont;
-  Creturn: cmd -> stack -> cont;
+  Creturn: stack -> cont;
 }.
 
 Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
@@ -32,9 +31,17 @@ Class ImperativeProgrammingLanguageContinuation {P: ProgrammingLanguage} {CS: Co
   Fwhile: bool_expr -> cmd -> frame;
 }.
 
-Class ImperativeProgrammingLanguage_SbreakScontinue (P: ProgrammingLanguage): Type := {
+Class ImperativeProgrammingLanguage_SbreakScontinue (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P}: Type := {
   Sbreak: cmd;
   Scontinue: cmd;
+}.
+
+Class ImperativeProgrammingLanguageContinuation_CbreakCcontinue
+      {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS)
+      {iP: ImperativeProgrammingLanguage P} {lCS: LinearControlStack CS} {iCont: ImperativeProgrammingLanguageContinuation Cont}
+      {iP_bc: ImperativeProgrammingLanguage_SbreakScontinue P}: Type := {
+  Cbreak: stack -> cont;
+  Ccontinue: stack -> cont;
 }.
 
 Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := {
