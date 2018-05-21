@@ -175,7 +175,7 @@ Inductive cexp_zerostep: (cmd * stacking) -> (cmd * stacking) -> Prop :=
 .
 
 Instance cexp_sss : SmallStepSemantics cexp_cont_bare state := {
-  step := lift_step_zero (lift_step_term cstep_cont) cexp_zerostep;
+  step := expand_zerostep (lift_step_term cstep_cont) cexp_zerostep;
 }.
 
 Require Import Coq.Sets.Ensembles.
@@ -187,6 +187,7 @@ Proof.
   apply (b1 = b2).
 Defined.
 
+(* incomplete
 Instance cexp_isss : Total.ImpSmallStepSemantics cexp_sss := {}.
 Proof.
   - intros s bexp.
@@ -206,3 +207,4 @@ Proof.
         inversion H1; subst; clear H1.
         induction cs.
         simpl in *.
+*)

@@ -37,8 +37,7 @@ Inductive lift_step_term {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Cont
 .
 
 Class SmallStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) (state: Type): Type := {
-  step_zero: cont -> cont -> Prop;
-  step_raw: cont * state -> MetaState (cont * state) -> Prop;
+  step: cont * state -> MetaState (cont * state) -> Prop;
 }.
 
 Inductive zerostep_reachable {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} (zerostep: cont -> cont -> Prop) : cont -> cont -> Prop :=
@@ -46,21 +45,23 @@ Inductive zerostep_reachable {P: ProgrammingLanguage} {CS: ControlStack} {Cont: 
 | zerostep_reachable_trans: forall ct1 ct2 ct3, zerostep ct2 ct3 -> zerostep_reachable zerostep ct1 ct2 -> zerostep_reachable zerostep ct1 ct3
 .
 
-Definition step {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} {SSS: SmallStepSemantics Cont state} (cs1: cont * state) (mcs2: MetaState (cont * state)): Prop :=
-  let (ct1, s1) := cs1 in
-  match mcs2 with
-  | Terminating (ct2, s2) =>
-      (s1 = s2 /\ forall ct, step_zero ct1 ct -> ct = ct2)
-      \/ (exists ct1_prev,
-             zerostep_reachable step_zero ct1_prev ct1
-             /\ forall mcs, step_raw (ct1_prev, s1) mcs
-                            -> exists ct2_post, zerostep_reachable step_zero ct2 ct2_post
-                                                /\ mcs = Terminating (ct2_post, s2))
-  | _ =>
-    exists ct1_prev,
-    zerostep_reachable step_zero ct1_prev ct1
-    /\ forall mcs, step_raw (ct1_prev, s1) mcs -> mcs = mcs2
-  end.
+Inductive expand_zerostep {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} (step_raw: (cont * state) -> MetaState (cont * state) -> Prop) (zerostep: cont -> cont -> Prop) : (cont * state) -> MetaState (cont * state) -> Prop :=
+| expand_zero: forall ct1 ct2 s, zerostep ct1 ct2 -> expand_zerostep step_raw zerostep (ct1, s) (Terminating (ct2, s))
+| expand_term: forall ct1 ct2 s1 s2 ct1_post ct2_prev,
+    step_raw (ct1, s1) (Terminating (ct2, s2)) ->
+    (zerostep_reachable zerostep ct1 ct1_post /\ ~ exists ct, zerostep ct1_post ct) -> 
+    (zerostep_reachable zerostep ct2_prev ct2 /\ ~ exists ct, zerostep ct ct2_prev) -> 
+    expand_zerostep step_raw zerostep (ct1_post, s1) (Terminating (ct2_prev, s2))
+| expand_error: forall ct1 s1 ct1_post,
+    step_raw (ct1, s1) Error ->
+    (zerostep_reachable zerostep ct1 ct1_post /\ ~ exists ct, zerostep ct1_post ct) -> 
+    expand_zerostep step_raw zerostep (ct1_post, s1) Error
+| expand_nonterm: forall ct1 s1 ct1_post,
+    step_raw (ct1, s1) NonTerminating ->
+    (zerostep_reachable zerostep ct1 ct1_post /\ ~ exists ct, zerostep ct1_post ct) -> 
+    expand_zerostep step_raw zerostep (ct1_post, s1) NonTerminating
+.
+
 
 Definition step_safe
            {P: ProgrammingLanguage}
@@ -70,7 +71,7 @@ Definition step_safe
            {SSS: SmallStepSemantics Cont state}
            (cs: cont * state):
   Prop :=
-  ~ step_raw cs Error.
+  ~ step cs Error.
 
 Definition step_term_norm
            {P: ProgrammingLanguage}
@@ -80,10 +81,10 @@ Definition step_term_norm
            {SSS: SmallStepSemantics Cont state}
            (cs: cont * state):
   Prop :=
-  ~ step_raw cs Error /\ ~ step_raw cs NonTerminating.
+  ~ step cs Error /\ ~ step cs NonTerminating.
 
 Class SASmallStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} {J: Join state} {state_R: Relation state} (SSS: SmallStepSemantics Cont state): Type := {
-  frame_property: forall (m mf m': cont * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step_raw m' n' -> exists n nf, snd nf <= snd mf /\ @lift_join _ (@prod_Join cont state (equiv_Join) J) n (Terminating nf) n' /\ step_raw m n
+  frame_property: forall (m mf m': cont * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, snd nf <= snd mf /\ @lift_join _ (@prod_Join cont state (equiv_Join) J) n (Terminating nf) n' /\ step m n
 }.
 
 (*
@@ -110,8 +111,8 @@ Record denote
 *)
 
 Definition access {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} {SSS: SmallStepSemantics Cont state} (s: state) (c: cont) (ms: MetaState state) :=
-  clos_refl_trans _ (lift_relation step_raw) (Terminating (c, s)) (lift_function (pair (Creturn empty_stack)) ms) \/
-  ms = NonTerminating /\ exists cs: nat -> cont * state, cs 0 = (c, s) /\ forall k, step_raw (cs k) (Terminating (cs (S k))).
+  clos_refl_trans _ (lift_relation step) (Terminating (c, s)) (lift_function (pair (Creturn empty_stack)) ms) \/
+  ms = NonTerminating /\ exists cs: nat -> cont * state, cs 0 = (c, s) /\ forall k, step (cs k) (Terminating (cs (S k))).
 
 Module ImpSmallStepSemantics (D: FORWARD).
 
@@ -146,30 +147,24 @@ Class ImpSmallStepSemantics
       (SSS: SmallStepSemantics Cont state): Type := {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
-  step_Ceval_Sskip: forall cs f s,
-      step (Ceval Sskip (cons f cs), s) (Terminating (Creturn (cons f cs), s));
-  step_Ceval_Sskip_emptystack: forall s mcs ct,
-      ((exists ct_prev, reachable_zerostep step_zero ct_prev (Ceval Sskip empty_stack)
-                        /\ step_raw (ct_prev, s) mcs)
-       \/ step_zero (Ceval Sskip empty_stack) ct)
-      <-> False);
-  step_Ceval_Ssequence: forall c1 c2 cs s,
-    step (Ceval (Ssequence c1 c2) cs, s) (Terminating (Ceval c1 (cons (Fsequence c2) cs), s));
+  step_Ceval_Sskip: forall f cs s mcs,
+      step (Ceval Sskip (cons f cs), s) mcs -> mcs = (Terminating (Creturn (cons f cs), s));
+  step_Ceval_Sskip_emptystack: forall s mcs,
+      step (Ceval Sskip empty_stack, s) mcs <-> False;
+  step_Ceval_Ssequence: forall c1 c2 cs s mcs,
+      step (Ceval (Ssequence c1 c2) cs, s) mcs -> mcs = (Terminating (Ceval c1 (cons (Fsequence c2) cs), s));
   step_Ceval_Sifthenelse: forall b c1 c2 cs s mcs,
-        exists ct_prev, (
-            (reachable_zerostep step_zero step_prev ct_prev (Ceval (Sifthenelse b c1 c2) cs) /\ step_raw (ct_prev, s) mcs
-            -> (
-              (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ exists ct_post, reachable_zerostep step_zero (Ceval c1 cs) ct_post /\ mcs = lift_function (pair ct_post) ms') \/
-              (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ exists ct_post, reachable_zerostep step_zero (Ceval c2 cs) ct_post /\ mcs = lift_function (pair ct_post) ms'));
+      step (Ceval (Sifthenelse b c1 c2) cs, s) mcs ->
+      (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c1 cs)) ms') \/
+      (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c2 cs)) ms');
   step_Ceval_Swhile: forall b c cs s mcs,
-    step (Ceval (Swhile b c) cs, s) (Terminating (Creturn (cons (Fwhile b c) cs), s));
-  step_Creturn_Fsequence: forall c cs s,
-    step (Creturn (cons (Fsequence c) cs), s) (Terminating (Ceval c cs, s));
+      step (Ceval (Swhile b c) cs, s) mcs -> mcs = (Terminating (Creturn (cons (Fwhile b c) cs), s));
+  step_Creturn_Fsequence: forall c cs s mcs,
+      step (Creturn (cons (Fsequence c) cs), s) mcs -> mcs = (Terminating (Ceval c cs, s));
   step_Creturn_Fwhile: forall b c cs s mcs,
-        exists ct_prev, (
-            (reachable_zerostep step_zero ct_prev (Creturn (cons (Fwhile b c) cs)) /\ step_raw (ct_prev, s) mcs ->
-    (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c (cons (Fwhile b c) cs))) ms') \/
-    (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Creturn cs)) ms');
+      step (Creturn (cons (Fwhile b c) cs), s) mcs ->
+      (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c (cons (Fwhile b c) cs))) ms') \/
+      (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Creturn cs)) ms');
 }.
 
 Class ImpSmallStepSemantics_SbreakScontinue
