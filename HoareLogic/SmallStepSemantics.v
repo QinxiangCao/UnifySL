@@ -38,30 +38,8 @@ Inductive lift_step_term {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Cont
 
 Class SmallStepSemantics {P: ProgrammingLanguage} {CS: ControlStack} (Cont: Continuation P CS) (state: Type): Type := {
   step: cont * state -> MetaState (cont * state) -> Prop;
+  zerostep: cont -> cont -> Prop;
 }.
-
-Inductive zerostep_reachable {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} (zerostep: cont -> cont -> Prop) : cont -> cont -> Prop :=
-| zerostep_reachable_refl: forall ct, zerostep_reachable zerostep ct ct
-| zerostep_reachable_trans: forall ct1 ct2 ct3, zerostep ct2 ct3 -> zerostep_reachable zerostep ct1 ct2 -> zerostep_reachable zerostep ct1 ct3
-.
-
-Inductive expand_zerostep {P: ProgrammingLanguage} {CS: ControlStack} {Cont: Continuation P CS} {state: Type} (step_raw: (cont * state) -> MetaState (cont * state) -> Prop) (zerostep: cont -> cont -> Prop) : (cont * state) -> MetaState (cont * state) -> Prop :=
-| expand_zero: forall ct1 ct2 s, zerostep ct1 ct2 -> expand_zerostep step_raw zerostep (ct1, s) (Terminating (ct2, s))
-| expand_term: forall ct1 ct2 s1 s2 ct1_post ct2_prev,
-    step_raw (ct1, s1) (Terminating (ct2, s2)) ->
-    (zerostep_reachable zerostep ct1 ct1_post /\ ~ exists ct, zerostep ct1_post ct) -> 
-    (zerostep_reachable zerostep ct2_prev ct2 /\ ~ exists ct, zerostep ct ct2_prev) -> 
-    expand_zerostep step_raw zerostep (ct1_post, s1) (Terminating (ct2_prev, s2))
-| expand_error: forall ct1 s1 ct1_post,
-    step_raw (ct1, s1) Error ->
-    (zerostep_reachable zerostep ct1 ct1_post /\ ~ exists ct, zerostep ct1_post ct) -> 
-    expand_zerostep step_raw zerostep (ct1_post, s1) Error
-| expand_nonterm: forall ct1 s1 ct1_post,
-    step_raw (ct1, s1) NonTerminating ->
-    (zerostep_reachable zerostep ct1 ct1_post /\ ~ exists ct, zerostep ct1_post ct) -> 
-    expand_zerostep step_raw zerostep (ct1_post, s1) NonTerminating
-.
-
 
 Definition step_safe
            {P: ProgrammingLanguage}
@@ -147,20 +125,24 @@ Class ImpSmallStepSemantics
       (SSS: SmallStepSemantics Cont state): Type := {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
-  step_Ceval_Sskip: forall f cs s mcs,
-      step (Ceval Sskip (cons f cs), s) mcs -> mcs = (Terminating (Creturn (cons f cs), s));
+  zerostep_spec: forall c1 c2 s,
+      zerostep c1 c2 ->
+      step (c1, s) (Terminating (c2, s)) \/ forall mcs, step (c2, s) mcs -> step (c1, s) mcs;
+  step_defined: forall c s, ~ zerostep c (Creturn empty_stack) -> exists mcs, step (c, s) mcs;
+  zerostep_Ceval_Sskip: forall cs,
+      zerostep (Ceval Sskip cs) (Creturn cs);
   step_Ceval_Sskip_emptystack: forall s mcs,
       step (Ceval Sskip empty_stack, s) mcs <-> False;
-  step_Ceval_Ssequence: forall c1 c2 cs s mcs,
-      step (Ceval (Ssequence c1 c2) cs, s) mcs -> mcs = (Terminating (Ceval c1 (cons (Fsequence c2) cs), s));
+  zerostep_Ceval_Ssequence: forall c1 c2 cs,
+      zerostep (Ceval (Ssequence c1 c2) cs)  (Ceval c1 (cons (Fsequence c2) cs));
   step_Ceval_Sifthenelse: forall b c1 c2 cs s mcs,
       step (Ceval (Sifthenelse b c1 c2) cs, s) mcs ->
       (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c1 cs)) ms') \/
       (~ eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c2 cs)) ms');
   step_Ceval_Swhile: forall b c cs s mcs,
       step (Ceval (Swhile b c) cs, s) mcs -> mcs = (Terminating (Creturn (cons (Fwhile b c) cs), s));
-  step_Creturn_Fsequence: forall c cs s mcs,
-      step (Creturn (cons (Fsequence c) cs), s) mcs -> mcs = (Terminating (Ceval c cs, s));
+  zerostep_Creturn_Fsequence: forall c cs,
+      zerostep (Creturn (cons (Fsequence c) cs)) (Ceval c cs);
   step_Creturn_Fwhile: forall b c cs s mcs,
       step (Creturn (cons (Fwhile b c) cs), s) mcs ->
       (eval_bool s b /\ exists ms', forward (Terminating s) ms' /\ mcs = lift_function (pair (Ceval c (cons (Fwhile b c) cs))) ms') \/
@@ -227,6 +209,7 @@ Proof.
 Qed.
 *)
 
+(*
 Instance Total2Partial_ImpSmallStepSemantics {P: ProgrammingLanguage} {iP: ImperativeProgrammingLanguage P} {CS: ControlStack} {lCS: LinearControlStack CS} {Cont: Continuation P CS} {iCont: ImperativeProgrammingLanguageContinuation Cont} (state: Type) {state_R: Relation state} {SSS: SmallStepSemantics Cont state} (iSSS: Total.ImpSmallStepSemantics SSS): Partial.ImpSmallStepSemantics SSS.
 Proof.
   refine (Partial.Build_ImpSmallStepSemantics _ _ _ _ _ _ _ _ _ Total.eval_bool Total.eval_bool_stable _ _ _ _ _ _ _).
@@ -254,3 +237,4 @@ Proof.
       exists ms'; split; auto.
       apply Total2Partial_forward; auto.
 Qed.
+*)
