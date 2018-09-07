@@ -10,10 +10,8 @@ DIRS = \
   lib GeneralLogic MinimunLogic PropositionalLogic ModalLogic SeparationLogic \
   QuantifierLogic Extensions HoareLogic
 
-INCLUDE_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
-COQ_FLAG = $(INCLUDE_DEMO)
-DEP_DEMO = -R $(CURRENT_DIR) Logic
-DEP_FLAG = $(DEP_DEMO) 
+COQ_FLAG = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
+DEP_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 
 lib_FILES = \
   Coqlib.v Ensembles_ext.v EnsemblesProperties.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
@@ -272,14 +270,3 @@ clean:
 
 include .depend
 
-
-#COQC = coqc
-# 
-#%.vo: %.v
-# 	@echo COQC $*.v
-# 	@$(COQC) -q -R "." -as Logic $*.v
-# 
-#all: 
-#     
-#     SeparationLogic/Syntax.vo SeparationLogic/SeparationLogic.vo \
-#     SeparationLogic/QinxiangSantiagoSemantics.vo
