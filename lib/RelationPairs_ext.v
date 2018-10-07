@@ -96,6 +96,15 @@ Proof.
   + constructor.
 Qed.
 
+Instance option00_symmetric {A: Type} (R: relation A) {_: Symmetric R}: Symmetric (option00_relation R).
+Proof.
+  hnf; intros.
+  inversion H0; subst.
+  + constructor.
+  + constructor.
+    symmetry; auto.
+Qed.
+
 Instance option00_transitive {A: Type} (R: relation A) {_: Transitive R}: Transitive (option00_relation R).
 Proof.
   hnf; intros.
@@ -119,6 +128,9 @@ Instance option00_preorder {A: Type} (R: relation A) {_: PreOrder R}: PreOrder (
 
 Instance option01_preorder {A: Type} (R: relation A) {_: PreOrder R}: PreOrder (option01_relation R)
   := Build_PreOrder _ (option01_reflexive R) (option01_transitive R).
+
+Instance option00_equiv {A: Type} (R: relation A) {_: Equivalence R}: Equivalence (option00_relation R)
+  := Build_Equivalence _ (option00_reflexive R) (option00_symmetric R) (option00_transitive R).
 
 Inductive sum00_relation {A B: Type} (RA: relation A) (RB: relation B): relation (A + B) :=
   | sum00_ll a1 a2: RA a1 a2 -> sum00_relation RA RB (inl a1) (inl a2)
