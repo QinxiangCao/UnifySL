@@ -3,16 +3,37 @@ Require LogicGenerator.Config.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.PropositionalLogic.Syntax.
+Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import Logic.PropositionalLogic.ProofTheory.Classical.
+Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
+Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 
 Section Generate.
 Context {L: Language}
         {minL: MinimunLanguage L}
+        {pL: PropositionalLanguage L}
         {Gamma: ProofTheory L}
-        {minAX: MinimunAxiomatization L Gamma}.
+        {minAX: MinimunAxiomatization L Gamma}
+        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {cpGamma: ClassicalPropositionalLogic L Gamma}
+        {dmpGamma: DeMorganPropositionalLogic L Gamma}
+        {gdpGamma: GodelDummettPropositionalLogic L Gamma}.
 
-Ltac print_theorem name :=
-  match type of name with
-  | ?type => idtac "Axiom" name ":" type "."
+Ltac print_param name :=
+  match name with
+  | BuildName ?n =>
+    match type of n with
+    | ?T => idtac "Parameter" n ":" T "."
+    end
+  end.
+
+Ltac print_axiom name :=
+  match name with
+  | BuildName ?n =>
+    match type of n with
+    | ?T => idtac "Axiom" n ":" T "."
+    end
   end.
 
 Goal False.
@@ -23,13 +44,10 @@ Goal False.
   idtac "Parameter Var : Type.";
   idtac "Parameter expr : Type.";
   when minimum ltac:(
-    idtac "Parameter impp : expr -> expr -> expr.";
-    idtac "Parameter varp : Var -> expr."
+    dolist print_param Config.Minimum.connectives
   );
   when propositional ltac:(
-    idtac "Parameter andp : expr -> expr -> expr.";
-    idtac "Parameter orp : expr -> expr -> expr.";
-    idtac "Parameter negp : expr -> expr -> expr."
+    dolist print_param Config.Propositional.connectives
   );
   idtac "End LanguageSig.";
 
@@ -37,17 +55,17 @@ Goal False.
   idtac "Import L.";
   idtac "Parameter provable : expr -> Prop.";
   when minimum ltac:(
-    idtac "Parameter modus_ponens : forall x y : expr, provable (impp x y) -> provable x -> provable y.";
-    idtac "Parameter axiom1 : forall x y : expr, provable (impp x (impp y x)).";
-    idtac "Parameter axiom2 : forall x y z : expr, provable (impp (impp x (impp y z)) (impp (impp x y) (impp x z)))."
+    dolist print_param Config.Minimum.basic_rules
+  );
+  when propositional ltac:(
+    dolist print_param Config.Propositional.intuitionistic_basic_rules
   );
   idtac "End LogicSig.";
 
   idtac "Module Type LogicTheoremSig (L : LanguageSig) (Lg : LogicSig L).";
   idtac "Import L Lg.";
   when minimum ltac:(
-    print_theorem provable_impp_refl;
-    print_theorem provable_impp_arg_switch
+    dolist print_axiom Config.Minimum.derived_rules
   );
   idtac "End LogicTheoremSig.".
 Abort.

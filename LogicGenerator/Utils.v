@@ -1,3 +1,4 @@
+Open Scope list_scope.
 Ltac when b t :=
   match b with
   | true => t
@@ -6,3 +7,11 @@ Ltac when b t :=
 
 Inductive Name := BuildName T (x : T).
 Arguments BuildName [T].
+
+Ltac dolist f names :=
+  let rec dolist' ns :=
+      match ns with
+      | nil => idtac
+      | ?x :: ?ns' => f x; dolist' ns'
+      end
+  in dolist' ltac:(eval red in names).
