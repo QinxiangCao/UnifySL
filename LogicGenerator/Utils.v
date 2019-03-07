@@ -3,3 +3,6 @@ Ltac when b t :=
   | true => t
   | false => idtac
   end.
+
+Inductive Name := BuildName T (x : T).
+Arguments BuildName [T].
