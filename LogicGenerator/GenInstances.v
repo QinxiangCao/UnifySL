@@ -7,7 +7,7 @@ Goal False.
 
   idtac "Require Import Logic.GeneralLogic.Base.";
   idtac "Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.";
-  when minimum ltac:(
+  when minimum: (
     idtac "Require Import Logic.MinimunLogic.Syntax.";
     idtac "Require Import Logic.MinimunLogic.ProofTheory.Minimun."
   );
@@ -15,7 +15,7 @@ Goal False.
   idtac "Module Make (Lang : LanguageSig) (Lgc : LogicSig Lang).";
   idtac "Import Lang Lgc.";
   idtac "Instance L : Language := Build_Language expr.";
-  when minimum ltac:(
+  when minimum: (
     idtac "Instance minL : MinimunLanguage L := Build_MinimunLanguage L impp.";
     idtac "Instance G : ProofTheory L := Build_AxiomaticProofTheory provable.";
     idtac "Instance AX : NormalAxiomatization L G := Build_AxiomaticProofTheory_AX provable.";

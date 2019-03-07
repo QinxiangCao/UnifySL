@@ -43,30 +43,25 @@ Goal False.
   idtac "Module Type LanguageSig.";
   idtac "Parameter Var : Type.";
   idtac "Parameter expr : Type.";
-  when minimum ltac:(
-    dolist print_param Config.Minimum.connectives
-  );
-  when propositional ltac:(
-    dolist print_param Config.Propositional.connectives
-  );
+  when minimum:
+       dolist print_param Config.Minimum.connectives;
+  when propositional:
+       dolist print_param Config.Propositional.connectives;
   idtac "End LanguageSig.";
 
   idtac "Module Type LogicSig (L : LanguageSig).";
   idtac "Import L.";
   idtac "Parameter provable : expr -> Prop.";
-  when minimum ltac:(
-    dolist print_param Config.Minimum.basic_rules
-  );
-  when propositional ltac:(
-    dolist print_param Config.Propositional.intuitionistic_basic_rules
-  );
+  when minimum:
+       dolist print_param Config.Minimum.basic_rules;
+  when propositional:
+       dolist print_param Config.Propositional.intuitionistic_basic_rules;
   idtac "End LogicSig.";
 
   idtac "Module Type LogicTheoremSig (L : LanguageSig) (Lg : LogicSig L).";
   idtac "Import L Lg.";
-  when minimum ltac:(
-    dolist print_axiom Config.Minimum.derived_rules
-  );
+  when minimum:
+       dolist print_axiom Config.Minimum.derived_rules;
   idtac "End LogicTheoremSig.".
 Abort.
 

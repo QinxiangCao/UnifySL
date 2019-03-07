@@ -1,5 +1,6 @@
 Open Scope list_scope.
-Ltac when b t :=
+
+Tactic Notation "when" constr(b) ":" tactic3(t) :=
   match b with
   | true => t
   | false => idtac
