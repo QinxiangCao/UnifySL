@@ -11,7 +11,7 @@ DIRS = \
   QuantifierLogic Extensions HoareLogic
 
 COQ_FLAG = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
-DEP_DEMO = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
+DEP_FLAG = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 
 lib_FILES = \
   Coqlib.v Ensembles_ext.v EnsemblesProperties.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
@@ -188,24 +188,24 @@ SeparationLogic_FILES = \
   $(SeparationLogic_DeepEmbedded_FILES:%.v=DeepEmbedded/%.v) \
   $(SeparationLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
-Extentions_ProofTheory_FILES = \
+Extensions_ProofTheory_FILES = \
   Stable.v ModalSeparation.v Corable.v CoreTransit.v
 
-Extentions_Semantics_FILES = \
+Extensions_Semantics_FILES = \
   SemanticStable.v
 
-Extentions_Sound_FILES = \
+Extensions_Sound_FILES = \
   StableSound.v
 
-Extentions_ShallowEmbedded_FILES = \
+Extensions_ShallowEmbedded_FILES = \
   MonoPredicateStable.v
 
-Extentions_FILES = \
+Extensions_FILES = \
   Syntax_CoreTransit.v \
-  $(Extentions_ProofTheory_FILES:%.v=ProofTheory/%.v) \
-  $(Extentions_Semantics_FILES:%.v=Semantics/%.v) \
-  $(Extentions_Sound_FILES:%.v=Sound/%.v) \
-  $(Extentions_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
+  $(Extensions_ProofTheory_FILES:%.v=ProofTheory/%.v) \
+  $(Extensions_Semantics_FILES:%.v=Semantics/%.v) \
+  $(Extensions_Sound_FILES:%.v=Sound/%.v) \
+  $(Extensions_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 HoareLogic_FILES = \
   ImperativeLanguage.v ProgramState.v Trace.v \
@@ -226,7 +226,7 @@ FILES = \
   $(ModalLogic_FILES:%.v=ModalLogic/%.v) \
   $(QuantifierLogic_FILES:%.v=QuantifierLogic/%.v) \
   $(SeparationLogic_FILES:%.v=SeparationLogic/%.v) \
-  $(Extentions_FILES:%.v=Extensions/%.v) \
+  $(Extensions_FILES:%.v=Extensions/%.v) \
   $(HoareLogic_FILES:%.v=HoareLogic/%.v)
 
 $(FILES:%.v=%.vo): %.vo: %.v
