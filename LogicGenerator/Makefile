@@ -20,6 +20,7 @@ $(dst): $(src) Utils.vo Config.vo
 
 test: $(dst)
 	$(coq_exe) $(coq_flags) $(dst)
+	$(coq_exe) $(coq_flags) $(dst_dir)/Shallow.v
 
 clean:
-	@rm -rf *.vo *.glob .*.aux $(dst_dir)/* 2>/dev/null
+	@rm -rf *.vo *.glob .*.aux $(dst) 2>/dev/null
