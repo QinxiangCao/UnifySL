@@ -11,8 +11,7 @@ Goal False.
     idtac "Require Import Logic.MinimunLogic.Syntax.";
     idtac "Require Import Logic.MinimunLogic.ProofTheory.Minimun."
   );
-  idtac "Require Import Interface.";
-  idtac "Module Make (Lang : LanguageSig) (Lgc : LogicSig Lang).";
+  idtac "Module MakeInstances (Lang : LanguageSig) (Lgc : LogicSig Lang).";
   idtac "Import Lang Lgc.";
   idtac "Instance L : Language := Build_Language expr.";
   when minimum: (
@@ -25,5 +24,5 @@ Goal False.
     idtac "Instance fwSC : FiniteWitnessedSequentCalculus L G := Axiomatization2SequentCalculus_fwSC.";
     idtac "Instance minSC : MinimunSequentCalculus L G := Axiomatization2SequentCalculus_minSC."
   );
-  idtac "End Make.".
+  idtac "End MakeInstances.".
 Abort.
