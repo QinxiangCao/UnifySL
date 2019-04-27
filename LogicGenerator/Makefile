@@ -2,7 +2,7 @@ unifysl_dir := ..
 dst_dir		:= ./demo
 coq_exe		:= coqc
 coq_flags	:= -R $(unifysl_dir) Logic
-src         := GenInterface.v GenInstances.v GenProofTheory.v
+src         := GenInterface.v
 dst         := $(dst_dir)/Generated.v
 
 .PHONY: all clean

@@ -1,4 +1,3 @@
-Require Import Generated.
 Require Import ZArith.
 
 Module NaiveLang.
@@ -45,35 +44,3 @@ Module NaiveLang.
   Lemma falsep_elim : forall x : expr, provable (impp falsep x).
   Proof. unfold provable, impp, falsep. destruct 1. Qed.
 End NaiveLang.
-
-Module Language <: LanguageSig.
-  Definition Var := unit.
-  Definition expr := NaiveLang.expr.
-  Definition impp := NaiveLang.impp.
-  Definition andp := NaiveLang.andp.
-  Definition orp := NaiveLang.orp.
-  Definition falsep := NaiveLang.falsep.
-End Language.
-
-Module Logic <: LogicSig Language.
-  Definition provable := NaiveLang.provable.
-  Definition modus_ponens := NaiveLang.modus_ponens.
-  Definition axiom1 := NaiveLang.axiom1.
-  Definition axiom2 := NaiveLang.axiom2.
-  Definition andp_intros := NaiveLang.andp_intros.
-  Definition andp_elim1 := NaiveLang.andp_elim1.
-  Definition andp_elim2 := NaiveLang.andp_elim2.
-  Definition orp_intros1 := NaiveLang.orp_intros1.
-  Definition orp_intros2 := NaiveLang.orp_intros2.
-  Definition orp_elim := NaiveLang.orp_elim.
-  Definition falsep_elim := NaiveLang.falsep_elim.
-End Logic.
-
-Module Test.
-  Module DerivedTheorems := LogicTheorem Language Logic.
-  Import NaiveLang.
-
-  Theorem provable_impp_refl : forall e : expr, provable (impp e e).
-  Proof. apply DerivedTheorems.provable_impp_refl. Qed.
-  Print Assumptions provable_impp_refl.
-End Test.
