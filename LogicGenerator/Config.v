@@ -5,7 +5,6 @@ Require Import MinimunLogic.ProofTheory.Minimun.
 Require Import PropositionalLogic.Syntax.
 Require PropositionalLogic.ProofTheory.Intuitionistic.
 Require PropositionalLogic.ProofTheory.Classical.
-Require Import Coq.Lists.List.
 
 Definition minimum := true.
 Definition propositional_intuitionistic := true.
@@ -13,12 +12,13 @@ Definition propositional_classical := true.
 Definition propositional_demorgan := true.
 Definition propositional_godeldummett := true.
 
-Import ListNotations.
+Import NameListNotations.
+
 Module Minimum.
   Section Syntax.
     Context {L : Base.Language}
             {minL : MinimunLanguage L}.
-    Definition connectives := [ BuildName impp ].
+    Definition connectives := [ impp ].
   End Syntax.
 
   Section ProofTheory.
@@ -27,23 +27,23 @@ Module Minimum.
             {Gamma : ProofTheory L}
             {minAx : MinimunAxiomatization L Gamma}.
     Definition basic_rules :=
-      [ BuildName modus_ponens
-      ; BuildName axiom1
-      ; BuildName axiom2
+      [ modus_ponens
+      ; axiom1
+      ; axiom2
       ].
     Definition derived_rules :=
-      [ BuildName provable_impp_refl
-      ; BuildName provable_impp_arg_switch
-      ; BuildName provable_impp_trans
+      [ provable_impp_refl
+      ; provable_impp_arg_switch
+      ; provable_impp_trans
       ].
     Definition multi_imp_derived_rules :=
-      [ BuildName provable_multi_imp_shrink
-      ; BuildName provable_multi_imp_arg_switch1
-      ; BuildName provable_multi_imp_arg_switch2
-      ; BuildName provable_add_multi_imp_left_head
-      ; BuildName provable_add_multi_imp_left_tail
-      ; BuildName provable_multi_imp_modus_ponens
-      ; BuildName provable_multi_imp_weaken
+      [ provable_multi_imp_shrink
+      ; provable_multi_imp_arg_switch1
+      ; provable_multi_imp_arg_switch2
+      ; provable_add_multi_imp_left_head
+      ; provable_add_multi_imp_left_tail
+      ; provable_multi_imp_modus_ponens
+      ; provable_multi_imp_weaken
       ].
   End ProofTheory.
 End Minimum.
@@ -53,9 +53,9 @@ Module Propositional.
     Context {L : Language}
             {pL : PropositionalLanguage L}.
     Definition connectives :=
-      [ BuildName andp
-      ; BuildName orp
-      ; BuildName falsep
+      [ andp
+      ; orp
+      ; falsep
       ].
   End Syntax.
 
@@ -75,37 +75,37 @@ Module Propositional.
             {gdpGamma: GodelDummettPropositionalLogic L Gamma}.
 
     Definition intuitionistic_basic_rules :=
-      [ BuildName andp_intros
-      ; BuildName andp_elim1
-      ; BuildName andp_elim2
-      ; BuildName orp_intros1
-      ; BuildName orp_intros2
-      ; BuildName orp_elim
-      ; BuildName falsep_elim
+      [ andp_intros
+      ; andp_elim1
+      ; andp_elim2
+      ; orp_intros1
+      ; orp_intros2
+      ; orp_elim
+      ; falsep_elim
       ].
     Definition intuitionistic_derived_rules :=
-      [ BuildName demorgan_orp_negp
-      ; BuildName demorgan_negp_orp
-      ; BuildName provable_truep
-      ; BuildName andp_comm
-      ; BuildName andp_assoc
-      ; BuildName orp_comm
-      ; BuildName orp_assoc
-      ; BuildName andp_dup
-      ; BuildName orp_dup
-      ; BuildName impp_curry
-      ; BuildName impp_uncurry
+      [ demorgan_orp_negp
+      ; demorgan_negp_orp
+      ; provable_truep
+      ; andp_comm
+      ; andp_assoc
+      ; orp_comm
+      ; orp_assoc
+      ; andp_dup
+      ; orp_dup
+      ; impp_curry
+      ; impp_uncurry
       ].
-    Definition classical_basic_rules := [ BuildName excluded_middle ].
+    Definition classical_basic_rules := [ excluded_middle ].
     Definition classical_derived_rules :=
-      [ BuildName double_negp_elim
-      ; BuildName double_negp
-      ; BuildName contrapositiveNN
-      ; BuildName contrapositiveNP
-      ; BuildName impp2orp
+      [ double_negp_elim
+      ; double_negp
+      ; contrapositiveNN
+      ; contrapositiveNP
+      ; impp2orp
       ].
-    Definition demorgan_basic_rules := [ BuildName weak_excluded_middle ].
-    Definition demorgan_derived_rules := [ BuildName demorgan_negp_andp ].
-    Definition godeldummett_basic_rules := [ BuildName impp_choice ].
+    Definition demorgan_basic_rules := [ weak_excluded_middle ].
+    Definition demorgan_derived_rules := [ demorgan_negp_andp ].
+    Definition godeldummett_basic_rules := [ impp_choice ].
   End ProofTheory.
 End Propositional.

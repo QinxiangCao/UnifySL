@@ -9,6 +9,13 @@ Tactic Notation "when" constr(b) ":" tactic3(t) :=
 Inductive Name := BuildName T (x : T).
 Arguments BuildName [T].
 
+Module NameListNotations.
+Notation "[ ]" := nil.
+Notation "[ x ]" := (cons (BuildName x) nil).
+Notation "[ x ; y ; .. ; z ]" :=
+  (cons (BuildName x) (cons (BuildName y) .. (cons (BuildName z) nil) ..)).
+End NameListNotations.
+
 Ltac dolist f names :=
   let rec dolist' ns :=
       match ns with
