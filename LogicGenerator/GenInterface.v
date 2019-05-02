@@ -52,19 +52,19 @@ Ltac print_empty_definition name :=
 
 Goal False.
   let minimum := eval cbv in Config.minimum in
-  let propositional := eval cbv in Config.propositional in
+  let propositional_intuitionistic := eval cbv in Config.propositional_intuitionistic in
 
   idtac "Module Type LanguageSig.";
   idtac "Parameter Var : Type.";
   idtac "Parameter expr : Type.";
   when minimum:
        dolist print_param Config.Minimum.connectives;
-  when propositional:
+  when propositional_intuitionistic:
        dolist print_param Config.Propositional.connectives;
   idtac "Parameter provable : expr -> Prop.";
   when minimum:
        dolist print_param Config.Minimum.basic_rules;
-  when propositional:
+  when propositional_intuitionistic:
        dolist print_param Config.Propositional.intuitionistic_basic_rules;
   idtac "End LanguageSig.";
 
@@ -73,12 +73,12 @@ Goal False.
   print_empty_definition (BuildName expr);
   when minimum:
        dolist print_empty_definition Config.Minimum.connectives;
-  when propositional:
+  when propositional_intuitionistic:
        dolist print_empty_definition Config.Propositional.connectives;
   print_empty_definition (BuildName provable);
   when minimum:
        dolist print_empty_definition Config.Minimum.basic_rules;
-  when propositional:
+  when propositional_intuitionistic:
        dolist print_empty_definition Config.Propositional.intuitionistic_basic_rules;
   idtac "End Names.";
 
@@ -89,8 +89,17 @@ Goal False.
 
   idtac "Module Type LogicTheoremSig.";
   idtac "Import Names NamesNotation.";
-  when minimum:
+  when minimum: (
+       idtac "Definition multi_imp xs y := fold_right impp y xs.";
        dolist print_axiom Config.Minimum.derived_rules;
+       dolist print_axiom Config.Minimum.multi_imp_derived_rules
+  );
+  when propositional_intuitionistic: (
+       idtac "Definition negp x := impp x falsep.";
+       idtac "Definition iffp x y := andp (impp x y) (impp y x).";
+       idtac "Definition truep := impp falsep falsep.";
+       dolist print_axiom Config.Propositional.intuitionistic_derived_rules
+  );
   idtac "End LogicTheoremSig.";
 
 
@@ -100,6 +109,10 @@ Goal False.
     idtac "Require Logic.MinimunLogic.Syntax.";
     idtac "Require Logic.MinimunLogic.ProofTheory.Minimun."
   );
+  when propositional_intuitionistic: (
+    idtac "Require Logic.PropositionalLogic.Syntax.";
+    idtac "Require Logic.PropositionalLogic.ProofTheory.Intuitionistic."
+  );
 
   idtac "Module MakeInstances.";
   idtac "Import Logic.GeneralLogic.Base.";
@@ -107,6 +120,10 @@ Goal False.
   when minimum: (
     idtac "Import Logic.MinimunLogic.Syntax.";
     idtac "Import Logic.MinimunLogic.ProofTheory.Minimun."
+  );
+  when propositional_intuitionistic: (
+    idtac "Import Logic.PropositionalLogic.Syntax.";
+    idtac "Import Logic.PropositionalLogic.ProofTheory.Intuitionistic."
   );
   idtac "Import Names.";
   idtac "Instance L : Language := Build_Language expr.";
@@ -120,15 +137,29 @@ Goal False.
     idtac "Instance fwSC : FiniteWitnessedSequentCalculus L G := Axiomatization2SequentCalculus_fwSC.";
     idtac "Instance minSC : MinimunSequentCalculus L G := Axiomatization2SequentCalculus_minSC."
   );
+  when propositional_intuitionistic: (
+    idtac "Instance pL : PropositionalLanguage L := Build_PropositionalLanguage L andp orp falsep.";
+    idtac "Instance ipAX : IntuitionisticPropositionalLogic L G := Build_IntuitionisticPropositionalLogic L minL pL G minAX andp_intros andp_elim1 andp_elim2 orp_intros1 orp_intros2 orp_elim falsep_elim."
+  );
   idtac "End MakeInstances.";
 
   idtac "Module LogicTheorem <: LogicTheoremSig.";
-  idtac "Import Logic.MinimunLogic.ProofTheory.Minimun.";
   idtac "Import Names NamesNotation.";
-  when minimum:
+  when minimum: (
+       idtac "Import Logic.MinimunLogic.ProofTheory.Minimun.";
+       idtac "Definition multi_imp xs y := fold_right impp y xs.";
        dolist print_theorem Config.Minimum.derived_rules;
+       dolist print_theorem Config.Minimum.multi_imp_derived_rules
+  );
+  when propositional_intuitionistic: (
+       idtac "Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.";
+       idtac "Definition negp x := impp x falsep.";
+       idtac "Definition iffp x y := andp (impp x y) (impp y x).";
+       idtac "Definition truep := impp falsep falsep.";
+       dolist print_theorem Config.Propositional.intuitionistic_derived_rules
+  );
   idtac "End LogicTheorem.".
-  
+
 Abort.
 
 End Generate.

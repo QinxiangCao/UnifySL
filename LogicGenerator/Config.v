@@ -8,7 +8,10 @@ Require PropositionalLogic.ProofTheory.Classical.
 Require Import Coq.Lists.List.
 
 Definition minimum := true.
-Definition propositional := false.
+Definition propositional_intuitionistic := true.
+Definition propositional_classical := true.
+Definition propositional_demorgan := true.
+Definition propositional_godeldummett := true.
 
 Import ListNotations.
 Module Minimum.
@@ -31,6 +34,16 @@ Module Minimum.
     Definition derived_rules :=
       [ BuildName provable_impp_refl
       ; BuildName provable_impp_arg_switch
+      ; BuildName provable_impp_trans
+      ].
+    Definition multi_imp_derived_rules :=
+      [ BuildName provable_multi_imp_shrink
+      ; BuildName provable_multi_imp_arg_switch1
+      ; BuildName provable_multi_imp_arg_switch2
+      ; BuildName provable_add_multi_imp_left_head
+      ; BuildName provable_add_multi_imp_left_tail
+      ; BuildName provable_multi_imp_modus_ponens
+      ; BuildName provable_multi_imp_weaken
       ].
   End ProofTheory.
 End Minimum.
@@ -71,15 +84,28 @@ Module Propositional.
       ; BuildName falsep_elim
       ].
     Definition intuitionistic_derived_rules :=
-      [ BuildName andp_comm
+      [ BuildName demorgan_orp_negp
+      ; BuildName demorgan_negp_orp
+      ; BuildName provable_truep
+      ; BuildName andp_comm
       ; BuildName andp_assoc
+      ; BuildName orp_comm
+      ; BuildName orp_assoc
+      ; BuildName andp_dup
+      ; BuildName orp_dup
+      ; BuildName impp_curry
+      ; BuildName impp_uncurry
       ].
     Definition classical_basic_rules := [ BuildName excluded_middle ].
     Definition classical_derived_rules :=
       [ BuildName double_negp_elim
       ; BuildName double_negp
+      ; BuildName contrapositiveNN
+      ; BuildName contrapositiveNP
+      ; BuildName impp2orp
       ].
     Definition demorgan_basic_rules := [ BuildName weak_excluded_middle ].
+    Definition demorgan_derived_rules := [ BuildName demorgan_negp_andp ].
     Definition godeldummett_basic_rules := [ BuildName impp_choice ].
   End ProofTheory.
 End Propositional.
