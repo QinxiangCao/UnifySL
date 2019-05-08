@@ -37,6 +37,12 @@ Ltac print prt name :=
   end.
 
 Ltac newline := idtac "".
+Ltac print_unfold_name name :=
+  match name with
+  | BuildName ?ident =>
+    idtac "  Ltac" ident ":= let e := eval unfold" ident "in" ident "in exact e.";
+    idtac "  Notation" ident ":= ltac:(" ident ")."
+  end.
 
 Set Printing Width 1000.
 
@@ -75,8 +81,8 @@ Goal False.
   newline;
 
   idtac "Module NamesNotation.";
-  idtac "  Ltac expr := let e := eval unfold Names.expr in Names.expr in exact e.";
-  idtac "  Notation expr := ltac:(expr).";
+  idtac "  Import Names.";
+  dolist (print_unfold_name) Config.transparent_defs;
   idtac "End NamesNotation.";
   newline;
 

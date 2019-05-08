@@ -14,6 +14,16 @@ Definition propositional_godeldummett := true.
 
 Import NameListNotations.
 
+Section Transparent.
+  Context {L : Base.Language}
+          {minL : MinimunLanguage L}
+          {pL : PropositionalLanguage L}.
+  Definition transparent_defs :=
+    [ expr
+    ; andp
+    ].
+End Transparent.
+
 Module Minimum.
   Section Syntax.
     Context {L : Base.Language}
