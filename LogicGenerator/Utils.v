@@ -16,7 +16,7 @@ Notation "[ x ; y ; .. ; z ]" :=
   (cons (BuildName x) (cons (BuildName y) .. (cons (BuildName z) nil) ..)).
 End NameListNotations.
 
-Ltac dolist f names :=
+Tactic Notation "dolist" tactic(f) constr(names) :=
   let rec dolist' ns :=
       match ns with
       | nil => idtac
