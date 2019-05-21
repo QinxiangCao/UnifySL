@@ -66,8 +66,10 @@ Goal False.
   idtac "Module Type LanguageSig.";
   idtac "  Parameter Var : Type.";
   idtac "  Parameter expr : Type.";
-  when minimum:
+  when minimum: (
        dolist (print Par) Config.Minimum.connectives;
+       idtac "  Definition multi_imp xs y := fold_right impp y xs."
+  );
   when propositional_intuitionistic: (
        dolist (print Axm) Config.Propositional.connectives;
        idtac "  Definition negp x := impp x falsep.";
@@ -89,8 +91,10 @@ Goal False.
   idtac "Module Names <: LanguageSig.";
   idtac "  Definition Var := nat.";
   print Emp (BuildName expr);
-  when minimum:
+  when minimum: (
        dolist (print Emp) Config.Minimum.connectives;
+       idtac "  Definition multi_imp xs y := fold_right impp y xs."
+  );
   when propositional_intuitionistic: (
        dolist (print Emp) Config.Propositional.connectives;
        idtac "  Definition negp x := impp x falsep.";
@@ -118,7 +122,6 @@ Goal False.
   idtac "Module Type LogicTheoremSig.";
   idtac "  Import Names NamesNotation.";
   when minimum: (
-       idtac "  Definition multi_imp xs y := fold_right impp y xs.";
        dolist (print Axm) Config.Minimum.derived_rules;
        dolist (print Axm) Config.Minimum.multi_imp_derived_rules
   );
@@ -131,36 +134,23 @@ Goal False.
   newline;
 
 
-  idtac "Require Logic.GeneralLogic.Base.";
-  idtac "Require Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.";
+  idtac "Require Import Logic.GeneralLogic.Base.";
+  idtac "Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.";
   when minimum: (
-    idtac "Require Logic.MinimunLogic.Syntax.";
-    idtac "Require Logic.MinimunLogic.ProofTheory.Minimun."
+    idtac "Require Import Logic.MinimunLogic.Syntax.";
+    idtac "Require Import Logic.MinimunLogic.ProofTheory.Minimun."
   );
   when propositional_intuitionistic: (
-    idtac "Require Logic.PropositionalLogic.Syntax.";
-    idtac "Require Logic.PropositionalLogic.ProofTheory.Intuitionistic."
+    idtac "Require Import Logic.PropositionalLogic.Syntax.";
+    idtac "Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic."
   );
   when separation: (
-    idtac "Require Logic.SeparationLogic.Syntax.";
-    idtac "Require Logic.SeparationLogic.ProofTheory.SeparationLogic."
+    idtac "Require Import Logic.SeparationLogic.Syntax.";
+    idtac "Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic."
   );
 
+
   idtac "Module MakeInstances.";
-  idtac "  Import Logic.GeneralLogic.Base.";
-  idtac "  Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.";
-  when minimum: (
-    idtac "  Import Logic.MinimunLogic.Syntax.";
-    idtac "  Import Logic.MinimunLogic.ProofTheory.Minimun."
-  );
-  when propositional_intuitionistic: (
-    idtac "  Import Logic.PropositionalLogic.Syntax.";
-    idtac "  Import Logic.PropositionalLogic.ProofTheory.Intuitionistic."
-  );
-  when separation: (
-    idtac "  Import Logic.SeparationLogic.Syntax.";
-    idtac "  Import Logic.SeparationLogic.ProofTheory.SeparationLogic."
-  );
   idtac "  Import Names.";
   idtac "  Instance L : Language := Build_Language expr.";
   when minimum: (
@@ -187,22 +177,13 @@ Goal False.
   idtac "Module LogicTheorem <: LogicTheoremSig.";
   idtac "  Import Names NamesNotation.";
   when minimum: (
-       idtac "  Import Logic.MinimunLogic.ProofTheory.Minimun.";
-       idtac "  Definition multi_imp xs y := fold_right impp y xs.";
        dolist (print Def) Config.Minimum.derived_rules;
        dolist (print Def) Config.Minimum.multi_imp_derived_rules
   );
-  when propositional_intuitionistic: (
-       idtac "  Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.";
-       idtac "  Definition negp x := impp x falsep.";
-       idtac "  Definition iffp x y := andp (impp x y) (impp y x).";
-       idtac "  Definition truep := impp falsep falsep.";
-       dolist (print Def) Config.Propositional.intuitionistic_derived_rules
-  );
-  when separation: (
-       idtac "  Import Logic.SeparationLogic.ProofTheory.SeparationLogic.";
-       dolist (print Def) Config.Separation.separation_derived_rules
-  );
+  when propositional_intuitionistic:
+       dolist (print Def) Config.Propositional.intuitionistic_derived_rules;
+  when separation:
+       dolist (print Def) Config.Separation.separation_derived_rules;
   idtac "End LogicTheorem.".
 
 Abort.
