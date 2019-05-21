@@ -19,7 +19,6 @@ $(dst): $(src) Utils.vo Config.vo
 	$(coq_exe) $(coq_flags) $(src) > $@
 
 test: $(dst)
-	$(coq_exe) $(coq_flags) $(dst)
 	$(coq_exe) $(coq_flags) $(dst_dir)/Shallow.v
 
 clean:

@@ -8,17 +8,29 @@ Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
+Require Import SeparationLogic.Syntax.
+Require Import SeparationLogic.ProofTheory.SeparationLogic.
 
 Section Generate.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
+        {sL : SeparationLanguage L}
+        {s'L: SeparationEmpLanguage L}
         {Gamma: ProofTheory L}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {cpGamma: ClassicalPropositionalLogic L Gamma}
         {dmpGamma: DeMorganPropositionalLogic L Gamma}
-        {gdpGamma: GodelDummettPropositionalLogic L Gamma}.
+        {gdpGamma: GodelDummettPropositionalLogic L Gamma}
+        {sGamma: SeparationLogic L Gamma}
+        {empGamma: EmpSeparationLogic L Gamma}
+        {extGamma: ExtSeparationLogic L Gamma}
+        {nseGamma: NonsplitEmpSeparationLogic L Gamma}
+        {deGamma: DupEmpSeparationLogic L Gamma}
+        {mfGamma: MallocFreeSeparationLogic L Gamma}
+        {gcGamma: GarbageCollectSeparationLogic L Gamma}
+        .
 
 Inductive PrintType := Par | Axm | Def | Emp.
 
@@ -49,19 +61,28 @@ Set Printing Width 1000.
 Goal False.
   let minimum := eval cbv in Config.minimum in
   let propositional_intuitionistic := eval cbv in Config.propositional_intuitionistic in
+  let separation := eval cbv in Config.separation in
 
   idtac "Module Type LanguageSig.";
   idtac "  Parameter Var : Type.";
   idtac "  Parameter expr : Type.";
   when minimum:
        dolist (print Par) Config.Minimum.connectives;
-  when propositional_intuitionistic:
+  when propositional_intuitionistic: (
        dolist (print Axm) Config.Propositional.connectives;
+       idtac "  Definition negp x := impp x falsep.";
+       idtac "  Definition iffp x y := andp (impp x y) (impp y x).";
+       idtac "  Definition truep := impp falsep falsep."
+  );
+  when separation:
+       dolist (print Axm) Config.Separation.connectives;
   idtac "  Parameter provable : expr -> Prop.";
   when minimum:
        dolist (print Par) Config.Minimum.basic_rules;
   when propositional_intuitionistic:
        dolist (print Par) Config.Propositional.intuitionistic_basic_rules;
+  when separation:
+       dolist (print Par) Config.Separation.separation_basic_rules;
   idtac "End LanguageSig.";
   newline;
 
@@ -70,13 +91,21 @@ Goal False.
   print Emp (BuildName expr);
   when minimum:
        dolist (print Emp) Config.Minimum.connectives;
-  when propositional_intuitionistic:
+  when propositional_intuitionistic: (
        dolist (print Emp) Config.Propositional.connectives;
+       idtac "  Definition negp x := impp x falsep.";
+       idtac "  Definition iffp x y := andp (impp x y) (impp y x).";
+       idtac "  Definition truep := impp falsep falsep."
+  );
+  when separation:
+       dolist (print Emp) Config.Separation.connectives;
   print Emp (BuildName provable);
   when minimum:
        dolist (print Emp) Config.Minimum.basic_rules;
   when propositional_intuitionistic:
        dolist (print Emp) Config.Propositional.intuitionistic_basic_rules;
+  when separation:
+       dolist (print Emp) Config.Separation.separation_basic_rules;
   idtac "End Names.";
   newline;
 
@@ -94,11 +123,10 @@ Goal False.
        dolist (print Axm) Config.Minimum.multi_imp_derived_rules
   );
   when propositional_intuitionistic: (
-       idtac "  Definition negp x := impp x falsep.";
-       idtac "  Definition iffp x y := andp (impp x y) (impp y x).";
-       idtac "  Definition truep := impp falsep falsep.";
        dolist (print Axm) Config.Propositional.intuitionistic_derived_rules
   );
+  when separation:
+       dolist (print Axm) Config.Separation.separation_derived_rules;
   idtac "End LogicTheoremSig.";
   newline;
 
@@ -113,6 +141,10 @@ Goal False.
     idtac "Require Logic.PropositionalLogic.Syntax.";
     idtac "Require Logic.PropositionalLogic.ProofTheory.Intuitionistic."
   );
+  when separation: (
+    idtac "Require Logic.SeparationLogic.Syntax.";
+    idtac "Require Logic.SeparationLogic.ProofTheory.SeparationLogic."
+  );
 
   idtac "Module MakeInstances.";
   idtac "  Import Logic.GeneralLogic.Base.";
@@ -124,6 +156,10 @@ Goal False.
   when propositional_intuitionistic: (
     idtac "  Import Logic.PropositionalLogic.Syntax.";
     idtac "  Import Logic.PropositionalLogic.ProofTheory.Intuitionistic."
+  );
+  when separation: (
+    idtac "  Import Logic.SeparationLogic.Syntax.";
+    idtac "  Import Logic.SeparationLogic.ProofTheory.SeparationLogic."
   );
   idtac "  Import Names.";
   idtac "  Instance L : Language := Build_Language expr.";
@@ -140,6 +176,10 @@ Goal False.
   when propositional_intuitionistic: (
     idtac "  Instance pL : PropositionalLanguage L := Build_PropositionalLanguage L andp orp falsep.";
     idtac "  Instance ipAX : IntuitionisticPropositionalLogic L G := Build_IntuitionisticPropositionalLogic L minL pL G minAX andp_intros andp_elim1 andp_elim2 orp_intros1 orp_intros2 orp_elim falsep_elim."
+  );
+  when separation: (
+    idtac "  Instance sL: SeparationLanguage L := Build_SeparationLanguage L sepcon wand.";
+    idtac "  Instance sAX: SeparationLogic L G := Build_SeparationLogic L minL pL sL G minAX ipAX sepcon_comm_impp sepcon_assoc wand_sepcon_adjoint."
   );
   idtac "End MakeInstances.";
   newline;
@@ -158,6 +198,10 @@ Goal False.
        idtac "  Definition iffp x y := andp (impp x y) (impp y x).";
        idtac "  Definition truep := impp falsep falsep.";
        dolist (print Def) Config.Propositional.intuitionistic_derived_rules
+  );
+  when separation: (
+       idtac "  Import Logic.SeparationLogic.ProofTheory.SeparationLogic.";
+       dolist (print Def) Config.Separation.separation_derived_rules
   );
   idtac "End LogicTheorem.".
 

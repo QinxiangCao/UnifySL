@@ -7,6 +7,9 @@ Module NaiveLang.
   Definition andp (e1 e2 : expr) : expr := fun st => e1 st /\ e2 st.
   Definition orp  (e1 e2 : expr) : expr := fun st => e1 st \/ e2 st.
   Definition falsep : expr := fun st => False.
+  Definition iffp (e1 e2 : expr) : expr := andp (impp e1 e2) (impp e2 e1).
+  Parameter sepcon : expr -> expr -> expr.
+  Parameter wand : expr -> expr -> expr.
 
   Definition provable (e : expr) : Prop := forall st, e st.
 
@@ -43,4 +46,10 @@ Module NaiveLang.
 
   Lemma falsep_elim : forall x : expr, provable (impp falsep x).
   Proof. unfold provable, impp, falsep. destruct 1. Qed.
+
+  Axiom sepcon_comm_impp: forall x y, provable (impp (sepcon x y) (sepcon y x)).
+  Axiom sepcon_assoc: forall x y z,
+      provable (iffp (sepcon x (sepcon y z)) (sepcon (sepcon x y) z)).
+  Axiom wand_sepcon_adjoint: forall x y z,
+      provable (impp (sepcon x y) z) <-> provable (impp x (wand y z)).
 End NaiveLang.

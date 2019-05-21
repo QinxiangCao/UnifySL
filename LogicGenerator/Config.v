@@ -3,14 +3,19 @@ Require Import MinimunLogic.Syntax.
 Require Import GeneralLogic.Base.
 Require Import MinimunLogic.ProofTheory.Minimun.
 Require Import PropositionalLogic.Syntax.
-Require PropositionalLogic.ProofTheory.Intuitionistic.
-Require PropositionalLogic.ProofTheory.Classical.
+Require Import PropositionalLogic.ProofTheory.Intuitionistic.
+Require Import PropositionalLogic.ProofTheory.Classical.
+Require Import PropositionalLogic.ProofTheory.DeMorgan.
+Require Import PropositionalLogic.ProofTheory.GodelDummett.
+Require Import SeparationLogic.Syntax.
+Require Import SeparationLogic.ProofTheory.SeparationLogic.
 
 Definition minimum := true.
 Definition propositional_intuitionistic := true.
 Definition propositional_classical := true.
 Definition propositional_demorgan := true.
 Definition propositional_godeldummett := true.
+Definition separation := true.
 
 Import NameListNotations.
 
@@ -70,10 +75,6 @@ Module Propositional.
   End Syntax.
 
   Section ProofTheory.
-    Import PropositionalLogic.ProofTheory.Intuitionistic.
-    Import PropositionalLogic.ProofTheory.Classical.
-    Import PropositionalLogic.ProofTheory.DeMorgan.
-    Import PropositionalLogic.ProofTheory.GodelDummett.
     Context {L : Language}
             {minL : MinimunLanguage L}
             {pL : PropositionalLanguage L}
@@ -119,3 +120,51 @@ Module Propositional.
     Definition godeldummett_basic_rules := [ impp_choice ].
   End ProofTheory.
 End Propositional.
+
+Module Separation.
+  Section Syntax.
+    Context {L : Language}
+            {sL : SeparationLanguage L}.
+    Definition connectives :=
+      [ sepcon
+      ; wand
+      ].
+  End Syntax.
+
+  Section ProofTheory.
+    Context {L : Language}
+            {minL : MinimunLanguage L}
+            {pL : PropositionalLanguage L}
+            {sL : SeparationLanguage L}
+            {s'L: SeparationEmpLanguage L}
+            {Gamma : ProofTheory L}
+            {minAx : MinimunAxiomatization L Gamma}
+            {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+            {sGamma: SeparationLogic L Gamma}
+            {empGamma: EmpSeparationLogic L Gamma}
+            {extGamma: ExtSeparationLogic L Gamma}
+            {nseGamma: NonsplitEmpSeparationLogic L Gamma}
+            {deGamma: DupEmpSeparationLogic L Gamma}
+            {mfGamma: MallocFreeSeparationLogic L Gamma}
+            {gcGamma: GarbageCollectSeparationLogic L Gamma}
+            .
+    Definition separation_basic_rules :=
+      [ sepcon_comm_impp
+      ; sepcon_assoc
+      ; wand_sepcon_adjoint
+      ].
+    Definition separation_derived_rules :=
+      [ sepcon_orp_distr_l
+      ; falsep_sepcon
+      ; provable_wand_sepcon_modus_ponens1
+      ; wand_andp
+      ; sepcon_comm
+      ; sepcon_orp_distr_r
+      ; sepcon_falsep
+      ; provable_wand_sepcon_modus_ponens2
+      ; wand_mono
+      ; orp_wand
+      ; sepcon_mono
+      ].
+  End ProofTheory.
+End Separation.
