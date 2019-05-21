@@ -61,6 +61,8 @@ Set Printing Width 1000.
 Goal False.
   let minimum := eval cbv in Config.minimum in
   let propositional_intuitionistic := eval cbv in Config.propositional_intuitionistic in
+  let propositional_classical := eval cbv in Config.propositional_classical in
+  let propositional_demorgan := eval cbv in Config.propositional_demorgan in
   let separation := eval cbv in Config.separation in
 
   idtac "Module Type LanguageSig.";
@@ -83,6 +85,10 @@ Goal False.
        dolist (print Par) Config.Minimum.basic_rules;
   when propositional_intuitionistic:
        dolist (print Par) Config.Propositional.intuitionistic_basic_rules;
+  when propositional_classical:
+       dolist (print Par) Config.Propositional.classical_basic_rules;
+  when propositional_demorgan:
+       dolist (print Par) Config.Propositional.demorgan_basic_rules;
   when separation:
        dolist (print Par) Config.Separation.separation_basic_rules;
   idtac "End LanguageSig.";
@@ -108,6 +114,10 @@ Goal False.
        dolist (print Emp) Config.Minimum.basic_rules;
   when propositional_intuitionistic:
        dolist (print Emp) Config.Propositional.intuitionistic_basic_rules;
+  when propositional_classical:
+       dolist (print Emp) Config.Propositional.classical_basic_rules;
+  when propositional_demorgan:
+       dolist (print Emp) Config.Propositional.demorgan_basic_rules;
   when separation:
        dolist (print Emp) Config.Separation.separation_basic_rules;
   idtac "End Names.";
@@ -115,7 +125,7 @@ Goal False.
 
   idtac "Module NamesNotation.";
   idtac "  Import Names.";
-  dolist (print_unfold_name) Config.transparent_defs;
+  dolist print_unfold_name Config.transparent_defs;
   idtac "End NamesNotation.";
   newline;
 
@@ -125,9 +135,12 @@ Goal False.
        dolist (print Axm) Config.Minimum.derived_rules;
        dolist (print Axm) Config.Minimum.multi_imp_derived_rules
   );
-  when propositional_intuitionistic: (
-       dolist (print Axm) Config.Propositional.intuitionistic_derived_rules
-  );
+  when propositional_intuitionistic:
+       dolist (print Axm) Config.Propositional.intuitionistic_derived_rules;
+  when propositional_classical:
+       dolist (print Axm) Config.Propositional.classical_derived_rules;
+  when propositional_demorgan:
+       dolist (print Axm) Config.Propositional.demorgan_derived_rules;
   when separation:
        dolist (print Axm) Config.Separation.separation_derived_rules;
   idtac "End LogicTheoremSig.";
@@ -182,6 +195,10 @@ Goal False.
   );
   when propositional_intuitionistic:
        dolist (print Def) Config.Propositional.intuitionistic_derived_rules;
+  when propositional_classical:
+       dolist (print Def) Config.Propositional.classical_derived_rules;
+  when propositional_demorgan:
+       dolist (print Def) Config.Propositional.demorgan_derived_rules;
   when separation:
        dolist (print Def) Config.Separation.separation_derived_rules;
   idtac "End LogicTheorem.".
