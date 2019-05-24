@@ -11,6 +11,9 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 
+Require Import Lists.List.
+Import ListNotations.
+
 Section Generate.
 Context {L: Language}
         {minL: MinimunLanguage L}
@@ -64,6 +67,21 @@ Goal False.
   let propositional_classical := eval cbv in Config.propositional_classical in
   let propositional_demorgan := eval cbv in Config.propositional_demorgan in
   let separation := eval cbv in Config.separation in
+  let basic_rules := eval hnf in
+    [ (minimum, Config.Minimum.basic_rules)
+    ; (propositional_intuitionistic, Config.Propositional.intuitionistic_basic_rules)
+    ; (propositional_classical, Config.Propositional.classical_basic_rules)
+    ; (propositional_demorgan, Config.Propositional.demorgan_basic_rules)
+    ; (separation, Config.Separation.separation_basic_rules)
+    ] in
+  let derived_rules := eval hnf in
+    [ (minimum, Config.Minimum.derived_rules)
+    ; (minimum, Config.Minimum.multi_imp_derived_rules)
+    ; (propositional_intuitionistic, Config.Propositional.intuitionistic_derived_rules)
+    ; (propositional_classical, Config.Propositional.classical_derived_rules)
+    ; (propositional_demorgan, Config.Propositional.demorgan_derived_rules)
+    ; (separation, Config.Separation.separation_derived_rules)
+    ] in
 
   idtac "Module Type LanguageSig.";
   idtac "  Parameter Var : Type.";
@@ -81,16 +99,7 @@ Goal False.
   when separation:
        dolist (print Axm) Config.Separation.connectives;
   idtac "  Parameter provable : expr -> Prop.";
-  when minimum:
-       dolist (print Par) Config.Minimum.basic_rules;
-  when propositional_intuitionistic:
-       dolist (print Par) Config.Propositional.intuitionistic_basic_rules;
-  when propositional_classical:
-       dolist (print Par) Config.Propositional.classical_basic_rules;
-  when propositional_demorgan:
-       dolist (print Par) Config.Propositional.demorgan_basic_rules;
-  when separation:
-       dolist (print Par) Config.Separation.separation_basic_rules;
+  dolist_when (print Par) basic_rules;
   idtac "End LanguageSig.";
   newline;
 
@@ -110,16 +119,7 @@ Goal False.
   when separation:
        dolist (print Emp) Config.Separation.connectives;
   print Emp (BuildName provable);
-  when minimum:
-       dolist (print Emp) Config.Minimum.basic_rules;
-  when propositional_intuitionistic:
-       dolist (print Emp) Config.Propositional.intuitionistic_basic_rules;
-  when propositional_classical:
-       dolist (print Emp) Config.Propositional.classical_basic_rules;
-  when propositional_demorgan:
-       dolist (print Emp) Config.Propositional.demorgan_basic_rules;
-  when separation:
-       dolist (print Emp) Config.Separation.separation_basic_rules;
+  dolist_when (print Emp) basic_rules;
   idtac "End Names.";
   newline;
 
@@ -131,18 +131,7 @@ Goal False.
 
   idtac "Module Type LogicTheoremSig.";
   idtac "  Import Names NamesNotation.";
-  when minimum: (
-       dolist (print Axm) Config.Minimum.derived_rules;
-       dolist (print Axm) Config.Minimum.multi_imp_derived_rules
-  );
-  when propositional_intuitionistic:
-       dolist (print Axm) Config.Propositional.intuitionistic_derived_rules;
-  when propositional_classical:
-       dolist (print Axm) Config.Propositional.classical_derived_rules;
-  when propositional_demorgan:
-       dolist (print Axm) Config.Propositional.demorgan_derived_rules;
-  when separation:
-       dolist (print Axm) Config.Separation.separation_derived_rules;
+  dolist_when (print Axm) derived_rules;
   idtac "End LogicTheoremSig.";
   newline;
 
@@ -189,18 +178,7 @@ Goal False.
 
   idtac "Module LogicTheorem <: LogicTheoremSig.";
   idtac "  Import Names NamesNotation.";
-  when minimum: (
-       dolist (print Def) Config.Minimum.derived_rules;
-       dolist (print Def) Config.Minimum.multi_imp_derived_rules
-  );
-  when propositional_intuitionistic:
-       dolist (print Def) Config.Propositional.intuitionistic_derived_rules;
-  when propositional_classical:
-       dolist (print Def) Config.Propositional.classical_derived_rules;
-  when propositional_demorgan:
-       dolist (print Def) Config.Propositional.demorgan_derived_rules;
-  when separation:
-       dolist (print Def) Config.Separation.separation_derived_rules;
+  dolist_when (print Def) derived_rules;
   idtac "End LogicTheorem.".
 
 Abort.

@@ -22,4 +22,12 @@ Tactic Notation "dolist" tactic0(f) constr(names) :=
       | nil => idtac
       | ?x :: ?ns' => f x; dolist' ns'
       end
-  in dolist' ltac:(eval red in names).
+  in dolist' ltac:(eval hnf in names).
+
+Local Ltac print_when f p :=
+  match p with
+  | (?b, ?names) => when b: dolist f names
+  end.
+
+Tactic Notation "dolist_when" tactic0(f) constr(tbl) :=
+  dolist (print_when f) tbl.

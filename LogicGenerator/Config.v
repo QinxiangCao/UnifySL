@@ -124,10 +124,14 @@ End Propositional.
 Module Separation.
   Section Syntax.
     Context {L : Language}
-            {sL : SeparationLanguage L}.
+            {sL : SeparationLanguage L}
+            {s'L : SeparationEmpLanguage L}.
     Definition connectives :=
       [ sepcon
       ; wand
+      ].
+    Definition emp_connectives :=
+      [ emp
       ].
   End Syntax.
 
@@ -136,7 +140,7 @@ Module Separation.
             {minL : MinimunLanguage L}
             {pL : PropositionalLanguage L}
             {sL : SeparationLanguage L}
-            {s'L: SeparationEmpLanguage L}
+            {s'L : SeparationEmpLanguage L}
             {Gamma : ProofTheory L}
             {minAx : MinimunAxiomatization L Gamma}
             {ipGamma: IntuitionisticPropositionalLogic L Gamma}
