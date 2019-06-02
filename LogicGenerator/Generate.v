@@ -84,7 +84,6 @@ Goal False.
     ] in
 
   idtac "Module Type LanguageSig.";
-  idtac "  Parameter Var : Type.";
   idtac "  Parameter expr : Type.";
   when minimum: (
        dolist (print Par) Config.Minimum.connectives;
@@ -104,7 +103,6 @@ Goal False.
   newline;
 
   idtac "Module Names <: LanguageSig.";
-  idtac "  Definition Var := nat.";
   print Emp (BuildName expr);
   when minimum: (
        dolist (print Emp) Config.Minimum.connectives;
@@ -179,7 +177,21 @@ Goal False.
   idtac "Module LogicTheorem <: LogicTheoremSig.";
   idtac "  Import Names NamesNotation.";
   dolist_when (print Def) derived_rules;
-  idtac "End LogicTheorem.".
+  idtac "End LogicTheorem.";
+  newline;
+
+  idtac "Require Logic.PropositionalLogic.DeepEmbedded.Solver.";
+  idtac "Module IPSolver.";
+  idtac "  Import Names.";
+  idtac "  Import NamesNotation.";
+  idtac "  Ltac ip_solve :=";
+  idtac "    change expr with Base.expr;";
+  idtac "    change provable with Base.provable;";
+  idtac "    change impp with Syntax.impp;";
+  idtac "    change andp with Syntax.andp;";
+  idtac "    intros; Solver.SolverSound.ipSolver.";
+  idtac "End IPSolver.";
+  newline.
 
 Abort.
 

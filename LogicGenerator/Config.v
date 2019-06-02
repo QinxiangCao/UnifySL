@@ -12,9 +12,9 @@ Require Import SeparationLogic.ProofTheory.SeparationLogic.
 
 Definition minimum := true.
 Definition propositional_intuitionistic := true.
-Definition propositional_classical := true.
-Definition propositional_demorgan := true.
-Definition propositional_godeldummett := true.
+Definition propositional_classical := false.
+Definition propositional_demorgan := false.
+Definition propositional_godeldummett := false.
 Definition separation := true.
 
 Import NameListNotations.
