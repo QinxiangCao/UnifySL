@@ -205,7 +205,8 @@ Lemma residue_extensible
 Proof.
   intros.
   destruct H as [u' [? ?]].
-  pose proof join_Korder_down _ _ _ _ _ H ltac:(reflexivity) H0.
+  pose proof join_Korder_down.
+  pose proof H1 _ _ _ _ _ H ltac:(reflexivity) H0.
   firstorder.
 Qed.
 
