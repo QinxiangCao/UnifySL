@@ -19,11 +19,13 @@ Inductive provable: expr -> Prop :=
 | axiom1: forall x y, provable (x --> (y --> x))
 | axiom2: forall x y z, provable ((x --> y --> z) --> (x --> y) --> (x --> z)).
 
-Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable L := Build_Provable L provable.
 
-Instance AX: NormalAxiomatization L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization L G.
+Instance AX: NormalAxiomatization L GP GD := Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -31,12 +33,12 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance SC: NormalSequentCalculus L G := Axiomatization2SequentCalculus_SC.
+Instance SC: NormalSequentCalculus L GP GD := Axiomatization2SequentCalculus_SC.
 
-Instance bSC: BasicSequentCalculus L G := Axiomatization2SequentCalculus_bSC.
+Instance bSC: BasicSequentCalculus L GD := Axiomatization2SequentCalculus_bSC.
 
-Instance fwSC: FiniteWitnessedSequentCalculus L G := Axiomatization2SequentCalculus_fwSC.
+Instance fwSC: FiniteWitnessedSequentCalculus L GD := Axiomatization2SequentCalculus_fwSC.
 
-Instance minSC: MinimunSequentCalculus L G := Axiomatization2SequentCalculus_minSC.
+Instance minSC: MinimunSequentCalculus L GD := Axiomatization2SequentCalculus_minSC.
 
 End MinimunLogic.

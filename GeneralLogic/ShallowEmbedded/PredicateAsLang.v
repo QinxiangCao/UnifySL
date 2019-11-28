@@ -6,8 +6,12 @@ Require Import Logic.GeneralLogic.Base.
 
 Instance Pred_L (A: Type) : Language := Build_Language (A -> Prop).
 
-Instance Pred_strongProvable (A: Type): Provable (Pred_L A) := Build_Provable (Pred_L A) (fun x => forall a, x a).
+Instance Pred_strongGammaP (A: Type): Provable (Pred_L A) :=
+  Build_Provable (Pred_L A) (fun x => forall a, x a).
 
-Instance Pred_strongDerivable (A: Type): Derivable (Pred_L A) := Build_Derivable (Pred_L A) (fun Phi x => forall a, (forall y, Phi y -> y a) -> x a).
+Instance Pred_strongGammaD (A: Type): Derivable (Pred_L A) :=
+  Build_Derivable
+    (Pred_L A) (fun Phi x => forall a, (forall y, Phi y -> y a) -> x a).
 
-Instance Pred_SM (A: Type): Semantics (Pred_L A) (Build_Model A) := Build_Semantics (Pred_L A) (Build_Model A) (fun x => x).
+Instance Pred_SM (A: Type): Semantics (Pred_L A) (Build_Model A) :=
+  Build_Semantics (Pred_L A) (Build_Model A) (fun x => x).

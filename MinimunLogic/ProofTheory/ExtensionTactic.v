@@ -1,6 +1,6 @@
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.Ensembles_ext.
-Require Import Logic.lib.register_typeclass.
+Require Export Logic.lib.register_typeclass.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.TheoryOfSequentCalculus.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.

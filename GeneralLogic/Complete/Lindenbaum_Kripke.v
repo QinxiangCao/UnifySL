@@ -20,7 +20,7 @@ Local Open Scope logic_base.
 Section Lindenbaum.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}.
 
 Lemma Lindenbaum_for_derivable_closed: forall P,
