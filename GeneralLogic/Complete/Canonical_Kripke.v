@@ -17,7 +17,7 @@ Import KripkeModelNotation_Intuitionistic.
 Section Canonical.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
         {MD: Model}
         {kMD: KripkeModel MD}

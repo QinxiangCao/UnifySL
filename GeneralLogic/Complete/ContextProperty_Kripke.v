@@ -6,7 +6,7 @@ Local Open Scope logic_base.
 Section ContextProperty.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}.
 
 Lemma Included_derivable: forall (Phi: context),
@@ -46,7 +46,7 @@ End ContextProperty.
 Section CanonicalProperties.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}.
+        {Gamma: Derivable L}.
 
 Definition derivable_closed : context -> Prop :=
   fun Phi => forall x, derivable Phi x -> Phi x.
@@ -106,7 +106,7 @@ End CanonicalProperties.
 Section ContextProperties.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}.
+        {Gamma: Derivable L}.
 
 Definition can_derive (x: expr): context -> Prop :=
   fun Phi => Phi |-- x.
