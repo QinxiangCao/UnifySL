@@ -188,11 +188,11 @@ Proof.
   + apply derivable_falsep_elim.
 Qed.
 
-Global Instance reg_SequentCalculus2Axiomatization_ipAX:
+End SequentCalculus2Axiomatization.
+
+Instance reg_SequentCalculus2Axiomatization_ipAX:
   RegisterClass D2P_reg (fun ipAX: unit => @SequentCalculus2Axiomatization_ipAX) 2.
 Qed.
-
-End SequentCalculus2Axiomatization.
 
 Section Axiomatization2SequentCalculus.
 
@@ -240,11 +240,11 @@ Proof.
     apply falsep_elim.
 Qed.
 
-Global Instance reg_Axiomatization2SequentCalculus_ipSC:
+End Axiomatization2SequentCalculus.
+
+Instance reg_Axiomatization2SequentCalculus_ipSC:
   RegisterClass P2D_reg (fun ipSC: unit => @Axiomatization2SequentCalculus_ipSC) 4.
 Qed.
-
-End Axiomatization2SequentCalculus.
 
 Section DerivableRulesFromAxiomatization1.
 

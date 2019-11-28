@@ -29,29 +29,17 @@ Section Sound.
 Context {Sigma: PropositionalLanguage.PropositionalVariables}.
 
 Existing Instances PropositionalLanguage.L PropositionalLanguage.minL PropositionalLanguage.pL.
-(*
-Instance Intuitionistic_G: ProofTheory L := IntuitionisticLogic.G Var.
-Instance DeMorgan_G: ProofTheory L := DeMorganLogic.G Var.
-Instance GodelDummett_G: ProofTheory L := GodelDummettLogic.G Var.
-Instance Classical_G: ProofTheory L := ClassicalLogic.G Var.
-Instance Trivial_MD: Model := TrivialSemantics.MD Var.
-Instance Trivial_SM: Semantics L Trivial_MD := TrivialSemantics.SM Var.
-Instance Kripke_MD: Model := KripkeSemantics.MD Var.
-Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
-Instance Kripke_R (M: Kmodel): Relation (Kworlds M) := KripkeSemantics.R Var M.
-Instance Kripke_SM: Semantics L Kripke_MD := KripkeSemantics.SM Var.
-Instance Kripke_kpSM (M: Kmodel): KripkePropositionalSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kpSM Var M.
-*)
+
 Section Sound_Classical_Trivial.
 
 Import Logic.MinimunLogic.Semantics.Trivial.
 Import Logic.MinimunLogic.Sound.Sound_Classical_Trivial.
 Import Logic.PropositionalLogic.Sound.Sound_Classical_Trivial.
 
-Existing Instances ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipG.
+Existing Instances ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipAX.
 Existing Instances TrivialSemantics.MD TrivialSemantics.SM TrivialSemantics.tminSM TrivialSemantics.tpSM.
 
-Theorem sound_classical_trivial: sound ProofTheories.ClassicalPropositionalLogic.G TrivialSemantics.SM (AllModel _).
+Theorem sound_classical_trivial: provable_sound ProofTheories.ClassicalPropositionalLogic.GP TrivialSemantics.SM (AllModel _).
 Proof.
   hnf; intros.
   intro m.
@@ -79,11 +67,11 @@ Import Logic.MinimunLogic.Sound.Sound_Kripke.
 Import Logic.PropositionalLogic.Sound.Sound_Kripke.
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
-Existing Instances ProofTheories.IntuitionisticPropositionalLogic.minAX ProofTheories.IntuitionisticPropositionalLogic.ipG.
+Existing Instances ProofTheories.IntuitionisticPropositionalLogic.minAX ProofTheories.IntuitionisticPropositionalLogic.ipAX.
 Existing Instances KripkeSemantics.MD KripkeSemantics.kMD KripkeSemantics.SM KripkeSemantics.kminSM KripkeSemantics.kpSM KripkeSemantics.R.
 
 Theorem sound_intuitionistic_Kripke_all:
-  sound ProofTheories.IntuitionisticPropositionalLogic.G KripkeSemantics.SM (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
+  provable_sound ProofTheories.IntuitionisticPropositionalLogic.GP KripkeSemantics.SM (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
 Proof.
   hnf; intros.
   intros _ [M m [mono po_R]].
@@ -104,7 +92,7 @@ Proof.
 Qed.
 
 Theorem sound_DeMorgan_Kripke_branch_join:
-  sound ProofTheories.DeMorganPropositionalLogic.G KripkeSemantics.SM (KripkeModelClass _
+  provable_sound ProofTheories.DeMorganPropositionalLogic.GP KripkeSemantics.SM (KripkeModelClass _
     (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_BranchJoin)).
 Proof.
   hnf; intros.
@@ -127,7 +115,7 @@ Proof.
 Qed.
 
 Theorem sound_GodelDummett_Kripke_no_branch:
-  sound ProofTheories.GodelDummettPropositionalLogic.G KripkeSemantics.SM (KripkeModelClass _
+  provable_sound ProofTheories.GodelDummettPropositionalLogic.GP KripkeSemantics.SM (KripkeModelClass _
     (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_NoBranch)).
 Proof.
   hnf; intros.
@@ -150,7 +138,7 @@ Proof.
 Qed.
 
 Theorem sound_classical_Kripke_identity:
-  sound ProofTheories.ClassicalPropositionalLogic.G KripkeSemantics.SM (KripkeModelClass _
+  provable_sound ProofTheories.ClassicalPropositionalLogic.GP KripkeSemantics.SM (KripkeModelClass _
     (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_Identity)).
 Proof.
   hnf; intros.

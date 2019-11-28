@@ -6,6 +6,7 @@ Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Require Import Logic.MinimunLogic.ProofTheory.ProofTheoryPatterns.
+Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
@@ -19,9 +20,9 @@ Section DerivableRulesFromPatterns.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}
         {prodp: expr -> expr -> expr}.
 
 Lemma prodp_comm {Comm: Commutativity L Gamma prodp}: forall x y,
@@ -232,16 +233,16 @@ Section ProofTheoryPatterns.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma Build_LeftUnit': forall {e: expr} {prodp: expr -> expr -> expr},
   (forall x: expr, |-- prodp e x <--> x) ->
   LeftUnit L Gamma e prodp.
 Proof.
   intros.
-  constructor; intros; specialize (H x); revert H; AddSequentCalculus Gamma.
+  constructor; intros; specialize (H x); revert H; AddSequentCalculus.
   + rewrite !provable_derivable.
     intros.
     eapply deduction_andp_elim1; eauto.
@@ -255,7 +256,7 @@ Lemma Build_RightUnit': forall {e: expr} {prodp: expr -> expr -> expr},
   RightUnit L Gamma e prodp.
 Proof.
   intros.
-  constructor; intros; specialize (H x); revert H; AddSequentCalculus Gamma.
+  constructor; intros; specialize (H x); revert H; AddSequentCalculus.
   + rewrite !provable_derivable.
     intros.
     eapply deduction_andp_elim1; eauto.
@@ -269,7 +270,7 @@ Lemma Build_Associativity': forall {prodp: expr -> expr -> expr},
   Associativity L Gamma prodp.
 Proof.
   intros.
-  constructor; intros; specialize (H x y z); revert H; AddSequentCalculus Gamma.
+  constructor; intros; specialize (H x y z); revert H; AddSequentCalculus.
   + rewrite !provable_derivable.
     intros.
     eapply deduction_andp_elim2; eauto.
@@ -285,13 +286,13 @@ Section PatternInstances.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma impp_andp_Adjoint: Adjointness L Gamma andp impp.
 Proof.
-  constructor; AddSequentCalculus Gamma.
+  constructor; AddSequentCalculus.
   intros; split; intros.
   + eapply modus_ponens; [| exact H].
     apply impp_uncurry.
@@ -302,7 +303,7 @@ Qed.
 Lemma andp_Comm: Commutativity L Gamma andp.
 Proof.
   constructor.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   intros.
   rewrite provable_derivable.
   eapply deduction_andp_elim1.
@@ -349,9 +350,9 @@ Section DerivableRules.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma falsep_andp: forall x: expr,
   |-- FF && x <--> FF.

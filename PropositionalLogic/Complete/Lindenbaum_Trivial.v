@@ -31,15 +31,16 @@ Section Lindenbaum_Trivial.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {fwSC: FiniteWitnessedSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {cpSC: ClassicalPropositionalSequentCalculus L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {GammaP: Provable L}
+        {GammaD: Derivable L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {fwSC: FiniteWitnessedSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {cpSC: ClassicalPropositionalSequentCalculus L GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}.
 
 Lemma Lindenbaum_for_max_consistent: forall P,
   Lindenbaum_ensures P derivable_closed ->
@@ -52,7 +53,9 @@ Proof.
   apply DDCS_MCS; auto.
 Qed.
 
-Lemma Lindenbaum_cannot_derive_ensures_max_consistent {AX: NormalAxiomatization L Gamma}: forall x, Lindenbaum_ensures (cannot_derive x) (maximal consistent).
+Lemma Lindenbaum_cannot_derive_ensures_max_consistent
+      {AX: NormalAxiomatization L GammaP GammaD}:
+  forall x, Lindenbaum_ensures (cannot_derive x) (maximal consistent).
 Proof.
   intros.
   apply Lindenbaum_for_max_consistent.

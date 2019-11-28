@@ -36,7 +36,7 @@ Section TruthLemma.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
