@@ -547,6 +547,7 @@ Definition Derivable2Provable_Normal {GammaD: Derivable L}:
 
 End Transformation.
 
+(*
 Inductive Typeclass_Rewrite (l: list (sig (fun X: Prop => X))): Prop :=
 | Typeclass_Rewrite_I : Typeclass_Rewrite l.
 
@@ -821,21 +822,29 @@ Proof.
 Qed.
 
 Hint Rewrite <- @MakeAxiomatization_FiniteWitnessedSequentCalculus using (typeclasses eauto): AddAX.
-
+*)
 Section Test_AddSC.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}.
+
+Ltac pose_proof_foo F :=
+  idtac 0;
+  first [ let G := eval cbv beta in (F ltac:(typeclasses eauto)) in pose_proof_foo G
+        | pose proof F ].
 
 Lemma provable_impp_refl': forall (x: expr), |-- x --> x.
 Proof.
-  AddSequentCalculus Gamma.
+  pose proof Provable2Derivable_Normal.
+  set (GammaD := Provable2Derivable) in *; clearbody GammaD.
+  pose_proof_foo @Axiomatization2SequentCalculus_fwSC.
+(*  AddSequentCalculus Gamma. *)
 Abort.
 
 End Test_AddSC.
-
+(*
 Section Test_AddAX.
 
 Context {L: Language}
@@ -851,3 +860,5 @@ Proof.
 Abort.
 
 End Test_AddAX.
+
+*)
