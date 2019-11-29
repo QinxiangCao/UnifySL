@@ -40,15 +40,16 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {AX: NormalAxiomatization L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {sGamma: SeparationLogic L Gamma}
+        {GammaP: Provable L}
+        {GammaD: Derivable L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {AX: NormalAxiomatization L GammaP GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}
+        {sAX: SeparationLogic L GammaP}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
@@ -152,7 +153,7 @@ Proof.
 Qed.
 
 Context {s'L: SeparationEmpLanguage L}
-        {eGamma: EmpSeparationLogic L Gamma}
+        {EmpsAX: EmpSeparationLogic L GammaP}
         {feSM: EmpSemantics L MD M SM}.
 
 Lemma truth_lemma_emp

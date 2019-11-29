@@ -38,11 +38,11 @@ Context {L: Language}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {s'L: SeparationEmpLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {sGamma: SeparationLogic L Gamma}
-        {EmpGamma: EmpSeparationLogic L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}
+        {sAX: SeparationLogic L Gamma}
+        {EmpsAX: EmpSeparationLogic L Gamma}.
 
 Lemma sepcon_iter_sepcon:
   forall xs ys,
