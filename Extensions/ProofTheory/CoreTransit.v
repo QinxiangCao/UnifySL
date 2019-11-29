@@ -29,11 +29,11 @@ Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import CoreTransitNotation.
 
-Class CoreTransitSeparationLogic (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {CtsL: CoreTransitSeparationLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {CosGamma: Corable L Gamma}:= {
-  core_tr_SystemK: @SystemK L minL pL (ct_mL L) Gamma minAX ipGamma;
-  core_tr_PTransparent: @PropositionalTransparentModality L minL pL (ct_mL L) Gamma minAX ipGamma core_tr_SystemK;
-  core_tr_STransparent1: @SeparationTransparentModality1 L minL pL (ct_mL L) sL Gamma minAX ipGamma core_tr_SystemK sGamma;
-  core_tr_STransparent2: @SeparationTransparentModality2 L minL pL (ct_mL L) sL Gamma minAX ipGamma core_tr_SystemK sGamma;
+Class CoreTransitSeparationLogic (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {CtsL: CoreTransitSeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipAX: IntuitionisticPropositionalLogic L Gamma} {sAX: SeparationLogic L Gamma} {CosAX: Corable L Gamma}:= {
+  core_tr_SystemK: @SystemK L minL pL (ct_mL L) Gamma minAX ipAX;
+  core_tr_PTransparent: @PropositionalTransparentModality L minL pL (ct_mL L) Gamma minAX ipAX core_tr_SystemK;
+  core_tr_STransparent1: @SeparationTransparentModality1 L minL pL (ct_mL L) sL Gamma minAX ipAX core_tr_SystemK sAX;
+  core_tr_STransparent2: @SeparationTransparentModality2 L minL pL (ct_mL L) sL Gamma minAX ipAX core_tr_SystemK sAX;
   core_tr_andp_sepcon: forall x y, |-- core_tr (x && y) --> core_tr (x * y);
   coreAbsorb: @ModalAbsorbStable L minL (ct_mL L) Gamma corable
 }.
@@ -45,11 +45,11 @@ Context {L: Language}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {CtsL: CoreTransitSeparationLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {sGamma: SeparationLogic L Gamma}
-        {CosGamma: Corable L Gamma}
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}
+        {sAX: SeparationLogic L Gamma}
+        {CosAX: Corable L Gamma}
         {CtsGamma: CoreTransitSeparationLogic L Gamma}.
 
 Lemma core_tr_andp: forall x y, |-- core_tr (x && y) <--> core_tr x && core_tr y.
