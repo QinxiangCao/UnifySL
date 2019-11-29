@@ -3,6 +3,7 @@ Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -25,11 +26,11 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {mL: ModalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {cpGamma: ClassicalPropositionalLogic L Gamma}
-        {KmGamma: SystemK L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}
+        {cpAX: ClassicalPropositionalLogic L Gamma}
+        {KmAX: SystemK L Gamma}.
 
 Existing Instances Classical2GodelDummett GodelDummett2DeMorgan.
 
@@ -57,7 +58,7 @@ Proof.
   apply (modus_ponens (boxp (x || ~~ x))).
   + rewrite boxp_orp.
     apply solve_orp_impp; [| apply axiom1].
-    clear KmGamma pmGamma; AddSequentCalculus Gamma.
+    AddSequentCalculus.
     rewrite provable_derivable.
     rewrite <- !deduction_theorem.
     apply deduction_falsep_elim.

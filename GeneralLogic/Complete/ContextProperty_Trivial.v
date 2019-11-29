@@ -10,7 +10,7 @@ Local Open Scope logic_base.
 Section ContextProperty.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}.
 
 Lemma maximal_consistent_spec :

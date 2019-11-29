@@ -52,7 +52,8 @@ Existing Instances KripkeSemantics.MD KripkeSemantics.kMD KripkeSemantics.R Krip
 
 Section General_Completeness.
 
-Context {Gamma: ProofTheory PropositionalLanguage.L}.
+  Context {GammaP: Provable PropositionalLanguage.L}
+          {GammaD: Derivable PropositionalLanguage.L}.
 
 Definition cP : context -> Prop := Intersection _ (Intersection _ derivable_closed orp_witnessed) consistent.
 
@@ -65,14 +66,14 @@ Proof. solve_at_least. Qed.
 Lemma AL_CONSI: at_least consistent cP.
 Proof. solve_at_least. Qed.
 
-Context {SC: NormalSequentCalculus _ Gamma}
-        {bSC: BasicSequentCalculus _ Gamma}
-        {fwSC: FiniteWitnessedSequentCalculus _ Gamma}
-        {minSC: MinimunSequentCalculus _ Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus _ Gamma}
-        {AX: NormalAxiomatization _ Gamma}
-        {minAX: MinimunAxiomatization _ Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic _ Gamma}.
+Context {SC: NormalSequentCalculus _ GammaP GammaD}
+        {bSC: BasicSequentCalculus _ GammaD}
+        {fwSC: FiniteWitnessedSequentCalculus _ GammaD}
+        {minSC: MinimunSequentCalculus _ GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus _ GammaD}
+        {AX: NormalAxiomatization _ GammaP GammaD}
+        {minAX: MinimunAxiomatization _ GammaP}
+        {ipAX: IntuitionisticPropositionalLogic _ GammaP}.
 
 Lemma LIN_CD: forall x: expr, Lindenbaum_constructable (cannot_derive x) cP.
 Proof.
@@ -125,14 +126,14 @@ End General_Completeness.
 
 Section Intuitionistic_Completeness.
 
-Existing Instances ProofTheories.IntuitionisticPropositionalLogic.G ProofTheories.IntuitionisticPropositionalLogic.AX ProofTheories.IntuitionisticPropositionalLogic.minAX ProofTheories.IntuitionisticPropositionalLogic.ipG.
+Existing Instances ProofTheories.IntuitionisticPropositionalLogic.GP ProofTheories.IntuitionisticPropositionalLogic.GD ProofTheories.IntuitionisticPropositionalLogic.AX ProofTheories.IntuitionisticPropositionalLogic.minAX ProofTheories.IntuitionisticPropositionalLogic.ipAX.
 
 Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_fwSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC.
 
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem complete_intuitionistic_Kripke_all:
-  strongly_complete ProofTheories.IntuitionisticPropositionalLogic.G KripkeSemantics.SM
+  strongly_complete ProofTheories.IntuitionisticPropositionalLogic.GD KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
 Proof.
   apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).
@@ -148,14 +149,14 @@ End Intuitionistic_Completeness.
 
 Section DeMorgan_Completeness.
 
-Existing Instances ProofTheories.DeMorganPropositionalLogic.G ProofTheories.DeMorganPropositionalLogic.AX ProofTheories.DeMorganPropositionalLogic.minAX ProofTheories.DeMorganPropositionalLogic.ipG  ProofTheories.DeMorganPropositionalLogic.dmpG.
+Existing Instances ProofTheories.DeMorganPropositionalLogic.GP ProofTheories.DeMorganPropositionalLogic.GD ProofTheories.DeMorganPropositionalLogic.AX ProofTheories.DeMorganPropositionalLogic.minAX ProofTheories.DeMorganPropositionalLogic.ipAX ProofTheories.DeMorganPropositionalLogic.dmpAX.
 
 Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_fwSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC.
 
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem complete_DeMorgan_Kripke_branch_join:
-  strongly_complete ProofTheories.DeMorganPropositionalLogic.G KripkeSemantics.SM
+  strongly_complete ProofTheories.DeMorganPropositionalLogic.GD KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_BranchJoin)).
 Proof.
   apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).
@@ -172,14 +173,14 @@ End DeMorgan_Completeness.
 
 Section GodelDummett_Completeness.
 
-Existing Instances ProofTheories.GodelDummettPropositionalLogic.G ProofTheories.GodelDummettPropositionalLogic.AX ProofTheories.GodelDummettPropositionalLogic.minAX ProofTheories.GodelDummettPropositionalLogic.ipG  ProofTheories.GodelDummettPropositionalLogic.gdpG.
-
+Existing Instances ProofTheories.GodelDummettPropositionalLogic.GP ProofTheories.GodelDummettPropositionalLogic.GD ProofTheories.GodelDummettPropositionalLogic.AX ProofTheories.GodelDummettPropositionalLogic.minAX ProofTheories.GodelDummettPropositionalLogic.ipAX ProofTheories.GodelDummettPropositionalLogic.gdpAX.
+  
 Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_fwSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC.
 
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem complete_GodelDummett_Kripke_no_branch:
-  strongly_complete ProofTheories.GodelDummettPropositionalLogic.G KripkeSemantics.SM
+  strongly_complete ProofTheories.GodelDummettPropositionalLogic.GD KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_NoBranch)).
 Proof.
   apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).
@@ -198,12 +199,12 @@ Section Classical_Completeness.
 
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 
-Existing Instances ProofTheories.ClassicalPropositionalLogic.G ProofTheories.ClassicalPropositionalLogic.AX ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipG  ProofTheories.ClassicalPropositionalLogic.cpG.
+Existing Instances ProofTheories.ClassicalPropositionalLogic.GP ProofTheories.ClassicalPropositionalLogic.GD ProofTheories.ClassicalPropositionalLogic.AX ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipAX ProofTheories.ClassicalPropositionalLogic.cpAX.
 
 Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_fwSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC Axiomatization2SequentCalculus_cpSC.
 
 Theorem complete_Classical_Kripke_identity:
-  strongly_complete ProofTheories.ClassicalPropositionalLogic.G KripkeSemantics.SM
+  strongly_complete ProofTheories.ClassicalPropositionalLogic.GD KripkeSemantics.SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder + Kmodel_Identity)).
 Proof.
   apply (@general_completeness _ _ _ _ _ _ _ _ cP rel LIN_CD TRUTH).

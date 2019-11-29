@@ -33,13 +33,14 @@ Section Completeness.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
-        {bSC: BasicSequentCalculus L Gamma}
-        {mpSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {cpSC: ClassicalPropositionalSequentCalculus L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
+        {GammaP: Provable L}
+        {GammaD: Derivable L}
+        {bSC: BasicSequentCalculus L GammaD}
+        {mpSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {cpSC: ClassicalPropositionalSequentCalculus L GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
@@ -56,7 +57,7 @@ Hypothesis LIN_CONSI: Lindenbaum_constructable consistent cP.
 Hypothesis TRUTH: forall x: expr, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x).
 Hypothesis CANON: kMC M.
 
-Lemma general_completeness: strongly_complete Gamma SM (KripkeModelClass _ kMC).
+Lemma general_completeness: strongly_complete GammaD SM (KripkeModelClass _ kMC).
 Proof.
   intros.
   assert (forall Phi, consistent Phi -> satisfiable (KripkeModelClass _ kMC) Phi).

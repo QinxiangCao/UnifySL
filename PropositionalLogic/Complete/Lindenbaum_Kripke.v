@@ -24,14 +24,15 @@ Section Lindenbaum_Kripke.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {fwSC: FiniteWitnessedSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {GammaP: Provable L}
+        {GammaD: Derivable L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {fwSC: FiniteWitnessedSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}.
 
 Lemma Lindenbaum_for_orp_witnessed: forall P,
   Lindenbaum_preserves P ->
@@ -65,7 +66,9 @@ Proof.
   apply DC; auto.
 Qed.
 
-Lemma Lindenbaum_cannot_derive_ensures_orp_witnessed {AX: NormalAxiomatization L Gamma}: forall x, Lindenbaum_ensures (cannot_derive x) orp_witnessed.
+Lemma Lindenbaum_cannot_derive_ensures_orp_witnessed
+      {AX: NormalAxiomatization L GammaP GammaD}:
+  forall x, Lindenbaum_ensures (cannot_derive x) orp_witnessed.
 Proof.
   intros.
   apply Lindenbaum_for_orp_witnessed.
@@ -86,7 +89,9 @@ Proof.
   apply H; auto.
 Qed.
 
-Lemma Lindenbaum_cannot_derive_ensures_consistent {AX: NormalAxiomatization L Gamma}: forall x, Lindenbaum_ensures (cannot_derive x) consistent.
+Lemma Lindenbaum_cannot_derive_ensures_consistent
+      {AX: NormalAxiomatization L GammaP GammaD}:
+  forall x, Lindenbaum_ensures (cannot_derive x) consistent.
 Proof.
   intros.
   apply Lindenbaum_for_consistent.

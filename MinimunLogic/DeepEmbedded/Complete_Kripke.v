@@ -37,13 +37,14 @@ Context (Var: Type) (CV: Countable Var).
 Instance L: Language := MinimunLanguage.L Var.
 Instance minL: MinimunLanguage L := MinimunLanguage.minL Var.
 
-Instance G: ProofTheory L := MinimunLogic.G Var.
-Instance AX: NormalAxiomatization L G := MinimunLogic.AX Var.
-Instance minAX: MinimunAxiomatization L G := MinimunLogic.minAX Var.
-Instance SC: NormalSequentCalculus L G := MinimunLogic.SC Var.
-Instance bSC: BasicSequentCalculus L G := MinimunLogic.bSC Var.
-Instance fwSC: FiniteWitnessedSequentCalculus L G := MinimunLogic.fwSC Var.
-Instance minSC: MinimunSequentCalculus L G := MinimunLogic.minSC Var.
+Instance GP: Provable L := MinimunLogic.GP Var.
+Instance GD: Derivable L := MinimunLogic.GD Var.
+Instance AX: NormalAxiomatization L GP GD := MinimunLogic.AX Var.
+Instance minAX: MinimunAxiomatization L GP := MinimunLogic.minAX Var.
+Instance SC: NormalSequentCalculus L GP GD := MinimunLogic.SC Var.
+Instance bSC: BasicSequentCalculus L GD := MinimunLogic.bSC Var.
+Instance fwSC: FiniteWitnessedSequentCalculus L GD := MinimunLogic.fwSC Var.
+Instance minSC: MinimunSequentCalculus L GD := MinimunLogic.minSC Var.
 Instance Kripke_MD: Model := KripkeSemantics.MD Var.
 Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
 Instance Kripke_R (M: Kmodel): Relation (Kworlds M) := KripkeSemantics.R Var M.
@@ -98,7 +99,7 @@ Qed.
 Import Logic.MinimunLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem complete_MinimunLogic_Kripke_all:
-  strongly_complete G Kripke_SM
+  strongly_complete GD Kripke_SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
 Proof.
   apply (general_completeness cP rel LIN_CD TRUTH).

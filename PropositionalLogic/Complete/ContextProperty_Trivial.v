@@ -11,6 +11,7 @@ Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Trivial.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
 Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
@@ -28,7 +29,7 @@ Section ContextProperties.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
@@ -39,7 +40,7 @@ Lemma classical_derivable_spec: forall (Phi: context) (x: expr),
 Proof.
   intros.
   unfold consistent.
-  AddAxiomatization Gamma.
+  AddAxiomatization.
   fold (@consistent L Gamma (Phi;; ~~ x)).
   rewrite <- (double_negp x) at 1.
   unfold negp at 1.

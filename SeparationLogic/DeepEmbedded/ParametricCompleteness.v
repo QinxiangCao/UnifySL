@@ -62,7 +62,7 @@ Context {Sigma: SeparationEmpLanguage.PropositionalVariables}
 
 Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sL SeparationEmpLanguage.s'L.
 
-Existing Instances ParametricSeparationLogic.G ParametricSeparationLogic.AX ParametricSeparationLogic.minAX  ParametricSeparationLogic.ipG ParametricSeparationLogic.sG ParametricSeparationLogic.eG ParametricSeparationLogic.ParG.
+Existing Instances ParametricSeparationLogic.GP ParametricSeparationLogic.GD ParametricSeparationLogic.AX ParametricSeparationLogic.minAX  ParametricSeparationLogic.ipAX ParametricSeparationLogic.sAX ParametricSeparationLogic.EmpsAX ParametricSeparationLogic.ParAX.
 
 Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_fwSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC Axiomatization2SequentCalculus_cpSC.
 
@@ -172,7 +172,7 @@ Context (SAP: SA_Parameter).
 Hypothesis PC: Parameter_coincide SLP SAP.
 
 Theorem ParametricCompleteness:
-  strongly_complete (ParametricSeparationLogic.G SLP) FlatSemantics.SM
+  strongly_complete (ParametricSeparationLogic.GD SLP) FlatSemantics.SM
     (KripkeModelClass _
       (FlatSemantics.Kmodel_Monotonic +
        FlatSemantics.Kmodel_PreOrder +

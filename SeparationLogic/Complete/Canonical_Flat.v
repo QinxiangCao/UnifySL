@@ -46,15 +46,16 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {AX: NormalAxiomatization L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {sGamma: SeparationLogic L Gamma}
+        {GammaP: Provable L}
+        {GammaD: Derivable L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {AX: NormalAxiomatization L GammaP GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}
+        {sAX: SeparationLogic L GammaP}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
@@ -162,7 +163,7 @@ Proof.
 Qed.
 
 Lemma garbage_collected_canonical_increaing
-      {gcsGamma: GarbageCollectSeparationLogic L Gamma}
+      {gcsAX: GarbageCollectSeparationLogic L GammaP}
       (AL_DC: at_least derivable_closed cP):
   IncreasingSeparationAlgebra (Kworlds M).
 Proof.
@@ -184,7 +185,7 @@ Proof.
 Qed.
 
 Lemma ext_canonical_residual
-      {ExtSGamma: ExtSeparationLogic L Gamma}
+      {ExtsAX: ExtSeparationLogic L GammaP}
       (AL_DC: at_least derivable_closed cP)
       (LIN_SL: forall (Phi: context) (Psi: sig cP), Lindenbaum_constructable (context_sepcon_included_l Phi (proj1_sig Psi)) cP):
   ResidualSeparationAlgebra (Kworlds M).
@@ -211,7 +212,7 @@ Proof.
 Qed.
 
 Context {s'L: SeparationEmpLanguage L}
-        {EmpsGamma: EmpSeparationLogic L Gamma}
+        {EmpsAX: EmpSeparationLogic L GammaP}
         {feSM: EmpSemantics L MD M SM}.
 
 Instance unitSA
@@ -248,7 +249,7 @@ Proof.
 Qed.
 
 Lemma nonsplit_canonical_split_smaller
-      {nssGamma: NonsplitEmpSeparationLogic L Gamma}
+      {nssAX: NonsplitEmpSeparationLogic L GammaP}
       (AL_DC: at_least derivable_closed cP)
       (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   IncreasingSplitSmallerSeparationAlgebra (Kworlds M).
@@ -273,7 +274,7 @@ Proof.
 Qed.
 
 Lemma dup_canonical_incr_join
-      {desGamma: DupEmpSeparationLogic L Gamma}
+      {desAX: DupEmpSeparationLogic L GammaP}
       (AL_DC: at_least derivable_closed cP)
       (TRUTH: forall x, forall m Phi, rel m Phi -> (KRIPKE: M, m |= x <-> proj1_sig Phi x)):
   IncreasingJoinSelfSeparationAlgebra (Kworlds M).

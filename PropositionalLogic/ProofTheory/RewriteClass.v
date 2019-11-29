@@ -6,6 +6,7 @@ Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 
@@ -18,13 +19,13 @@ Section RewriteClass1.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}.
 
 Instance andp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) andp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable.
@@ -41,7 +42,7 @@ Qed.
 
 Instance orp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) orp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H, H0 |- *.
@@ -54,7 +55,7 @@ Qed.
 
 Instance negp_proper_impp: Proper ((fun x y => |-- impp x y) --> (fun x y => |-- impp x y)) negp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   unfold negp.
   apply impp_proper_impp; auto.
@@ -66,7 +67,7 @@ Qed.
 
 Instance provable_iffp_equiv: Equivalence (fun x y => |-- x <--> y).
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   constructor.
   + hnf; intros.
     rewrite provable_derivable.
@@ -87,7 +88,7 @@ Qed.
 
 Instance provable_proper_iffp : Proper ((fun x y => |-- x <--> y) ==> iff) provable.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   intros.
   hnf; intros.
   rewrite provable_derivable in H.
@@ -101,7 +102,7 @@ Qed.
 
 Instance impp_proper_iffp : Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) impp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H.
@@ -122,7 +123,7 @@ Qed.
 
 Instance andp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) andp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H.
@@ -143,7 +144,7 @@ Qed.
 
 Instance orp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) orp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   rewrite provable_derivable in H.
@@ -164,7 +165,7 @@ Qed.
 
 Instance iffp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) iffp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   hnf; intros y1 y2 ?.
   unfold iffp.
@@ -174,7 +175,7 @@ Qed.
 
 Instance negp_proper_iffp: Proper ((fun x y => |-- x <--> y) ==> (fun x y => |-- x <--> y)) negp.
 Proof.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   hnf; intros x1 x2 ?.
   unfold negp.
   apply impp_proper_iffp; auto.
@@ -188,11 +189,12 @@ Section RewriteClass2.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
+        {GammaP: Provable L}
+        {GammaD: Derivable L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}.
 
 Instance derivable_proper_iffp : Proper (eq ==> (fun x y => |-- x <--> y) ==> iff) derivable.
 Proof.

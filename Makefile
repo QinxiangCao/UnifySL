@@ -17,7 +17,7 @@ lib_FILES = \
   Coqlib.v Ensembles_ext.v EnsemblesProperties.v Relation_ext.v Equivalence_ext.v List_Func_ext.v \
   Bijection.v Countable.v NatChoice.v StrongInduction.v \
   Bisimulation.v RelationPairs_ext.v \
-  SublistT.v \
+  register_typeclass.v SublistT.v \
   Stream/SigStream.v Stream/StreamFunctions.v Stream/StreamSplit.v 
 
 GeneralLogic_ProofTheory_FILES = \
@@ -45,7 +45,7 @@ GeneralLogic_FILES = \
 
 MinimunLogic_ProofTheory_FILES = \
   Minimun.v ProofTheoryPatterns.v \
-  RewriteClass.v TheoryOfSequentCalculus.v
+  RewriteClass.v TheoryOfSequentCalculus.v ExtensionTactic.v
 
 MinimunLogic_Semantics_FILES = \
   Kripke.v Trivial.v SemanticEquiv.v
