@@ -78,7 +78,7 @@ Proof.
       inversion H5; subst.
       apply (H0 y); auto.
   + assert (KRIPKE: s |= P1 && ~~ B).
-    Focus 1. {
+    {
       rewrite sat_andp; split; auto.
       unfold negp; rewrite sat_impp.
       intros.
@@ -86,7 +86,7 @@ Proof.
       pose proof eval_bool_stable b _ _ H6.
       simpl in H7, H8.
       rewrite <- H8 in H7; exfalso; auto.
-    } Unfocus.
+    }
     inversion H4; subst.
     - apply lift_relation_forward in H5; subst; auto.
     - eapply sat_mono in H6; [| eassumption].
@@ -194,7 +194,7 @@ Proof.
     eapply sat_mono in H6; [| eassumption].
     apply (H0 y); auto.
   + assert (KRIPKE: s |= P1 && ~~ B).
-    Focus 1. {
+    {
       rewrite sat_andp; split; auto.
       unfold negp; rewrite sat_impp.
       intros.
@@ -202,7 +202,7 @@ Proof.
       pose proof eval_bool_stable b _ _ H6.
       simpl in H7, H8.
       tauto.
-    } Unfocus.
+    }
     inversion H4; subst.
     inversion H5; subst.
     eapply sat_mono in H6; [| eassumption].
@@ -225,7 +225,7 @@ Proof.
   apply access_Swhile in H2.
   inversion H2; subst; clear H2; auto.
 
-  Focus 1. {
+  {
   induction H3.
   + inversion H3; subst.
     eapply sat_mono; [eassumption |].
@@ -256,8 +256,8 @@ Proof.
       specialize (H0 _ _ _ H6 H4).
       rewrite sat_andp in H0.
       tauto.
-  } Unfocus.
-  Focus 1. {
+  }
+  {
     destruct H3; subst.
     inversion H2; subst; clear H2.
     specialize (WF (D (s1 0))).
@@ -279,7 +279,7 @@ Proof.
       rewrite sat_andp in H0; destruct H0.
       rewrite H_LE in H9; simpl in H9.
       exact (H2 _ H9 (S n) H0 eq_refl).
-  } Unfocus.
+  }
 Qed.
 
 End total_soundness.

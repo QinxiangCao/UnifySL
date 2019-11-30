@@ -99,13 +99,13 @@ Theorem complete_Classical_Trivial:
 Proof.
   assert (strongly_complete ProofTheories.ClassicalPropositionalLogic.GD TrivialSemantics.SM
            (KripkeModelClass _ (fun _ => True))).
-  Focus 2. {
+  2: {
     hnf; intros.
     apply (H Phi x).
     hnf; intros.
     apply H0; auto.
     hnf; auto.
-  } Unfocus.
+  }
   apply (@general_completeness PropositionalLanguage.L _ _ ProofTheories.ClassicalPropositionalLogic.GD _ _ _ _
            _ _ _ TrivialSemantics.SM _ _ _ _ rel LIN_CONSI TRUTH); auto.
 Qed.

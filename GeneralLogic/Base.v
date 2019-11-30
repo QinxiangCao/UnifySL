@@ -77,6 +77,11 @@ Definition weakly_complete {L: Language} (Gamma: Provable L) {MD: Model} (SM: Se
 Definition strongly_complete {L: Language} (Gamma: Derivable L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
   forall (Phi: context) (x: expr), consequence MC Phi x -> derivable Phi x.
 
+Declare Scope logic_base.
+Declare Scope syntax.
+Declare Scope kripke_model.
+Declare Scope kripke_model_class.
+
 Notation "m  |=  x" := (satisfies m x) (at level 70, no associativity) : logic_base.
 Notation "|--  x" := (provable x) (at level 71, no associativity) : logic_base.
 Notation "Phi  |--  x" := (derivable Phi x) (at level 70, no associativity) : logic_base.

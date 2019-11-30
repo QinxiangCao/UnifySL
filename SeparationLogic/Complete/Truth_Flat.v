@@ -90,14 +90,14 @@ Proof.
   + apply derivable_assum in H0.
     assert (Included _ (context_sepcon (Union _ empty_context (Singleton _ x))
              (Union _ empty_context (Singleton _ y))) (proj1_sig Phi)).
-    Focus 1. {
+    {
       hnf; intros z ?.
       destruct H1 as [x0 [y0 [? [? ?]]]].
       rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
       rewrite deduction_theorem, <- provable_derivable in H2, H3.
       subst z; rewrite <- H2, <- H3.
       auto.
-     } Unfocus.
+    }
     apply LIN_SL in H1.
     destruct H1 as [Phi1 [? ?]].
     apply LIN_SR in H2.

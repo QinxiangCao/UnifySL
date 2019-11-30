@@ -61,7 +61,7 @@ Lemma general_completeness: strongly_complete GammaD SM (KripkeModelClass _ kMC)
 Proof.
   intros.
   assert (forall Phi, consistent Phi -> satisfiable (KripkeModelClass _ kMC) Phi).
-  Focus 2. {
+  2: {
     clear M CANON rel TRUTH.
     hnf; intros.
     rewrite classical_derivable_spec.
@@ -77,7 +77,7 @@ Proof.
     specialize (H0 ltac:(constructor; auto) H1).
     unfold negp in H2; rewrite sat_impp, sat_falsep in H2.
     auto.
-  } Unfocus.
+  }
   intros.
   apply LIN_CONSI in H.
   destruct H as [Psi ?].

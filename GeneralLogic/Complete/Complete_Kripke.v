@@ -38,22 +38,22 @@ Lemma general_completeness: strongly_complete Gamma SM (KripkeModelClass _ kMC).
 Proof.
   intros.
   assert (forall Phi x, ~ Phi |-- x -> ~ consequence (KripkeModelClass _ kMC) Phi x).
-  Focus 2. {
+  2: {
     hnf; intros.
     apply Classical_Prop.NNPP; intro; revert H0.
     apply H; auto.
-  } Unfocus.
+  }
 
   intros.
   destruct (LIN_CD x _ H) as [Psi [? ?]].
   destruct (su_bij _ _ rel Psi) as [n HH].
   specialize (fun x => TRUTH x _ _ HH); clear HH.
   assert ((forall x, Phi x -> KRIPKE: M, n |= x) /\ ~ KRIPKE: M, n |= x).
-  Focus 2. {
+  2: {
     intro.
     specialize (H3 (KRIPKE: M, n) ltac:(constructor; apply CANON)).
     tauto.
-  } Unfocus.
+  }
 
   split.
   + intros.

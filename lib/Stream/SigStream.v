@@ -83,12 +83,12 @@ Lemma is_n_stream_pf {A: Type}: forall (h: stream A) (n m: nat),
 Proof.
   intros ?.
   assert (forall n m, n < m -> is_n_stream m h -> is_n_stream n h -> False).
-  Focus 1. {
+  {
     intros.
     destruct H0, H1.
     specialize (H2 n H).
     congruence.
-  } Unfocus.
+  }
   intros; destruct (lt_eq_lt_dec n m) as [[?H | ?H] | ?H].
   + specialize (H _ _ H2 H0 H1); contradiction.
   + auto.

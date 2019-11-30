@@ -16,6 +16,7 @@ Require Import Logic.SeparationLogic.Model.OrderedSA.
 Require Import Logic.SeparationLogic.Semantics.WeakSemantics.
 Require Logic.SeparationLogic.Semantics.FlatSemantics.
 Require Import Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
+Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -30,6 +31,7 @@ Record frame: Type := {
   underlying_join: Join underlying_set
 }.
 
+Declare Scope TheKripkeSemantics.
 Infix "<=" := (underlying_relation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.
@@ -143,8 +145,6 @@ Definition Kmodel_IncreasingSplitSmaller: Kmodel -> Prop := fun M =>
 Definition Kmodel_IncreasingJoinSelf: Kmodel -> Prop := fun M =>
   IncreasingJoinSelfSeparationAlgebra (Kworlds M).
 *)
-
-Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 
 Record Parametric_Kmodel_Class (PAR: SA_Parameter) (M: Kmodel): Prop := {
   SA_ID: ID = true -> IdentityKripkeIntuitionisticModel (Kworlds M);

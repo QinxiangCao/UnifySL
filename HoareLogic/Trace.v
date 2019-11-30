@@ -258,9 +258,9 @@ Axiom singleton_trace_forward_test: forall {state: Type} {state_R: Relation stat
 
 End FORWARD_TRACE.
 
-Module ForwardTrace (F: FORWARD) <: FORWARD_TRACE with Module F := F.
+Module ForwardTrace (F': FORWARD) <: FORWARD_TRACE with Module F := F'.
 
-Module F := F.
+Module F := F'.
 Export F.
 
 Definition forward_trace {state: Type} {state_R: Relation state}: traces state :=

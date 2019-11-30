@@ -19,6 +19,8 @@ Class HoareTriple (L: Language) (P: ProgrammingLanguage) (HLan: Language): Type 
 
 Definition triple_valid {L: Language} {P: ProgrammingLanguage} {HLan: Language} {TI: Semantics HLan unit_MD} (t: @expr HLan): Prop := @satisfies _ _ TI tt t.
 
+Declare Scope hoare_logic.
+
 Notation "|==  x" := (triple_valid x) (at level 71, no associativity) : hoare_logic.
 Notation "{{ P }} c {{ Q }}" := (triple P c Q) (at level 80, no associativity) : hoare_logic.
 

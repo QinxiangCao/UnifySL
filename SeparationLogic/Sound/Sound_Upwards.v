@@ -99,14 +99,14 @@ Proof.
   intros.
   split; intro.
   + assert (ASSU: forall m1 m2 m, join m1 m2 m -> KRIPKE: M, m1 |= x -> KRIPKE: M, m2 |= y -> KRIPKE: M, m |= z).
-    Focus 1. {
+    {
       intros.
       specialize (H m).
       rewrite sat_impp in H.
       apply (H m); [reflexivity |].
       rewrite sat_sepcon.
       exists m1, m2; auto.
-    } Unfocus.
+    }
     clear H.
     intros.
     rewrite sat_impp; intros.
@@ -114,14 +114,14 @@ Proof.
     apply (ASSU m0 m1 m2); auto.
     eapply sat_mono; eauto.
   + assert (ASSU: forall m0 m1 m2 m, m <= m0 -> join m0 m1 m2 -> KRIPKE: M, m |= x -> KRIPKE: M, m1 |= y -> KRIPKE: M, m2 |= z).
-    Focus 1. {
+    {
       intros.
       specialize (H m).
       rewrite sat_impp in H.
       revert m0 m1 m2 H0 H1 H3.
       rewrite <- sat_wand.
       apply (H m); [reflexivity | auto].
-    } Unfocus.
+    }
     intros.
     rewrite sat_impp; intros.
     rewrite sat_sepcon in H1.
@@ -138,19 +138,19 @@ Lemma sound_sepcon_mono:
 Proof.
   intros.
   assert (ASSUx: forall m, KRIPKE: M, m |= x1 -> KRIPKE: M, m |= x2).
-  Focus 1. {
+  {
     intros.
     specialize (H m0).
     rewrite sat_impp in H.
     apply (H m0); [reflexivity | auto].
-  } Unfocus.
+  }
   assert (ASSUy: forall m, KRIPKE: M, m |= y1 -> KRIPKE: M, m |= y2).
-  Focus 1. {
+  {
     intros.
     specialize (H0 m0).
     rewrite sat_impp in H0.
     apply (H0 m0); [reflexivity | auto].
-  } Unfocus.
+  }
   rewrite sat_impp; intros.
   rewrite sat_sepcon in H2 |- *.
   destruct H2 as [m1 [m2 [? [? ?]]]].

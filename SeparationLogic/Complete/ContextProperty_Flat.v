@@ -154,7 +154,7 @@ Proof.
             context_sepcon Phi1' Phi2 z2 ->
             ~ Psi z2 ->
             False) as HH.
-  Focus 2. {
+  2: {
     clear - HH; unfold Included, Ensembles.In.
     apply NNPP; intro.
     apply not_or_and in H; destruct H.
@@ -163,7 +163,7 @@ Proof.
     destruct H as [z1 ?], H0 as [z2 ?].
     specialize (HH z1 z2).
     tauto.
-  } Unfocus.
+  }
   intros.
   destruct H0 as [x1 [y1 [? [? ?]]]], H2 as [x2 [y2 [? [? ?]]]].
   subst z1 z2.

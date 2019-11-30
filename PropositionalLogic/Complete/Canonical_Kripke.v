@@ -149,12 +149,12 @@ Proof.
   erewrite !H_R in H, H0 by eauto.
   assert (exists Psi: sig cP, Included _ (proj1_sig Psi1) (proj1_sig Psi) /\
                               Included _ (proj1_sig Psi2) (proj1_sig Psi)).
-  Focus 2. {
+  2: {
     destruct H4 as [Psi [? ?]].
     destruct (su_bij _ _ rel Psi) as [m ?].
     exists m.
     erewrite !H_R by eauto; auto.
-  } Unfocus.
+  }
   clear rel H_R m1 m2 n H1 H2 H3.
 
   assert (~ (Union _ (proj1_sig Psi1) (proj1_sig Psi2)) |-- FF).
