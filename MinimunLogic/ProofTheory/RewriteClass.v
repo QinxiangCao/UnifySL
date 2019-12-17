@@ -17,6 +17,7 @@ Context {L: Language}
         {Gamma: ProofTheory L}.
 
 Instance provable_impp_rewrite: RewriteRelation (fun x y => |-- x --> y).
+Qed.
 
 Instance provable_impp_refl {minAX: MinimunAxiomatization L Gamma}: Reflexive (fun x y => |-- x --> y).
 Proof.
