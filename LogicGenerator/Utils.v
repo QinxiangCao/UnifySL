@@ -16,6 +16,13 @@ Notation "[ x ; y ; .. ; z ]" :=
   (cons (BuildName x) (cons (BuildName y) .. (cons (BuildName z) nil) ..)).
 End NameListNotations.
 
+Ltac in_name_list n l :=
+  match l with
+  | nil => constr:(false)
+  | cons (BuildName n) _ => constr:(true)
+  | cons _ ?l' => in_name_list n l'
+  end.
+  
 Tactic Notation "dolist" tactic0(f) constr(names) :=
   let rec dolist' ns :=
       match ns with

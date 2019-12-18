@@ -29,6 +29,20 @@ Section Transparent.
     ].
 End Transparent.
 
+Module General.
+  Section Basics.
+    Context {L : Base.Language}
+            {Gamma : ProofTheory L}.
+    Definition types :=
+      [ expr
+      ].
+    Definition judgements :=
+      [ provable
+      (*; derivable*)
+      ].
+  End Basics.
+End General.
+
 Module Minimum.
   Section Syntax.
     Context {L : Base.Language}

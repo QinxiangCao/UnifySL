@@ -35,7 +35,7 @@ Context {L: Language}
         {gcGamma: GarbageCollectSeparationLogic L Gamma}
         .
 
-Inductive PrintType := Par | Axm | Def | Emp.
+Inductive PrintType := IPar (Inline_list: list Name) | Par | Axm | Def | Emp.
 
 Ltac print prt name :=
   match name with
@@ -43,6 +43,12 @@ Ltac print prt name :=
     match type of n with
     | ?T =>
       match prt with
+      | IPar ?l =>
+        let should_inline := in_name_list n l in
+        match should_inline with
+        | true => idtac "  Parameter Inline" n ":" T "."
+        | false => idtac "  Parameter" n ":" T "."
+        end
       | Par => idtac "  Parameter" n ":" T "."
       | Axm => idtac "  Axiom" n ":" T "."
       | Def => idtac "  Definition" n ":" T ":=" n "."
@@ -62,6 +68,7 @@ Ltac print_unfold_name name :=
 Set Printing Width 1000.
 
 Goal False.
+  let transparent_defs := eval unfold Config.transparent_defs in Config.transparent_defs in
   let minimum := eval cbv in Config.minimum in
   let propositional_intuitionistic := eval cbv in Config.propositional_intuitionistic in
   let propositional_classical := eval cbv in Config.propositional_classical in
@@ -86,21 +93,22 @@ Goal False.
   idtac "Require Import Coq.Lists.List.";
   newline;
   idtac "Module Type LanguageSig.";
-  idtac "  Parameter expr : Type.";
+  dolist (print (IPar transparent_defs)) Config.General.types;
+  dolist (print (IPar transparent_defs)) Config.General.judgements;
   when minimum: (
-       dolist (print Par) Config.Minimum.connectives;
+       dolist (print (IPar transparent_defs)) Config.Minimum.connectives;
        idtac "  Definition multi_imp xs y := fold_right impp y xs."
   );
   when propositional_intuitionistic: (
-       dolist (print Axm) Config.Propositional.connectives;
+       dolist (print (IPar transparent_defs)) Config.Propositional.connectives;
        idtac "  Definition negp x := impp x falsep.";
        idtac "  Definition iffp x y := andp (impp x y) (impp y x).";
        idtac "  Definition truep := impp falsep falsep."
   );
-  when separation:
-       dolist (print Axm) Config.Separation.connectives;
-  idtac "  Parameter provable : expr -> Prop.";
-  dolist_when (print Par) basic_rules;
+  when separation: (
+       dolist (print Axm) Config.Separation.connectives
+  );
+  dolist_when (print Axm) basic_rules;
   idtac "End LanguageSig.";
   newline;
 
