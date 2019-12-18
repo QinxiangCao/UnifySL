@@ -90,7 +90,8 @@ PropositionalLogic_Complete_FILES = \
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v ProofTheories.v \
   KripkeSemantics.v TrivialSemantics.v \
-  Soundness.v Complete_Kripke.v Complete_Classical_Trivial.v
+  Soundness.v Complete_Kripke.v Complete_Classical_Trivial.v \
+  Deep.v Solver.v
 
 PropositionalLogic_ShallowEmbedded_FILES = \
   PredicatePropositionalLogic.v \

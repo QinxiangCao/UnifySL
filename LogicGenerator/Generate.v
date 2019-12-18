@@ -83,6 +83,8 @@ Goal False.
     ; (separation, Config.Separation.separation_derived_rules)
     ] in
 
+  idtac "Require Import Coq.Lists.List.";
+  newline;
   idtac "Module Type LanguageSig.";
   idtac "  Parameter expr : Type.";
   when minimum: (
@@ -102,33 +104,8 @@ Goal False.
   idtac "End LanguageSig.";
   newline;
 
-  idtac "Module Names <: LanguageSig.";
-  print Emp (BuildName expr);
-  when minimum: (
-       dolist (print Emp) Config.Minimum.connectives;
-       idtac "  Definition multi_imp xs y := fold_right impp y xs."
-  );
-  when propositional_intuitionistic: (
-       dolist (print Emp) Config.Propositional.connectives;
-       idtac "  Definition negp x := impp x falsep.";
-       idtac "  Definition iffp x y := andp (impp x y) (impp y x).";
-       idtac "  Definition truep := impp falsep falsep."
-  );
-  when separation:
-       dolist (print Emp) Config.Separation.connectives;
-  print Emp (BuildName provable);
-  dolist_when (print Emp) basic_rules;
-  idtac "End Names.";
-  newline;
-
-  idtac "Module NamesNotation.";
+  idtac "Module Type LogicTheoremSig (Names: LanguageSig).";
   idtac "  Import Names.";
-  dolist print_unfold_name Config.transparent_defs;
-  idtac "End NamesNotation.";
-  newline;
-
-  idtac "Module Type LogicTheoremSig.";
-  idtac "  Import Names NamesNotation.";
   dolist_when (print Axm) derived_rules;
   idtac "End LogicTheoremSig.";
   newline;
@@ -150,7 +127,7 @@ Goal False.
   );
 
 
-  idtac "Module MakeInstances.";
+  idtac "Module MakeInstances (Names: LanguageSig).";
   idtac "  Import Names.";
   idtac "  Instance L : Language := Build_Language expr.";
   when minimum: (
@@ -174,16 +151,17 @@ Goal False.
   idtac "End MakeInstances.";
   newline;
 
-  idtac "Module LogicTheorem <: LogicTheoremSig.";
-  idtac "  Import Names NamesNotation.";
+  idtac "Module LogicTheorem (Names: LanguageSig) <: LogicTheoremSig Names.";
+  idtac "  Import Names.";
+  idtac "  Module Ins := MakeInstances Names.";
+  idtac "  Import Ins.";
   dolist_when (print Def) derived_rules;
   idtac "End LogicTheorem.";
   newline;
 
   idtac "Require Logic.PropositionalLogic.DeepEmbedded.Solver.";
-  idtac "Module IPSolver.";
+  idtac "Module IPSolver (Names: LanguageSig).";
   idtac "  Import Names.";
-  idtac "  Import NamesNotation.";
   idtac "  Ltac ip_solve :=";
   idtac "    change expr with Base.expr;";
   idtac "    change provable with Base.provable;";

@@ -4,10 +4,13 @@ Module NaiveLang.
   Definition expr := (nat -> Z) -> Prop.
 
   Definition impp (e1 e2 : expr) : expr := fun st => e1 st -> e2 st.
+  Definition multi_imp xs y := fold_right impp y xs.
   Definition andp (e1 e2 : expr) : expr := fun st => e1 st /\ e2 st.
   Definition orp  (e1 e2 : expr) : expr := fun st => e1 st \/ e2 st.
   Definition falsep : expr := fun st => False.
-  Definition iffp (e1 e2 : expr) : expr := andp (impp e1 e2) (impp e2 e1).
+  Definition negp x := impp x falsep.
+  Definition iffp x y := andp (impp x y) (impp y x).
+  Definition truep := impp falsep falsep.
   Parameter sepcon : expr -> expr -> expr.
   Parameter wand : expr -> expr -> expr.
 
@@ -53,3 +56,9 @@ Module NaiveLang.
   Axiom wand_sepcon_adjoint: forall x y z,
       provable (impp (sepcon x y) z) <-> provable (impp x (wand y z)).
 End NaiveLang.
+
+Require Import Generated.
+
+Module T := LogicTheorem NaiveLang.
+Module Solver := IPSolver NaiveLang.
+Print Module T.
