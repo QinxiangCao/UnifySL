@@ -8,7 +8,7 @@ Local Open Scope logic_base.
 Section PropertiesOfSequentCalculus.
 
 Context (L: Language)
-        (Gamma: ProofTheory L).
+        (Gamma: Derivable L).
 
 Definition DerivableRefl: Prop :=
   forall x: expr, empty_context;; x |-- x.
@@ -36,7 +36,7 @@ End PropertiesOfSequentCalculus.
 Section TheoryOfSequentCalculus.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}.
+        {Gamma: Derivable L}.
 
 Lemma DeductionWeaken_DerivableFiniteWitnessed_2_ContextualDerivableFiniteWitnessed:
   DeductionWeaken L Gamma ->

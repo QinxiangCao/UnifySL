@@ -40,15 +40,16 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        {Gamma: ProofTheory L}
-        {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {AX: NormalAxiomatization L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {sGamma: SeparationLogic L Gamma}
+        {GammaP: Provable L}
+        {GammaD: Derivable L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {AX: NormalAxiomatization L GammaP GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}
+        {sAX: SeparationLogic L GammaP}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
@@ -89,14 +90,14 @@ Proof.
   + apply derivable_assum in H0.
     assert (Included _ (context_sepcon (Union _ empty_context (Singleton _ x))
              (Union _ empty_context (Singleton _ y))) (proj1_sig Phi)).
-    Focus 1. {
+    {
       hnf; intros z ?.
       destruct H1 as [x0 [y0 [? [? ?]]]].
       rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
       rewrite deduction_theorem, <- provable_derivable in H2, H3.
       subst z; rewrite <- H2, <- H3.
       auto.
-     } Unfocus.
+    }
     apply LIN_SL in H1.
     destruct H1 as [Phi1 [? ?]].
     apply LIN_SR in H2.
@@ -152,7 +153,7 @@ Proof.
 Qed.
 
 Context {s'L: SeparationEmpLanguage L}
-        {eGamma: EmpSeparationLogic L Gamma}
+        {EmpsAX: EmpSeparationLogic L GammaP}
         {feSM: EmpSemantics L MD M SM}.
 
 Lemma truth_lemma_emp

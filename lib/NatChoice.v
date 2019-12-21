@@ -63,10 +63,10 @@ Lemma nat_stepwise_choice:
 Proof.
   intros.
   assert (forall (l: list A | P l), exists a : A, P (proj1_sig l ++ a :: nil)) as HH; [| clear H].
-  Focus 1. {
+  {
     intros [l ?H].
     apply H; auto.
-  } Unfocus.
+  }
 
   apply choice in HH.
   destruct HH as [f ?].

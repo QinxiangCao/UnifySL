@@ -33,7 +33,8 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        {Gamma: ProofTheory L}.
+        {GammaP: Provable L}
+        {GammaD: Derivable L}.
 
 Definition context_sepcon (Phi Psi: context): context :=
   fun z => exists x y, z = x * y /\ Phi |-- x /\ Psi |-- y.
@@ -44,15 +45,15 @@ Definition context_sepcon_included_l (Phi2 Psi: context): context -> Prop :=
 Definition context_sepcon_included_r (Phi1 Psi: context): context -> Prop :=
   fun Phi2 => Included _ (context_sepcon Phi1 Phi2) Psi.
 
-Context {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {fwSC: FiniteWitnessedSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {AX: NormalAxiomatization L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {sGamma: SeparationLogic L Gamma}.
+Context {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {fwSC: FiniteWitnessedSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {AX: NormalAxiomatization L GammaP GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}
+        {sAX: SeparationLogic L GammaP}.
 
 Lemma context_sepcon_derivable:
   forall (Phi Psi: context) z,
@@ -153,7 +154,7 @@ Proof.
             context_sepcon Phi1' Phi2 z2 ->
             ~ Psi z2 ->
             False) as HH.
-  Focus 2. {
+  2: {
     clear - HH; unfold Included, Ensembles.In.
     apply NNPP; intro.
     apply not_or_and in H; destruct H.
@@ -162,7 +163,7 @@ Proof.
     destruct H as [z1 ?], H0 as [z2 ?].
     specialize (HH z1 z2).
     tauto.
-  } Unfocus.
+  }
   intros.
   destruct H0 as [x1 [y1 [? [? ?]]]], H2 as [x2 [y2 [? [? ?]]]].
   subst z1 z2.

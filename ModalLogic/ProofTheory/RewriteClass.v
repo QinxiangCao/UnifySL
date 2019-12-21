@@ -25,11 +25,10 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {mL: ModalLanguage L}
-        {Gamma: ProofTheory L}
-        {AX: NormalAxiomatization L Gamma}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {KmGamma: SystemK L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}
+        {KmAX: SystemK L Gamma}.
 
 Instance boxp_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) boxp.
 Proof.

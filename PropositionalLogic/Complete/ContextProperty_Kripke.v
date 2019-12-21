@@ -27,7 +27,7 @@ Context {L: Language}
 Definition orp_witnessed: context -> Prop :=
   fun Phi => forall x y, Phi (orp x y) -> Phi x \/ Phi y.
 
-Context {Gamma: ProofTheory L}.
+Context {GammaP: Provable L} {GammaD: Derivable L}.
 
 Definition context_orp (Phi Psi: context): context :=
   fun z => exists x y, z = x || y /\ Phi |-- x /\ Psi |-- y.
@@ -35,12 +35,12 @@ Definition context_orp (Phi Psi: context): context :=
 Definition context_orp_captured (P: context -> Prop): Prop :=
   forall Phi Psi, P (context_orp Phi Psi) -> P Phi \/ P Psi.
 
-Context {SC: NormalSequentCalculus L Gamma}
-        {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
-        {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
-        {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+Context {SC: NormalSequentCalculus L GammaP GammaD}
+        {bSC: BasicSequentCalculus L GammaD}
+        {minSC: MinimunSequentCalculus L GammaD}
+        {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
+        {minAX: MinimunAxiomatization L GammaP}
+        {ipAX: IntuitionisticPropositionalLogic L GammaP}.
 
 Lemma context_orp_mono: forall Phi Psi Phi' Psi',
   Included _ (derivable Phi) (derivable Phi') ->
@@ -157,7 +157,7 @@ Proof.
     - pose proof deduction_orp_intros2 Phi x y H; auto.
 Qed.
 
-Lemma derivable_closed_union_derivable {AX: NormalAxiomatization L Gamma}: forall (Phi Psi: context) (x: expr),
+Lemma derivable_closed_union_derivable {AX: NormalAxiomatization L GammaP GammaD}: forall (Phi Psi: context) (x: expr),
   derivable_closed Psi ->
   Union _ Phi Psi |-- x ->
   exists y, Psi y /\ Phi |-- y --> x.

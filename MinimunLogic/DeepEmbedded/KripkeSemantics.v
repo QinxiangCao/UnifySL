@@ -16,6 +16,7 @@ Record frame: Type := {
   underlying_relation: relation underlying_set
 }.
 
+Declare Scope TheKripkeSemantics.
 Infix "<=" := (underlying_relation _): TheKripkeSemantics.
 
 Local Open Scope TheKripkeSemantics.

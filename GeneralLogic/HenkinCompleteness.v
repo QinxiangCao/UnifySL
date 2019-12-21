@@ -31,21 +31,21 @@ Proof.
   intros.
 
   assert (forall n m, n <= m -> Included _ (LindenbaumChain step init n) (LindenbaumChain step init m)).
-  Focus 1. {
+  {
     clear - H0.
     intros.
     induction H.
     - intros ? ?; auto.
     - intros ? ?.
       apply H0; auto.
-  } Unfocus.
+  }
   clear H0; rename H3 into H0.
       
   rewrite H; intros [l [? ?]].
   unfold LindenbaumConstruction in H3.
 
   assert (exists n, Forall (LindenbaumChain step init n) l).
-  Focus 1. {
+  {
     clear - H3 H0.
     induction H3.
     + exists 0; constructor.
@@ -58,15 +58,15 @@ Proof.
       - revert H1; apply Forall_impl; intros.
         apply (H0 n1); auto.
         apply Max.le_max_l.
-  } Unfocus.
+  }
   clear H3; rename H5 into H3.
 
   assert (forall n, ~ Ps (LindenbaumChain step init n)).
-  Focus 1. {
+  {
     induction n.
     + auto.
     + apply H2; auto.
-  } Unfocus.
+  }
 
   destruct H3 as [n ?].
   specialize (H5 n).

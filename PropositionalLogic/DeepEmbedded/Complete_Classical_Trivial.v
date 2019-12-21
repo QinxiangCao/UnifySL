@@ -46,7 +46,7 @@ Existing Instances PropositionalLanguage.L PropositionalLanguage.minL Propositio
 
 Existing Instances TrivialSemantics.MD TrivialSemantics.SM TrivialSemantics.tminSM TrivialSemantics.tpSM.
 
-Existing Instances ProofTheories.ClassicalPropositionalLogic.G ProofTheories.ClassicalPropositionalLogic.AX ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipG  ProofTheories.ClassicalPropositionalLogic.cpG.
+Existing Instances ProofTheories.ClassicalPropositionalLogic.GP ProofTheories.ClassicalPropositionalLogic.GD ProofTheories.ClassicalPropositionalLogic.AX ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipAX ProofTheories.ClassicalPropositionalLogic.cpAX.
 
 Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_fwSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC Axiomatization2SequentCalculus_cpSC.
 
@@ -95,18 +95,18 @@ Qed.
 Existing Instance kMD.
 
 Theorem complete_Classical_Trivial:
-  strongly_complete ProofTheories.ClassicalPropositionalLogic.G TrivialSemantics.SM (AllModel _).
+  strongly_complete ProofTheories.ClassicalPropositionalLogic.GD TrivialSemantics.SM (AllModel _).
 Proof.
-  assert (strongly_complete ProofTheories.ClassicalPropositionalLogic.G TrivialSemantics.SM
+  assert (strongly_complete ProofTheories.ClassicalPropositionalLogic.GD TrivialSemantics.SM
            (KripkeModelClass _ (fun _ => True))).
-  Focus 2. {
+  2: {
     hnf; intros.
     apply (H Phi x).
     hnf; intros.
     apply H0; auto.
     hnf; auto.
-  } Unfocus.
-  apply (@general_completeness PropositionalLanguage.L _ _ ProofTheories.ClassicalPropositionalLogic.G _ _ _ _
+  }
+  apply (@general_completeness PropositionalLanguage.L _ _ ProofTheories.ClassicalPropositionalLogic.GD _ _ _ _
            _ _ _ TrivialSemantics.SM _ _ _ _ rel LIN_CONSI TRUTH); auto.
 Qed.
 

@@ -39,7 +39,8 @@ Definition triple_valid
 (*
 Notation "|==  x" := (triple_valid x) (at level 71, no associativity) : hoare_logic.
 (* This notation has been used. *)
-*)
+ *)
+Declare Scope guarded_hoare_logic.
 Notation "{{ Inv }} {{ P }} c {{ Q }}" := (triple Inv P c Q) (at level 80, no associativity) : guarded_hoare_logic.
 
 

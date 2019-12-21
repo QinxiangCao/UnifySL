@@ -7,29 +7,29 @@ Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
 Local Open Scope logic_base.
 Local Open Scope syntax.
 
-Class Adjointness (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) (prodp funcp: expr -> expr -> expr): Prop := {
+Class Adjointness (L: Language) {minL: MinimunLanguage L} (Gamma: Provable L) (prodp funcp: expr -> expr -> expr): Prop := {
   adjoint: forall x y z, |-- prodp x y --> z <-> |-- x --> (funcp y z)
 }.
 
-Class Commutativity (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) (prodp: expr -> expr -> expr): Prop := {
+Class Commutativity (L: Language) {minL: MinimunLanguage L} (Gamma: Provable L) (prodp: expr -> expr -> expr): Prop := {
   prodp_comm_impp: forall x y, |-- prodp x y --> prodp y x
 }.
 
-Class Monotonicity (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) (prodp: expr -> expr -> expr): Prop := {
+Class Monotonicity (L: Language) {minL: MinimunLanguage L} (Gamma: Provable L) (prodp: expr -> expr -> expr): Prop := {
   prodp_mono: forall x1 y1 x2 y2, |-- x1 --> x2 -> |-- y1 --> y2 -> |-- prodp x1 y1 --> prodp x2 y2
 }.
 
-Class Associativity (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) (prodp: expr -> expr -> expr): Prop := {
+Class Associativity (L: Language) {minL: MinimunLanguage L} (Gamma: Provable L) (prodp: expr -> expr -> expr): Prop := {
   prodp_assoc1: forall x y z, |-- prodp x (prodp y z) --> prodp (prodp x y) z;
   prodp_assoc2: forall x y z, |-- prodp (prodp x y) z --> prodp x (prodp y z)
 }.
 
-Class LeftUnit (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) (e: expr) (prodp: expr -> expr -> expr): Prop := {
+Class LeftUnit (L: Language) {minL: MinimunLanguage L} (Gamma: Provable L) (e: expr) (prodp: expr -> expr -> expr): Prop := {
   left_unit1: forall x, |-- prodp e x --> x;
   left_unit2: forall x, |-- x --> prodp e x
 }.
 
-Class RightUnit (L: Language) {minL: MinimunLanguage L} (Gamma: ProofTheory L) (e: expr) (prodp: expr -> expr -> expr): Prop := {
+Class RightUnit (L: Language) {minL: MinimunLanguage L} (Gamma: Provable L) (e: expr) (prodp: expr -> expr -> expr): Prop := {
   right_unit1: forall x, |-- prodp x e --> x;
   right_unit2: forall x, |-- x --> prodp x e
 }.
@@ -38,7 +38,7 @@ Section AdjointTheorems.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
         {prodp funcp: expr -> expr -> expr}
         {Adj: Adjointness L Gamma prodp funcp}.
@@ -115,7 +115,7 @@ Section MonoTheorems.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
         {prodp: expr -> expr -> expr}
         {Mono: Monotonicity L Gamma prodp}.
@@ -177,7 +177,7 @@ Section AssocTheorems.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
         {prodp: expr -> expr -> expr}
         {e: expr}

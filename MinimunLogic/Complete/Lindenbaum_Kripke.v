@@ -21,7 +21,7 @@ Section Lindenbaum_Kripke.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
         {fwSC: FiniteWitnessedSequentCalculus L Gamma}.
 

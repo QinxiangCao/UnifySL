@@ -34,7 +34,7 @@ Section Canonical.
 Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
         {minSC: MinimunSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
@@ -83,10 +83,11 @@ Proof.
 Qed.
 
 Lemma GodelDummett_canonical_no_branch
-      {SC: NormalSequentCalculus L Gamma}
-      {minAX: MinimunAxiomatization L Gamma}
-      {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-      {gdpGamma: GodelDummettPropositionalLogic L Gamma}
+      {GammaP: Provable L}
+      {SC: NormalSequentCalculus L GammaP Gamma}
+      {minAX: MinimunAxiomatization L GammaP}
+      {ipAX: IntuitionisticPropositionalLogic L GammaP}
+      {gdpAX: GodelDummettPropositionalLogic L GammaP}
       (AL_DC: at_least derivable_closed cP)
       (AL_OW: at_least orp_witnessed cP):
   NoBranchKripkeIntuitionisticModel (Kworlds M).
@@ -128,11 +129,12 @@ Proof.
 Qed.
 
 Lemma DeMorgan_canonical_branch_join
-      {SC: NormalSequentCalculus L Gamma}
-      {AX: NormalAxiomatization L Gamma}
-      {minAX: MinimunAxiomatization L Gamma}
-      {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-      {dmpGamma: DeMorganPropositionalLogic L Gamma}
+      {GammaP: Provable L}
+      {AX: NormalAxiomatization L GammaP Gamma}
+      {SC: NormalSequentCalculus L GammaP Gamma}
+      {minAX: MinimunAxiomatization L GammaP}
+      {ipAX: IntuitionisticPropositionalLogic L GammaP}
+      {dmpAX: DeMorganPropositionalLogic L GammaP}
       (AL_DC: at_least derivable_closed cP)
       (AL_OW: at_least orp_witnessed cP)
       (AL_CONSI: at_least consistent cP)
@@ -147,12 +149,12 @@ Proof.
   erewrite !H_R in H, H0 by eauto.
   assert (exists Psi: sig cP, Included _ (proj1_sig Psi1) (proj1_sig Psi) /\
                               Included _ (proj1_sig Psi2) (proj1_sig Psi)).
-  Focus 2. {
+  2: {
     destruct H4 as [Psi [? ?]].
     destruct (su_bij _ _ rel Psi) as [m ?].
     exists m.
     erewrite !H_R by eauto; auto.
-  } Unfocus.
+  }
   clear rel H_R m1 m2 n H1 H2 H3.
 
   assert (~ (Union _ (proj1_sig Psi1) (proj1_sig Psi2)) |-- FF).

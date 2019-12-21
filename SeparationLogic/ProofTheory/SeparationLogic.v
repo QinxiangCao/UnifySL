@@ -23,9 +23,9 @@ Class SeparationLogic
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        (Gamma: ProofTheory L)
+        (Gamma: Provable L)
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
+        {ipAX: IntuitionisticPropositionalLogic L Gamma} := {
   sepcon_comm_impp: forall x y, |-- x * y --> y * x;
   sepcon_assoc: forall x y z, |-- x * (y * z) <--> (x * y) * z;
   wand_sepcon_adjoint: forall x y z, |-- x * y --> z <-> |-- x --> (y -* z)
@@ -37,7 +37,7 @@ Class EmpSeparationLogic
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {s'L: SeparationEmpLanguage L}
-        (Gamma: ProofTheory L)
+        (Gamma: Provable L)
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma} := {
@@ -49,7 +49,7 @@ Class ExtSeparationLogic
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        (Gamma: ProofTheory L)
+        (Gamma: Provable L)
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma} := {
@@ -62,7 +62,7 @@ Class NonsplitEmpSeparationLogic
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {s'L: SeparationEmpLanguage L}
-        (Gamma: ProofTheory L)
+        (Gamma: Provable L)
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}
@@ -76,7 +76,7 @@ Class DupEmpSeparationLogic
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {s'L: SeparationEmpLanguage L}
-        (Gamma: ProofTheory L)
+        (Gamma: Provable L)
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}
@@ -90,7 +90,7 @@ Class MallocFreeSeparationLogic
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {s'L: SeparationEmpLanguage L}
-        (Gamma: ProofTheory L)
+        (Gamma: Provable L)
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}
@@ -106,7 +106,7 @@ Class GarbageCollectSeparationLogic
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        (Gamma: ProofTheory L)
+        (Gamma: Provable L)
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma} := {
@@ -119,7 +119,7 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}
         {sGamma: SeparationLogic L Gamma}.

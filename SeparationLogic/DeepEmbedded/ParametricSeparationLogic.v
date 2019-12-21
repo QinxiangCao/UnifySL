@@ -19,13 +19,13 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (Gamma: ProofTheory L) {AX: NormalAxiomatization L Gamma} {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {sGamma: SeparationLogic L Gamma} {eGamma: EmpSeparationLogic L Gamma} := {
-  Parametric_DM: WEM = true -> DeMorganPropositionalLogic L Gamma;
-  Parametric_GD: IC = true -> GodelDummettPropositionalLogic L Gamma;
-  Parametric_C: EM = true -> ClassicalPropositionalLogic L Gamma;
-  Parametric_GC: SCE = true -> GarbageCollectSeparationLogic L Gamma;
-  Parametric_NE: ESE = true -> NonsplitEmpSeparationLogic L Gamma;
-  Parametric_ED: ED = true -> DupEmpSeparationLogic L Gamma
+Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (GammaP: Provable L) {minAX: MinimunAxiomatization L GammaP} {ipAX: IntuitionisticPropositionalLogic L GammaP} {sAX: SeparationLogic L GammaP} {EmpsAX: EmpSeparationLogic L GammaP} := {
+  Parametric_DM: WEM = true -> DeMorganPropositionalLogic L GammaP;
+  Parametric_GD: IC = true -> GodelDummettPropositionalLogic L GammaP;
+  Parametric_C: EM = true -> ClassicalPropositionalLogic L GammaP;
+  Parametric_GC: SCE = true -> GarbageCollectSeparationLogic L GammaP;
+  Parametric_NE: ESE = true -> NonsplitEmpSeparationLogic L GammaP;
+  Parametric_ED: ED = true -> DupEmpSeparationLogic L GammaP
 }.
 
 Section SeparationLogic.
@@ -59,11 +59,14 @@ Inductive provable: expr -> Prop :=
 | emp_sepcon_truep_elim: ESE = true -> forall x, provable (x * TT && emp --> x)
 | emp_dup: ED = true -> forall x, provable (x && emp --> x * x).
 
-Instance G: ProofTheory SeparationEmpLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable SeparationEmpLanguage.L := Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization SeparationEmpLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable SeparationEmpLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L G.
+Instance AX: NormalAxiomatization SeparationEmpLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -71,7 +74,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic SeparationEmpLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -83,7 +86,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance sG: SeparationLogic SeparationEmpLanguage.L G.
+Instance sAX: SeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -93,14 +96,14 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance eG: EmpSeparationLogic SeparationEmpLanguage.L G.
+Instance EmpsAX: EmpSeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   intros.
   apply sepcon_emp.
 Qed.
 
-Instance ParG: Parametric_SeparationLogic PAR SeparationEmpLanguage.L G.
+Instance ParAX: Parametric_SeparationLogic PAR SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + intros; constructor.

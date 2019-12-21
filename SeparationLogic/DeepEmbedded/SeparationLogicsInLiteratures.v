@@ -44,11 +44,14 @@ Inductive provable: SeparationLanguage.expr Sigma -> Prop :=
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_elim1: forall x y, provable (x * y --> x).
 
-Instance G: ProofTheory SeparationLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable SeparationLanguage.L := Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization SeparationLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable SeparationLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization SeparationLanguage.L G.
+Instance AX: NormalAxiomatization SeparationLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization SeparationLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -56,7 +59,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic SeparationLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic SeparationLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -68,7 +71,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance sG: SeparationLogic SeparationLanguage.L G.
+Instance sAX: SeparationLogic SeparationLanguage.L GP.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -78,7 +81,7 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance gcsG: GarbageCollectSeparationLogic SeparationLanguage.L G.
+Instance gcsAX: GarbageCollectSeparationLogic SeparationLanguage.L GP.
 Proof.
   constructor.
   apply sepcon_elim1.
@@ -112,11 +115,14 @@ Inductive provable: SeparationEmpLanguage.expr Sigma -> Prop :=
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_emp: forall x, provable (x * emp <--> x).
 
-Instance G: ProofTheory SeparationEmpLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable SeparationEmpLanguage.L := Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization SeparationEmpLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable SeparationEmpLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L G.
+Instance AX: NormalAxiomatization SeparationEmpLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -124,7 +130,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic SeparationEmpLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -136,13 +142,13 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance cpG: ClassicalPropositionalLogic SeparationEmpLanguage.L G.
+Instance cpAX: ClassicalPropositionalLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   apply excluded_middle.
 Qed.
 
-Instance sG: SeparationLogic SeparationEmpLanguage.L G.
+Instance sAX: SeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -152,7 +158,7 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance EmpsG: EmpSeparationLogic SeparationEmpLanguage.L G.
+Instance EmpsAX: EmpSeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   apply sepcon_emp.
@@ -186,11 +192,14 @@ Inductive provable: SeparationEmpLanguage.expr Sigma -> Prop :=
 | sepcon_emp: forall x, provable (x * emp <--> x)
 | sepcon_elim1: forall x y, provable (x * y --> x).
 
-Instance G: ProofTheory SeparationEmpLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable SeparationEmpLanguage.L := Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization SeparationEmpLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable SeparationEmpLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L G.
+Instance AX: NormalAxiomatization SeparationEmpLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -198,7 +207,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic SeparationEmpLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -210,7 +219,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance sG: SeparationLogic SeparationEmpLanguage.L G.
+Instance sAX: SeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -220,13 +229,13 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance EmpsG: EmpSeparationLogic SeparationEmpLanguage.L G.
+Instance EmpsAX: EmpSeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   apply sepcon_emp.
 Qed.
 
-Instance gcsG: GarbageCollectSeparationLogic SeparationEmpLanguage.L G.
+Instance gcsAX: GarbageCollectSeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   apply sepcon_elim1.
@@ -260,11 +269,14 @@ Inductive provable: SeparationEmpLanguage.expr Sigma -> Prop :=
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_emp: forall x, provable (x * emp <--> x).
 
-Instance G: ProofTheory SeparationEmpLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable SeparationEmpLanguage.L := Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization SeparationEmpLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable SeparationEmpLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L G.
+Instance AX: NormalAxiomatization SeparationEmpLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -272,7 +284,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic SeparationEmpLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -284,7 +296,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance sG: SeparationLogic SeparationEmpLanguage.L G.
+Instance sAX: SeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply sepcon_comm.
@@ -294,7 +306,7 @@ Proof.
     - apply wand_sepcon_adjoint2.
 Qed.
 
-Instance EmpsG: EmpSeparationLogic SeparationEmpLanguage.L G.
+Instance EmpsAX: EmpSeparationLogic SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   apply sepcon_emp.

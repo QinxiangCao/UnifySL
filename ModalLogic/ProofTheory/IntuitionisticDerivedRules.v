@@ -24,10 +24,10 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {mL: ModalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {KmGamma: SystemK L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}
+        {KmAX: SystemK L Gamma}.
 
 Lemma boxp_andp: forall x y, |-- boxp (x && y) <--> (boxp x && boxp y).
 Proof.

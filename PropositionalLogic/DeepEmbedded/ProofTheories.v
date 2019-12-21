@@ -32,11 +32,14 @@ Inductive provable: expr -> Prop :=
 | orp_elim: forall x y z, provable ((x --> z) --> (y --> z) --> (x || y --> z))
 | falsep_elim: forall x, provable (FF --> x).
 
-Instance G: ProofTheory PropositionalLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable PropositionalLanguage.L := Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization PropositionalLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L G.
+Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -44,7 +47,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic PropositionalLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -81,11 +84,15 @@ Inductive provable: expr -> Prop :=
 | falsep_elim: forall x, provable (FF --> x)
 | weak_excluded_middle: forall x, provable (~~ x || ~~ ~~ x).
 
-Instance G: ProofTheory PropositionalLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable  PropositionalLanguage.L :=
+  Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization PropositionalLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L G.
+Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -93,7 +100,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic PropositionalLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -105,7 +112,7 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance dmpG: DeMorganPropositionalLogic PropositionalLanguage.L G.
+Instance dmpAX: DeMorganPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   constructor.
   apply weak_excluded_middle.
@@ -136,11 +143,15 @@ Inductive provable: expr -> Prop :=
 | falsep_elim: forall x, provable (FF --> x)
 | impp_choice: forall x y, provable ((x --> y) || (y --> x)).
 
-Instance G: ProofTheory PropositionalLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable PropositionalLanguage.L :=
+  Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization PropositionalLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L G.
+Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -148,7 +159,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic PropositionalLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -160,13 +171,13 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance gdpG: GodelDummettPropositionalLogic PropositionalLanguage.L G.
+Instance gdpAX: GodelDummettPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   constructor.
   apply impp_choice.
 Qed.
 
-Instance dmpG: DeMorganPropositionalLogic PropositionalLanguage.L G.
+Instance dmpAX: DeMorganPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   apply GodelDummett2DeMorgan.
 Qed.
@@ -196,11 +207,14 @@ Inductive provable: expr -> Prop :=
 | falsep_elim: forall x, provable (FF --> x)
 | excluded_middle: forall x, provable (x || (x --> FF)).
 
-Instance G: ProofTheory PropositionalLanguage.L := Build_AxiomaticProofTheory provable.
+Instance GP: Provable PropositionalLanguage.L := Build_Provable _ provable.
 
-Instance AX: NormalAxiomatization PropositionalLanguage.L G := Build_AxiomaticProofTheory_AX provable.
+Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L G.
+Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
+  Provable2Derivable_Normal.
+
+Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -208,7 +222,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Instance ipG: IntuitionisticPropositionalLogic PropositionalLanguage.L G.
+Instance ipAX: IntuitionisticPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply andp_intros.
@@ -220,18 +234,18 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance cpG: ClassicalPropositionalLogic PropositionalLanguage.L G.
+Instance cpAX: ClassicalPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   constructor.
   apply excluded_middle.
 Qed.
 
-Instance gdpG: GodelDummettPropositionalLogic PropositionalLanguage.L G.
+Instance gdpAX: GodelDummettPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   apply Classical2GodelDummett.
 Qed.
 
-Instance dmpG: DeMorganPropositionalLogic PropositionalLanguage.L G.
+Instance dmpAX: DeMorganPropositionalLogic PropositionalLanguage.L GP.
 Proof.
   apply GodelDummett2DeMorgan.
 Qed.
@@ -239,8 +253,4 @@ Qed.
 End ClassicalPropositionalLogic.
 
 End ClassicalPropositionalLogic.
-
-
-
-
 

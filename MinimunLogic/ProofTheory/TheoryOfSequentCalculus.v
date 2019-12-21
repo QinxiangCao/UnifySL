@@ -11,7 +11,7 @@ Local Open Scope syntax.
 Section PropertiesOfSequentCalculus.
 
 Context (L: Language)
-        (Gamma: ProofTheory L)
+        (Gamma: Derivable L)
         {minL: MinimunLanguage L}.
 
 Definition DeductionMP: Prop :=
@@ -28,7 +28,7 @@ End PropertiesOfSequentCalculus.
 Section TheoryOfSequentCalculus.
 
 Context {L: Language}
-        {Gamma: ProofTheory L}
+        {Gamma: Derivable L}
         {minL: MinimunLanguage L}.
 
 Lemma DeductionMP_DerivableAssu_DeductionWeaken_2_DeductionImpElim:

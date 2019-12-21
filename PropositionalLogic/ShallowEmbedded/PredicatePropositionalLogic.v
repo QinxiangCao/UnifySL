@@ -32,8 +32,8 @@ Proof.
   + apply Same_set_refl.
 Qed.
 
-Instance Pred_Gamma (A: Type): ProofTheory (Pred_L A) := Build_AxiomaticProofTheory (fun x: expr => forall a: A, x a).
-Instance Pred_AX (A: Type): NormalAxiomatization (Pred_L A) (Pred_Gamma A) := Build_AxiomaticProofTheory_AX (fun x: expr => forall a: A, x a).
+Instance Pred_Gamma (A: Type): Provable (Pred_L A) :=
+  Build_Provable (Pred_L A) (fun x: expr => forall a: A, x a).
 
 Instance Pred_minAX (A: Type): MinimunAxiomatization (Pred_L A) (Pred_Gamma A).
 Proof.
@@ -47,7 +47,7 @@ Proof.
     exact (@sound_axiom2 (Pred_L A) _ (Build_Model A) (Pred_SM A) (Pred_tminSM A) x y z).
 Qed.
 
-Instance Pred_ipGamma (A: Type): IntuitionisticPropositionalLogic (Pred_L A) (Pred_Gamma A).
+Instance Pred_ipAX (A: Type): IntuitionisticPropositionalLogic (Pred_L A) (Pred_Gamma A).
 Proof.
   constructor.
   + intros x y.

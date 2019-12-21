@@ -173,11 +173,11 @@ Proof.
   apply (access_Sresource (fun m => KRIPKE: m |= I) Inv) in H3; auto.
   destruct H3 as [m_acq [m' [n1 [n2 [n3 [? [? [? [? [? ?]]]]]]]]]].
   assert (KRIPKE: m' |= I * P0).
-  Focus 1. {
+  {
     rewrite FlatSemantics.sat_sepcon.
     eexists; eexists.
     split; [| split]; eassumption.
-  } Unfocus.
+  }
   destruct n1 as [| |].
   + inversion H4.
   + inversion H5; subst.

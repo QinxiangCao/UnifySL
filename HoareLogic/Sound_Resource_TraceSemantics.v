@@ -49,18 +49,18 @@ Lemma start_by_Aacq_trace_acc_spec {state: Type} {Ac: Action} {Res: Resource} {J
 Proof.
   intros.
   assert (join A2 (fun r => start_by_Arel r tr) A1).
-  Focus 2. {
+  2: {
     extensionality r; apply prop_ext.
     specialize (H r); specialize (H1 r).
     pose proof start_by_Aacq_or_Arel r tr.
     destruct H1; tauto.
-  } Unfocus.
+  }
   assert (forall r, start_by_Aacq r tr \/ start_by_Arel r tr).
-  Focus 1. {
+  {
     intros r.
     specialize (H r).
     auto.
-  } Unfocus.
+  }
   clear H.
   revert s1 A1 H0; induction tr; intros.
   + inversion H0; subst; clear H0.
@@ -74,12 +74,12 @@ Proof.
     specialize (fun HH => IHtr HH s1' A1' H6); clear H6.
     simpl in H3.
     assert (HH: forall r : resource, start_by_Aacq r tr \/ start_by_Arel r tr).
-    Focus 1. {
+    {
       clear - nAcr H1.
       intros r; specialize (H1 r).
       destruct (classic (is_resource_action r a)) as [[? | ?] | ?]; subst;
       destruct H1 as [HH | HH]; inversion HH; auto.
-    } Unfocus.
+    }
     specialize (IHtr HH); clear HH.
     intros r; specialize (IHtr r); specialize (H1 r).
     destruct (classic (is_resources_action a)) as [[?r [? | ?]] | ?]; subst.
@@ -163,10 +163,10 @@ Proof.
     pose proof join_Korder_down _ _ _ _ _ H6 H7 ltac:(reflexivity) as [n2' [? ?]].
     pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H2) H8 as [m2 [? ?]].
     assert (A1 = A1').
-    Focus 1. {
+    {
       extensionality r0; apply prop_ext.
       apply iff_sym, H0.
-    } Unfocus.
+    }
     subst A1'.
     pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H) H3 as [B2 [? ?]].
     exists (Terminating (B2, m2)), (Terminating (A2, n2')).
@@ -187,14 +187,14 @@ Proof.
     hnf in H; simpl in H; destruct H.
     hnf in H0; unfold RelCompFun in H0; simpl in H0; destruct H0.
     assert (A1' = A1).
-    Focus 1. {
+    {
       extensionality r0; apply prop_ext.
       apply H0.
-    } Unfocus.
+    }
     subst A1'; clear H0.
     destruct (classic (forall I, Inv (r, I) -> exists m2, (fun m2 => exists f, I f /\ join m2 f m1) m2)).
     - inversion H1; subst; solve_resource_action.
-      Focus 2. {
+      2: {
         exfalso.
         specialize (H0 _ H8).
         destruct H0 as [m2 [f0 [? ?]]].
@@ -202,7 +202,7 @@ Proof.
         pose proof join_Korder_up _ _ _ _ H6 H3 as [_f0 [n2 [? [? ?]]]].
         apply (H10 n2); clear H10.
         exists _f0; split; [eapply (invariant_mono _ _ H8); eauto | apply join_comm; auto].
-      } Unfocus.
+      }
       specialize (H0 _ H8).
       apply (invariant_precise _ _ H8) in H0.
       destruct H0 as [m2 ?].
@@ -210,7 +210,7 @@ Proof.
       pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ H5) H2 as [n2' [? ?]].
       pose proof join_Korder_up _ _ _ _ H9 H3 as [_f0 [_n2 [? [? ?]]]].
       assert ((fun n : model => exists f : model, I f /\ join n f n1) _n2).
-      Focus 1. { exists _f0; split; [eapply (invariant_mono _ _ H8); eauto | apply join_comm; auto]. } Unfocus.
+      { exists _f0; split; [eapply (invariant_mono _ _ H8); eauto | apply join_comm; auto]. }
       apply (proj2 H10) in H14.
       apply res_enable_rel_inv in ASSU; simpl in ASSU.
       rename fst_m2 into B2.
@@ -281,18 +281,18 @@ Proof.
   destruct H as [s1 [s2 [? [? ?]]]].
   set (s0 := s_pre) in H.
   assert (STATE_JOIN: @join _ (prod_Join resources model) (A1, s1) (A2, s2) (A, s0)).
-  Focus 1. {
+  {
     split; auto.
     hnf; intros r0.
     simpl; subst A1 A2 A; split; tauto.
-  } Unfocus.
+  }
   assert (STATE_LE: @Krelation _ (RelProd (discPred_R resource) R) (A, s0) (A, s_pre)).
-  Focus 1. {
+  {
     split; hnf; simpl.
     + intros; hnf; tauto.
     + change (s_pre <= s_pre).
       reflexivity.
-  } Unfocus.
+  }
   clearbody A1 A2 A s0. clear H.
   specialize (fun ms_post HH => LEFT_ASSU s1 ms_post H1 (traces_access_intro tr1 _ _ _ H0 HH)).
   specialize (fun ms_post HH => RIGHT_ASSU s2 ms_post H5 (traces_access_intro tr2 _ _ _ H3 HH)).
@@ -303,21 +303,21 @@ Proof.
     destruct ms_post; subst; inversion H.
     subst m A.
     assert (A2 = fun _ => False).
-    Focus 1. {
+    {
       extensionality r; apply prop_ext.
       destruct STATE_JOIN as [? _].
       hnf in H0. specialize (H0 r).
       simpl in H0; destruct H0.
       tauto.
-    } Unfocus.
+    }
     assert (A1 = fun _ => False).
-    Focus 1. {
+    {
       extensionality r; apply prop_ext.
       destruct STATE_JOIN as [? _].
       hnf in H1. specialize (H1 r).
       simpl in H1; destruct H1.
       tauto.
-    } Unfocus.
+    }
     subst A1 A2.
     specialize (LEFT_ASSU (Terminating s1) (trace_access_nil _)); simpl in LEFT_ASSU.
     specialize (RIGHT_ASSU (Terminating s2) (trace_access_nil _)); simpl in RIGHT_ASSU.
@@ -359,10 +359,10 @@ Proof.
         apply trace_access_Error; auto.
       * destruct s' as [A' s'], m2 as [A1' s1'], n2' as [A0' s0'].
         assert (A0' = A').
-        Focus 1. {
+        {
           clear - H9. destruct H9 as [? _]; hnf in H; simpl in H.
           extensionality r0; apply prop_ext; apply H.
-        } Unfocus.
+        }
         subst A0'.
         apply (IHtrace_interleave s0' s1' s2 s' A'); auto.
         intros.
@@ -389,10 +389,10 @@ Proof.
         apply trace_access_Error; auto.
       * destruct s' as [A' s'], m2 as [A2' s2'], n2' as [A0' s0'].
         assert (A0' = A').
-        Focus 1. {
+        {
           clear - H9. destruct H9 as [? _]; hnf in H; simpl in H.
           extensionality r0; apply prop_ext; apply H.
-        } Unfocus.
+        }
         subst A0'.
         apply (IHtrace_interleave s0' s1 s2' s' A'); auto.
         intros.
@@ -413,12 +413,12 @@ Proof.
     hnf in H.
     inversion H1; subst.
     replace (lift_function (pair A_post) ms_post) with (lift_function (pair (fun _:resource => False)) ms_post) in H3.
-    Focus 2. {
+    2: {
       destruct ms_post as [| | ms_post]; auto.
       simpl lift_function in H3.
       eapply start_by_Aacq_trace_acc_spec in H3; [subst; auto |].
       intros; eapply resource_sequential; eauto.
-    } Unfocus.
+    }
     apply (H s_pre ms_post); auto.
     apply (traces_access_intro tr); auto.
   + intros.
@@ -455,23 +455,23 @@ Proof.
   specialize (NO_OCCUR _ H1).
   clear Tr H1.
   unfold trace_app in H2; simpl app in H2; inversion H2; subst; clear H2.
-  Focus 1. { exfalso; inversion H4; subst; solve_resource_action. } Unfocus.
-  Focus 1. { exfalso; inversion H4; subst; solve_resource_action. } Unfocus.
+  { exfalso; inversion H4; subst; solve_resource_action. }
+  { exfalso; inversion H4; subst; solve_resource_action. }
   inversion H3; subst; clear H3; solve_resource_action.
   assert (I0 = fun m => KRIPKE: m |= I).
-  Focus 1. {
+  {
     clear - INV_CONS INV H7.
     apply (at_most_one_invariant r); auto.
     specialize (INV_CONS (r, fun m => m |= I)).
     destruct INV_CONS; simpl in *.
     tauto.
-  } Unfocus.
+  }
   subst I0.
   assert (KRIPKE: n |= P1 * I).
-  Focus 1. {
+  {
     rewrite sat_sepcon.
     exists s_pre, f; auto.
-  } Unfocus.
+  }
   clear f s_pre H8 H9 H.
   rename n into s.
   specialize (fun A_post ms_post => ASSU s A_post ms_post H0); clear H0 P1.
@@ -507,72 +507,72 @@ Proof.
                        | NonTerminating => thread_local_state_enable Inv0 a (A1, s) NonTerminating
                        | Terminating (A2', s') => exists A1', join A1' (eq r) A2' /\ thread_local_state_enable Inv0 a (A1, s) (Terminating (A1', s'))
                        end).
-    Focus 1. {
+    {
       clear - INV_CONS INV NO_OCCUR JOIN_RES AIr.
       intros.
       assert (~ is_resource_action r a).
-      Focus 1. {
+      {
         intros [? | ?].
         + subst; apply (proj1 NO_OCCUR).
           left; auto.
         + subst; apply (proj2 NO_OCCUR).
           left; auto.
-      } Unfocus.
+      }
       clear NO_OCCUR; rename H0 into NO_OCCUR.
       inversion H; subst; solve_resource_action.
       + assert (Inv0 (r0, I0)).
-        Focus 1. {
+        {
           specialize (INV_CONS (r0, I0)).
           assert ((r, fun m : model => KRIPKE: m |= I) <> (r0, I0)) by congruence.
           destruct INV_CONS; tauto.
-        } Unfocus.
+        }
         rename A3 into A2'.
         pose proof join_assoc _ _ _ _ _ (join_comm _ _ _ JOIN_RES) H2 as [A1' [? ?]].
         apply join_comm in H4.
         exists A1'; split; auto.
         eapply (thread_local_state_enable_acq _ _ _ _ _ _ _ _ H1 H0 H5 H7).
       + assert (Inv0 (r0, I0)).
-        Focus 1. {
+        {
           specialize (INV_CONS (r0, I0)).
           assert ((r, fun m : model => KRIPKE: m |= I) <> (r0, I0)) by congruence.
           destruct INV_CONS; tauto.
-        } Unfocus.
+        }
         rename A3 into A2'.
         set (A1' := fun rr => A2' rr /\ r <> rr).
         assert (join A1' (eq r) A2').
-        Focus 1. {
+        {
           subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
           assert (r0 = rr -> r = rr -> False) by (intros; congruence).
           destruct H2, JOIN_RES; split; tauto.
-        } Unfocus.
+        }
         assert (join A1' (eq r0) A1).
-        Focus 1. {
+        {
           subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
           assert (r0 = rr -> r = rr -> False) by (intros; congruence).
           destruct H2, JOIN_RES; split; tauto.
-        } Unfocus.
+        }
         exists A1'; split; auto.
         eapply (thread_local_state_enable_rel_succ _ _ _ _ _ _ _ H3 H0 H6).
       + assert (Inv0 (r0, I0)).
-        Focus 1. {
+        {
           specialize (INV_CONS (r0, I0)).
           assert ((r, fun m : model => KRIPKE: m |= I) <> (r0, I0)) by congruence.
           destruct INV_CONS; tauto.
-        } Unfocus.
+        }
         rename A3 into A2'.
         set (A1' := fun rr => A2' rr /\ r <> rr).
         assert (join A1' (eq r) A2').
-        Focus 1. {
+        {
           subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
           assert (r0 = rr -> r = rr -> False) by (intros; congruence).
           destruct H2, JOIN_RES; split; tauto.
-        } Unfocus.
+        }
         assert (join A1' (eq r0) A1).
-        Focus 1. {
+        {
           subst A1'; intros rr; specialize (H2 rr); specialize (JOIN_RES rr).
           assert (r0 = rr -> r = rr -> False) by (intros; congruence).
           destruct H2, JOIN_RES; split; tauto.
-        } Unfocus.
+        }
         eapply (thread_local_state_enable_rel_fail _ _ _ _ _ _ H3 H0 H6).
       + destruct ms as [| | [A2' s']].
         - eapply thread_local_state_enable_non_resource; auto.
@@ -589,7 +589,7 @@ Proof.
           eapply thread_local_state_enable_non_resource; auto.
           change (Terminating (A2, s')) with (lift_function (pair A2) (Terminating s')) in H1.
           apply (state_enable_non_resource_action2 _ _ _ _ _ H0 H1).
-    } Unfocus.
+    }
     inversion TRACE_ACC; subst.
     - destruct ms_post; inversion H4; auto.
     - simpl in H3.

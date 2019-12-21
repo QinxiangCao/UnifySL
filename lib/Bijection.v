@@ -226,7 +226,7 @@ Definition natnat_nat_bijection: bijection (prod nat nat) nat.
           | 0 => 0
           | S x0 => S x0 + sum x0
           end) m2).
-    Focus 1. {
+    {
       intros.
       remember (m2 - m1 - 1) as d; assert (m2 = (S d) + m1) by omega.
       subst m2; clear.
@@ -235,7 +235,7 @@ Definition natnat_nat_bijection: bijection (prod nat nat) nat.
         omega.
       + simpl in *.
         omega.
-    } Unfocus.
+    }
     destruct (lt_eq_lt_dec (a11 + a12) (a21 + a22)) as [[HH | HH] | HH].
     - specialize (H1 _ _ HH).
       omega.
@@ -257,7 +257,7 @@ Definition natnat_nat_bijection: bijection (prod nat nat) nat.
           | 0 => 0
           | S x0 => S x0 + sum x0
           end) (S s)).
-    Focus 1. {
+    {
       induction b.
       + exists 0; simpl.
         omega.
@@ -270,7 +270,7 @@ Definition natnat_nat_bijection: bijection (prod nat nat) nat.
         destruct (lt_dec d s) as [HH | HH].
         - exists s; simpl in *; omega.
         - exists (S s); simpl in *; omega.
-    } Unfocus.
+    }
     destruct H as [s ?].
     remember (b - (fix sum (x : nat) : nat :=
                 match x with

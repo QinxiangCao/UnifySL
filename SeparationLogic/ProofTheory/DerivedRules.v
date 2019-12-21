@@ -4,6 +4,7 @@ Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
 Require Import Logic.MinimunLogic.ProofTheory.Minimun.
 Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -25,10 +26,10 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {minAX: MinimunAxiomatization L Gamma}
-        {ipGamma: IntuitionisticPropositionalLogic L Gamma}
-        {sGamma: SeparationLogic L Gamma}.
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}
+        {sAX: SeparationLogic L Gamma}.
 
 Lemma provable_sepcon_andp_left: forall (x y z: expr),
   |-- (x && y) * z --> (x * z) && (y * z).
@@ -82,8 +83,7 @@ Proof.
   rewrite <- (andp_dup (x * ~~ x)).
   rewrite sepcon_elim1 at 1.
   rewrite sepcon_elim2 at 1.
-  clear sGamma gcsGamma ExtsGamma.
-  AddSequentCalculus Gamma.
+  AddSequentCalculus.
   rewrite provable_derivable.
   rewrite <- deduction_theorem.
   apply deduction_falsep_elim.

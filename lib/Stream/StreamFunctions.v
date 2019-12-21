@@ -744,7 +744,7 @@ Proof.
   intros.
 
   destruct (classic (is_empty_stream (h 0))).
-  Focus 1. {
+  {
     clear IH.
     pose proof proj1 (stream_map_n_stream f (h 0) 0) H.
     apply stream_capp_empty0 in H.
@@ -754,7 +754,7 @@ Proof.
     rewrite (stream_sound1 _ 0 n) by (auto; omega).
     rewrite (stream_sound1 _ 0 n) by (auto; omega).
     reflexivity.
-  } Unfocus.
+  }
 
   destruct (at_most_n_stream_or_at_least_Sn_stream (h 0) n).
   + rewrite at_most_n_stream_spec in H0.

@@ -10,8 +10,11 @@ Definition context {L: Language}: Type := expr -> Prop. (* better to be (Ensembl
 
 Definition empty_context {L: Language}: context := Empty_set _.
 
-Class ProofTheory (L: Language): Type := {
-  provable: expr -> Prop;
+Class Provable (L: Language): Type := {
+  provable: expr -> Prop
+}.
+
+Class Derivable (L: Language): Type := {
   derivable: context -> expr -> Prop
 }.
 
@@ -46,7 +49,7 @@ Definition AllModel (MD: Model): ModelClass MD := fun _ => True.
 Inductive KripkeModelClass (MD: Model) {kMD: KripkeModel MD} (H: Kmodel -> Prop): ModelClass MD :=
 | Build_KripkeModelClass: forall (M: Kmodel) (m: Kworlds M), H M -> KripkeModelClass MD H (build_model M m).
 
-Definition consistent {L: Language} {Gamma: ProofTheory L}: context -> Prop :=
+Definition consistent {L: Language} {Gamma: Derivable L}: context -> Prop :=
   fun Phi =>
     exists x: expr, ~ derivable Phi x.
 
@@ -62,14 +65,22 @@ Definition valid {L: Language} {MD: Model} {SM: Semantics L MD}: ModelClass MD -
   fun MC x =>
     forall m: model, MC m -> satisfies m x.
 
-Definition sound {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
+Definition provable_sound {L: Language} (Gamma: Provable L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
   forall x: expr, provable x -> valid MC x.
 
-Definition weakly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
+Definition derivable_sound {L: Language} (Gamma: Derivable L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
+  forall Phi x, derivable Phi x -> consequence MC Phi x.
+
+Definition weakly_complete {L: Language} (Gamma: Provable L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
   forall x: expr, valid MC x -> provable x.
 
-Definition strongly_complete {L: Language} (Gamma: ProofTheory L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
+Definition strongly_complete {L: Language} (Gamma: Derivable L) {MD: Model} (SM: Semantics L MD) (MC: ModelClass MD): Prop :=
   forall (Phi: context) (x: expr), consequence MC Phi x -> derivable Phi x.
+
+Declare Scope logic_base.
+Declare Scope syntax.
+Declare Scope kripke_model.
+Declare Scope kripke_model_class.
 
 Notation "m  |=  x" := (satisfies m x) (at level 70, no associativity) : logic_base.
 Notation "|--  x" := (provable x) (at level 71, no associativity) : logic_base.

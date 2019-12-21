@@ -16,46 +16,46 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import ModalLanguageNotation.
 
-Class SystemK (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
+Class SystemK (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   axiom_K: forall x y, |-- boxp (x --> y) --> (boxp x --> boxp y); (* a.k.a. Distribution Axiom *)
   rule_N: forall x, |-- x -> |-- boxp x (* a.k.a. Necessitation Rule *)
 }.
 
-Class SystemT (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
+Class SystemT (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
   axiom_T: forall x, |-- boxp x --> x
 }.
 
-Class System4 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {TmGamma: SystemT L Gamma}:= {
+Class System4 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {TmGamma: SystemT L Gamma}:= {
   axiom_4: forall x, |-- boxp x --> boxp (boxp x)
 }.
 
-Class SystemD (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
+Class SystemD (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
   axiom_D: forall x, |-- boxp x --> diamondp x
 }.
 
-Class SystemB (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
+Class SystemB (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
   axiom_B: forall x, |-- x --> boxp (diamondp x)
 }.
 
-Class System5 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {TmGamma: SystemT L Gamma} {s4mGamma: System4 L Gamma}:= {
+Class System5 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {cpGamma: ClassicalPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {TmGamma: SystemT L Gamma} {s4mGamma: System4 L Gamma}:= {
   axiom_5: forall x, |-- diamondp x --> boxp (diamondp x)
 }.
 
-Class PropositionalTransparentModality (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
+Class PropositionalTransparentModality (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} := {
   boxp_orp: forall x y, |-- boxp (x || y) <--> boxp x || boxp y
 }.
 
-Class StrongPropositionalTransparentModality (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: ProofTheory L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {pmGamma: PropositionalTransparentModality L Gamma} := {
+Class StrongPropositionalTransparentModality (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {pmGamma: PropositionalTransparentModality L Gamma} := {
   boxp_impp: forall x y, |-- boxp (x --> y) <--> (boxp x --> boxp y)
 }.
 
 (* 
 (* TODO: Add Sequnt Calculus for it. *)
-Lemma MakeSequentCalculus_DeMorganPropositionalLogic {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {Gamma: ProofTheory L} {minAX: MinimunAxiomatization L Gamma} (minAX': MinimunAxiomatization L (Build_AxiomaticProofTheory (@provable L Gamma))) (ipGamma: IntuitionisticPropositionalLogic L Gamma) {ipGamma': IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))} {dmpGamma: DeMorganPropositionalLogic L Gamma}:
-  Typeclass_Rewrite (exist (fun X: Prop => X) (IntuitionisticPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))) ipGamma' :: nil) ->
+Lemma MakeSequentCalculus_DeMorganPropositionalLogic {L: Language} {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {Gamma: Provable L} {minAX: MinimunAxiomatization L Gamma} (minAX': MinimunAxiomatization L (Build_AxiomaticProvable (@provable L Gamma))) (ipGamma: IntuitionisticPropositionalLogic L Gamma) {ipGamma': IntuitionisticPropositionalLogic L (Build_AxiomaticProvable (@provable L Gamma))} {dmpGamma: DeMorganPropositionalLogic L Gamma}:
+  Typeclass_Rewrite (exist (fun X: Prop => X) (IntuitionisticPropositionalLogic L (Build_AxiomaticProvable (@provable L Gamma))) ipGamma' :: nil) ->
   forall (G: Prop) (l: list (sig (fun X: Prop => X))),
   (forall
-     (dmpGamma: DeMorganPropositionalLogic L (Build_AxiomaticProofTheory (@provable L Gamma))),
+     (dmpGamma: DeMorganPropositionalLogic L (Build_AxiomaticProvable (@provable L Gamma))),
      OpaqueProp (Typeclass_Rewrite l -> G)) <->
   OpaqueProp (Typeclass_Rewrite ((exist (fun X: Prop => X) (DeMorganPropositionalLogic L Gamma) dmpGamma) :: l) -> G).
 Proof.
@@ -80,7 +80,7 @@ Context {L: Language}
         {minL: MinimunLanguage L}
         {pL: PropositionalLanguage L}
         {mL: ModalLanguage L}
-        {Gamma: ProofTheory L}
+        {Gamma: Provable L}
         {AX: NormalAxiomatization L Gamma}
         {minAX: MinimunAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}

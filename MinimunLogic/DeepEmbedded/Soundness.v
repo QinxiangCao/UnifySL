@@ -28,9 +28,10 @@ Context (Var: Type).
 Instance L: Language := MinimunLanguage.L Var.
 Instance minL: MinimunLanguage L := MinimunLanguage.minL Var.
 
-Instance G: ProofTheory L := MinimunLogic.G Var.
-Instance AX: NormalAxiomatization L G := MinimunLogic.AX Var.
-Instance minAX: MinimunAxiomatization L G := MinimunLogic.minAX Var.
+Instance GP: Provable L := MinimunLogic.GP Var.
+Instance GD: Derivable L := MinimunLogic.GD Var.
+Instance AX: NormalAxiomatization L GP GD := MinimunLogic.AX Var.
+Instance minAX: MinimunAxiomatization L GP := MinimunLogic.minAX Var.
 
 Instance Kripke_MD: Model := KripkeSemantics.MD Var.
 Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
@@ -44,7 +45,7 @@ Import Logic.MinimunLogic.Sound.Sound_Kripke.
 Import Logic.MinimunLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem sound_intuitionistic_Kripke_all:
-  sound G Kripke_SM (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
+  provable_sound GP Kripke_SM (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
 Proof.
   hnf; intros.
   intros _ [M m [mono po_R]].

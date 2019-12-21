@@ -7,6 +7,7 @@ Require Import Coq.Relations.Relations.
 Require Export Coq.Classes.Morphisms.
 Require Export Logic.lib.Relation_ext.
 Require Export Logic.lib.RelationPairs_ext.
+Require Import Logic.GeneralLogic.Base. (* Import for scope only *)
 
 Module KI.
 
