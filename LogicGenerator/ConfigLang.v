@@ -26,6 +26,15 @@ Inductive type :=
 | expr
 | context.
 
+Inductive parameter :=
+| CP (c: connective)
+| JP (j: judgement)
+| TP (t: type).
+
+Coercion CP: connective >-> parameter.
+Coercion JP: judgement >-> parameter.
+Coercion TP: type >-> parameter.
+
 Inductive how_connective :=
 | primitive_connective (c: connective)
 | ___predicate_over_states (mono: bool) (c: connective)
@@ -57,6 +66,25 @@ Definition USE_fin_conseq_FOR_derivable :=
   ___USE_consequence_FOR_derivable false true.
 Definition USE_mono_fin_conseq_FOR_derivable :=
   ___USE_consequence_FOR_derivable true true.
+
+Inductive rule_classes :=
+| provability_OF_impp
+| provability_OF_propositional_connectives
+| provability_OF_de_morgan
+| provability_OF_godel_dummett
+| provability_OF_classical_logic
+| provability_OF_separation_logic
+| provability_OF_emp_rule
+| provability_OF_garbage_collected_sl
+| derivitive_OF_impp
+| derivitive_OF_propositional_connectives
+| derivitive_OF_finite_derivation
+| derivitive_OF_de_morgan
+| derivitive_OF_godel_dummett
+| derivitive_OF_classical_logic
+| GEN_derivable_FROM_provable
+| GEN_provable_FROM_derivable
+.
 
 Inductive optional_proof_rule :=
 | de_morgan
@@ -194,7 +222,41 @@ match ht with
 | FROM_ensemble_expr_TO_context => [expr]
 end.
 
+(* depended connectives of proof-theories *)
+Definition DCOP (p: optional_proof_rule): list connective :=
+match p with
+| de_morgan => [negp; orp]
+| godel_dummett => [impp; orp]
+| classical => [negp; orp]
+| garbage_collected_sl => [sepcon]
+end.
+
 (** ** Checking functions **)
+
+Definition force_val_list {T: Type} (ol: option (list T)): list T :=
+  match ol with
+  | Some l => l
+  | None => nil
+  end.
+
+Definition is_Some {T: Type} (o: option T): bool :=
+  match o with
+  | Some _ => true
+  | _ => false
+  end.
+
+Definition is_nil {T: Type} (l: list T): bool :=
+  match l with
+  | nil => true
+  | _ => false
+  end.
+
+Fixpoint valid_sublist {T: Type} (ol: list (option T)): list T :=
+  match ol with
+  | nil => nil
+  | (Some x) :: ol0 => x :: valid_sublist ol0
+  | None :: ol0 => valid_sublist ol0
+  end.
 
 (* TODO Check Standard Library *)
 Module Type DecTypeSig.
@@ -204,12 +266,6 @@ Module Type DecTypeSig.
   Parameter eqb: t -> t -> bool.
 
 End DecTypeSig.
-
-Definition force_val_list {T: Type} (ol: option (list T)): list T :=
-  match ol with
-  | Some l => l
-  | None => nil
-  end.
 
 Module ListFunOverDecType (DTS: DecTypeSig).
 Import DTS.
@@ -228,6 +284,9 @@ Fixpoint test_no_dup (l: list t): bool :=
   | nil => true
   | x :: l0 => negb (existsb (eqb x) l0) && test_no_dup l0
   end.
+
+Definition test_sublist (l1 l2: list t): bool :=
+  forallb (fun x => existsb (eqb x) l2) l1.
 
 Section topo_sort.
 
@@ -344,6 +403,33 @@ Definition ht_restriction_merge (r1 r2: ht_restriction): ht_restriction :=
 Definition ht_restriction_feasible (r: ht_restriction): bool :=
   Nat.eqb (length (HowTypeList.shrink r)) (length (CTypeList.shrink (map GenT r))).
 
+Definition parameter2type (p: parameter) :=
+  match p with
+  | TP t => Some t
+  | _ => None
+  end.
+
+Definition parameter2connective (p: parameter) :=
+  match p with
+  | CP c => Some c
+  | _ => None
+  end.
+
+Definition parameter2judgement (p: parameter) :=
+  match p with
+  | JP j => Some j
+  | _ => None
+  end.
+
+Definition pick_types (p : list parameter): list type :=
+  valid_sublist (map parameter2type p).
+
+Definition pick_connectives (p : list parameter): list connective :=
+  valid_sublist (map parameter2connective p).
+
+Definition pick_judgements (p : list parameter): list judgement :=
+  valid_sublist (map parameter2judgement p).
+
 Section ComputeHT.
 
 Variable hcs: list how_connective.
@@ -381,6 +467,15 @@ Let hc_diag :=
 Let hj_diag :=
   map (fun hj => (DJOJ hj, GenJ hj)) hjs.
 
+Let primitive_hts :=
+  map snd (filter (fun d => is_nil (fst d)) ht_diag).
+
+Let primitive_hcs :=
+  map snd (filter (fun d => is_nil (fst d)) hc_diag).
+
+Let primitive_hjs :=
+  map snd (filter (fun d => is_nil (fst d)) hj_diag).
+
 Let ht_order :=
   CTypeList.topo_sort ht_diag.
 
@@ -390,17 +485,44 @@ Let hc_order :=
 Let hj_order :=
   JudgementList.topo_sort hj_diag.
 
+Variable transparent_names: list parameter.
+
+Let transparent_type :=
+  pick_types transparent_names.
+
+Let transparent_connective :=
+  pick_connectives transparent_names.
+
+Let transparent_judgement :=
+  pick_judgements transparent_names.
+
+Let legal_tt :=
+  (CTypeList.test_sublist transparent_type primitive_hts &&
+   CTypeList.test_no_dup transparent_type)%bool.
+
+Let legal_tc :=
+  (ConnectiveList.test_sublist transparent_connective primitive_hcs &&
+   ConnectiveList.test_no_dup transparent_connective)%bool.
+
+Let legal_tj :=
+  (JudgementList.test_sublist transparent_judgement primitive_hjs &&
+   JudgementList.test_no_dup transparent_judgement)%bool.
+
+Variable optional_rules: list optional_proof_rule.
+
+Let needed_connective :=
+  ConnectiveList.shrink (concat (map DCOP optional_rules)).
+
 Definition test_no_dup_defs := (hcs_no_dup && hjs_no_dup)%bool.
 Definition test_type_defs_consistent := feasible.
 Definition how_types_define := hts.
 Definition test_order_loop :=
-  match ht_order, hc_order, hj_order with
-  | Some _, Some _, Some _ => true
-  | _, _, _ => false
-  end.
+  (is_Some ht_order && is_Some hc_order && is_Some hj_order)%bool.
 Definition type_order := force_val_list ht_order.
 Definition connective_order := force_val_list hc_order.
 Definition judgement_order := force_val_list hj_order.
+Definition test_legal_transp_names := (legal_tt && legal_tc && legal_tj)%bool.
+Definition test_legal_rules := ConnectiveList.test_sublist needed_connective cs.
 
 End ComputeHT.
 
