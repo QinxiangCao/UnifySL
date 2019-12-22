@@ -2,20 +2,23 @@ Require Import ZArith.
 
 Module NaiveLang.
   Definition expr := (nat -> Z) -> Prop.
-
+  Definition context := expr -> Prop.
   Definition impp (e1 e2 : expr) : expr := fun st => e1 st -> e2 st.
-  Definition multi_imp xs y := fold_right impp y xs.
   Definition andp (e1 e2 : expr) : expr := fun st => e1 st /\ e2 st.
   Definition orp  (e1 e2 : expr) : expr := fun st => e1 st \/ e2 st.
   Definition falsep : expr := fun st => False.
-  Definition negp x := impp x falsep.
-  Definition iffp x y := andp (impp x y) (impp y x).
-  Definition truep := impp falsep falsep.
   Parameter sepcon : expr -> expr -> expr.
   Parameter wand : expr -> expr -> expr.
+  Parameter emp : expr.
 
   Definition provable (e : expr) : Prop := forall st, e st.
+End NaiveLang.
 
+Require Import Generated.
+
+Module NaiveRule.
+  Import NaiveLang.
+  Include DerivedNames (NaiveLang).
   Lemma modus_ponens :
     forall x y : expr, provable (impp x y) -> provable x -> provable y.
   Proof. unfold provable, impp. auto. Qed.
@@ -50,15 +53,19 @@ Module NaiveLang.
   Lemma falsep_elim : forall x : expr, provable (impp falsep x).
   Proof. unfold provable, impp, falsep. destruct 1. Qed.
 
+  Lemma excluded_middle : forall x : expr, provable (orp x (negp x)).
+  Proof. unfold provable, orp, negp, impp, falsep. intros; tauto. Qed.
+
   Axiom sepcon_comm_impp: forall x y, provable (impp (sepcon x y) (sepcon y x)).
   Axiom sepcon_assoc: forall x y z,
       provable (iffp (sepcon x (sepcon y z)) (sepcon (sepcon x y) z)).
   Axiom wand_sepcon_adjoint: forall x y z,
       provable (impp (sepcon x y) z) <-> provable (impp x (wand y z)).
-End NaiveLang.
+End NaiveRule.
 
-Require Import Generated.
-
-Module T := LogicTheorem NaiveLang.
+Module T := LogicTheorem NaiveLang NaiveRule.
 Module Solver := IPSolver NaiveLang.
+Import T.
+Import Solver.
 Print Module T.
+

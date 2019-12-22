@@ -58,11 +58,9 @@ Inductive provable: expr -> Prop :=
 | falsep_elim: forall x, provable (FF --> x)
 .
 
-Local Instance G: ProofTheory L := Build_AxiomaticProofTheory provable.
+Local Instance GP: Provable L := Build_Provable _ provable.
 
-Local Instance AX: NormalAxiomatization L G := Build_AxiomaticProofTheory_AX provable.
-
-Local Instance minAX: MinimunAxiomatization L G.
+Local Instance minAX: MinimunAxiomatization L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -70,7 +68,7 @@ Proof.
   + apply axiom2.
 Qed.
 
-Local Instance ipG: IntuitionisticPropositionalLogic L G.
+Local Instance ipG: IntuitionisticPropositionalLogic L GP.
 Proof.
   constructor.
   + apply andp_intros.

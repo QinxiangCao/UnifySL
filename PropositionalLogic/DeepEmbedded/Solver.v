@@ -110,9 +110,9 @@ Section Temp.
   Context {L: Language}
           {minL: MinimunLanguage L}
           {pL: PropositionalLanguage L}
-          {Gamma: ProofTheory L}
-          {minAX: MinimunAxiomatization L Gamma}
-          {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+          {GammaP: Provable L}
+          {minAX: MinimunAxiomatization L GammaP}
+          {ipGamma: IntuitionisticPropositionalLogic L GammaP}.
 
   Theorem reify_sound :
     forall table (e : Deep.expr), Deep.provable e -> provable (reflect table e).
@@ -132,7 +132,7 @@ Section Temp.
 End Temp.
 
 Module DSolver.
-  Local Existing Instances Deep.L Deep.minL Deep.pL Deep.G Deep.AX Deep.minAX Deep.ipG.
+  Local Existing Instances Deep.L Deep.minL Deep.pL Deep.GP Deep.minAX Deep.ipG.
 
   Instance Adj : Adjointness _ _ andp impp.
   Proof.
@@ -363,9 +363,9 @@ Module SolverSound.
     Context {L: Language}
             {minL: MinimunLanguage L}
             {pL: PropositionalLanguage L}
-            {Gamma: ProofTheory L}
-            {minAX: MinimunAxiomatization L Gamma}
-            {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
+            {GammaP: Provable L}
+            {minAX: MinimunAxiomatization L GammaP}
+            {ipGamma: IntuitionisticPropositionalLogic L GammaP}.
     Parameter (P Q R : expr).
     Goal (provable (impp (andp P Q) (andp Q P))).
       ipSolver.

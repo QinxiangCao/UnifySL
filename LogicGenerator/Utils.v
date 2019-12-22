@@ -10,7 +10,7 @@ Inductive Name := BuildName T (x : T).
 Arguments BuildName [T].
 
 Module NameListNotations.
-Notation "[ ]" := nil.
+Notation "[ ]" := (@nil Name).
 Notation "[ x ]" := (cons (BuildName x) nil).
 Notation "[ x ; y ; .. ; z ]" :=
   (cons (BuildName x) (cons (BuildName y) .. (cons (BuildName z) nil) ..)).
@@ -38,3 +38,10 @@ Local Ltac print_when f p :=
 
 Tactic Notation "dolist_when" tactic0(f) constr(tbl) :=
   dolist (print_when f) tbl.
+
+Ltac remove_arg x :=
+  match x with
+  | ?y ?z => remove_arg y
+  | _ => x
+  end.
+

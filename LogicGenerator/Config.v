@@ -10,7 +10,7 @@ Require Import PropositionalLogic.ProofTheory.GodelDummett.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 
-
+(*
 Definition minimum := true.
 Definition propositional_intuitionistic := true.
 Definition propositional_classical := false.
@@ -187,3 +187,4 @@ Module Separation.
       ].
   End ProofTheory.
 End Separation.
+*)
