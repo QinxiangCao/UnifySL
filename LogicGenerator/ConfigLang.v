@@ -14,7 +14,9 @@ Inductive connective :=
 | iffp
 | sepcon
 | wand
-| multi_impp.
+| emp
+| multi_imp
+| empty_context.
 
 Inductive judgement :=
 | provable
@@ -41,7 +43,8 @@ Inductive how_connective :=
 | FROM_andp_impp_TO_iffp
 | FROM_falsep_impp_TO_negp
 | FROM_falsep_impp_TO_truep
-| FROM_impp_TO_multi_impp.
+| FROM_impp_TO_multi_imp
+| FROM_empty_set_TO_empty_context.
 
 Definition primitive_connectives := map primitive_connective.
 Definition predicate_over_states := ___predicate_over_states false.
@@ -93,6 +96,22 @@ Inductive optional_proof_rule :=
 | garbage_collected_sl
 .
 
+Inductive type_classes :=
+| Language
+.
+
+Inductive connective_classes :=
+| MinimumLanguage
+| PropositionalLanguage
+| SeparationLanguage
+| EmpSeparationLanguage
+.
+
+Inductive judgement_classes :=
+| Provable
+| Derivable
+.
+
 (** * What users need not to know **)
 (** ** Parameters *)
 
@@ -105,6 +124,23 @@ Inductive how_type :=
 
 Notation "'ht_restriction'" := (list how_type).
 
+(** ** Output *)
+
+Module Output.
+Record output: Type := {
+  primitive_types: list type;
+  transparent_types: list type;
+  derived_types: list how_type;
+  primitive_connectives: list connective;
+  transparent_connectives: list connective;
+  derived_connectives: list how_connective;
+  primitive_judgements: list judgement;
+  transparent_judgements: list judgement;
+  derived_judgements: list how_judgement;
+                           
+}.
+End Output.
+                  
 (** ** Attributes *)
 
 (* infered how-type of how-connective *)
@@ -116,7 +152,8 @@ match hc with
 | FROM_andp_impp_TO_iffp => []
 | FROM_falsep_impp_TO_negp => []
 | FROM_falsep_impp_TO_truep => []
-| FROM_impp_TO_multi_impp => []
+| FROM_impp_TO_multi_imp => []
+| FROM_empty_set_TO_empty_context => [FROM_ensemble_expr_TO_context]
 end.
 
 (* infered how-type of how-judgement *)
@@ -147,7 +184,8 @@ match hc with
 | FROM_andp_impp_TO_iffp => iffp
 | FROM_falsep_impp_TO_negp => negp
 | FROM_falsep_impp_TO_truep => truep
-| FROM_impp_TO_multi_impp => multi_impp
+| FROM_impp_TO_multi_imp => multi_imp
+| FROM_empty_set_TO_empty_context => empty_context
 end.
 
 (* generated judgement *)
@@ -181,7 +219,9 @@ match c with
 | iffp
 | sepcon
 | wand
-| multi_impp => [expr]
+| emp
+| multi_imp => [expr]
+| empty_context => [context]
 end.
 
 (* depended types of judgements *)
@@ -200,7 +240,8 @@ match hc with
 | FROM_andp_impp_TO_iffp => [andp; impp]
 | FROM_falsep_impp_TO_negp => [falsep; impp]
 | FROM_falsep_impp_TO_truep => [falsep; impp]
-| FROM_impp_TO_multi_impp => [impp]
+| FROM_impp_TO_multi_imp => [impp]
+| FROM_empty_set_TO_empty_context => []
 end.
 
 (* dependent judgements of how-judgement *)
@@ -288,6 +329,16 @@ Fixpoint test_no_dup (l: list t): bool :=
 Definition test_sublist (l1 l2: list t): bool :=
   forallb (fun x => existsb (eqb x) l2) l1.
 
+Fixpoint inv_with_hint {A: Type} (f: A -> t) (hint: list A) (x: t): option A :=
+  match hint with
+  | nil => None
+  | a :: hint0 => if eqb x (f a) then Some a else inv_with_hint f hint0 x
+  end.
+
+Definition map_inv_with_hint {A: Type}
+           (f: A -> t) (hint: list A) (l: list t): list A :=
+  valid_sublist (map (inv_with_hint f hint) l).
+
 Section topo_sort.
 
 Fixpoint pick_one (cur: list (list t * t)): option t :=
@@ -373,7 +424,9 @@ match c1, c2 with
 | iffp, iffp
 | sepcon, sepcon
 | wand, wand
-| multi_impp, multi_impp => true
+| emp, emp
+| multi_imp, multi_imp
+| empty_context, empty_context => true
 | _, _ => false
 end.
 
@@ -430,6 +483,24 @@ Definition pick_connectives (p : list parameter): list connective :=
 Definition pick_judgements (p : list parameter): list judgement :=
   valid_sublist (map parameter2judgement p).
 
+Definition is_primitive_type (ht: how_type): option type :=
+  match ht with
+  | primitive_type t => Some t
+  | _ => None
+  end.
+
+Definition is_primitive_connective (hc: how_connective): option connective :=
+  match hc with
+  | primitive_connective c => Some c
+  | _ => None
+  end.
+
+Definition is_primitive_judgement (hj: how_judgement): option judgement :=
+  match hj with
+  | primitive_judgement j => Some j
+  | _ => None
+  end.
+
 Section ComputeHT.
 
 Variable hcs: list how_connective.
@@ -458,55 +529,67 @@ Let hts :=
   inferred_hts ++
   map primitive_type (CTypeList.set_minus ts (map GenT inferred_hts)).
 
-Let ht_diag :=
+Let ts_diag :=
   map (fun ht => (DTOT ht, GenT ht)) hts.
 
-Let hc_diag :=
+Let cs_diag :=
   map (fun hc => (DCOC hc, GenC hc)) hcs.
 
-Let hj_diag :=
+Let js_diag :=
   map (fun hj => (DJOJ hj, GenJ hj)) hjs.
 
-Let primitive_hts :=
-  map snd (filter (fun d => is_nil (fst d)) ht_diag).
+Let primitive_ts :=
+  valid_sublist (map is_primitive_type hts).
 
-Let primitive_hcs :=
-  map snd (filter (fun d => is_nil (fst d)) hc_diag).
+Let primitive_cs :=
+  valid_sublist (map is_primitive_connective hcs).
 
-Let primitive_hjs :=
-  map snd (filter (fun d => is_nil (fst d)) hj_diag).
+Let primitive_js :=
+  valid_sublist (map is_primitive_judgement hjs).
 
-Let ht_order :=
-  CTypeList.topo_sort ht_diag.
+Let ts_order :=
+  CTypeList.topo_sort ts_diag.
 
-Let hc_order :=
-  ConnectiveList.topo_sort hc_diag.
+Let cs_order :=
+  ConnectiveList.topo_sort cs_diag.
 
-Let hj_order :=
-  JudgementList.topo_sort hj_diag.
+Let js_order :=
+  JudgementList.topo_sort js_diag.
+
+Let derived_ts :=
+  CTypeList.map_inv_with_hint GenT hts
+    (CTypeList.set_minus (force_val_list ts_order) primitive_ts).
+
+Let derived_cs :=
+  ConnectiveList.map_inv_with_hint GenC hcs
+    (ConnectiveList.set_minus (force_val_list cs_order) primitive_cs).
+
+Let derived_js :=
+  JudgementList.map_inv_with_hint GenJ hjs
+    (JudgementList.set_minus (force_val_list js_order) primitive_js).
 
 Variable transparent_names: list parameter.
 
-Let transparent_type :=
+Let transparent_ts :=
   pick_types transparent_names.
 
-Let transparent_connective :=
+Let transparent_cs :=
   pick_connectives transparent_names.
 
-Let transparent_judgement :=
+Let transparent_js :=
   pick_judgements transparent_names.
 
 Let legal_tt :=
-  (CTypeList.test_sublist transparent_type primitive_hts &&
-   CTypeList.test_no_dup transparent_type)%bool.
+  (CTypeList.test_sublist transparent_ts primitive_ts &&
+   CTypeList.test_no_dup transparent_ts)%bool.
 
 Let legal_tc :=
-  (ConnectiveList.test_sublist transparent_connective primitive_hcs &&
-   ConnectiveList.test_no_dup transparent_connective)%bool.
+  (ConnectiveList.test_sublist transparent_cs primitive_cs &&
+   ConnectiveList.test_no_dup transparent_cs)%bool.
 
 Let legal_tj :=
-  (JudgementList.test_sublist transparent_judgement primitive_hjs &&
-   JudgementList.test_no_dup transparent_judgement)%bool.
+  (JudgementList.test_sublist transparent_js primitive_js &&
+   JudgementList.test_no_dup transparent_js)%bool.
 
 Variable optional_rules: list optional_proof_rule.
 
@@ -517,13 +600,24 @@ Definition test_no_dup_defs := (hcs_no_dup && hjs_no_dup)%bool.
 Definition test_type_defs_consistent := feasible.
 Definition how_types_define := hts.
 Definition test_order_loop :=
-  (is_Some ht_order && is_Some hc_order && is_Some hj_order)%bool.
-Definition type_order := force_val_list ht_order.
-Definition connective_order := force_val_list hc_order.
-Definition judgement_order := force_val_list hj_order.
+  (is_Some ts_order && is_Some cs_order && is_Some js_order)%bool.
 Definition test_legal_transp_names := (legal_tt && legal_tc && legal_tj)%bool.
 Definition test_legal_rules := ConnectiveList.test_sublist needed_connective cs.
 
+Definition result: Output.output :=
+  Output.Build_output
+    primitive_ts
+    transparent_ts
+    derived_ts
+    primitive_cs
+    transparent_cs
+    derived_cs
+    primitive_js
+    transparent_js
+    derived_js
+    .
+Definition __cs := cs_order.
+Definition __cs_diag := cs_diag.    
 End ComputeHT.
 
 Module test1.
@@ -538,7 +632,7 @@ Definition how_connectives :=
   ;FROM_andp_impp_TO_iffp
   ;FROM_falsep_impp_TO_negp
   ;FROM_falsep_impp_TO_truep
-  ;FROM_impp_TO_multi_impp
+  ;FROM_impp_TO_multi_imp
   ].
 
 Definition how_judgements :=
@@ -546,13 +640,14 @@ Definition how_judgements :=
   ;FROM_provable_TO_derivable
   ].
 
+Definition transparent_names :=
+  [expr:parameter].
+
 Eval compute in (test_no_dup_defs how_connectives how_judgements).
 Eval compute in (test_type_defs_consistent how_connectives how_judgements).
 Eval compute in (test_order_loop how_connectives how_judgements).
 Eval compute in (how_types_define how_connectives how_judgements).
-Eval compute in (type_order how_connectives how_judgements).
-Eval compute in (connective_order how_connectives).
-Eval compute in (judgement_order how_judgements).
+Eval compute in (result how_connectives how_judgements transparent_names).
 
 End test1.
 
@@ -568,7 +663,7 @@ Definition how_connectives :=
   ;FROM_andp_impp_TO_iffp
   ;FROM_falsep_impp_TO_negp
   ;FROM_falsep_impp_TO_truep
-  ;FROM_impp_TO_multi_impp
+  ;FROM_impp_TO_multi_imp
   ].
 
 Definition how_judgements :=
@@ -576,12 +671,61 @@ Definition how_judgements :=
   ;FROM_derivable_TO_provable
   ].
 
+Definition transparent_names :=
+  [expr:parameter; andp:parameter].
+
 Eval compute in (test_no_dup_defs how_connectives how_judgements).
 Eval compute in (test_type_defs_consistent how_connectives how_judgements).
 Eval compute in (test_order_loop how_connectives how_judgements).
 Eval compute in (how_types_define how_connectives how_judgements).
-Eval compute in (type_order how_connectives how_judgements).
-Eval compute in (connective_order how_connectives).
-Eval compute in (judgement_order how_judgements).
+Eval compute in (result how_connectives how_judgements transparent_names).
 
 End test2.
+
+Module test3.
+
+Definition how_connectives :=
+  [primitive_connective impp
+  ;primitive_connective andp
+  ;primitive_connective orp
+  ;primitive_connective falsep
+  ;primitive_connective sepcon
+  ;primitive_connective wand
+  ;primitive_connective emp
+  ;FROM_andp_impp_TO_iffp
+  ;FROM_falsep_impp_TO_negp
+  ;FROM_falsep_impp_TO_truep
+  ;FROM_impp_TO_multi_imp
+  ;FROM_empty_set_TO_empty_context
+  ].
+
+Definition how_judgements :=
+  [primitive_judgement provable
+  ;FROM_provable_TO_derivable
+  ].
+
+Definition transparent_names :=
+  [expr:parameter].
+
+Eval compute in (test_no_dup_defs how_connectives how_judgements).
+Eval compute in (test_type_defs_consistent how_connectives how_judgements).
+Eval compute in (test_order_loop how_connectives how_judgements).
+Eval compute in (how_types_define how_connectives how_judgements).
+Eval compute in (result how_connectives how_judgements transparent_names).
+
+End test3.
+
+(*
+Definition primitive_types :=
+Definition transparent_types :=
+Definition derived_types :=
+Definition primitive_connectives :=
+Definition transparent_connectives :=
+Definition derived_connectives :=
+Definition primitive_judgements :=
+Definition transparent_judgements :=
+Definition derived_judgements :=
+Definition primary_rules: list Name :=
+Definition derived_rules :=
+Definition derived_instances :=
+*)

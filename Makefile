@@ -8,7 +8,7 @@ COQDEP=$(COQBIN)coqdep
 
 DIRS = \
   lib GeneralLogic MinimunLogic PropositionalLogic ModalLogic SeparationLogic \
-  QuantifierLogic Extensions HoareLogic
+  QuantifierLogic Extensions HoareLogic LogicGenerator
 
 COQ_FLAG = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 DEP_FLAG = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
@@ -219,6 +219,9 @@ HoareLogic_FILES = \
   Sound_Basic.v Sound_Imp.v Sound_Frame.v \
   Sound_Resource_Angelic.v Sound_Resource_TraceSemantics.v
 
+LogicGenerator_FILES = \
+  ConfigLang.v ConfigDenot.v Utils.v #Generate.v 
+
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
   $(GeneralLogic_FILES:%.v=GeneralLogic/%.v) \
@@ -228,7 +231,8 @@ FILES = \
   $(QuantifierLogic_FILES:%.v=QuantifierLogic/%.v) \
   $(SeparationLogic_FILES:%.v=SeparationLogic/%.v) \
   $(Extensions_FILES:%.v=Extensions/%.v) \
-  $(HoareLogic_FILES:%.v=HoareLogic/%.v)
+  $(HoareLogic_FILES:%.v=HoareLogic/%.v) \
+  $(LogicGenerator_FILES:%.v=LogicGenerator/%.v)
 
 $(FILES:%.v=%.vo): %.vo: %.v
 	@echo COQC $*.v

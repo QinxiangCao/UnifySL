@@ -7,18 +7,12 @@ dst         := $(dst_dir)/Generated.v
 
 .PHONY: all clean
 
-all: $(dst) ConfigLang.vo
+all: $(dst)
 
-Utils.vo: Utils.v
-	$(coq_exe) $(coq_flags) Utils.v
-
-Config.vo: Config.v Utils.vo
+Config.vo: Config.v
 	$(coq_exe) $(coq_flags) Config.v
 
-ConfigLang.vo: ConfigLang.v
-	$(coq_exe) $(coq_flags) ConfigLang.v
-
-$(dst): $(src) Utils.vo Config.vo
+$(dst): $(src) Config.vo
 	$(coq_exe) $(coq_flags) $(src) > $@
 
 test: $(dst)

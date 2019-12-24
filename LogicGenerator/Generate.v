@@ -1,5 +1,4 @@
-Require Import LogicGenerator.Utils.
-(*Require LogicGenerator.Config.*)
+Require Import Coq.Lists.List.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimunLogic.Syntax.
@@ -9,10 +8,15 @@ Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
+Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 
-Require Import Lists.List.
+Require Import Logic.LogicGenerator.Utils.
+Require Import Logic.LogicGenerator.ConfigDenot.
+Require Logic.LogicGenerator.ConfigLang.
+
+Require Config.
 
 Section Generate.
 Context {L: Language}
@@ -45,6 +49,59 @@ Context {L: Language}
         
 Import NameListNotations.
 
+Definition foo :=
+  ltac:(
+    let res := eval compute in
+    (ConfigLang.result
+      Config.how_connectives Config.how_judgements Config.transparent_names)
+    in exact res).
+
+Definition primitive_types: list Name :=
+  map_with_hint
+    (ConfigDenot.C.types, ConfigDenot.PreList.types)
+    (ConfigLang.Output.primitive_types foo).
+
+Definition transparent_types: list Name :=
+  map_with_hint
+    (ConfigDenot.C.types, ConfigDenot.PreList.types)
+    (ConfigLang.Output.transparent_types foo).
+  
+Definition derived_types: list Name :=
+  map_with_hint
+    (ConfigDenot.C.how_types, ConfigDenot.PreList.how_types)
+    (ConfigLang.Output.derived_types foo).
+  
+Definition primitive_connectives: list Name :=
+  map_with_hint
+    (ConfigDenot.C.connectives, ConfigDenot.PreList.connectives)
+    (ConfigLang.Output.primitive_connectives foo).
+
+Definition transparent_connectives: list Name :=
+  map_with_hint
+    (ConfigDenot.C.connectives, ConfigDenot.PreList.connectives)
+    (ConfigLang.Output.transparent_connectives foo).
+
+Definition derived_connectives: list Name :=
+  map_with_hint
+    (ConfigDenot.C.how_connectives, ConfigDenot.PreList.how_connectives)
+    (ConfigLang.Output.derived_connectives foo).
+
+Definition primitive_judgements: list Name :=
+  map_with_hint
+    (ConfigDenot.C.judgements, ConfigDenot.PreList.judgements)
+    (ConfigLang.Output.primitive_judgements foo).
+
+Definition transparent_judgements: list Name :=
+  map_with_hint
+    (ConfigDenot.C.judgements, ConfigDenot.PreList.judgements)
+    (ConfigLang.Output.transparent_judgements foo).
+
+Definition derived_judgements: list Name :=
+  map_with_hint
+    (ConfigDenot.C.how_judgements, ConfigDenot.PreList.how_judgements)
+    (ConfigLang.Output.derived_judgements foo).
+
+(*
 Definition primitive_types :=
   [ expr ].          
 
@@ -82,6 +139,7 @@ Definition transparent_judgements :=
 
 Definition derived_judgements :=
   [ (derivable, fun Phi x => exists xs, Forall Phi xs /\ provable (multi_imp xs x)) ].
+*)
 
 Definition primary_rules: list Name :=
   [ modus_ponens
@@ -111,6 +169,7 @@ Definition derived_rules :=
   ; provable_add_multi_imp_left_tail
   ; provable_multi_imp_modus_ponens
   ; provable_multi_imp_weaken
+  ; provable_proper_iffp
   ; demorgan_orp_negp
   ; demorgan_negp_orp
   ; provable_truep
@@ -138,6 +197,10 @@ Definition derived_rules :=
   ; wand_mono
   ; orp_wand
   ; sepcon_mono
+  ].
+
+Definition derived_instances :=
+  [ provable_proper_iffp
   ].
 
 Definition Build_Language := Build_Language.
@@ -173,7 +236,7 @@ Definition aux_instances :=
 
 Import ListNotations.
 
-Inductive PrintType := IPar (Inline_list: list Name) | Par | Axm | Der | Def | Emp | AIns.
+Inductive PrintType := IPar (Inline_list: list Name) | Axm | Der | Def | AIns | DIns.
 
 Ltac print prt name :=
   match name with
@@ -187,19 +250,18 @@ Ltac print prt name :=
         | true => idtac "  Parameter Inline" n ":" T "."
         | false => idtac "  Parameter" n ":" T "."
         end
-      | Par => idtac "  Parameter" n ":" T "."
       | Axm => idtac "  Axiom" n ":" T "."
       | Der => match n with
                | (?n0, ?n1) => idtac "  Definition" n0 ":=" n1 "."
                end
       | Def => idtac "  Definition" n ":" T ":=" n "."
-      | Emp => idtac "  Definition" n ":= (* Fill in here *) ." (* TODO: delete it *)
       | AIns => match n with
                 | (?n0, ?n1) =>
                   match type of n0 with
                   | ?T0 => idtac "  Instance" n0 ":" T0 ":=" n1 "."
                   end
                 end
+      | DIns => idtac "  Existing Instance" n "."
       end
     end
   end.
@@ -221,6 +283,7 @@ Ltac two_stage_print :=
 (*  let := eval unfold in in *)
 
   idtac "Require Import Coq.Lists.List.";
+  idtac "Require Import Coq.Sets.Ensembles.";
 
   newline;
 
@@ -234,7 +297,7 @@ Ltac two_stage_print :=
   newline;
 
   idtac "Module DerivedNames (Names: LanguageSig).";
-  idtac "Import Names.";
+  idtac "  Import Names.";
   dolist (print Der) derived_connectives;
   dolist (print Der) derived_judgements;
   idtac "End DerivedNames.";
@@ -253,6 +316,7 @@ Ltac two_stage_print :=
   idtac "  Include Rules.";
   idtac "  Import Names Rules.";
   dolist (print Axm) derived_rules;
+  dolist (print DIns) derived_instances;
   idtac "End LogicTheoremSig.";
 
   newline;
@@ -266,6 +330,7 @@ Ltac two_stage_print :=
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.";
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.";
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.Classical.";
+  idtac "Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.";
   idtac "Require Import Logic.SeparationLogic.Syntax.";
   idtac "Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.";
 
@@ -276,6 +341,7 @@ Ltac two_stage_print :=
   idtac "  Include Rules.";
   dolist (print AIns) aux_instances;
   dolist (print Def) derived_rules;
+  dolist (print DIns) derived_instances;
   idtac "End LogicTheorem.";
 
   newline;
