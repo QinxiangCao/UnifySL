@@ -2,9 +2,9 @@ Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
-Require Import Logic.MinimunLogic.Syntax.
-Require Logic.MinimunLogic.Sound.Sound_Classical_Trivial.
-Require Logic.MinimunLogic.Sound.Sound_Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Logic.MinimumLogic.Sound.Sound_Classical_Trivial.
+Require Logic.MinimumLogic.Sound.Sound_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
@@ -32,8 +32,8 @@ Existing Instances PropositionalLanguage.L PropositionalLanguage.minL Propositio
 
 Section Sound_Classical_Trivial.
 
-Import Logic.MinimunLogic.Semantics.Trivial.
-Import Logic.MinimunLogic.Sound.Sound_Classical_Trivial.
+Import Logic.MinimumLogic.Semantics.Trivial.
+Import Logic.MinimumLogic.Sound.Sound_Classical_Trivial.
 Import Logic.PropositionalLogic.Sound.Sound_Classical_Trivial.
 
 Existing Instances ProofTheories.ClassicalPropositionalLogic.minAX ProofTheories.ClassicalPropositionalLogic.ipAX.
@@ -63,7 +63,7 @@ End Sound_Classical_Trivial.
 
 Section Sound_Kripke.
 
-Import Logic.MinimunLogic.Sound.Sound_Kripke.
+Import Logic.MinimumLogic.Sound.Sound_Kripke.
 Import Logic.PropositionalLogic.Sound.Sound_Kripke.
 Import Logic.PropositionalLogic.DeepEmbedded.KripkeSemantics.
 

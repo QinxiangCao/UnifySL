@@ -3,27 +3,27 @@ Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.TheoryOfSequentCalculus.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.TheoryOfSequentCalculus.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.TheoryOfSequentCalculus.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
 
-Definition multi_imp {L: Language} {minL: MinimunLanguage L} (xs: list expr) (y: expr): expr :=
+Definition multi_imp {L: Language} {minL: MinimumLanguage L} (xs: list expr) (y: expr): expr :=
   fold_right impp y xs.
 
-Class NormalAxiomatization (L: Language) {minL: MinimunLanguage L} (GammaP: Provable L) (GammaD: Derivable L): Type := {
+Class NormalAxiomatization (L: Language) {minL: MinimumLanguage L} (GammaP: Provable L) (GammaD: Derivable L): Type := {
   derivable_provable: forall Phi y, derivable Phi y <->
                         exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y)
 }.
 
-Class MinimunAxiomatization (L: Language) {minL: MinimunLanguage L} (Gamma: Provable L) := {
+Class MinimumAxiomatization (L: Language) {minL: MinimumLanguage L} (Gamma: Provable L) := {
   modus_ponens: forall x y, |-- (x --> y) -> |-- x -> |-- y;
   axiom1: forall x y, |-- (x --> (y --> x));
   axiom2: forall x y z, |-- ((x --> y --> z) --> (x --> y) --> (x --> z))
 }.
 
-Class MinimunSequentCalculus (L: Language) {minL: MinimunLanguage L} (Gamma: Derivable L) := {
+Class MinimumSequentCalculus (L: Language) {minL: MinimumLanguage L} (Gamma: Derivable L) := {
   deduction_modus_ponens: forall Phi x y, Phi |-- x -> Phi |-- x --> y -> Phi |-- y;
   deduction_impp_intros: forall Phi x y, Phi;; x |-- y -> Phi |-- x --> y
 }.
@@ -31,9 +31,9 @@ Class MinimunSequentCalculus (L: Language) {minL: MinimunLanguage L} (Gamma: Der
 Section DerivableRulesFromAxiomatization.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}.
+        {minAX: MinimumAxiomatization L Gamma}.
 
 Lemma provable_impp_refl: forall (x: expr), |-- x --> x.
 Proof.
@@ -143,9 +143,9 @@ End DerivableRulesFromAxiomatization.
 Section DerivableRules_multi_impp.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}.
+        {minAX: MinimumAxiomatization L Gamma}.
 
 Lemma provable_multi_imp_shrink: forall (xs: list expr) (x y: expr), |-- (x --> multi_imp xs (x --> y)) --> multi_imp xs (x --> y).
 Proof.
@@ -259,7 +259,7 @@ End DerivableRules_multi_impp.
 Section Axiomatization2SequentCalculus.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
         {AX: NormalAxiomatization L GammaP GammaD}.
@@ -277,7 +277,7 @@ Proof.
     inversion H3.
 Qed.
 
-Context {minAX: MinimunAxiomatization L GammaP}.
+Context {minAX: MinimumAxiomatization L GammaP}.
 
 Lemma Axiomatization2SequentCalculus_fwSC: FiniteWitnessedSequentCalculus L GammaD.
 Proof.
@@ -293,7 +293,7 @@ Proof.
   rewrite Forall_forall; auto.
 Qed.
 
-Lemma Axiomatization2SequentCalculus_minSC: MinimunSequentCalculus L GammaD.
+Lemma Axiomatization2SequentCalculus_minSC: MinimumSequentCalculus L GammaD.
 Proof.
   constructor.
   + intros.
@@ -361,8 +361,8 @@ Context {L: Language}
         {GammaD: Derivable L}
         {bSC: BasicSequentCalculus L GammaD}.
 
-Context {minL: MinimunLanguage L}
-        {minSC: MinimunSequentCalculus L GammaD}.
+Context {minL: MinimumLanguage L}
+        {minSC: MinimumSequentCalculus L GammaD}.
 
 Lemma deduction_impp_elim: forall Phi x y,
   Phi |-- impp x y ->
@@ -481,12 +481,12 @@ Section SequentCalculus2Axiomatization.
 Context {L: Language}
         {GammaP: Provable L}
         {GammaD: Derivable L}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}.
+        {minSC: MinimumSequentCalculus L GammaD}.
 
-Theorem SequentCalculus2Axiomatization_minAX: MinimunAxiomatization L GammaP.
+Theorem SequentCalculus2Axiomatization_minAX: MinimumAxiomatization L GammaP.
 Proof.
   constructor.
   + intros x y.
@@ -527,7 +527,7 @@ End SequentCalculus2Axiomatization.
 
 Section Transformation.
 
-Context {L: Language} {minL: MinimunLanguage L}.
+Context {L: Language} {minL: MinimumLanguage L}.
   
 Definition Provable2Derivable {GammaP: Provable L}: Derivable L :=
   Build_Derivable L (fun Phi y => exists xs,

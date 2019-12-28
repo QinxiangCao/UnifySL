@@ -3,7 +3,7 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.TheoryOfSequentCalculus.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -12,7 +12,7 @@ Section PropertiesOfSequentCalculus.
 
 Context (L: Language)
         (Gamma: Derivable L)
-        {minL: MinimunLanguage L}.
+        {minL: MinimumLanguage L}.
 
 Definition DeductionMP: Prop :=
   forall (Phi: context) (x y: expr), Phi |-- x -> Phi |-- x --> y -> Phi |-- y.
@@ -29,7 +29,7 @@ Section TheoryOfSequentCalculus.
 
 Context {L: Language}
         {Gamma: Derivable L}
-        {minL: MinimunLanguage L}.
+        {minL: MinimumLanguage L}.
 
 Lemma DeductionMP_DerivableAssu_DeductionWeaken_2_DeductionImpElim:
   DeductionMP L Gamma ->

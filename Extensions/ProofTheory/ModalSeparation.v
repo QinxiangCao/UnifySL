@@ -1,10 +1,10 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
@@ -21,23 +21,23 @@ Import PropositionalLanguageNotation.
 Import ModalLanguageNotation.
 Import SeparationLogicNotation.
 
-Class SeparationTransparentModality1 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
+Class SeparationTransparentModality1 (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
   sepcon_boxp: forall x y, |-- boxp x * boxp y --> boxp (x * y)
 }.
 
-Class SeparationTransparentModality2 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
+Class SeparationTransparentModality2 (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
   boxp_sepcon: forall x y, |-- boxp (x * y) --> boxp x * boxp y
 }.
 
-Class SeparationTransparentModality3 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
+Class SeparationTransparentModality3 (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
   wand_boxp: forall x y, |-- (boxp x -* boxp y) --> boxp (x -* y)
 }.
 
-Class SeparationTransparentModality4 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
+Class SeparationTransparentModality4 (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} := {
   boxp_wand: forall x y, |-- boxp (x -* y) --> (boxp x -* boxp y)
 }.
 
-Instance SeparationTransparentModality14 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} {sm1Gamma: SeparationTransparentModality1 L Gamma}:
+Instance SeparationTransparentModality14 (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} {sm1Gamma: SeparationTransparentModality1 L Gamma}:
   SeparationTransparentModality4 L Gamma.
 Proof.
   constructor.
@@ -48,7 +48,7 @@ Proof.
   apply provable_impp_refl.
 Qed.
 
-Instance SeparationTransparentModality41 (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} {sm3Gamma: SeparationTransparentModality4 L Gamma}:
+Instance SeparationTransparentModality41 (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} {KmGamma: SystemK L Gamma} {sGamma: SeparationLogic L Gamma} {sm3Gamma: SeparationTransparentModality4 L Gamma}:
   SeparationTransparentModality1 L Gamma.
 Proof.
   constructor.

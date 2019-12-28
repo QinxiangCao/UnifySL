@@ -5,11 +5,11 @@ Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.DeepEmbedded.MinimunLanguage.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.DeepEmbedded.MinimumLanguage.
 
-Import MinimunLanguage.
+Import MinimumLanguage.
 
 Record frame: Type := {
   underlying_set:> Type;
@@ -43,7 +43,7 @@ Record model: Type := {
   elm: underlying_model
 }.
 
-Instance L: Language := MinimunLanguage.L Var.
+Instance L: Language := MinimumLanguage.L Var.
 Instance MD: Model := Build_Model model.
 
 Instance kMD: KripkeModel MD :=
@@ -74,9 +74,9 @@ Proof.
   + apply H.
 Qed.
 
-Instance kminSM (M: Kmodel): KripkeMinimunSemantics L MD M SM.
+Instance kminSM (M: Kmodel): KripkeMinimumSemantics L MD M SM.
 Proof.
-  apply Build_KripkeMinimunSemantics.
+  apply Build_KripkeMinimumSemantics.
   intros; apply Same_set_refl.
 Defined.
 

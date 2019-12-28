@@ -4,10 +4,10 @@ Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.ShallowEmbedded.MonoPredicateAsLang.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Sound.Sound_Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Sound.Sound_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -16,7 +16,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Sound.Sound_Kripke.
 
-Instance MonoPred_minL (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: MinimunLanguage (MonoPred_L A) := Build_MinimunLanguage (MonoPred_L A) SemanticsMono.impp.
+Instance MonoPred_minL (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: MinimumLanguage (MonoPred_L A) := Build_MinimumLanguage (MonoPred_L A) SemanticsMono.impp.
 Instance MonoPred_pL (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: PropositionalLanguage (MonoPred_L A) := Build_PropositionalLanguage (MonoPred_L A) SemanticsMono.andp SemanticsMono.orp SemanticsMono.falsep.
 
 Instance MonoPred_kiSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: KripkeIntuitionisticSemantics (MonoPred_L A) (Build_Model A) (tt: @Kmodel _ (unit_kMD (Build_Model A))) (MonoPred_SM A).
@@ -25,7 +25,7 @@ Proof.
   intros; apply (proj2_sig _).
 Qed.
 
-Instance MonoPred_kminSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: KripkeMinimunSemantics (MonoPred_L A) (Build_Model A) (tt: @Kmodel _ (unit_kMD (Build_Model A))) (MonoPred_SM A).
+Instance MonoPred_kminSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: KripkeMinimumSemantics (MonoPred_L A) (Build_Model A) (tt: @Kmodel _ (unit_kMD (Build_Model A))) (MonoPred_SM A).
 Proof.
   constructor.
   intros; apply Same_set_refl.
@@ -43,7 +43,7 @@ Instance MonoPred_Gamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation}:
   Provable (MonoPred_L A) :=
   Build_Provable _ (fun x: expr => forall a: A, proj1_sig x a).
 
-Instance MonoPred_minAX (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: MinimunAxiomatization (MonoPred_L A) (MonoPred_Gamma A).
+Instance MonoPred_minAX (A: Type) {R: Relation A} {po_R: PreOrder Krelation}: MinimumAxiomatization (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   + intros x y ? ? m.

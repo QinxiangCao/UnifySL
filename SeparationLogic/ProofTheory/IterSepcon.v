@@ -6,10 +6,10 @@ Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.List_Func_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.ProofTheoryPatterns.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.ProofTheoryPatterns.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -34,12 +34,12 @@ Definition iter_wand {L: Language} {sL: SeparationLanguage L} (xs: list expr) (y
 Section IterSepconRules.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {s'L: SeparationEmpLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}
+        {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
         {sAX: SeparationLogic L Gamma}
         {EmpsAX: EmpSeparationLogic L Gamma}.

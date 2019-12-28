@@ -4,9 +4,9 @@ Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
-Require Import Logic.MinimunLogic.Syntax.
-Require Logic.MinimunLogic.Semantics.Kripke.
-Require Logic.MinimunLogic.Semantics.Trivial.
+Require Import Logic.MinimumLogic.Syntax.
+Require Logic.MinimumLogic.Semantics.Kripke.
+Require Logic.MinimumLogic.Semantics.Trivial.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -17,7 +17,7 @@ Import KripkeModelNotation_Intuitionistic.
 Section SemanticEquiv.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {MD: Model}
         {SM: Semantics L MD}.
 
@@ -29,8 +29,8 @@ Proof.
   auto.
 Qed.
 
-Lemma Trivial2Kripke {tpSM: Trivial.TrivialMinimunSemantics L MD SM}: 
-  @Kripke.KripkeMinimunSemantics L minL MD (unit_kMD _) tt eq SM.
+Lemma Trivial2Kripke {tpSM: Trivial.TrivialMinimumSemantics L MD SM}: 
+  @Kripke.KripkeMinimumSemantics L minL MD (unit_kMD _) tt eq SM.
 Proof.
   constructor.
   + intros.

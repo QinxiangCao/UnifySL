@@ -10,10 +10,10 @@ Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.GeneralLogic.Complete.Lindenbaum.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -32,18 +32,18 @@ Import KripkeModelNotation_Intuitionistic.
 Section Canonical.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
+        {minSC: MinimumSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
         {R: Relation (Kworlds M)}
         {SM: Semantics L MD}
-        {kminSM: KripkeMinimunSemantics L MD M SM}
+        {kminSM: KripkeMinimumSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}.
 
 Context (cP: context -> Prop)
@@ -85,7 +85,7 @@ Qed.
 Lemma GodelDummett_canonical_no_branch
       {GammaP: Provable L}
       {SC: NormalSequentCalculus L GammaP Gamma}
-      {minAX: MinimunAxiomatization L GammaP}
+      {minAX: MinimumAxiomatization L GammaP}
       {ipAX: IntuitionisticPropositionalLogic L GammaP}
       {gdpAX: GodelDummettPropositionalLogic L GammaP}
       (AL_DC: at_least derivable_closed cP)
@@ -132,7 +132,7 @@ Lemma DeMorgan_canonical_branch_join
       {GammaP: Provable L}
       {AX: NormalAxiomatization L GammaP Gamma}
       {SC: NormalSequentCalculus L GammaP Gamma}
-      {minAX: MinimunAxiomatization L GammaP}
+      {minAX: MinimumAxiomatization L GammaP}
       {ipAX: IntuitionisticPropositionalLogic L GammaP}
       {dmpAX: DeMorganPropositionalLogic L GammaP}
       (AL_DC: at_least derivable_closed cP)

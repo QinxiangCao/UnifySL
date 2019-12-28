@@ -12,12 +12,12 @@ Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.GeneralLogic.Complete.Lindenbaum_Kripke.
 Require Import Logic.GeneralLogic.Complete.Canonical_Kripke.
 Require Import Logic.GeneralLogic.Complete.Complete_Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
-Require Import Logic.MinimunLogic.Complete.Lindenbaum_Kripke.
-Require Import Logic.MinimunLogic.Complete.Truth_Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimumLogic.Complete.Lindenbaum_Kripke.
+Require Import Logic.MinimumLogic.Complete.Truth_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -69,10 +69,10 @@ Proof. solve_at_least. Qed.
 Context {SC: NormalSequentCalculus _ GammaP GammaD}
         {bSC: BasicSequentCalculus _ GammaD}
         {fwSC: FiniteWitnessedSequentCalculus _ GammaD}
-        {minSC: MinimunSequentCalculus _ GammaD}
+        {minSC: MinimumSequentCalculus _ GammaD}
         {ipSC: IntuitionisticPropositionalSequentCalculus _ GammaD}
         {AX: NormalAxiomatization _ GammaP GammaD}
-        {minAX: MinimunAxiomatization _ GammaP}
+        {minAX: MinimumAxiomatization _ GammaP}
         {ipAX: IntuitionisticPropositionalLogic _ GammaP}.
 
 Lemma LIN_CD: forall x: expr, Lindenbaum_constructable (cannot_derive x) cP.

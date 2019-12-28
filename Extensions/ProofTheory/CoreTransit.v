@@ -1,13 +1,13 @@
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.Classes.RelationClasses.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.Extensions.Syntax_CoreTransit.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
@@ -29,7 +29,7 @@ Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import CoreTransitNotation.
 
-Class CoreTransitSeparationLogic (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {CtsL: CoreTransitSeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipAX: IntuitionisticPropositionalLogic L Gamma} {sAX: SeparationLogic L Gamma} {CosAX: Corable L Gamma}:= {
+Class CoreTransitSeparationLogic (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {CtsL: CoreTransitSeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipAX: IntuitionisticPropositionalLogic L Gamma} {sAX: SeparationLogic L Gamma} {CosAX: Corable L Gamma}:= {
   core_tr_SystemK: @SystemK L minL pL (ct_mL L) Gamma minAX ipAX;
   core_tr_PTransparent: @PropositionalTransparentModality L minL pL (ct_mL L) Gamma minAX ipAX core_tr_SystemK;
   core_tr_STransparent1: @SeparationTransparentModality1 L minL pL (ct_mL L) sL Gamma minAX ipAX core_tr_SystemK sAX;
@@ -41,12 +41,12 @@ Class CoreTransitSeparationLogic (L: Language) {minL: MinimunLanguage L} {pL: Pr
 Section CoreTransit.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {CtsL: CoreTransitSeparationLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}
+        {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
         {sAX: SeparationLogic L Gamma}
         {CosAX: Corable L Gamma}

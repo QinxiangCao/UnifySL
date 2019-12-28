@@ -1,11 +1,11 @@
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.Classes.RelationClasses.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
 Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
@@ -21,7 +21,7 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Class Corable (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipAX: IntuitionisticPropositionalLogic L Gamma} {sAX: SeparationLogic L Gamma} := {
+Class Corable (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipAX: IntuitionisticPropositionalLogic L Gamma} {sAX: SeparationLogic L Gamma} := {
   corable: expr -> Prop;
   corable_pstable: PropositionalStable L Gamma corable;
   corable_sstable: SeparationStable L Gamma corable;
@@ -31,11 +31,11 @@ Class Corable (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage
 Section Corable.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}
+        {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
         {sAX: SeparationLogic L Gamma}
         {CosAX: Corable L Gamma}.

@@ -1,5 +1,5 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.

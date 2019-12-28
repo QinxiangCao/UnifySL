@@ -1,13 +1,13 @@
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.SublistT.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.QuantifierLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.ContextProperty.
+Require Import Logic.MinimumLogic.ProofTheory.Normal.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.ContextProperty.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import Logic.QuantifierLogic.ProofTheory.QuantifierLogic.
@@ -23,7 +23,7 @@ Lemma allp_K
       {qL: QuantifierLanguage BL}
       (BGamma: BindedProofTheory BL)
       {nGamma: forall ts, NormalProofTheory (binded_L ts) (binded_Gamma ts)}
-      {mpGamma: forall ts, MinimunPropositionalLogic (binded_L ts) (binded_Gamma ts)}
+      {mpGamma: forall ts, MinimumPropositionalLogic (binded_L ts) (binded_Gamma ts)}
       {ipGamma: forall ts, IntuitionisticPropositionalLogic (binded_L ts) (binded_Gamma ts)}
       {qGamma: QuantifierLogic BL BGamma}:
   forall (t: type) (ts: list type) (x y: binded_expr (t :: ts)),
@@ -49,7 +49,7 @@ Lemma allp_intros
       {qL: QuantifierLanguage BL}
       (BGamma: BindedProofTheory BL)
       {nGamma: forall ts, NormalProofTheory (binded_L ts) (binded_Gamma ts)}
-      {mpGamma: forall ts, MinimunPropositionalLogic (binded_L ts) (binded_Gamma ts)}
+      {mpGamma: forall ts, MinimumPropositionalLogic (binded_L ts) (binded_Gamma ts)}
       {qGamma: QuantifierLogic BL BGamma}:
   forall (t: type) (ts: list type) (x: binded_expr ts) (y: binded_expr (t :: ts)),
     |-- allp (lift t x --> y) --> (x --> allp y).

@@ -1,9 +1,9 @@
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.ExtensionTactic.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -13,27 +13,27 @@ Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
-Class ClassicalPropositionalLogic (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
+Class ClassicalPropositionalLogic (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipGamma: IntuitionisticPropositionalLogic L Gamma} := {
   excluded_middle: forall x, |-- x || ~~ x
 }.
 
-Class ClassicalPropositionalSequentCalculus (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (Gamma: Derivable L) {bSC: BasicSequentCalculus L Gamma} {minSC: MinimunSequentCalculus L Gamma} {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma} := {
+Class ClassicalPropositionalSequentCalculus (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} (Gamma: Derivable L) {bSC: BasicSequentCalculus L Gamma} {minSC: MinimumSequentCalculus L Gamma} {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma} := {
   derivable_excluded_middle: forall Phi x, Phi |-- x || ~~ x
 }.
 
 Section Axiomatization2SequentCalculus.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
-        {minAX: MinimunAxiomatization L GammaP}
+        {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
         {cpAX: ClassicalPropositionalLogic L GammaP}
         {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}
+        {minSC: MinimumSequentCalculus L GammaD}
         {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}.
 
 Lemma Axiomatization2SequentCalculus_cpSC:
@@ -55,16 +55,16 @@ Qed.
 Section SequentCalculus2Axiomatization.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
         {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}
+        {minSC: MinimumSequentCalculus L GammaD}
         {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
         {cpSC: ClassicalPropositionalSequentCalculus L GammaD}
-        {minAX: MinimunAxiomatization L GammaP}
+        {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}.
 
 Lemma SequentCalculus2Axiomatization_cpAX: ClassicalPropositionalLogic L GammaP.
@@ -85,10 +85,10 @@ Qed.
 Section DerivableRulesFromAxiomatization1.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}
+        {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
         {cpAX: ClassicalPropositionalLogic L Gamma}.
 
@@ -175,11 +175,11 @@ End DerivableRulesFromAxiomatization1.
 Section DerivableRulesFromSequentCalculus.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
+        {minSC: MinimumSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
         {cpSC: ClassicalPropositionalSequentCalculus L Gamma}.
 
@@ -208,10 +208,10 @@ End DerivableRulesFromSequentCalculus.
 Section DerivableRulesFromAxiomatization2.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}
+        {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
         {cpAX: ClassicalPropositionalLogic L Gamma}.
 

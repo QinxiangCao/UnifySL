@@ -3,7 +3,7 @@ Require Import Coq.omega.Omega.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -26,8 +26,8 @@ Arguments expr Sigma: clear implicits.
 Instance L {Sigma: PropositionalVariables}: Language :=
   Build_Language (expr Sigma).
 
-Instance minL {Sigma: PropositionalVariables}: MinimunLanguage L :=
-  Build_MinimunLanguage L impp.
+Instance minL {Sigma: PropositionalVariables}: MinimumLanguage L :=
+  Build_MinimumLanguage L impp.
 
 Instance pL {Sigma: PropositionalVariables}: PropositionalLanguage L :=
   Build_PropositionalLanguage L andp orp falsep.

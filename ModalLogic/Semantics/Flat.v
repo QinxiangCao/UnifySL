@@ -4,7 +4,7 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.ModalLogic.Model.KripkeModel.
 Require Import Logic.ModalLogic.Model.OrderedKripkeModel.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
 
@@ -59,11 +59,11 @@ Defined.
 
 End SemanticsMono.
 
-Class FlatModalSemantics (L: Language) {minL: MinimunLanguage L} {mL: ModalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
+Class FlatModalSemantics (L: Language) {minL: MinimumLanguage L} {mL: ModalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
   denote_boxp: forall x, Same_set _ (Kdenotation M (boxp x)) (Semantics.boxp (Kdenotation M x))
 }.
 
-Lemma sat_boxp {L: Language} {minL: MinimunLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {SM: Semantics L MD} {fmSM: FlatModalSemantics L MD M SM}: forall m x, KRIPKE: M , m |= boxp x <-> (forall n, KM.Krelation m n -> KRIPKE: M , n |= x).
+Lemma sat_boxp {L: Language} {minL: MinimumLanguage L} {mL: ModalLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {SM: Semantics L MD} {fmSM: FlatModalSemantics L MD M SM}: forall m x, KRIPKE: M , m |= boxp x <-> (forall n, KM.Krelation m n -> KRIPKE: M , n |= x).
 Proof.
   intros; simpl.
   unfold satisfies.

@@ -1,8 +1,8 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Trivial.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Trivial.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -10,10 +10,10 @@ Local Open Scope syntax.
 Section Sound.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {MD: Model}
         {SM: Semantics L MD}
-        {tminSM: TrivialMinimunSemantics L MD SM}.
+        {tminSM: TrivialMinimumSemantics L MD SM}.
 
 Lemma sound_modus_ponens:
   forall x y m,
