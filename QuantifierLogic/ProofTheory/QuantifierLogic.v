@@ -2,11 +2,11 @@
 Require Import Logic.lib.Coqlib.
 Require Import Logic.lib.SublistT.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.QuantifierLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Normal.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.Normal.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -21,7 +21,7 @@ Class QuantifierLogic
       {qL: QuantifierLanguage BL}
       (BGamma: BindedProofTheory BL)
       {nGamma: forall ts, NormalProofTheory (binded_L ts) (binded_Gamma ts)}
-      {mpGamma: forall ts, MinimunPropositionalLogic (binded_L ts) (binded_Gamma ts)} :=
+      {mpGamma: forall ts, MinimumPropositionalLogic (binded_L ts) (binded_Gamma ts)} :=
 {
   allp_elim: forall (t: type) (ts: list type) (x: binded_expr (t :: ts)) (e: binded_term ts t),
     |-- allp x --> ins_expr x e;

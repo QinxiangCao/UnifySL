@@ -1,7 +1,7 @@
 (*
 (* Require Import Logic.lib.SublistT.*)
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.

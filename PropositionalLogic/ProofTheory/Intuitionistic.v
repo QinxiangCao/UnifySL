@@ -1,10 +1,10 @@
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.ProofTheoryPatterns.
-Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.ProofTheoryPatterns.
+Require Import Logic.MinimumLogic.ProofTheory.ExtensionTactic.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -12,7 +12,7 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
 (* TODO: rename it to IntuitionisticPropositionalAxiomatization. *)
-Class IntuitionisticPropositionalLogic (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (Gamma: Provable L) {minAX: MinimunAxiomatization L Gamma} := {
+Class IntuitionisticPropositionalLogic (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} := {
   andp_intros: forall x y, |-- x --> y --> x && y;
   andp_elim1: forall x y, |-- x && y --> x;
   andp_elim2: forall x y, |-- x && y --> y;
@@ -35,11 +35,11 @@ Class IntuitionisticPropositionalSequentCalculus (L: Language) {pL: Propositiona
 Section DerivableRulesFromSequentCalculus1.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
+        {minSC: MinimumSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
 
 Lemma derivable_andp_intros: forall (Phi: context) (x y: expr),
@@ -166,15 +166,15 @@ End DerivableRulesFromSequentCalculus1.
 Section SequentCalculus2Axiomatization.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
         {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}
+        {minSC: MinimumSequentCalculus L GammaD}
         {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
-        {minAX: MinimunAxiomatization L GammaP}.
+        {minAX: MinimumAxiomatization L GammaP}.
 
 Lemma SequentCalculus2Axiomatization_ipAX: IntuitionisticPropositionalLogic L GammaP.
 Proof.
@@ -197,14 +197,14 @@ Qed.
 Section Axiomatization2SequentCalculus.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
         {AX: NormalAxiomatization L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}
-        {minAX: MinimunAxiomatization L GammaP}
+        {minSC: MinimumSequentCalculus L GammaD}
+        {minAX: MinimumAxiomatization L GammaP}
         {ipGamma: IntuitionisticPropositionalLogic L GammaP}.
 
 Lemma Axiomatization2SequentCalculus_ipSC:
@@ -249,10 +249,10 @@ Qed.
 Section DerivableRulesFromAxiomatization1.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}
+        {minAX: MinimumAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma solve_andp_intros: forall x y: expr,
@@ -364,11 +364,11 @@ End DerivableRulesFromAxiomatization1.
 Section DerivableRulesFromSequentCalculus2.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
+        {minSC: MinimumSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}.
 
 Lemma deduction_contrapositivePP: forall Phi (x y: expr),
@@ -398,10 +398,10 @@ End DerivableRulesFromSequentCalculus2.
 Section DerivableRulesFromAxiomatization2.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}
+        {minAX: MinimumAxiomatization L Gamma}
         {ipGamma: IntuitionisticPropositionalLogic L Gamma}.
 
 Lemma demorgan_orp_negp: forall (x y: expr),

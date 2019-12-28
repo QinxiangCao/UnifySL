@@ -5,8 +5,8 @@ Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Syntax.
@@ -29,7 +29,7 @@ Module Up2Flat.
 Section Up2Flat.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {MD: Model}

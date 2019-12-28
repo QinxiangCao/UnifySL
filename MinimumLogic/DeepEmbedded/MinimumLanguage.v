@@ -3,7 +3,7 @@ Require Import Coq.omega.Omega.
 Require Import Logic.lib.Bijection.
 Require Import Logic.lib.Countable.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -17,8 +17,8 @@ Arguments expr Var: clear implicits.
 Instance L (Var: Type): Language :=
   Build_Language (expr Var).
 
-Instance minL (Var: Type): MinimunLanguage (L Var) :=
-  Build_MinimunLanguage (L Var) impp.
+Instance minL (Var: Type): MinimumLanguage (L Var) :=
+  Build_MinimumLanguage (L Var) impp.
 
 Definition rank {Var: Type}: expr Var -> nat :=
   fix rank (x: expr Var): nat :=

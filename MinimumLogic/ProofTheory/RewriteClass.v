@@ -3,9 +3,9 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -13,7 +13,7 @@ Local Open Scope syntax.
 Section RewriteClass.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {GammaP: Provable L}.
 
 Instance provable_impp_rewrite: RewriteRelation (fun x y => |-- x --> y).
@@ -21,7 +21,7 @@ Qed.
 
 Section Provable.
 
-Context {minAX: MinimunAxiomatization L GammaP}.
+Context {minAX: MinimumAxiomatization L GammaP}.
 
 Instance provable_impp_refl: Reflexive (fun x y => |-- x --> y).
 Proof.
@@ -58,7 +58,7 @@ Section Derivable.
 Context {GammaD: Derivable L}
         {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}.
+        {minSC: MinimumSequentCalculus L GammaD}.
 
 Instance derivable_proper_impp:
   Proper (eq ==> (fun x y => |-- impp x y) ==> Basics.impl) derivable.
@@ -90,7 +90,7 @@ Existing Instances Axiomatization2SequentCalculus_SC
                    Axiomatization2SequentCalculus_bSC
                    Axiomatization2SequentCalculus_minSC.
 
-Goal forall {L: Language} {minL: MinimunLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {AX: NormalAxiomatization L GammaP GammaD} {minAX: MinimunAxiomatization L GammaP} (Phi: context) y1 y2,
+Goal forall {L: Language} {minL: MinimumLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {AX: NormalAxiomatization L GammaP GammaD} {minAX: MinimumAxiomatization L GammaP} (Phi: context) y1 y2,
   |-- y1 --> y2 ->
   Phi |-- y1 ->
   Phi |-- y2.
@@ -100,7 +100,7 @@ Proof.
   auto.
 Qed.
 
-Goal forall {L: Language} {minL: MinimunLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {AX: NormalAxiomatization L GammaP GammaD} {minAX: MinimunAxiomatization L GammaP} (Phi: context) x1 y1 x2 y2,
+Goal forall {L: Language} {minL: MinimumLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {AX: NormalAxiomatization L GammaP GammaD} {minAX: MinimumAxiomatization L GammaP} (Phi: context) x1 y1 x2 y2,
   |-- x2 --> x1 ->
   |-- y1 --> y2 ->
   Phi |-- x1 --> y1 ->
@@ -112,7 +112,7 @@ Proof.
   auto.
 Qed.
 
-Goal forall {L: Language} {minL: MinimunLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {AX: NormalAxiomatization L GammaP GammaD} {minAX: MinimunAxiomatization L GammaP} (Phi: context) x1 y1 x2 y2,
+Goal forall {L: Language} {minL: MinimumLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {AX: NormalAxiomatization L GammaP GammaD} {minAX: MinimumAxiomatization L GammaP} (Phi: context) x1 y1 x2 y2,
   |-- x2 --> x1 ->
   |-- y1 --> y2 ->
   |-- (x1 --> y1) --> (x2 --> y2).
@@ -134,7 +134,7 @@ Section TestInSequentCalculus.
 
 Existing Instances SequentCalculus2Axiomatization_minAX.
 
-Goal forall {L: Language} {minL: MinimunLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {SC: NormalSequentCalculus L GammaP GammaD} {bSC: BasicSequentCalculus L GammaD} {minSC: MinimunSequentCalculus L GammaD} (Phi: context) y1 y2,
+Goal forall {L: Language} {minL: MinimumLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {SC: NormalSequentCalculus L GammaP GammaD} {bSC: BasicSequentCalculus L GammaD} {minSC: MinimumSequentCalculus L GammaD} (Phi: context) y1 y2,
   |-- y1 --> y2 ->
   Phi |-- y1 ->
   Phi |-- y2.
@@ -144,7 +144,7 @@ Proof.
   auto.
 Qed.
 
-Goal forall {L: Language} {minL: MinimunLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {SC: NormalSequentCalculus L GammaP GammaD} {bSC: BasicSequentCalculus L GammaD} {minSC: MinimunSequentCalculus L GammaD} (Phi: context) x1 y1 x2 y2,
+Goal forall {L: Language} {minL: MinimumLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {SC: NormalSequentCalculus L GammaP GammaD} {bSC: BasicSequentCalculus L GammaD} {minSC: MinimumSequentCalculus L GammaD} (Phi: context) x1 y1 x2 y2,
   |-- x2 --> x1 ->
   |-- y1 --> y2 ->
   Phi |-- x1 --> y1 ->
@@ -156,7 +156,7 @@ Proof.
   auto.
 Qed.
 
-Goal forall {L: Language} {minL: MinimunLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {SC: NormalSequentCalculus L GammaP GammaD} {bSC: BasicSequentCalculus L GammaD} {minSC: MinimunSequentCalculus L GammaD} (Phi: context) x1 y1 x2 y2,
+Goal forall {L: Language} {minL: MinimumLanguage L} {GammaP: Provable L} {GammaD: Derivable L} {SC: NormalSequentCalculus L GammaP GammaD} {bSC: BasicSequentCalculus L GammaD} {minSC: MinimumSequentCalculus L GammaD} (Phi: context) x1 y1 x2 y2,
   |-- x2 --> x1 ->
   |-- y1 --> y2 ->
   |-- (x1 --> y1) --> (x2 --> y2).

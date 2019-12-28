@@ -3,8 +3,8 @@ Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -87,7 +87,7 @@ Defined.
 
 End SemanticsMono.
 
-Class KripkePropositionalSemantics (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) {kminSM: KripkeMinimunSemantics L MD M SM}: Type := {
+Class KripkePropositionalSemantics (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) {kminSM: KripkeMinimumSemantics L MD M SM}: Type := {
   denote_andp: forall x y, Same_set _ (Kdenotation M (x && y)) (Semantics.andp (Kdenotation M x) (Kdenotation M y));
   denote_orp: forall x y, Same_set _ (Kdenotation M (x || y)) (Semantics.orp (Kdenotation M x) (Kdenotation M y));
   denote_falsep: Same_set _ (Kdenotation M FF) Semantics.falsep
@@ -96,14 +96,14 @@ Class KripkePropositionalSemantics (L: Language) {minL: MinimunLanguage L} {pL: 
 Section KripkeSemantics.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
         {R: Relation (Kworlds M)}
         {SM: Semantics L MD}
-        {kminSM: KripkeMinimunSemantics L MD M SM}
+        {kminSM: KripkeMinimumSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}.
 
 Lemma sat_andp: forall m x y, KRIPKE: M , m |= x && y <-> (KRIPKE: M , m |= x /\ KRIPKE: M , m |= y).

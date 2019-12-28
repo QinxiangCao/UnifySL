@@ -1,6 +1,6 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -39,7 +39,7 @@ Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
   Provable2Derivable_Normal.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
+Instance minAX: MinimumAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -92,7 +92,7 @@ Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
   Provable2Derivable_Normal.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
+Instance minAX: MinimumAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -151,7 +151,7 @@ Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
   Provable2Derivable_Normal.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
+Instance minAX: MinimumAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.
@@ -214,7 +214,7 @@ Instance GD: Derivable PropositionalLanguage.L := Provable2Derivable.
 Instance AX: NormalAxiomatization PropositionalLanguage.L GP GD :=
   Provable2Derivable_Normal.
 
-Instance minAX: MinimunAxiomatization PropositionalLanguage.L GP.
+Instance minAX: MinimumAxiomatization PropositionalLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.

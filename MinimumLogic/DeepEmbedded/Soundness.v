@@ -3,13 +3,13 @@ Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
-Require Logic.MinimunLogic.Sound.Sound_Kripke.
-Require Logic.MinimunLogic.DeepEmbedded.MinimunLanguage.
-Require Logic.MinimunLogic.DeepEmbedded.MinimunLogic.
-Require Logic.MinimunLogic.DeepEmbedded.KripkeSemantics.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
+Require Logic.MinimumLogic.Sound.Sound_Kripke.
+Require Logic.MinimumLogic.DeepEmbedded.MinimumLanguage.
+Require Logic.MinimumLogic.DeepEmbedded.MinimumLogic.
+Require Logic.MinimumLogic.DeepEmbedded.KripkeSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -25,24 +25,24 @@ Section Sound.
 
 Context (Var: Type).
 
-Instance L: Language := MinimunLanguage.L Var.
-Instance minL: MinimunLanguage L := MinimunLanguage.minL Var.
+Instance L: Language := MinimumLanguage.L Var.
+Instance minL: MinimumLanguage L := MinimumLanguage.minL Var.
 
-Instance GP: Provable L := MinimunLogic.GP Var.
-Instance GD: Derivable L := MinimunLogic.GD Var.
-Instance AX: NormalAxiomatization L GP GD := MinimunLogic.AX Var.
-Instance minAX: MinimunAxiomatization L GP := MinimunLogic.minAX Var.
+Instance GP: Provable L := MinimumLogic.GP Var.
+Instance GD: Derivable L := MinimumLogic.GD Var.
+Instance AX: NormalAxiomatization L GP GD := MinimumLogic.AX Var.
+Instance minAX: MinimumAxiomatization L GP := MinimumLogic.minAX Var.
 
 Instance Kripke_MD: Model := KripkeSemantics.MD Var.
 Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
 Instance Kripke_R (M: Kmodel): Relation (Kworlds M) := KripkeSemantics.R Var M.
 Instance Kripke_SM: Semantics L Kripke_MD := KripkeSemantics.SM Var.
-Instance Kripke_kminSM (M: Kmodel): KripkeMinimunSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kminSM Var M.
+Instance Kripke_kminSM (M: Kmodel): KripkeMinimumSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kminSM Var M.
 
 Section Sound_Kripke.
 
-Import Logic.MinimunLogic.Sound.Sound_Kripke.
-Import Logic.MinimunLogic.DeepEmbedded.KripkeSemantics.
+Import Logic.MinimumLogic.Sound.Sound_Kripke.
+Import Logic.MinimumLogic.DeepEmbedded.KripkeSemantics.
 
 Theorem sound_intuitionistic_Kripke_all:
   provable_sound GP Kripke_SM (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).

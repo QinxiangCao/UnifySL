@@ -54,7 +54,7 @@ Ltac map_fst_tac x :=
   end.
 
 Notation "'map_fst' l" := ltac:(let l' := eval hnf in l in
-                                let x := map_fst_tac l' in exact x) (at level 99).
+                                let x := map_fst_tac l' in exact x) (only parsing, at level 99).
     
 Ltac map_snd_tac x :=
   match x with
@@ -65,7 +65,7 @@ Ltac map_snd_tac x :=
   end.
 
 Notation "'map_snd' l" := ltac:(let l' := eval hnf in l in
-                                let x := map_snd_tac l' in exact x) (at level 99).
+                                let x := map_snd_tac l' in exact x) (only parsing, at level 99).
     
 Ltac inj_with_hint_tac x l1 l2 :=
   match l1 with
@@ -99,7 +99,7 @@ Notation "'map_with_hint' '(' l1 ',' l2 ')' l" :=
         let l' := eval hnf in l in
         let res := map_with_hint_tac l1' l2' l' in
         exact res)
-  (at level 99).
+  (only parsing, at level 99).
 
 Inductive ___Flag : Type :=.
 
@@ -164,11 +164,11 @@ Notation "'noninstance_arg_lists' l" :=
   (ltac:(let l' := eval hnf in l in
          let res := noninstance_arg_lists_tac l' (@nil Name) in
          exact res))
-  (at level 99).
+  (only parsing, at level 99).
 
 Notation "'instance_arg_lists' l" :=
   (ltac:(let l' := eval hnf in l in
          let res := instance_arg_lists_tac l' (@nil Name) in
          exact res))
-  (at level 99).
+  (only parsing, at level 99).
 

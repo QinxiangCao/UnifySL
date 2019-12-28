@@ -9,10 +9,10 @@ Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Trivial.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.ExtensionTactic.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.ExtensionTactic.
+Require Import Logic.MinimumLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -27,11 +27,11 @@ Import PropositionalLanguageNotation.
 Section ContextProperties.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
+        {minSC: MinimumSequentCalculus L Gamma}
         {ipSC: IntuitionisticPropositionalSequentCalculus L Gamma}
         {cpSC: ClassicalPropositionalSequentCalculus L Gamma}.
 

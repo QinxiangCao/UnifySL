@@ -1,6 +1,6 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 
@@ -40,7 +40,7 @@ Qed.
 
 Local Instance L : Language := Build_Language expr .
 
-Local Instance minL : MinimunLanguage L := Build_MinimunLanguage L impp.
+Local Instance minL : MinimumLanguage L := Build_MinimumLanguage L impp.
 
 Local Instance pL : PropositionalLanguage L :=
   Build_PropositionalLanguage L andp orp falsep.
@@ -60,7 +60,7 @@ Inductive provable: expr -> Prop :=
 
 Local Instance GP: Provable L := Build_Provable _ provable.
 
-Local Instance minAX: MinimunAxiomatization L GP.
+Local Instance minAX: MinimumAxiomatization L GP.
 Proof.
   constructor.
   + apply modus_ponens.

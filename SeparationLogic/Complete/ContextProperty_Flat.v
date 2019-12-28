@@ -9,9 +9,9 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
@@ -30,7 +30,7 @@ Import SeparationLogicNotation.
 Section ContextProperties.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {GammaP: Provable L}
@@ -48,10 +48,10 @@ Definition context_sepcon_included_r (Phi1 Psi: context): context -> Prop :=
 Context {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
         {fwSC: FiniteWitnessedSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}
+        {minSC: MinimumSequentCalculus L GammaD}
         {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
         {AX: NormalAxiomatization L GammaP GammaD}
-        {minAX: MinimunAxiomatization L GammaP}
+        {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
         {sAX: SeparationLogic L GammaP}.
 

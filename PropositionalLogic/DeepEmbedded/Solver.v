@@ -1,8 +1,8 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.ProofTheory.ProofTheoryPatterns.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.ProofTheory.ProofTheoryPatterns.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
@@ -53,7 +53,7 @@ Ltac search_expr n l := let len := length l in search_expr' n len l l.
 
 Section Temp.
   Context {L : Language}
-          {minL : MinimunLanguage L}
+          {minL : MinimumLanguage L}
           {pL : PropositionalLanguage L}.
 
   Fixpoint reflect (tbl : list Base.expr) (e : Deep.expr) : Base.expr :=
@@ -96,7 +96,7 @@ Ltac shallowToDeep se :=
 
 Section Temp.
   Context (L : Base.Language)
-          (minL : Syntax.MinimunLanguage L)
+          (minL : Syntax.MinimumLanguage L)
           (pL : Syntax.PropositionalLanguage L).
   Context (P Q R : Base.expr).
   Goal False.
@@ -108,10 +108,10 @@ End Temp.
 
 Section Temp.
   Context {L: Language}
-          {minL: MinimunLanguage L}
+          {minL: MinimumLanguage L}
           {pL: PropositionalLanguage L}
           {GammaP: Provable L}
-          {minAX: MinimunAxiomatization L GammaP}
+          {minAX: MinimumAxiomatization L GammaP}
           {ipGamma: IntuitionisticPropositionalLogic L GammaP}.
 
   Theorem reify_sound :
@@ -361,10 +361,10 @@ Module SolverSound.
 
   Section Temp.
     Context {L: Language}
-            {minL: MinimunLanguage L}
+            {minL: MinimumLanguage L}
             {pL: PropositionalLanguage L}
             {GammaP: Provable L}
-            {minAX: MinimunAxiomatization L GammaP}
+            {minAX: MinimumAxiomatization L GammaP}
             {ipGamma: IntuitionisticPropositionalLogic L GammaP}.
     Parameter (P Q R : expr).
     Goal (provable (impp (andp P Q) (andp Q P))).

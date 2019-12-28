@@ -1,7 +1,7 @@
 Require Import GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import MinimunLogic.Syntax.
-Require Import MinimunLogic.ProofTheory.Minimun.
+Require Import MinimumLogic.Syntax.
+Require Import MinimumLogic.ProofTheory.Minimum.
 Require Import PropositionalLogic.Syntax.
 Require Import PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import PropositionalLogic.ProofTheory.Classical.
@@ -114,7 +114,7 @@ Import NameListNotations.
 Section S.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL : SeparationLanguage L}
         {empL: SeparationEmpLanguage L}
@@ -122,7 +122,7 @@ Context {L: Language}
         {GammaD: Derivable L}
         {AX: NormalAxiomatization L GammaP GammaD}
         {SC : NormalSequentCalculus L GammaP GammaD}
-        {minAX: MinimunAxiomatization L GammaP}
+        {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
         {cpAX: ClassicalPropositionalLogic L GammaP}
         {dmpAX: DeMorganPropositionalLogic L GammaP}
@@ -136,7 +136,7 @@ Context {L: Language}
         {gcsAX: GarbageCollectSeparationLogic L GammaP}
         {bSC : BasicSequentCalculus L GammaD}
         {fwSC : FiniteWitnessedSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}
+        {minSC: MinimumSequentCalculus L GammaD}
         {ipSC : IntuitionisticPropositionalSequentCalculus L GammaD}
         {cpSC : ClassicalPropositionalSequentCalculus L GammaD}
         .
@@ -183,7 +183,7 @@ Definition how_judgements: list Name :=
   ].
 
 Definition Build_Language := Build_Language.
-Definition Build_MinimunLanguage := Build_MinimunLanguage.
+Definition Build_MinimumLanguage := Build_MinimumLanguage.
 Definition Build_PropositionalLanguage := Build_PropositionalLanguage.
 Definition Build_SeparationLanguage := Build_SeparationLanguage.
 Definition Build_SeparationEmpLanguage := Build_SeparationEmpLanguage.
@@ -191,7 +191,7 @@ Definition Build_Provable := Build_Provable.
 Definition Build_Derivable := Build_Derivable.
 Definition Build_NormalAxiomatization := Build_NormalAxiomatization.
 Definition Build_NormalSequentCalculus := Build_NormalSequentCalculus.
-Definition Build_MinimunAxiomatization := Build_MinimunAxiomatization.
+Definition Build_MinimumAxiomatization := Build_MinimumAxiomatization.
 Definition Build_IntuitionisticPropositionalLogic := Build_IntuitionisticPropositionalLogic.
 Definition Build_DeMorganPropositionalLogic := Build_DeMorganPropositionalLogic.
 Definition Build_ClassicalPropositionalLogic := Build_ClassicalPropositionalLogic.
@@ -200,7 +200,7 @@ Definition Build_EmpSeparationLogic := Build_EmpSeparationLogic.
 Definition Build_GarbageCollectSeparationLogic := Build_GarbageCollectSeparationLogic.
 Definition Build_BasicSequentCalculus := Build_BasicSequentCalculus.
 Definition Build_FiniteWitnessedSequentCalculus := Build_FiniteWitnessedSequentCalculus.
-Definition Build_MinimunSequentCalculus := Build_MinimunSequentCalculus.
+Definition Build_MinimumSequentCalculus := Build_MinimumSequentCalculus.
 Definition Build_IntuitionisticPropositionalSequentCalculus := Build_IntuitionisticPropositionalSequentCalculus.
 Definition Build_ClassicalPropositionalSequentCalculus := Build_ClassicalPropositionalSequentCalculus.
 
@@ -209,7 +209,7 @@ Definition type_instances_build :=
   ].
 
 Definition connective_instances_build :=
-  [ (minL, Build_MinimunLanguage L impp)
+  [ (minL, Build_MinimumLanguage L impp)
   ; (pL, Build_PropositionalLanguage L andp orp falsep)
   ; (sL, Build_SeparationLanguage L sepcon wand)
   ; (empL, Build_SeparationEmpLanguage L _ emp)
@@ -221,7 +221,7 @@ Definition judgement_instances_build :=
   ].
 
 Definition rule_instances_build :=
-  [ (minAX, Build_MinimunAxiomatization L minL GammaP modus_ponens axiom1 axiom2)
+  [ (minAX, Build_MinimumAxiomatization L minL GammaP modus_ponens axiom1 axiom2)
   ; (ipAX, Build_IntuitionisticPropositionalLogic L minL pL GammaP minAX andp_intros andp_elim1 andp_elim2 orp_intros1 orp_intros2 orp_elim falsep_elim)
   ; (dmpAX, Build_DeMorganPropositionalLogic L minL pL GammaP minAX ipAX weak_excluded_middle)
   ; (gdpAX, Build_GodelDummettPropositionalLogic L minL pL GammaP minAX ipAX impp_choice)
@@ -231,7 +231,7 @@ Definition rule_instances_build :=
   ; (gcsAX, Build_GarbageCollectSeparationLogic L minL pL sL GammaP minAX ipAX sAX sepcon_elim1)
   ; (bSC, Build_BasicSequentCalculus L GammaD deduction_weaken derivable_assum deduction_subst)
   ; (fwSC, Build_FiniteWitnessedSequentCalculus L GammaD derivable_finite_witnessed)
-  ; (minSC, Build_MinimunSequentCalculus L minL GammaD deduction_modus_ponens deduction_impp_intros) 
+  ; (minSC, Build_MinimumSequentCalculus L minL GammaD deduction_modus_ponens deduction_impp_intros) 
   ; (ipSC, Build_IntuitionisticPropositionalSequentCalculus L pL GammaD deduction_andp_intros deduction_andp_elim1 deduction_andp_elim2 deduction_orp_intros1 deduction_orp_intros2 deduction_orp_elim deduction_falsep_elim)
   ; (cpSC, Build_ClassicalPropositionalSequentCalculus L minL pL GammaD bSC minSC ipSC derivable_excluded_middle)
   ; (AX, Build_NormalAxiomatization L minL GammaP GammaD derivable_provable)

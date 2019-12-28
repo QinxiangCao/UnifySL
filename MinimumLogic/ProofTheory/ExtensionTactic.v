@@ -4,9 +4,9 @@ Require Export Logic.lib.register_typeclass.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.TheoryOfSequentCalculus.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.TheoryOfSequentCalculus.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.TheoryOfSequentCalculus.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
 
 Inductive P2D_reg: Type :=.
 Inductive D2P_reg: Type :=.
@@ -68,9 +68,9 @@ Qed.
 Section Test_AddSC.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {Gamma: Provable L}
-        {minAX: MinimunAxiomatization L Gamma}.
+        {minAX: MinimumAxiomatization L Gamma}.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -85,10 +85,10 @@ End Test_AddSC.
 Section Test_AddAX.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
+        {minSC: MinimumSequentCalculus L Gamma}
         {fwSC: FiniteWitnessedSequentCalculus L Gamma}.
 
 Local Open Scope logic_base.

@@ -1,6 +1,6 @@
-Require Import MinimunLogic.Syntax.
+Require Import MinimumLogic.Syntax.
 Require Import GeneralLogic.Base.
-Require Import MinimunLogic.ProofTheory.Minimun.
+Require Import MinimumLogic.ProofTheory.Minimum.
 Require Import PropositionalLogic.Syntax.
 Require Import PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import PropositionalLogic.ProofTheory.Classical.

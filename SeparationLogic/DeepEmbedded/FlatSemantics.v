@@ -6,8 +6,8 @@ Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Syntax.
@@ -82,9 +82,9 @@ Instance R (M: Kmodel): Relation (Kworlds M) :=
 Instance J (M: Kmodel): Join (Kworlds M) :=
   @underlying_join M.
 
-Instance kminSM (M: Kmodel): KripkeMinimunSemantics L MD M SM.
+Instance kminSM (M: Kmodel): KripkeMinimumSemantics L MD M SM.
 Proof.
-  apply Build_KripkeMinimunSemantics.
+  apply Build_KripkeMinimumSemantics.
   intros; apply Same_set_refl.
 Defined.
 

@@ -1,8 +1,8 @@
 Require Import Coq.Logic.Classical_Prop.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Trivial.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Trivial.
 
@@ -13,11 +13,11 @@ Import PropositionalLanguageNotation.
 Section Sound.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {MD: Model}
         {SM: Semantics L MD}
-        {tminSM: TrivialMinimunSemantics L MD SM}
+        {tminSM: TrivialMinimumSemantics L MD SM}
         {tpSM: TrivialPropositionalSemantics L MD SM}.
 
 Lemma sound_andp_intros:

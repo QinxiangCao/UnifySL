@@ -1,6 +1,6 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Trivial.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Trivial.
 Require Import Logic.PropositionalLogic.Syntax.
 
 Local Open Scope logic_base.
@@ -19,7 +19,7 @@ Definition falsep {model: Type}: Ensemble model := fun m => False.
 
 End Semantics.
 
-Class TrivialPropositionalSemantics (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} (MD: Model) (SM: Semantics L MD): Type := {
+Class TrivialPropositionalSemantics (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} (MD: Model) (SM: Semantics L MD): Type := {
   denote_andp: forall x y, Same_set _ (denotation (x && y)) (Semantics.andp (denotation x) (denotation y));
   denote_orp: forall x y, Same_set _ (denotation (x || y)) (Semantics.orp (denotation x) (denotation y));
   denote_falsep: Same_set _ (denotation FF) Semantics.falsep
@@ -28,7 +28,7 @@ Class TrivialPropositionalSemantics (L: Language) {minL: MinimunLanguage L} {pL:
 Section Trivial.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {MD: Model}
         {SM: Semantics L MD}

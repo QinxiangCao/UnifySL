@@ -10,9 +10,9 @@ Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.Complete.ContextProperty.
 Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.GeneralLogic.Complete.Lindenbaum.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -23,16 +23,16 @@ Import KripkeModelNotation_Intuitionistic.
 Section TruthLemma.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {Gamma: Derivable L}
         {bSC: BasicSequentCalculus L Gamma}
-        {minSC: MinimunSequentCalculus L Gamma}
+        {minSC: MinimumSequentCalculus L Gamma}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
         {R: Relation (Kworlds M)}
         {SM: Semantics L MD}
-        {kminSM: KripkeMinimunSemantics L MD M SM}.
+        {kminSM: KripkeMinimumSemantics L MD M SM}.
 
 Context (cP: context -> Prop)
         (rel: bijection (Kworlds M) (sig cP)).

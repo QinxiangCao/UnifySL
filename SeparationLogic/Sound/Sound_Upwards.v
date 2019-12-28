@@ -2,8 +2,8 @@ Require Import Logic.lib.Coqlib.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.SeparationLogic.Syntax.
@@ -22,7 +22,7 @@ Import KripkeModelNotation_Intuitionistic.
 Section Sound_Upwards.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL: SeparationLanguage L}
         {MD: Model}
@@ -35,7 +35,7 @@ Context {L: Language}
         {dSA: DownwardsClosedSeparationAlgebra (Kworlds M)}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
-        {kminSM: KripkeMinimunSemantics L MD M SM}
+        {kminSM: KripkeMinimumSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}
         {usSM: UpwardsSemantics.SeparatingSemantics L MD M SM}.
 

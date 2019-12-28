@@ -5,15 +5,17 @@ Require Import Coq.Classes.Equivalence.
 Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.lib.Ensembles_ext.
 Require Import Logic.GeneralLogic.Base.
+Require Import Logic.GeneralLogic.Semantics.Kripke.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.ModalLogic.Model.KripkeModel.
 Require Import Logic.SeparationLogic.Model.SeparationAlgebra.
 Require Import Logic.SeparationLogic.Model.OSAGenerators.
-Require Import Logic.MinimunLogic.Syntax.
+Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.Extensions.Semantics.SemanticStable.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 Require Import Logic.ModalLogic.Semantics.Flat.
 Require Import Logic.SeparationLogic.Semantics.FlatSemantics.
@@ -71,7 +73,7 @@ Proof.
   + exists m1, m2; auto.
 Qed.
 
-Lemma sound_sepcon_boxp {L: Language} {nL: NormalLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {J: Join (Kworlds M)} {KM_bis_J: ModalBisJoin (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fm: FlatModalSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM}:
+Lemma sound_sepcon_boxp {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {mL: ModalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: KM.Relation (Kworlds M)} {J: Join (Kworlds M)} {KM_bis_J: ModalBisJoin (Kworlds M)} {SM: Semantics L MD} {kminSM: KripkeMinimumSemantics L MD M SM} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {fm: FlatModalSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM}:
   forall x y: expr,
     forall m: Kworlds M, KRIPKE: M, m |= boxp x * boxp y --> boxp (x * y).
 Proof.

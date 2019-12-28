@@ -12,15 +12,15 @@ Require Import Logic.GeneralLogic.Complete.ContextProperty_Kripke.
 Require Import Logic.GeneralLogic.Complete.Lindenbaum.
 Require Import Logic.GeneralLogic.Complete.Canonical_Kripke.
 Require Import Logic.GeneralLogic.Complete.Complete_Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Complete.ContextProperty_Kripke.
-Require Import Logic.MinimunLogic.Complete.Truth_Kripke.
-Require Import Logic.MinimunLogic.Complete.Lindenbaum_Kripke.
-Require Logic.MinimunLogic.DeepEmbedded.MinimunLanguage.
-Require Logic.MinimunLogic.DeepEmbedded.MinimunLogic.
-Require Logic.MinimunLogic.DeepEmbedded.KripkeSemantics.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Complete.ContextProperty_Kripke.
+Require Import Logic.MinimumLogic.Complete.Truth_Kripke.
+Require Import Logic.MinimumLogic.Complete.Lindenbaum_Kripke.
+Require Logic.MinimumLogic.DeepEmbedded.MinimumLanguage.
+Require Logic.MinimumLogic.DeepEmbedded.MinimumLogic.
+Require Logic.MinimumLogic.DeepEmbedded.KripkeSemantics.
 
 Local Open Scope logic_base.
 Local Open Scope syntax.
@@ -34,22 +34,22 @@ Section Complete.
 
 Context (Var: Type) (CV: Countable Var).
 
-Instance L: Language := MinimunLanguage.L Var.
-Instance minL: MinimunLanguage L := MinimunLanguage.minL Var.
+Instance L: Language := MinimumLanguage.L Var.
+Instance minL: MinimumLanguage L := MinimumLanguage.minL Var.
 
-Instance GP: Provable L := MinimunLogic.GP Var.
-Instance GD: Derivable L := MinimunLogic.GD Var.
-Instance AX: NormalAxiomatization L GP GD := MinimunLogic.AX Var.
-Instance minAX: MinimunAxiomatization L GP := MinimunLogic.minAX Var.
-Instance SC: NormalSequentCalculus L GP GD := MinimunLogic.SC Var.
-Instance bSC: BasicSequentCalculus L GD := MinimunLogic.bSC Var.
-Instance fwSC: FiniteWitnessedSequentCalculus L GD := MinimunLogic.fwSC Var.
-Instance minSC: MinimunSequentCalculus L GD := MinimunLogic.minSC Var.
+Instance GP: Provable L := MinimumLogic.GP Var.
+Instance GD: Derivable L := MinimumLogic.GD Var.
+Instance AX: NormalAxiomatization L GP GD := MinimumLogic.AX Var.
+Instance minAX: MinimumAxiomatization L GP := MinimumLogic.minAX Var.
+Instance SC: NormalSequentCalculus L GP GD := MinimumLogic.SC Var.
+Instance bSC: BasicSequentCalculus L GD := MinimumLogic.bSC Var.
+Instance fwSC: FiniteWitnessedSequentCalculus L GD := MinimumLogic.fwSC Var.
+Instance minSC: MinimumSequentCalculus L GD := MinimumLogic.minSC Var.
 Instance Kripke_MD: Model := KripkeSemantics.MD Var.
 Instance Kripke_kMD: KripkeModel Kripke_MD := KripkeSemantics.kMD Var.
 Instance Kripke_R (M: Kmodel): Relation (Kworlds M) := KripkeSemantics.R Var M.
 Instance Kripke_SM: Semantics L Kripke_MD := KripkeSemantics.SM Var.
-Instance Kripke_kminSM (M: Kmodel): KripkeMinimunSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kminSM Var M.
+Instance Kripke_kminSM (M: Kmodel): KripkeMinimumSemantics L Kripke_MD M Kripke_SM := KripkeSemantics.kminSM Var M.
 
 Definition cP: context -> Prop := derivable_closed.
 
@@ -60,7 +60,7 @@ Lemma LIN_CD: forall x: expr, Lindenbaum_constructable (cannot_derive x) cP.
 Proof.
   intros.
   apply Lindenbaum_constructable_suffice; auto.
-  + apply MinimunLanguage.formula_countable; auto.
+  + apply MinimumLanguage.formula_countable; auto.
   + apply Lindenbaum_preserves_cannot_derive.
   + unfold cP.
     apply Lindenbaum_cannot_derive_ensures_derivable_closed.
@@ -70,7 +70,7 @@ Definition canonical_frame: KripkeSemantics.frame :=
   KripkeSemantics.Build_frame (sig cP) (fun a b => Included _ (proj1_sig a) (proj1_sig b)).
 
 Definition canonical_eval: Var -> KripkeSemantics.sem canonical_frame :=
-  fun p a => proj1_sig a (MinimunLanguage.varp p).
+  fun p a => proj1_sig a (MinimumLanguage.varp p).
 
 Definition canonical_Kmodel: @Kmodel (KripkeSemantics.MD Var) (KripkeSemantics.kMD Var) :=
   KripkeSemantics.Build_Kmodel Var canonical_frame canonical_eval.
@@ -96,9 +96,9 @@ Proof.
   + intros; change (m = Phi) in H; subst; reflexivity.
 Qed.
 
-Import Logic.MinimunLogic.DeepEmbedded.KripkeSemantics.
+Import Logic.MinimumLogic.DeepEmbedded.KripkeSemantics.
 
-Theorem complete_MinimunLogic_Kripke_all:
+Theorem complete_MinimumLogic_Kripke_all:
   strongly_complete GD Kripke_SM
     (KripkeModelClass _ (Kmodel_Monotonic + Kmodel_PreOrder)).
 Proof.
@@ -106,8 +106,8 @@ Proof.
   constructor; hnf.
   + intros.
     exact (denote_monotonic cP rel H_R
-             (MinimunLanguage.varp v)
-             (TRUTH (MinimunLanguage.varp v))).
+             (MinimumLanguage.varp v)
+             (TRUTH (MinimumLanguage.varp v))).
   + exact (po_R cP rel H_R).
 Qed.
 

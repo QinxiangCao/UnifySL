@@ -1,9 +1,9 @@
 Require Import Logic.GeneralLogic.Base.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
-Require Import Logic.MinimunLogic.ProofTheory.RewriteClass.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.
@@ -19,7 +19,7 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {minL: MinimunLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (GammaP: Provable L) {minAX: MinimunAxiomatization L GammaP} {ipAX: IntuitionisticPropositionalLogic L GammaP} {sAX: SeparationLogic L GammaP} {EmpsAX: EmpSeparationLogic L GammaP} := {
+Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (GammaP: Provable L) {minAX: MinimumAxiomatization L GammaP} {ipAX: IntuitionisticPropositionalLogic L GammaP} {sAX: SeparationLogic L GammaP} {EmpsAX: EmpSeparationLogic L GammaP} := {
   Parametric_DM: WEM = true -> DeMorganPropositionalLogic L GammaP;
   Parametric_GD: IC = true -> GodelDummettPropositionalLogic L GammaP;
   Parametric_C: EM = true -> ClassicalPropositionalLogic L GammaP;
@@ -66,7 +66,7 @@ Instance GD: Derivable SeparationEmpLanguage.L := Provable2Derivable.
 Instance AX: NormalAxiomatization SeparationEmpLanguage.L GP GD :=
   Provable2Derivable_Normal.
 
-Instance minAX: MinimunAxiomatization SeparationEmpLanguage.L GP.
+Instance minAX: MinimumAxiomatization SeparationEmpLanguage.L GP.
 Proof.
   constructor.
   + apply modus_ponens.

@@ -1,8 +1,8 @@
 Require Import Coq.Lists.List.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.ProofTheory.Minimun.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.ProofTheory.Minimum.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
@@ -21,7 +21,7 @@ Require Config.
 
 Section Generate.
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sL : SeparationLanguage L}
         {empL: SeparationEmpLanguage L}
@@ -29,7 +29,7 @@ Context {L: Language}
         {GammaD: Derivable L}
         {AX: NormalAxiomatization L GammaP GammaD}
         {SC : NormalSequentCalculus L GammaP GammaD}
-        {minAX: MinimunAxiomatization L GammaP}
+        {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
         {cpAX: ClassicalPropositionalLogic L GammaP}
         {dmpAX: DeMorganPropositionalLogic L GammaP}
@@ -43,7 +43,7 @@ Context {L: Language}
         {gcAX: GarbageCollectSeparationLogic L GammaP}
         {bSC : BasicSequentCalculus L GammaD}
         {fwSC : FiniteWitnessedSequentCalculus L GammaD}
-        {minSC: MinimunSequentCalculus L GammaD}
+        {minSC: MinimumSequentCalculus L GammaD}
         {ipSC: IntuitionisticPropositionalSequentCalculus L GammaD}
         {cpSC: ClassicalPropositionalSequentCalculus L GammaD}
         .
@@ -272,8 +272,8 @@ Ltac two_stage_print :=
 
   idtac "Require Import Logic.GeneralLogic.Base.";
   idtac "Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.";
-  idtac "Require Import Logic.MinimunLogic.Syntax.";
-  idtac "Require Import Logic.MinimunLogic.ProofTheory.Minimun.";
+  idtac "Require Import Logic.MinimumLogic.Syntax.";
+  idtac "Require Import Logic.MinimumLogic.ProofTheory.Minimum.";
   idtac "Require Import Logic.PropositionalLogic.Syntax.";
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.";
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.";

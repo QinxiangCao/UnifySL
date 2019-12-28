@@ -5,8 +5,8 @@ Require Import Coq.Relations.Relation_Definitions.
 Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.KripkeModel.
 Require Import Logic.GeneralLogic.Semantics.Kripke.
-Require Import Logic.MinimunLogic.Syntax.
-Require Import Logic.MinimunLogic.Semantics.Kripke.
+Require Import Logic.MinimumLogic.Syntax.
+Require Import Logic.MinimumLogic.Semantics.Kripke.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.Semantics.Kripke.
 
@@ -20,7 +20,7 @@ Import KripkeModelNotation_Intuitionistic.
 Section Sound_Kripke.
 
 Context {L: Language}
-        {minL: MinimunLanguage L}
+        {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {MD: Model}
         {kMD: KripkeModel MD}
@@ -29,7 +29,7 @@ Context {L: Language}
         {po_R: PreOrder Krelation}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
-        {kminSM: KripkeMinimunSemantics L MD M SM}
+        {kminSM: KripkeMinimumSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}.
 
 Lemma sound_andp_intros:
