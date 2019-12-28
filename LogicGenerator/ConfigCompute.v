@@ -166,7 +166,25 @@ Definition dis_diag: list (list any_class * any_class * option how_instance) :=
       (map DIOI ConfigDenot.S.D_instance_transitions)
       ConfigDenot.S.D_instance_transition_results)
     (map Some ConfigDenot.S.D_instance_transitions).
-    
+
+(* depended instances of primary proof rules *)
+Definition DIOpR (pr: primary_rule): list any_class :=
+  map snd
+    (filter
+       (fun p => Nat.eqb pr (fst p))
+       (combine
+          (fst ConfigDenot.S.D_primary_rules_dependency_via_ins)
+          (snd ConfigDenot.S.D_primary_rules_dependency_via_ins))).
+
+(* depended instances of derived proof rules *)
+Definition DIOdR (dr: derived_rule): list any_class :=
+  map snd
+    (filter
+       (fun p => Nat.eqb dr (fst p))
+       (combine
+          (fst ConfigDenot.S.D_derived_rules_dependency_via_ins)
+          (snd ConfigDenot.S.D_derived_rules_dependency_via_ins))).
+
 (** ** Checking functions **)
 
 Definition ht_restriction_merge (r1 r2: ht_restriction): ht_restriction :=
@@ -357,6 +375,30 @@ Let derived_classes :=
        (map (fun ac => (nil, ac, None)) (primitive_classes ++ refl_classes) ++
         dis_diag)).
 
+Let all_classes :=
+  primitive_classes ++
+  refl_classes ++
+  NatList.map_with_hint
+    S.D_instance_transitions
+    S.D_instance_transition_results
+    derived_classes.
+
+Let primary_rules :=
+  filter
+    (fun pr => AllClassList.test_sublist (DIOpR pr) primitive_classes)
+    ConfigDenot.S.D_primary_rules.
+
+Let derived_rules :=
+  filter
+    (fun dr => AllClassList.test_sublist (DIOdR dr) all_classes)
+    ConfigDenot.S.D_derived_rules.
+
+Let derived_rules_as_instance :=
+  filter
+    (fun dr => existsb
+                 (fun dr0 => Nat.eqb dr dr0)
+                 ConfigDenot.S.D_derived_rules_as_instance)
+    derived_rules.
 (* TODO resume this checking
 Let needed_connective :=
   ConnectiveList.shrink (concat (map DCOP optional_rules)).
@@ -386,6 +428,9 @@ Definition result: Output.output :=
     primitive_classes
     refl_classes
     derived_classes
+    primary_rules
+    derived_rules
+    derived_rules_as_instance
     .
 
 End ComputeHT.

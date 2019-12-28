@@ -61,6 +61,7 @@ Module NaiveRule.
       provable (iffp (sepcon x (sepcon y z)) (sepcon (sepcon x y) z)).
   Axiom wand_sepcon_adjoint: forall x y z,
       provable (impp (sepcon x y) z) <-> provable (impp x (wand y z)).
+  Axiom sepcon_emp : (forall x : expr, provable (iffp (sepcon x emp) x)) .
 End NaiveRule.
 
 Module T := LogicTheorem NaiveLang NaiveRule.

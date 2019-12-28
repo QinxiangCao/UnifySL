@@ -127,6 +127,10 @@ Inductive any_class :=
 
 Definition how_instance: Type := nat.
 
+Definition primary_rule: Type := nat.
+
+Definition derived_rule: Type := nat.
+
 (** ** Output *)
 
 Module Output.
@@ -142,7 +146,10 @@ Record output: Type := {
   derived_judgements: list how_judgement;
   primitive_classes: list any_class;
   refl_classes_for_derivation: list any_class;
-  derived_classes: list how_instance
+  derived_classes: list how_instance;
+  primary_rules: list primary_rule;
+  derived_rules: list derived_rule;
+  derived_rules_as_instance: list derived_rule
 }.
 End Output.
 

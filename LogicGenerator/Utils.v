@@ -125,17 +125,15 @@ Ltac noninstance_arg_list_rec i t res0 :=
   | _ => res0
   end.
 
-Ltac noninstance_arg_list x res :=
-  match x with
-  | pair ?i ?t => noninstance_arg_list_rec (pair i t) t res
-  end.
-
-Ltac noninstance_arg_lists_tac l res :=
-  match l with
+Ltac noninstance_arg_lists_tac li lt res :=
+  match li with
   | nil => res
-  | cons (BuildName ?x) ?l0 =>
-    let res := noninstance_arg_list x res in
-    noninstance_arg_lists_tac l0 res
+  | cons (BuildName ?i) ?li0 =>
+    match lt with
+    | cons (BuildName ?t) ?lt0 =>
+      let res := noninstance_arg_list_rec i t res in
+      noninstance_arg_lists_tac li0 lt0 res
+    end
   end.
 
 Ltac instance_arg_list_rec i t res0 :=
@@ -147,28 +145,37 @@ Ltac instance_arg_list_rec i t res0 :=
   | _ => res0
   end.
 
-Ltac instance_arg_list x res :=
-  match x with
-  | pair ?i ?t => instance_arg_list_rec (pair i t) t res
-  end.
-
-Ltac instance_arg_lists_tac l res :=
-  match l with
+Ltac instance_arg_lists_tac li lt res :=
+  match li with
   | nil => res
-  | cons (BuildName ?x) ?l0 =>
-    let res := instance_arg_list x res in
-    instance_arg_lists_tac l0 res
+  | cons (BuildName ?i) ?li0 =>
+    match lt with
+    | cons (BuildName ?t) ?lt0 =>
+      let res := instance_arg_list_rec i t res in
+      instance_arg_lists_tac li0 lt0 res
+    end
   end.
 
 Notation "'noninstance_arg_lists' l" :=
-  (ltac:(let l' := eval hnf in l in
-         let res := noninstance_arg_lists_tac l' (@nil Name) in
+  (ltac:(let li := eval hnf in (fst l) in
+         let lt := eval hnf in (snd l) in
+         let res := noninstance_arg_lists_tac li lt (@nil Name) in
          exact res))
   (only parsing, at level 99).
 
 Notation "'instance_arg_lists' l" :=
-  (ltac:(let l' := eval hnf in l in
-         let res := instance_arg_lists_tac l' (@nil Name) in
+  (ltac:(let li := eval hnf in (fst l) in
+         let lt := eval hnf in (snd l) in
+         let res := instance_arg_lists_tac li lt (@nil Name) in
          exact res))
   (only parsing, at level 99).
 
+Notation "'nat_ident_list' l" :=
+  (ltac:(let l' := eval compute in
+         ((fix f (n: nat): list nat :=
+            match n with
+            | O => nil
+            | S n0 => cons O (map S (f n0))
+            end) (length l)) in
+             exact l'))
+  (only parsing, at level 99).

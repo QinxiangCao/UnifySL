@@ -3,6 +3,7 @@ Require Import Logic.GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import Logic.MinimumLogic.Syntax.
 Require Import Logic.MinimumLogic.ProofTheory.Minimum.
+Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.
 Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
@@ -11,6 +12,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
+Require Import SeparationLogic.ProofTheory.RewriteClass.
 
 Require Import Logic.LogicGenerator.Utils.
 Require Import Logic.LogicGenerator.ConfigDenot.
@@ -120,68 +122,20 @@ Definition aux_derived_instances: list Name :=
     (ConfigDenot.S.D_instance_transitions, ConfigDenot.S.instance_transitions)
     (ConfigLang.Output.derived_classes foo).
 
-(* TODO: should be derived automatically *)
 Definition primary_rules: list Name :=
-  [ modus_ponens
-  ; axiom1
-  ; axiom2
-  ; andp_intros
-  ; andp_elim1
-  ; andp_elim2
-  ; orp_intros1
-  ; orp_intros2
-  ; orp_elim
-  ; falsep_elim
-  ; excluded_middle
-  ; sepcon_comm_impp
-  ; sepcon_assoc
-  ; wand_sepcon_adjoint
-  ].
+  map_with_hint
+    (ConfigDenot.S.D_primary_rules, ConfigDenot.S.primary_rules)
+    (ConfigLang.Output.primary_rules foo).
 
-Definition derived_rules :=
-  [ provable_impp_refl
-  ; provable_impp_arg_switch
-  ; provable_impp_trans
-  ; provable_multi_imp_shrink
-  ; provable_multi_imp_arg_switch1
-  ; provable_multi_imp_arg_switch2
-  ; provable_add_multi_imp_left_head
-  ; provable_add_multi_imp_left_tail
-  ; provable_multi_imp_modus_ponens
-  ; provable_multi_imp_weaken
-  ; provable_proper_iffp
-  ; demorgan_orp_negp
-  ; demorgan_negp_orp
-  ; provable_truep
-  ; andp_comm
-  ; andp_assoc
-  ; orp_comm
-  ; orp_assoc
-  ; andp_dup
-  ; orp_dup
-  ; impp_curry
-  ; impp_uncurry
-  ; double_negp_elim
-  ; double_negp
-  ; contrapositiveNN
-  ; contrapositiveNP
-  ; impp2orp
-  ; sepcon_orp_distr_l
-  ; falsep_sepcon
-  ; provable_wand_sepcon_modus_ponens1
-  ; wand_andp
-  ; sepcon_comm
-  ; sepcon_orp_distr_r
-  ; sepcon_falsep
-  ; provable_wand_sepcon_modus_ponens2
-  ; wand_mono
-  ; orp_wand
-  ; sepcon_mono
-  ].
+Definition derived_rules: list Name :=
+  map_with_hint
+    (ConfigDenot.S.D_derived_rules, ConfigDenot.S.derived_rules)
+    (ConfigLang.Output.derived_rules foo).
 
-Definition derived_instances :=
-  [ provable_proper_iffp
-  ].
+Definition derived_rules_as_instance :=
+  map_with_hint
+    (ConfigDenot.S.D_derived_rules, ConfigDenot.S.derived_rules)
+    (ConfigLang.Output.derived_rules_as_instance foo).
 
 Import ListNotations.
 
@@ -194,6 +148,7 @@ Ltac print prt name :=
     | ?T =>
       match prt with
       | IPar ?l =>
+        let l := eval hnf in l in
         let should_inline := in_name_list n l in
         match should_inline with
         | true => idtac "  Parameter Inline" n ":" T "."
@@ -220,17 +175,6 @@ Ltac newline := idtac "".
 Set Printing Width 1000.
 
 Ltac two_stage_print :=
-  let primitive_types := eval unfold primitive_types in primitive_types in
-  let transparent_types := eval unfold transparent_types in transparent_types in
-  let derived_types := eval unfold derived_types in derived_types in
-  let primitive_connectives := eval unfold primitive_connectives in primitive_connectives in
-  let transparent_connectives := eval unfold transparent_connectives in transparent_connectives in
-  let derived_connectives := eval unfold derived_connectives in derived_connectives in
-  let primitive_judgements := eval unfold primitive_judgements in primitive_judgements in
-  let transparent_judgements := eval unfold transparent_judgements in transparent_judgements in
-  let derived_judgements := eval unfold derived_judgements in derived_judgements in
-(*  let := eval unfold in in *)
-
   idtac "Require Import Coq.Lists.List.";
   idtac "Require Import Coq.Sets.Ensembles.";
 
@@ -265,7 +209,7 @@ Ltac two_stage_print :=
   idtac "  Include Rules.";
   idtac "  Import Names Rules.";
   dolist (print Axm) derived_rules;
-  dolist (print DIns) derived_instances;
+  dolist (print DIns) derived_rules_as_instance;
   idtac "End LogicTheoremSig.";
 
   newline;
@@ -274,6 +218,7 @@ Ltac two_stage_print :=
   idtac "Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.";
   idtac "Require Import Logic.MinimumLogic.Syntax.";
   idtac "Require Import Logic.MinimumLogic.ProofTheory.Minimum.";
+  idtac "Require Import Logic.MinimumLogic.ProofTheory.RewriteClass.";
   idtac "Require Import Logic.PropositionalLogic.Syntax.";
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.Intuitionistic.";
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.DeMorgan.";
@@ -282,6 +227,7 @@ Ltac two_stage_print :=
   idtac "Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.";
   idtac "Require Import Logic.SeparationLogic.Syntax.";
   idtac "Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.";
+  idtac "Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.";
 
   newline;
 
@@ -292,7 +238,7 @@ Ltac two_stage_print :=
   dolist (print AIns) aux_refl_instances_for_derivation;
   dolist (print AIns) aux_derived_instances;
   dolist (print Def) derived_rules;
-  dolist (print DIns) derived_instances;
+  dolist (print DIns) derived_rules_as_instance;
   idtac "End LogicTheorem.";
 
   newline;

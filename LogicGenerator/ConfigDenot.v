@@ -2,13 +2,16 @@ Require Import GeneralLogic.Base.
 Require Import Logic.GeneralLogic.ProofTheory.BasicSequentCalculus.
 Require Import MinimumLogic.Syntax.
 Require Import MinimumLogic.ProofTheory.Minimum.
+Require Import MinimumLogic.ProofTheory.RewriteClass.
 Require Import PropositionalLogic.Syntax.
 Require Import PropositionalLogic.ProofTheory.Intuitionistic.
 Require Import PropositionalLogic.ProofTheory.Classical.
 Require Import PropositionalLogic.ProofTheory.DeMorgan.
 Require Import PropositionalLogic.ProofTheory.GodelDummett.
+Require Import PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
+Require Import SeparationLogic.ProofTheory.RewriteClass.
 
 Require Logic.LogicGenerator.ConfigLang.
 Require Import Logic.LogicGenerator.Utils. 
@@ -109,6 +112,28 @@ Definition refl_classes :=
 
 End D.
 
+Definition Build_Language := Build_Language.
+Definition Build_MinimumLanguage := Build_MinimumLanguage.
+Definition Build_PropositionalLanguage := Build_PropositionalLanguage.
+Definition Build_SeparationLanguage := Build_SeparationLanguage.
+Definition Build_SeparationEmpLanguage := Build_SeparationEmpLanguage.
+Definition Build_Provable := Build_Provable.
+Definition Build_Derivable := Build_Derivable.
+Definition Build_NormalAxiomatization := Build_NormalAxiomatization.
+Definition Build_NormalSequentCalculus := Build_NormalSequentCalculus.
+Definition Build_MinimumAxiomatization := Build_MinimumAxiomatization.
+Definition Build_IntuitionisticPropositionalLogic := Build_IntuitionisticPropositionalLogic.
+Definition Build_DeMorganPropositionalLogic := Build_DeMorganPropositionalLogic.
+Definition Build_ClassicalPropositionalLogic := Build_ClassicalPropositionalLogic.
+Definition Build_SeparationLogic := Build_SeparationLogic.
+Definition Build_EmpSeparationLogic := Build_EmpSeparationLogic.
+Definition Build_GarbageCollectSeparationLogic := Build_GarbageCollectSeparationLogic.
+Definition Build_BasicSequentCalculus := Build_BasicSequentCalculus.
+Definition Build_FiniteWitnessedSequentCalculus := Build_FiniteWitnessedSequentCalculus.
+Definition Build_MinimumSequentCalculus := Build_MinimumSequentCalculus.
+Definition Build_IntuitionisticPropositionalSequentCalculus := Build_IntuitionisticPropositionalSequentCalculus.
+Definition Build_ClassicalPropositionalSequentCalculus := Build_ClassicalPropositionalSequentCalculus.
+
 Module S.
 Import NameListNotations.
 Section S.
@@ -181,28 +206,6 @@ Definition how_judgements: list Name :=
   [ (derivable, fun Phi x => exists xs, Forall Phi xs /\ provable (multi_imp xs x))
   ; (provable, fun x => derivable empty_context x)
   ].
-
-Definition Build_Language := Build_Language.
-Definition Build_MinimumLanguage := Build_MinimumLanguage.
-Definition Build_PropositionalLanguage := Build_PropositionalLanguage.
-Definition Build_SeparationLanguage := Build_SeparationLanguage.
-Definition Build_SeparationEmpLanguage := Build_SeparationEmpLanguage.
-Definition Build_Provable := Build_Provable.
-Definition Build_Derivable := Build_Derivable.
-Definition Build_NormalAxiomatization := Build_NormalAxiomatization.
-Definition Build_NormalSequentCalculus := Build_NormalSequentCalculus.
-Definition Build_MinimumAxiomatization := Build_MinimumAxiomatization.
-Definition Build_IntuitionisticPropositionalLogic := Build_IntuitionisticPropositionalLogic.
-Definition Build_DeMorganPropositionalLogic := Build_DeMorganPropositionalLogic.
-Definition Build_ClassicalPropositionalLogic := Build_ClassicalPropositionalLogic.
-Definition Build_SeparationLogic := Build_SeparationLogic.
-Definition Build_EmpSeparationLogic := Build_EmpSeparationLogic.
-Definition Build_GarbageCollectSeparationLogic := Build_GarbageCollectSeparationLogic.
-Definition Build_BasicSequentCalculus := Build_BasicSequentCalculus.
-Definition Build_FiniteWitnessedSequentCalculus := Build_FiniteWitnessedSequentCalculus.
-Definition Build_MinimumSequentCalculus := Build_MinimumSequentCalculus.
-Definition Build_IntuitionisticPropositionalSequentCalculus := Build_IntuitionisticPropositionalSequentCalculus.
-Definition Build_ClassicalPropositionalSequentCalculus := Build_ClassicalPropositionalSequentCalculus.
 
 Definition type_instances_build :=
   [ (L, Build_Language expr)
@@ -289,19 +292,24 @@ Definition instances :=
         exact instances).
 
 Definition type_dependency_via_ins :=
-  noninstance_arg_lists type_instances_build.
+  noninstance_arg_lists
+    (type_instances_build, map_snd type_instances_build).
 
 Definition connective_dependency_via_ins :=
-  noninstance_arg_lists connective_instances_build.
+  noninstance_arg_lists
+    (connective_instances_build, map_snd connective_instances_build).
 
 Definition judgement_dependency_via_ins :=
-  noninstance_arg_lists judgement_instances_build.
+  noninstance_arg_lists
+    (judgement_instances_build, map_snd judgement_instances_build).
 
 Definition primary_rule_dependency_via_ins :=
-  noninstance_arg_lists rule_instances_build.
+  noninstance_arg_lists
+    (rule_instances_build, map_snd rule_instances_build).
 
 Definition instance_dependency_via_transition :=
-  instance_arg_lists instance_transitions.
+  instance_arg_lists
+    (instance_transitions, map_snd instance_transitions).
 
 Definition D_type_dependency_via_ins :=
   (map_with_hint (type_instances_build, D.type_classes)
@@ -321,14 +329,8 @@ Definition D_judgement_dependency_via_ins :=
    map_with_hint (judgements, D.judgements)
                  (map_snd judgement_dependency_via_ins)).
 
-Definition D_instance_transitions :=
-  ltac:(let l := eval compute in
-         ((fix f (n: nat): list nat :=
-            match n with
-            | O => nil
-            | S n0 => cons O (map S (f n0))
-            end) (length instance_transitions)) in
-         exact l).
+Definition D_instance_transitions: list ConfigLang.how_instance :=
+  nat_ident_list instance_transitions.
 
 Definition D_instance_transition_results :=
   map_with_hint (instances, D.classes) (map_fst instance_transitions).
@@ -339,26 +341,8 @@ Definition D_instance_dependency_via_transition :=
    map_with_hint (instances, D.classes)
                  (map_snd instance_dependency_via_transition)).
 
-(* TODO maybe not manually *)
 Definition primary_rules: list Name :=
-  [ modus_ponens
-  ; axiom1
-  ; axiom2
-  ; andp_intros
-  ; andp_elim1
-  ; andp_elim2
-  ; orp_intros1
-  ; orp_intros2
-  ; orp_elim
-  ; falsep_elim
-  ; excluded_middle
-  ; weak_excluded_middle
-  ; demorgan_negp_andp
-  ; impp_choice
-  ; sepcon_comm_impp
-  ; sepcon_assoc
-  ; wand_sepcon_adjoint
-  ].
+  map_snd primary_rule_dependency_via_ins.
 
 Definition derived_rules :=
   [ provable_impp_refl
@@ -371,6 +355,8 @@ Definition derived_rules :=
   ; provable_add_multi_imp_left_tail
   ; provable_multi_imp_modus_ponens
   ; provable_multi_imp_weaken
+  ; provable_proper_iffp
+  ; provable_impp_refl_instance
   ; demorgan_orp_negp
   ; demorgan_negp_orp
   ; provable_truep
@@ -399,6 +385,53 @@ Definition derived_rules :=
   ; orp_wand
   ; sepcon_mono
   ].
+
+Ltac filter_instance_rec l res :=
+  match l with
+  | nil => res
+  | cons (BuildName ?x) ?l0 =>
+      let tac1 TT := filter_instance_rec l0 (cons (BuildName x) res) in
+      let tac2 TT := filter_instance_rec l0 res in
+      if_instance x tac1 tac2
+  end.
+
+Notation "'filter_instance' l" :=
+  (ltac:(let l' := eval hnf in l in
+         let res := filter_instance_rec l' (@nil Name) in
+         exact res))
+  (only parsing, at level 99).
+
+Definition derived_rules_as_instance :=
+  filter_instance derived_rules.
+
+Definition D_primary_rules :=
+  nat_ident_list primary_rules.
+
+Definition D_derived_rules :=
+  nat_ident_list derived_rules.
+
+Definition D_derived_rules_as_instance :=
+  map_with_hint (derived_rules, D_derived_rules) derived_rules_as_instance.
+
+Definition primary_rules_dependency_via_ins :=
+  instance_arg_lists
+    (primary_rules, primary_rules).
+
+Definition derived_rules_dependency_via_ins :=
+  instance_arg_lists
+    (derived_rules, derived_rules).
+
+Definition D_primary_rules_dependency_via_ins :=
+  (map_with_hint (primary_rules, D_primary_rules)
+                 (map_fst primary_rules_dependency_via_ins),
+   map_with_hint (instances, D.classes)
+                 (map_snd primary_rules_dependency_via_ins)).
+
+Definition D_derived_rules_dependency_via_ins :=
+  (map_with_hint (derived_rules, D_derived_rules)
+                 (map_fst derived_rules_dependency_via_ins),
+   map_with_hint (instances, D.classes)
+                 (map_snd derived_rules_dependency_via_ins)).
 
 End S.
 End S.
