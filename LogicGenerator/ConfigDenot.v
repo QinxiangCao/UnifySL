@@ -13,7 +13,7 @@ Require Import SeparationLogic.ProofTheory.SeparationLogic.
 Require Logic.LogicGenerator.ConfigLang.
 Require Import Logic.LogicGenerator.Utils. 
 
-Module C.
+Module D.
 Import ConfigLang.
 Import ListNotations.
 
@@ -83,9 +83,10 @@ Definition rule_classes :=
   ; provability_OF_separation_logic
   ; provability_OF_emp_rule
   ; provability_OF_garbage_collected_sl
+  ; derivitive_OF_basic_setting
+  ; derivitive_OF_finite_derivation
   ; derivitive_OF_impp
   ; derivitive_OF_propositional_connectives
-  ; derivitive_OF_finite_derivation
 (*  ; derivitive_OF_de_morgan *)
 (*  ; derivitive_OF_godel_dummett *)
   ; derivitive_OF_classical_logic
@@ -93,11 +94,24 @@ Definition rule_classes :=
   ; GEN_provable_FROM_derivable
   ].
 
-End C.
+Definition classes :=
+  ltac:(let l := eval compute in
+         (map TC type_classes ++
+          map CC connective_classes ++
+          map JC judgement_classes ++
+          map RC rule_classes) in
+        exact l).
 
-Module PreList.
+Definition refl_classes :=
+  [ RC GEN_derivable_FROM_provable
+  ; RC GEN_provable_FROM_derivable
+  ].
+
+End D.
+
+Module S.
 Import NameListNotations.
-Section PreList.
+Section S.
 
 Context {L: Language}
         {minL: MinimunLanguage L}
@@ -174,6 +188,9 @@ Definition Build_PropositionalLanguage := Build_PropositionalLanguage.
 Definition Build_SeparationLanguage := Build_SeparationLanguage.
 Definition Build_SeparationEmpLanguage := Build_SeparationEmpLanguage.
 Definition Build_Provable := Build_Provable.
+Definition Build_Derivable := Build_Derivable.
+Definition Build_NormalAxiomatization := Build_NormalAxiomatization.
+Definition Build_NormalSequentCalculus := Build_NormalSequentCalculus.
 Definition Build_MinimunAxiomatization := Build_MinimunAxiomatization.
 Definition Build_IntuitionisticPropositionalLogic := Build_IntuitionisticPropositionalLogic.
 Definition Build_DeMorganPropositionalLogic := Build_DeMorganPropositionalLogic.
@@ -181,9 +198,11 @@ Definition Build_ClassicalPropositionalLogic := Build_ClassicalPropositionalLogi
 Definition Build_SeparationLogic := Build_SeparationLogic.
 Definition Build_EmpSeparationLogic := Build_EmpSeparationLogic.
 Definition Build_GarbageCollectSeparationLogic := Build_GarbageCollectSeparationLogic.
+Definition Build_BasicSequentCalculus := Build_BasicSequentCalculus.
+Definition Build_FiniteWitnessedSequentCalculus := Build_FiniteWitnessedSequentCalculus.
 Definition Build_MinimunSequentCalculus := Build_MinimunSequentCalculus.
 Definition Build_IntuitionisticPropositionalSequentCalculus := Build_IntuitionisticPropositionalSequentCalculus.
-Definition Build_FiniteWitnessedSequentCalculus := Build_FiniteWitnessedSequentCalculus.
+Definition Build_ClassicalPropositionalSequentCalculus := Build_ClassicalPropositionalSequentCalculus.
 
 Definition type_instances_build :=
   [ (L, Build_Language expr)
@@ -210,21 +229,39 @@ Definition rule_instances_build :=
   ; (sAX, Build_SeparationLogic L minL pL sL GammaP minAX ipAX sepcon_comm_impp sepcon_assoc wand_sepcon_adjoint)
   ; (empsAX, Build_EmpSeparationLogic L minL pL sL empL GammaP minAX ipAX sAX sepcon_emp)
   ; (gcsAX, Build_GarbageCollectSeparationLogic L minL pL sL GammaP minAX ipAX sAX sepcon_elim1)
+  ; (bSC, Build_BasicSequentCalculus L GammaD deduction_weaken derivable_assum deduction_subst)
+  ; (fwSC, Build_FiniteWitnessedSequentCalculus L GammaD derivable_finite_witnessed)
   ; (minSC, Build_MinimunSequentCalculus L minL GammaD deduction_modus_ponens deduction_impp_intros) 
   ; (ipSC, Build_IntuitionisticPropositionalSequentCalculus L pL GammaD deduction_andp_intros deduction_andp_elim1 deduction_andp_elim2 deduction_orp_intros1 deduction_orp_intros2 deduction_orp_elim deduction_falsep_elim)
-  ; (fwSC, Build_FiniteWitnessedSequentCalculus L GammaD derivable_finite_witnessed)
   ; (cpSC, Build_ClassicalPropositionalSequentCalculus L minL pL GammaD bSC minSC ipSC derivable_excluded_middle)
   ; (AX, Build_NormalAxiomatization L minL GammaP GammaD derivable_provable)
   ; (SC, Build_NormalSequentCalculus L GammaP GammaD provable_derivable)
   ].
 
-Ltac map_fst_tac x :=
-  match x with
-  | nil => constr:(@nil Name)
-  | cons (BuildName (pair ?A ?B)) ?y =>
-    let res := map_fst_tac y in
-    constr:(cons (BuildName A) res)
-  end.
+Definition instances_build :=
+  ltac:(let instances_build :=
+          eval cbv [type_instances_build
+                    connective_instances_build
+                    judgement_instances_build
+                    rule_instances_build
+                    app] in
+        (type_instances_build ++
+         connective_instances_build ++
+         judgement_instances_build ++
+         rule_instances_build) in
+        exact instances_build).
+
+Definition refl_instances :=
+  [ (AX, Provable2Derivable_Normal)
+  ; (SC, Derivable2Provable_Normal)
+  ].
+
+Definition instance_transitions :=
+  [ (SC, Axiomatization2SequentCalculus_SC)
+  ; (bSC, Axiomatization2SequentCalculus_bSC)
+  ; (fwSC, Axiomatization2SequentCalculus_fwSC)
+  ; (minSC, Axiomatization2SequentCalculus_minSC)
+  ].
 
 Definition type_instances: list Name :=
   map_fst type_instances_build.
@@ -239,7 +276,68 @@ Definition rule_instances :=
   map_fst rule_instances_build.
 
 Definition instances :=
-  ltac:(let instances := eval cbv [type_instances connective_instances judgement_instances rule_instances app] in (type_instances ++ connective_instances ++ judgement_instances ++ rule_instances) in exact instances).
+  ltac:(let instances :=
+          eval cbv [type_instances
+                    connective_instances
+                    judgement_instances
+                    rule_instances
+                    app] in
+        (type_instances ++
+         connective_instances ++
+         judgement_instances ++
+         rule_instances) in
+        exact instances).
+
+Definition type_dependency_via_ins :=
+  noninstance_arg_lists type_instances_build.
+
+Definition connective_dependency_via_ins :=
+  noninstance_arg_lists connective_instances_build.
+
+Definition judgement_dependency_via_ins :=
+  noninstance_arg_lists judgement_instances_build.
+
+Definition primary_rule_dependency_via_ins :=
+  noninstance_arg_lists rule_instances_build.
+
+Definition instance_dependency_via_transition :=
+  instance_arg_lists instance_transitions.
+
+Definition D_type_dependency_via_ins :=
+  (map_with_hint (type_instances_build, D.type_classes)
+                 (map_fst type_dependency_via_ins),
+   map_with_hint (types, D.types)
+                 (map_snd type_dependency_via_ins)).
+
+Definition D_connective_dependency_via_ins :=
+  (map_with_hint (connective_instances_build, D.connective_classes)
+                 (map_fst connective_dependency_via_ins),
+   map_with_hint (connectives, D.connectives)
+                 (map_snd connective_dependency_via_ins)).
+
+Definition D_judgement_dependency_via_ins :=
+  (map_with_hint (judgement_instances_build, D.judgement_classes)
+                 (map_fst judgement_dependency_via_ins),
+   map_with_hint (judgements, D.judgements)
+                 (map_snd judgement_dependency_via_ins)).
+
+Definition D_instance_transitions :=
+  ltac:(let l := eval compute in
+         ((fix f (n: nat): list nat :=
+            match n with
+            | O => nil
+            | S n0 => cons O (map S (f n0))
+            end) (length instance_transitions)) in
+         exact l).
+
+Definition D_instance_transition_results :=
+  map_with_hint (instances, D.classes) (map_fst instance_transitions).
+
+Definition D_instance_dependency_via_transition :=
+  (map_with_hint (instance_transitions, D_instance_transitions)
+                 (map_fst instance_dependency_via_transition),
+   map_with_hint (instances, D.classes)
+                 (map_snd instance_dependency_via_transition)).
 
 (* TODO maybe not manually *)
 Definition primary_rules: list Name :=
@@ -302,14 +400,7 @@ Definition derived_rules :=
   ; sepcon_mono
   ].
 
-Definition classes_transition :=
-  [ (GammaD, Provable2Derivable)
-  ; (AX, Provable2Derivable_Normal)
-  ; (SC, Axiomatization2SequentCalculus_SC)
-  ; (bSC, Axiomatization2SequentCalculus_bSC)
-  ; (fwSC, Axiomatization2SequentCalculus_fwSC)
-  ; (minSC, Axiomatization2SequentCalculus_minSC)
-  ].
+End S.
+End S.
 
-End PreList.
-End PreList.
+

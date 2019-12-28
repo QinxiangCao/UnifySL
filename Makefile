@@ -220,7 +220,7 @@ HoareLogic_FILES = \
   Sound_Resource_Angelic.v Sound_Resource_TraceSemantics.v
 
 LogicGenerator_FILES = \
-  ConfigLang.v ConfigDenot.v Utils.v #Generate.v 
+  ConfigLang.v ConfigDenot.v ConfigCompute.v Utils.v #Generate.v 
 
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \

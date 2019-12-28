@@ -56,6 +56,17 @@ Ltac map_fst_tac x :=
 Notation "'map_fst' l" := ltac:(let l' := eval hnf in l in
                                 let x := map_fst_tac l' in exact x) (at level 99).
     
+Ltac map_snd_tac x :=
+  match x with
+  | nil => constr:(@nil Name)
+  | cons (BuildName (pair ?A ?B)) ?y =>
+    let res := map_snd_tac y in
+    constr:(cons (BuildName B) res)
+  end.
+
+Notation "'map_snd' l" := ltac:(let l' := eval hnf in l in
+                                let x := map_snd_tac l' in exact x) (at level 99).
+    
 Ltac inj_with_hint_tac x l1 l2 :=
   match l1 with
   | cons x _ =>
@@ -72,10 +83,11 @@ Ltac inj_with_hint_tac x l1 l2 :=
   | _ => fail 1000 "inj_with_hint fails since l1 is not fully computed."
   end.
 
-(* Suppose the return value should has type (list Name) *)
 Ltac map_with_hint_tac l1 l2 l :=
   match l with
-  | nil => constr:(@nil Name)
+  | nil => match type of l2 with
+           | list ?T => constr:(@nil T)
+           end
   | cons ?x ?l0 => let a := inj_with_hint_tac x l1 l2 in
                    let l' := map_with_hint_tac l1 l2 l0 in
                    constr:(cons a l')
@@ -84,8 +96,79 @@ Ltac map_with_hint_tac l1 l2 l :=
 Notation "'map_with_hint' '(' l1 ',' l2 ')' l" :=
   ltac:(let l1' := eval hnf in l1 in
         let l2' := eval hnf in l2 in
-        let l' := eval compute in l in
+        let l' := eval hnf in l in
         let res := map_with_hint_tac l1' l2' l' in
         exact res)
+  (at level 99).
+
+Inductive ___Flag : Type :=.
+
+Ltac if_instance x tac1 tac2 :=
+  let z :=
+  match type of x with
+  | ?T => let res := eval cbv zeta in ltac:(assert(T -> T) by (intro; typeclasses eauto); exact ___Flag) in
+          constr:(res)
+  | _ => let res := tac2 tt in res
+  end
+  in
+  match z with
+  | ___Flag => let res := tac1 tt in res
+  | _ => z
+  end.
+
+Ltac noninstance_arg_list_rec i t res0 :=
+  match t with
+  | ?t0 ?x => 
+    let tac1 TT := res0 in
+    let tac2 TT := noninstance_arg_list_rec i t0 (cons (BuildName (pair i x)) res0) in
+    if_instance x tac1 tac2
+  | _ => res0
+  end.
+
+Ltac noninstance_arg_list x res :=
+  match x with
+  | pair ?i ?t => noninstance_arg_list_rec (pair i t) t res
+  end.
+
+Ltac noninstance_arg_lists_tac l res :=
+  match l with
+  | nil => res
+  | cons (BuildName ?x) ?l0 =>
+    let res := noninstance_arg_list x res in
+    noninstance_arg_lists_tac l0 res
+  end.
+
+Ltac instance_arg_list_rec i t res0 :=
+  match t with
+  | ?t0 ?x => 
+    let tac1 TT := instance_arg_list_rec i t0 (cons (BuildName (pair i x)) res0) in
+    let tac2 TT := res0 in
+    if_instance x tac1 tac2
+  | _ => res0
+  end.
+
+Ltac instance_arg_list x res :=
+  match x with
+  | pair ?i ?t => instance_arg_list_rec (pair i t) t res
+  end.
+
+Ltac instance_arg_lists_tac l res :=
+  match l with
+  | nil => res
+  | cons (BuildName ?x) ?l0 =>
+    let res := instance_arg_list x res in
+    instance_arg_lists_tac l0 res
+  end.
+
+Notation "'noninstance_arg_lists' l" :=
+  (ltac:(let l' := eval hnf in l in
+         let res := noninstance_arg_lists_tac l' (@nil Name) in
+         exact res))
+  (at level 99).
+
+Notation "'instance_arg_lists' l" :=
+  (ltac:(let l' := eval hnf in l in
+         let res := instance_arg_lists_tac l' (@nil Name) in
+         exact res))
   (at level 99).
 
