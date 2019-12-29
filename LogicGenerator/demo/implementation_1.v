@@ -14,7 +14,7 @@ Module NaiveLang.
   Definition provable (e : expr) : Prop := forall st, e st.
 End NaiveLang.
 
-Require Import Generated.
+Require Import interface_1.
 
 Module NaiveRule.
   Import NaiveLang.
@@ -68,5 +68,5 @@ Module T := LogicTheorem NaiveLang NaiveRule.
 Module Solver := IPSolver NaiveLang.
 Import T.
 Import Solver.
-Print Module T.
+
 

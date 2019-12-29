@@ -260,7 +260,14 @@ SeparationLogic: \
   .depend $(SeparationLogic_FILES:%.v=SeparationLogic/%.vo)
 
 all: \
-  $(FILES:%.v=%.vo) \
+  $(FILES:%.v=%.vo)
+
+lgen_demo_1:
+	./logic_gen.sh LogicGenerator/demo/configuration_1.v LogicGenerator/demo/interface_1.v
+	@echo COQC LogicGenerator/demo/interface_1.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/interface_1.v
+	@echo COQC LogicGenerator/demo/implementation_1.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_1.v
 
 depend:
 	$(COQDEP) $(DEP_FLAG) $(FILES) > .depend
