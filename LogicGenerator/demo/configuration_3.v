@@ -9,9 +9,6 @@ Definition how_connectives :=
   ;primitive_connective andp
   ;primitive_connective orp
   ;primitive_connective falsep
-  ;primitive_connective sepcon
-  ;primitive_connective wand
-  ;primitive_connective emp
   ;FROM_andp_impp_TO_iffp
   ;FROM_falsep_impp_TO_negp
   ;FROM_falsep_impp_TO_truep
@@ -20,17 +17,16 @@ Definition how_connectives :=
   ].
 
 Definition how_judgements :=
-  [primitive_judgement provable
-  ;FROM_provable_TO_derivable
+  [primitive_judgement derivable
+  ;FROM_derivable_TO_provable
   ].
 
-Definition transparent_names :=
-  [expr:parameter].
+Definition transparent_names: list parameter :=
+  [].
 
 Definition primitive_rule_classes :=
-  [ provability_OF_impp
-  ; provability_OF_propositional_connectives
-  ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
-  ; provability_OF_emp_rule
+  [ derivitive_OF_basic_setting
+  ; derivitive_OF_impp
+  ; derivitive_OF_propositional_connectives
+  ; GEN_provable_FROM_derivable
   ].

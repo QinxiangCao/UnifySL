@@ -5,7 +5,7 @@ Class SeparationLanguage (L: Language): Type := {
   wand : expr -> expr -> expr
 }.
 
-Class SeparationEmpLanguage (L: Language) {SL: SeparationLanguage L}: Type := {
+Class SeparationEmpLanguage (L: Language): Type := {
   emp: expr
 }.
 

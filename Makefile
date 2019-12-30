@@ -269,6 +269,22 @@ lgen_demo_1:
 	@echo COQC LogicGenerator/demo/implementation_1.v
 	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_1.v
 
+lgen_demo_2:
+	./logic_gen.sh LogicGenerator/demo/configuration_2.v LogicGenerator/demo/interface_2.v
+	@echo COQC LogicGenerator/demo/interface_2.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/interface_2.v
+	@echo COQC LogicGenerator/demo/implementation_2a.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_2a.v
+	@echo COQC LogicGenerator/demo/implementation_2b.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_2b.v
+
+lgen_demo_3:
+	./logic_gen.sh LogicGenerator/demo/configuration_3.v LogicGenerator/demo/interface_3.v
+	@echo COQC LogicGenerator/demo/interface_3.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/interface_3.v
+	@echo COQC LogicGenerator/demo/implementation_3.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_3.v
+
 depend:
 	$(COQDEP) $(DEP_FLAG) $(FILES) > .depend
 

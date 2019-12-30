@@ -21,7 +21,7 @@ Instance MonoPred_sL (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Jo
   Build_SeparationLanguage (MonoPred_L A) WeakSemanticsMono.sepcon WeakSemanticsMono.wand.
 
 Instance MonoPred_s'L (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: SeparationEmpLanguage (MonoPred_L A) := 
-  Build_SeparationEmpLanguage (MonoPred_L A) (MonoPred_sL A) WeakSemanticsMono.emp.
+  Build_SeparationEmpLanguage (MonoPred_L A) WeakSemanticsMono.emp.
 
 Instance MonoPred_fsSM  (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: @FlatSemantics.SeparatingSemantics (MonoPred_L A) (MonoPred_sL A) (Build_Model A) (unit_kMD _) tt R J (MonoPred_SM A).
 Proof.

@@ -215,7 +215,7 @@ Definition connective_instances_build :=
   [ (minL, Build_MinimumLanguage L impp)
   ; (pL, Build_PropositionalLanguage L andp orp falsep)
   ; (sL, Build_SeparationLanguage L sepcon wand)
-  ; (empL, Build_SeparationEmpLanguage L _ emp)
+  ; (empL, Build_SeparationEmpLanguage L emp)
   ].
 
 Definition judgement_instances_build :=
@@ -264,6 +264,10 @@ Definition instance_transitions :=
   ; (bSC, Axiomatization2SequentCalculus_bSC)
   ; (fwSC, Axiomatization2SequentCalculus_fwSC)
   ; (minSC, Axiomatization2SequentCalculus_minSC)
+  ; (ipSC, Axiomatization2SequentCalculus_ipSC)
+  ; (AX, SequentCalculus2Axiomatization_AX)
+  ; (minAX, SequentCalculus2Axiomatization_minAX)
+  ; (ipAX, SequentCalculus2Axiomatization_ipAX)  
   ].
 
 Definition type_instances: list Name :=
@@ -355,8 +359,19 @@ Definition derived_rules :=
   ; provable_add_multi_imp_left_tail
   ; provable_multi_imp_modus_ponens
   ; provable_multi_imp_weaken
-  ; provable_proper_iffp
   ; provable_impp_refl_instance
+  ; deduction_impp_elim
+  ; deduction_theorem
+  ; deduction_theorem_multi_imp
+  ; derivable_impp_refl
+  ; deduction_left_impp_intros
+  ; derivable_modus_ponens
+  ; deduction_impp_trans
+  ; deduction_impp_arg_switch
+  ; provable_proper_impp
+  ; impp_proper_impp
+  ; derivable_proper_impp
+
   ; demorgan_orp_negp
   ; demorgan_negp_orp
   ; provable_truep
@@ -373,6 +388,18 @@ Definition derived_rules :=
   ; contrapositiveNN
   ; contrapositiveNP
   ; impp2orp
+  ; andp_proper_impp
+  ; orp_proper_impp
+  ; negp_proper_impp
+  ; provable_iffp_equiv
+  ; provable_proper_iffp
+  ; impp_proper_iffp
+  ; andp_proper_iffp
+  ; orp_proper_iffp
+  ; iffp_proper_iffp
+  ; negp_proper_iffp
+  ; derivable_proper_iffp
+
   ; sepcon_orp_distr_l
   ; falsep_sepcon
   ; provable_wand_sepcon_modus_ponens1
