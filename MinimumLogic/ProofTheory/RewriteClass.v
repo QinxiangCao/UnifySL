@@ -23,7 +23,7 @@ Section Provable.
 
 Context {minAX: MinimumAxiomatization L GammaP}.
 
-Instance provable_impp_refl: Reflexive (fun x y => |-- x --> y).
+Instance provable_impp_refl_instance: Reflexive (fun x y => |-- x --> y).
 Proof.
   intros.
   hnf; intros.
@@ -75,7 +75,7 @@ End Derivable.
 End RewriteClass.
 
 Existing Instances provable_impp_rewrite
-                   provable_impp_refl
+                   provable_impp_refl_instance
                    provable_proper_impp
                    derivable_proper_impp
                    impp_proper_impp.

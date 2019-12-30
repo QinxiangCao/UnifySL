@@ -1,7 +1,6 @@
-Should a typeclass A (about language, about proof theory) dependent on another B?
+Should a typeclass A (about language, about judgement, about proof theory) dependent on another B? Especially when A's definition does not depend on B, but A's critical feature usually requires the existence of B.
 
-It depends on whether A's critical feature requires the existence of B. For example, proposition axiomatization should be dependent on axiomatization of implication. But it should not be the case of sequent calculus.
-
+Our early answer might be yes. Now, we change our answer to no. For example, proposition axiomatization should not depend on axiomatization of implication.
 
 ===============================
 

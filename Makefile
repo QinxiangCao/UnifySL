@@ -8,7 +8,7 @@ COQDEP=$(COQBIN)coqdep
 
 DIRS = \
   lib GeneralLogic MinimumLogic PropositionalLogic ModalLogic SeparationLogic \
-  QuantifierLogic Extensions HoareLogic
+  QuantifierLogic Extensions HoareLogic LogicGenerator
 
 COQ_FLAG = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
 DEP_FLAG = $(foreach d, $(DIRS), -R $(CURRENT_DIR)/$(d) Logic.$(d))
@@ -90,7 +90,8 @@ PropositionalLogic_Complete_FILES = \
 PropositionalLogic_DeepEmbedded_FILES = \
   PropositionalLanguage.v ProofTheories.v \
   KripkeSemantics.v TrivialSemantics.v \
-  Soundness.v Complete_Kripke.v Complete_Classical_Trivial.v
+  Soundness.v Complete_Kripke.v Complete_Classical_Trivial.v \
+  Deep.v Solver.v
 
 PropositionalLogic_ShallowEmbedded_FILES = \
   PredicatePropositionalLogic.v \
@@ -218,6 +219,9 @@ HoareLogic_FILES = \
   Sound_Basic.v Sound_Imp.v Sound_Frame.v \
   Sound_Resource_Angelic.v Sound_Resource_TraceSemantics.v
 
+LogicGenerator_FILES = \
+  ConfigLang.v ConfigDenot.v ConfigCompute.v Utils.v #Generate.v 
+
 FILES = \
   $(lib_FILES:%.v=lib/%.v) \
   $(GeneralLogic_FILES:%.v=GeneralLogic/%.v) \
@@ -227,7 +231,8 @@ FILES = \
   $(QuantifierLogic_FILES:%.v=QuantifierLogic/%.v) \
   $(SeparationLogic_FILES:%.v=SeparationLogic/%.v) \
   $(Extensions_FILES:%.v=Extensions/%.v) \
-  $(HoareLogic_FILES:%.v=HoareLogic/%.v)
+  $(HoareLogic_FILES:%.v=HoareLogic/%.v) \
+  $(LogicGenerator_FILES:%.v=LogicGenerator/%.v)
 
 $(FILES:%.v=%.vo): %.vo: %.v
 	@echo COQC $*.v
@@ -255,7 +260,30 @@ SeparationLogic: \
   .depend $(SeparationLogic_FILES:%.v=SeparationLogic/%.vo)
 
 all: \
-  $(FILES:%.v=%.vo) \
+  $(FILES:%.v=%.vo)
+
+lgen_demo_1:
+	./logic_gen.sh LogicGenerator/demo/configuration_1.v LogicGenerator/demo/interface_1.v
+	@echo COQC LogicGenerator/demo/interface_1.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/interface_1.v
+	@echo COQC LogicGenerator/demo/implementation_1.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_1.v
+
+lgen_demo_2:
+	./logic_gen.sh LogicGenerator/demo/configuration_2.v LogicGenerator/demo/interface_2.v
+	@echo COQC LogicGenerator/demo/interface_2.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/interface_2.v
+	@echo COQC LogicGenerator/demo/implementation_2a.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_2a.v
+	@echo COQC LogicGenerator/demo/implementation_2b.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_2b.v
+
+lgen_demo_3:
+	./logic_gen.sh LogicGenerator/demo/configuration_3.v LogicGenerator/demo/interface_3.v
+	@echo COQC LogicGenerator/demo/interface_3.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/interface_3.v
+	@echo COQC LogicGenerator/demo/implementation_3.v
+	@$(COQC) $(COQ_FLAG) LogicGenerator/demo/implementation_3.v
 
 depend:
 	$(COQDEP) $(DEP_FLAG) $(FILES) > .depend

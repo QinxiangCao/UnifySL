@@ -109,7 +109,7 @@ Instance sL {Sigma: PropositionalVariables}: SeparationLanguage L :=
   Build_SeparationLanguage L sepcon wand.
 
 Instance s'L {Sigma: PropositionalVariables}: SeparationEmpLanguage L :=
-  Build_SeparationEmpLanguage L sL emp.
+  Build_SeparationEmpLanguage L emp.
 
 Definition rank {Sigma: PropositionalVariables}: expr Sigma -> nat :=
   fix rank (x: expr Sigma): nat :=

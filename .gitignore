@@ -4,3 +4,6 @@
 *.aux
 .depend
 CONFIGURE
+LogicGenerator/Config.v
+LogicGenerator/Generated.v
+LogicGenerator/demo/interface*.v

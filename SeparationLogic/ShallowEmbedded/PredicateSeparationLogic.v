@@ -21,7 +21,7 @@ Instance Pred_sL (A: Type) {J: Join A}: SeparationLanguage (Pred_L A) :=
   Build_SeparationLanguage (Pred_L A) WeakSemantics.sepcon WeakSemantics.wand.
 
 Instance Pred_s'L (A: Type) {J: Join A}: SeparationEmpLanguage (Pred_L A) := 
-  Build_SeparationEmpLanguage (Pred_L A) (Pred_sL A) (@WeakSemantics.emp _ eq J).
+  Build_SeparationEmpLanguage (Pred_L A) (@WeakSemantics.emp _ eq J).
 
 Instance Pred_fsSM (A: Type) {J: Join A}: @FlatSemantics.SeparatingSemantics (Pred_L A) (Pred_sL A) (Build_Model A) (unit_kMD _) tt eq J (Pred_SM A).
 Proof.
