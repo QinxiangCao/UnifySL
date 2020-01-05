@@ -21,11 +21,8 @@ Class SeparationLogic_Precise
         (L: Language)
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
-        (Gamma: Provable L)
-        {minAX: MinimumAxiomatization L Gamma}
-        {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma} := {
+        {sepconL: SepconLanguage L}
+        (Gamma: Provable L) := {
   precise: expr -> Prop;
   precise_sepcon: forall x y, precise x -> precise y -> precise (x * y)
 }.
@@ -42,11 +39,9 @@ Class SeparationLogic_PureFact
         (L: Language)
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
-        (Gamma: Provable L)
-        {minAX: MinimumAxiomatization L Gamma}
-        {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma} := {
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        (Gamma: Provable L) := {
   pure_fact: expr -> Prop;
   pure_falsep: pure_fact FF;
   pure_andp: forall x y, pure_fact x -> pure_fact y -> pure_fact (x && y);

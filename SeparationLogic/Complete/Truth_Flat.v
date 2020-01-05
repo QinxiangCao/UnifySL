@@ -39,7 +39,8 @@ Section TruthLemma.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
         {SC: NormalSequentCalculus L GammaP GammaD}
@@ -49,7 +50,8 @@ Context {L: Language}
         {AX: NormalAxiomatization L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
-        {sAX: SeparationLogic L GammaP}
+        {sepconAX: SepconAxiomatization L GammaP}
+        {wandAX: WandAxiomatization L GammaP}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
@@ -152,8 +154,8 @@ Proof.
     exists (x -* y), x; split; [| split]; auto.
 Qed.
 
-Context {s'L: SeparationEmpLanguage L}
-        {EmpsAX: EmpSeparationLogic L GammaP}
+Context {empL: EmpLanguage L}
+        {empAX: EmpAxiomatization L GammaP}
         {feSM: EmpSemantics L MD M SM}.
 
 Lemma truth_lemma_emp

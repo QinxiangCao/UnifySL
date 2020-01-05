@@ -1,11 +1,14 @@
 Require Import Logic.GeneralLogic.Base.
 
-Class SeparationLanguage (L: Language): Type := {
-  sepcon : expr -> expr -> expr;
+Class SepconLanguage (L: Language): Type := {
+  sepcon : expr -> expr -> expr
+}.
+
+Class WandLanguage (L: Language): Type := {
   wand : expr -> expr -> expr
 }.
 
-Class SeparationEmpLanguage (L: Language): Type := {
+Class EmpLanguage (L: Language): Type := {
   emp: expr
 }.
 

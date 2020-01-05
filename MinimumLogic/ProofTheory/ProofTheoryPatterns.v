@@ -34,6 +34,16 @@ Class RightUnit (L: Language) {minL: MinimumLanguage L} (Gamma: Provable L) (e: 
   right_unit2: forall x, |-- x --> prodp x e
 }.
 
+Class LeftDistr (L: Language) {minL: MinimumLanguage L} (Gamma: Provable L) (prodp sump: expr -> expr -> expr): Prop := {
+  left_distr1: forall x y z, |-- prodp x (sump y z) --> sump (prodp x y) (prodp x z);
+  left_distr2: forall x y z, |-- sump (prodp x y) (prodp x z) --> prodp x (sump y z);
+}.
+
+Class RightDistr (L: Language) {minL: MinimumLanguage L} (Gamma: Provable L) (prodp sump: expr -> expr -> expr): Prop := {
+  right_distr1: forall x y z, |-- prodp (sump y z) x --> sump (prodp y x) (prodp z x);
+  right_distr2: forall x y z, |-- sump (prodp y x) (prodp z x) --> prodp (sump y z) x;
+}.
+
 Section AdjointTheorems.
 
 Context {L: Language}
@@ -95,19 +105,24 @@ Proof.
     apply prodp_mono1; auto.
 Qed.
 
+End AdjointCommutativeTheorems.
+
+Section AdjointMonoTheorems.
+
+Context {Mono: Monotonicity L Gamma prodp}.
+
 Lemma funcp_mono: forall x1 y1 x2 y2, |-- x2 --> x1 -> |-- y1 --> y2 -> |-- funcp x1 y1 --> funcp x2 y2.
 Proof.
   intros.
   apply adjoint.
   rewrite <- H0.
   rewrite <- (adjoint_modus_ponens x1 y1) at 2.
-  apply @prodp_mono.
-  + apply Adjoint2Mono.
+  apply prodp_mono.
   + apply provable_impp_refl.
   + auto.
 Qed.
 
-End AdjointCommutativeTheorems.
+End AdjointMonoTheorems.
 
 End AdjointTheorems.
 
@@ -276,3 +291,110 @@ Qed.
 
 End AssocTheorems.
 
+Section DistrCommTheorems.
+
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {Gamma: Provable L}
+        {minAX: MinimumAxiomatization L Gamma}
+        {prodp sump: expr -> expr -> expr}
+        {Comm: Commutativity L Gamma prodp}
+        {Mono: Monotonicity L Gamma sump}.
+
+Lemma LeftDistr2RightDistr {LDistr: LeftDistr L Gamma prodp sump}:
+      RightDistr L Gamma prodp sump.
+Proof.
+  constructor.
+  + intros.
+    rewrite (prodp_comm_impp _ x).
+    pose proof prodp_comm_impp x y.
+    pose proof prodp_comm_impp x z.
+    pose proof prodp_mono _ _ _ _ H H0.
+    rewrite <- H1.
+    apply left_distr1.
+  + intros.
+    rewrite <- (prodp_comm_impp x (sump y z)).
+    pose proof prodp_comm_impp y x.
+    pose proof prodp_comm_impp z x.
+    pose proof prodp_mono _ _ _ _ H H0.
+    rewrite H1.
+    apply left_distr2.
+Qed.
+
+Lemma RightDistr2LeftDistr {RDistr: RightDistr L Gamma prodp sump}:
+      LeftDistr L Gamma prodp sump.
+Proof.
+  constructor.
+  + intros.
+    rewrite (prodp_comm_impp x (sump y z)).
+    pose proof prodp_comm_impp y x.
+    pose proof prodp_comm_impp z x.
+    pose proof prodp_mono _ _ _ _ H H0.
+    rewrite <- H1.
+    apply right_distr1.
+  + intros.
+    rewrite <- (prodp_comm_impp (sump y z) x).
+    pose proof prodp_comm_impp x y.
+    pose proof prodp_comm_impp x z.
+    pose proof prodp_mono _ _ _ _ H H0.
+    rewrite H1.
+    apply right_distr2.
+Qed.
+
+End DistrCommTheorems.
+
+Section CommForSimpleAssocConstruction.
+
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {Gamma: Provable L}
+        {minAX: MinimumAxiomatization L Gamma}
+        {prodp: expr -> expr -> expr}
+        {Comm: Commutativity L Gamma prodp}
+        {Mono: Monotonicity L Gamma prodp}.
+
+Lemma Build_Associativity1:
+      (forall x y z, |-- prodp x (prodp y z) --> prodp (prodp x y) z) ->
+      Associativity L Gamma prodp.
+Proof.
+  intros.
+  constructor; auto.
+  intros.
+  rewrite <- (prodp_comm_impp (prodp y z) x).
+  rewrite (prodp_comm_impp (prodp x y) z).
+  pose proof prodp_comm_impp x y.
+  pose proof provable_impp_refl z.
+  pose proof prodp_mono _ _ _ _ H1 H0.
+  rewrite H2.
+  clear H0 H1 H2.
+  pose proof prodp_comm_impp z y.
+  pose proof provable_impp_refl x.
+  pose proof prodp_mono _ _ _ _ H0 H1.
+  rewrite <- H2.
+  clear H0 H1 H2.
+  apply H.
+Qed.
+
+Lemma Build_Associativity2:
+      (forall x y z, |-- prodp (prodp x y) z --> prodp x (prodp y z)) ->
+      Associativity L Gamma prodp.
+Proof.
+  intros.
+  constructor; auto.
+  intros.
+  rewrite <- (prodp_comm_impp z (prodp x y)).
+  rewrite (prodp_comm_impp x (prodp y z)).
+  pose proof prodp_comm_impp y z.
+  pose proof provable_impp_refl x.
+  pose proof prodp_mono _ _ _ _ H0 H1.
+  rewrite H2.
+  clear H0 H1 H2.
+  pose proof prodp_comm_impp y x.
+  pose proof provable_impp_refl z.
+  pose proof prodp_mono _ _ _ _ H1 H0.
+  rewrite <- H2.
+  clear H0 H1 H2.
+  apply H.
+Qed.
+
+End CommForSimpleAssocConstruction.

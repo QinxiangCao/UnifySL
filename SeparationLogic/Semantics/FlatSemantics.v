@@ -19,7 +19,8 @@ Import KripkeModelNotation_Intuitionistic.
 
 Class SeparatingSemantics
       (L: Language)
-      {sL: SeparationLanguage L}
+      {sepconL: SepconLanguage L}
+      {wandL: WandLanguage L}
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
@@ -33,8 +34,9 @@ Class SeparatingSemantics
 
 Class EmpSemantics
       (L: Language)
-      {sL: SeparationLanguage L}
-      {s'L: SeparationEmpLanguage L}
+      {sepconL: SepconLanguage L}
+      {wandL: WandLanguage L}
+      {empL: EmpLanguage L}
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
@@ -45,7 +47,8 @@ Class EmpSemantics
 
 Lemma sat_sepcon
       {L: Language}
-      {sL: SeparationLanguage L}
+      {sepconL: SepconLanguage L}
+      {wandL: WandLanguage L}
       {MD: Model}
       {kMD: KripkeModel MD}
       {M: Kmodel}
@@ -67,7 +70,8 @@ Qed.
 
 Lemma sat_wand
       {L: Language}
-      {sL: SeparationLanguage L}
+      {sepconL: SepconLanguage L}
+      {wandL: WandLanguage L}
       {MD: Model}
       {kMD: KripkeModel MD}
       {M: Kmodel}
@@ -89,8 +93,9 @@ Qed.
 
 Lemma sat_emp
       {L: Language}
-      {sL: SeparationLanguage L}
-      {s'L: SeparationEmpLanguage L}
+      {sepconL: SepconLanguage L}
+      {wandL: WandLanguage L}
+      {empL: EmpLanguage L}
       {MD: Model}
       {kMD: KripkeModel MD}
       {M: Kmodel}

@@ -314,7 +314,7 @@ Proof.
   tauto.
 Qed.
 
-Lemma sound_sepcon_stable {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAbis: SeparationAlgebraBisStable (Kworlds M)} {SM: Semantics L MD} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_sepcon_stable {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sepconL: SepconLanguage L} {wandL: WandLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAbis: SeparationAlgebraBisStable (Kworlds M)} {SM: Semantics L MD} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x y: expr,
     semantic_stable x -> semantic_stable y -> semantic_stable (x * y).
 Proof.
@@ -344,7 +344,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma sound_wand_stable {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAbis: SeparationAlgebraBisStable (Kworlds M)} {SM: Semantics L MD} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_wand_stable {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sepconL: SepconLanguage L} {wandL: WandLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAbis: SeparationAlgebraBisStable (Kworlds M)} {SM: Semantics L MD} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x y: expr,
     semantic_stable x -> semantic_stable y -> semantic_stable (x -* y).
 Proof.
@@ -374,7 +374,7 @@ Proof.
     tauto.
 Qed.
 
-Lemma sound_stable_andp_sepcon1 {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAabs: SeparationAlgebraAbsorbStable (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {kminSM: KripkeMinimumSemantics L MD M SM} {kpSM: KripkePropositionalSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
+Lemma sound_stable_andp_sepcon1 {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sepconL: SepconLanguage L} {wandL: WandLanguage L} {MD: Model} {kMD: KripkeModel MD} {M: Kmodel} {R1: KI.Relation (Kworlds M)} {R2: SS.Relation (Kworlds M)} {J: Join (Kworlds M)} {SAabs: SeparationAlgebraAbsorbStable (Kworlds M)} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD M SM} {kminSM: KripkeMinimumSemantics L MD M SM} {kpSM: KripkePropositionalSemantics L MD M SM} {fsSM: SeparatingSemantics L MD M SM} {stableSM: SemanticStable L MD M SM}:
   forall x y z, semantic_stable x ->
     forall m: Kworlds M, KRIPKE: M, m |= (x && y) * z <--> x && (y * z).
 Proof.

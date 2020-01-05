@@ -76,8 +76,15 @@ Inductive rule_class :=
 | provability_OF_de_morgan
 | provability_OF_godel_dummett
 | provability_OF_classical_logic
-| provability_OF_separation_logic
+| provability_OF_sepcon_rule
+| provability_OF_wand_rule
 | provability_OF_emp_rule
+| provability_OF_sepcon_orp_rule
+| provability_OF_sepcon_falsep_rule
+| provability_OF_sepcon_rule_AS_weak
+| provability_OF_sepcon_rule_AS_weak_iffp
+| provability_OF_sepcon_rule_AS_mono
+| provability_OF_emp_rule_AS_iffp
 | provability_OF_garbage_collected_sl
 | derivitive_OF_basic_setting
 | derivitive_OF_finite_derivation
@@ -109,8 +116,9 @@ Inductive type_class :=
 Inductive connective_class :=
 | MinimumLanguage
 | PropositionalLanguage
-| SeparationLanguage
-| EmpSeparationLanguage
+| SepconLanguage
+| WandLanguage
+| EmpLanguage
 .
 
 Inductive judgement_class :=
@@ -403,8 +411,9 @@ Definition eqb (cc1 cc2: connective_class) :=
 match cc1, cc2 with
 | MinimumLanguage, MinimumLanguage => true
 | PropositionalLanguage, PropositionalLanguage => true
-| SeparationLanguage, SeparationLanguage => true
-| EmpSeparationLanguage, EmpSeparationLanguage => true
+| SepconLanguage, SepconLanguage => true
+| WandLanguage, WandLanguage => true
+| EmpLanguage, EmpLanguage => true
 | _, _ => false
 end.
 
@@ -452,8 +461,15 @@ match rc1, rc2 with
 | provability_OF_de_morgan, provability_OF_de_morgan => true
 | provability_OF_godel_dummett, provability_OF_godel_dummett => true
 | provability_OF_classical_logic, provability_OF_classical_logic => true
-| provability_OF_separation_logic, provability_OF_separation_logic => true
+| provability_OF_sepcon_rule, provability_OF_sepcon_rule => true
+| provability_OF_wand_rule, provability_OF_wand_rule => true
 | provability_OF_emp_rule, provability_OF_emp_rule => true
+| provability_OF_sepcon_orp_rule, provability_OF_sepcon_orp_rule => true
+| provability_OF_sepcon_falsep_rule, provability_OF_sepcon_falsep_rule => true
+| provability_OF_sepcon_rule_AS_weak, provability_OF_sepcon_rule_AS_weak => true
+| provability_OF_sepcon_rule_AS_weak_iffp, provability_OF_sepcon_rule_AS_weak_iffp => true
+| provability_OF_sepcon_rule_AS_mono, provability_OF_sepcon_rule_AS_mono => true
+| provability_OF_emp_rule_AS_iffp, provability_OF_emp_rule_AS_iffp => true
 | provability_OF_garbage_collected_sl, provability_OF_garbage_collected_sl => true
 | derivitive_OF_basic_setting, derivitive_OF_basic_setting => true
 | derivitive_OF_finite_derivation, derivitive_OF_finite_derivation => true

@@ -13,6 +13,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 Require Import SeparationLogic.ProofTheory.RewriteClass.
+Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.
 
 Require Import Logic.LogicGenerator.Utils.
 Require Import Logic.LogicGenerator.ConfigDenot.
@@ -25,8 +26,9 @@ Section Generate.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL : SeparationLanguage L}
-        {empL: SeparationEmpLanguage L}
+        {sepconL : SepconLanguage L}
+        {wandL : WandLanguage L}
+        {empL: EmpLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
         {AX: NormalAxiomatization L GammaP GammaD}
@@ -36,8 +38,15 @@ Context {L: Language}
         {cpAX: ClassicalPropositionalLogic L GammaP}
         {dmpAX: DeMorganPropositionalLogic L GammaP}
         {gdpAX: GodelDummettPropositionalLogic L GammaP}
-        {sAX: SeparationLogic L GammaP}
-        {empAX: EmpSeparationLogic L GammaP}
+        {sepconAX: SepconAxiomatization L GammaP}
+        {wandAX: WandAxiomatization L GammaP}
+        {empAX: EmpAxiomatization L GammaP}
+        {sepcon_orp_AX: SepconOrAxiomatization L GammaP}
+        {sepcon_falsep_AX: SepconFalseAxiomatization L GammaP}
+        {sepconAX_weak: SepconAxiomatization_weak L GammaP}
+        {sepconAX_weak_iffp: SepconAxiomatization_weak_iffp L GammaP}
+        {sepcon_mono_AX: SepconMonoAxiomatization L GammaP}
+        {empAX_iffp: EmpAxiomatization_iffp L GammaP}
         {extAX: ExtSeparationLogic L GammaP}
         {nseAX: NonsplitEmpSeparationLogic L GammaP}
         {deAX: DupEmpSeparationLogic L GammaP}
@@ -228,6 +237,7 @@ Ltac two_stage_print :=
   idtac "Require Import Logic.SeparationLogic.Syntax.";
   idtac "Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.";
   idtac "Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.";
+  idtac "Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.";
 
   newline;
 

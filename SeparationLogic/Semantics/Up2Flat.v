@@ -31,7 +31,8 @@ Section Up2Flat.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
@@ -44,7 +45,7 @@ Context {L: Language}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
         {usSM: UpwardsSemantics.SeparatingSemantics L MD M SM}.
 
-Definition fsSM: @FlatSemantics.SeparatingSemantics L sL MD kMD M _ (DownwardsClosure_J) SM.
+Definition fsSM: @FlatSemantics.SeparatingSemantics L sepconL wandL MD kMD M _ (DownwardsClosure_J) SM.
 Proof.
   constructor.
   + (* sat_sepcon *)
@@ -78,7 +79,7 @@ Proof.
       reflexivity.
 Qed.
 
-Definition feSM {s'L: SeparationEmpLanguage L} {USA': UnitalSeparationAlgebra' (Kworlds M)} {ueSM: UpwardsSemantics.EmpSemantics L MD M SM}: @FlatSemantics.EmpSemantics L _ _ MD _ M _ (DownwardsClosure_J) SM.
+Definition feSM {empL: EmpLanguage L} {USA': UnitalSeparationAlgebra' (Kworlds M)} {ueSM: UpwardsSemantics.EmpSemantics L MD M SM}: @FlatSemantics.EmpSemantics L _ _ _ MD _ M _ (DownwardsClosure_J) SM.
 Proof.
   constructor;
   intros m; simpl; unfold Ensembles.In; unfold WeakSemantics.emp;

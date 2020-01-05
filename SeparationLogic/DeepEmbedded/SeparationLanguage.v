@@ -36,5 +36,8 @@ Instance minL {Sigma: PropositionalVariables}: MinimumLanguage L :=
 Instance pL {Sigma: PropositionalVariables}: PropositionalLanguage L :=
   Build_PropositionalLanguage L andp orp falsep.
 
-Instance sL {Sigma: PropositionalVariables}: SeparationLanguage L :=
-  Build_SeparationLanguage L sepcon wand.
+Instance sepconL {Sigma: PropositionalVariables}: SepconLanguage L :=
+  Build_SepconLanguage L sepcon.
+
+Instance wandL {Sigma: PropositionalVariables}: WandLanguage L :=
+  Build_WandLanguage L wand.

@@ -131,7 +131,14 @@ Context {P: ProgrammingLanguage}
 Instance KSAAIr: @KSAActionInterpret_resource (resources * model) Ac ac_sem (@prod_Join _ _ (Pred_Join resource) J) (RelProd (discPred_R resource) R) (fun a => ~ is_resources_action a) :=
   ordered_and_frame_AIr _ _ _.
 
-Context {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {pL: PropositionalLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        {SM: Semantics L MD}
+        {kiSM: KripkeIntuitionisticSemantics L MD tt SM}
+        {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
 
 Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
   at_most_one_invariant: forall r I1 I2, Inv (r, I1) -> Inv (r, I2) -> I1 = I2;

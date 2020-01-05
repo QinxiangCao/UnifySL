@@ -15,6 +15,31 @@ Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
+Section PatternInstances0.
+
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: Provable L}
+        {minAX: MinimumAxiomatization L Gamma}
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}.
+
+Lemma or_Comm: Commutativity L Gamma orp.
+Proof.
+  constructor.
+  intros.
+  rewrite orp_comm.
+  apply provable_impp_refl.
+Qed.
+
+Lemma orp_Mono: Monotonicity L Gamma orp.
+Proof.
+  constructor; intros.
+  apply orp_proper_impp; auto.
+Qed.
+
+End PatternInstances0.
+
 Section DerivableRulesFromPatterns.
 
 Context {L: Language}
@@ -32,16 +57,38 @@ Proof.
   apply solve_andp_intros; apply prodp_comm_impp.
 Qed.
 
+Section DistrTheorems.
+
+Context {sump: expr -> expr -> expr}.
+
+Lemma prodp_sump_distr_l {LDistr: LeftDistr L Gamma prodp sump}: forall x y z,
+  |-- prodp x (sump y z) <--> sump (prodp x y) (prodp x z).
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply left_distr1.
+  + apply left_distr2.
+Qed.
+
+Lemma prodp_sump_distr_r {RDistr: RightDistr L Gamma prodp sump}: forall x y z,
+  |-- prodp (sump y z) x <--> sump (prodp y x) (prodp z x).
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply right_distr1.
+  + apply right_distr2.
+Qed.
+
+End DistrTheorems.
+
 Section AdjointTheorems.
 
 Context {funcp: expr -> expr -> expr}
         {Adj: Adjointness L Gamma prodp funcp}.
 
-Lemma prodp_orp_distr_l: forall x y z: expr,
-  |-- prodp (x || y) z <--> (prodp x z || prodp y z).
+Lemma Adjoint2RDistr: RightDistr L Gamma prodp orp.
 Proof.
-  intros.
-  apply solve_andp_intros.
+  constructor; intros.
   + apply adjoint.
     apply solve_orp_impp; apply adjoint.
     - apply orp_intros1.
@@ -53,19 +100,34 @@ Proof.
       apply orp_intros2.
 Qed.
 
+Lemma Adjoint2LDistr {Comm: Commutativity L Gamma prodp}:
+  LeftDistr L Gamma prodp orp.
+Proof.
+  apply @RightDistr2LeftDistr; auto.
+  + apply orp_Mono.
+  + apply Adjoint2RDistr.
+Qed.
+
+(* TODO: l/r wrong *)
+Lemma prodp_orp_distr_l: forall x y z: expr,
+  |-- prodp (x || y) z <--> (prodp x z || prodp y z).
+Proof.
+  intros.
+  apply (@prodp_sump_distr_r _ Adjoint2RDistr).
+Qed.
+
+(* TODO: l/r wrong *)
 Lemma prodp_orp_distr_r {Comm: Commutativity L Gamma prodp}: forall x y z: expr,
   |-- prodp x (y || z) <--> (prodp x y || prodp x z).
 Proof.
   intros.
-  rewrite prodp_comm.
-  rewrite prodp_orp_distr_l.
-  rewrite !(prodp_comm _ x).
-  apply provable_iffp_refl.
+  apply (@prodp_sump_distr_l _ Adjoint2LDistr).
 Qed.
 
 Lemma orp_funcp {Comm: Commutativity L Gamma prodp}: forall x y z: expr,
   |-- funcp (x || y) z <--> (funcp x z && funcp y z).
 Proof.
+  pose proof Adjoint2Mono as Mono.
   intros.
   apply solve_andp_intros.
   + apply solve_impp_andp.
@@ -82,6 +144,7 @@ Proof.
     - apply andp_elim2.
 Qed.
 
+(* TODO: l/r wrong *)
 Lemma funcp_andp_distr_r: forall x y z: expr,
   |-- funcp x (y && z)  <--> (funcp x y && funcp x z).
 Proof.
@@ -409,3 +472,4 @@ Proof.
 Qed.
 
 End DerivableRules.
+

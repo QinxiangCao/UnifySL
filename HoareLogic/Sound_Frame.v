@@ -33,7 +33,14 @@ Context {P: ProgrammingLanguage}
         {po_R: PreOrder Krelation}
         {SA_BSS: SABigStepSemantics P model BSS}.
 
-Context {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {pL: PropositionalLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        {SM: Semantics L MD}
+        {kiSM: KripkeIntuitionisticSemantics L MD tt SM}
+        {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
 
 Lemma hoare_frame_partial_sound: forall c P Q F,
   triple_partial_valid P c Q ->

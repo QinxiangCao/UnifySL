@@ -147,7 +147,7 @@ QuantifierLogic_FILES = \
   $(QuantifierLogic_ShallowEmbedded_FILES:%.v=ShallowEmbedded/%.v)
 
 SeparationLogic_ProofTheory_FILES = \
-  SeparationLogic.v SeparationLogicExtension.v \
+  SeparationLogic.v SeparationLogicExtension.v TheoryOfSeparationAxioms.v \
   RewriteClass.v DerivedRules.v IterSepcon.v WandFrame.v
 
 SeparationLogic_Model_FILES = \

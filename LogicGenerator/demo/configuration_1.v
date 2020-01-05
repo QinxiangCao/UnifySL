@@ -10,7 +10,6 @@ Definition how_connectives :=
   ;primitive_connective orp
   ;primitive_connective falsep
   ;primitive_connective sepcon
-  ;primitive_connective wand
   ;primitive_connective emp
   ;FROM_andp_impp_TO_iffp
   ;FROM_falsep_impp_TO_negp
@@ -31,6 +30,7 @@ Definition primitive_rule_classes :=
   [ provability_OF_impp
   ; provability_OF_propositional_connectives
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule_AS_weak_iffp
+  ; provability_OF_sepcon_rule_AS_mono
   ; provability_OF_emp_rule
   ].

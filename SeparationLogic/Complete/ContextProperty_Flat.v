@@ -32,7 +32,8 @@ Section ContextProperties.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}.
 
@@ -53,7 +54,10 @@ Context {SC: NormalSequentCalculus L GammaP GammaD}
         {AX: NormalAxiomatization L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
-        {sAX: SeparationLogic L GammaP}.
+        {sepconAX: SepconAxiomatization L GammaP}
+        {wandAX: WandAxiomatization L GammaP}
+        {sepcon_orp_AX: SepconOrAxiomatization L GammaP}
+        {sepcon_falsep_AX: SepconFalseAxiomatization L GammaP}.
 
 Lemma context_sepcon_derivable:
   forall (Phi Psi: context) z,
@@ -178,7 +182,7 @@ Proof.
     - apply deduction_andp_intros; auto.
   + apply H in H2.
     apply derivable_assum in H2.
-    rewrite sepcon_orp_distr_l in H2.
+    rewrite sepcon_orp_distr_r in H2.
     rewrite (andp_elim1 y1 y2) in H2 at 1.
     rewrite (andp_elim2 y1 y2) in H2 at 1.
     auto.

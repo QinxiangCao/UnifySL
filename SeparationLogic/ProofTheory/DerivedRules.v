@@ -25,11 +25,11 @@ Section DerivedRules.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
         {Gamma: Provable L}
         {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma}.
+        {sepconAX: SepconAxiomatization L Gamma}.
 
 Lemma provable_sepcon_andp_left: forall (x y z: expr),
   |-- (x && y) * z --> (x * z) && (y * z).
@@ -62,23 +62,19 @@ Proof.
   + apply sepcon_ext.
 Qed.
 
-Lemma derivable_emp {s'L: SeparationEmpLanguage L} {eGamma: EmpSeparationLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma}: forall (x y: expr),
-  |-- emp.
-Proof.
-  intros.
-  rewrite <- (sepcon_elim2 TT emp).
-  rewrite sepcon_emp.
-  apply provable_impp_refl.
-Qed.
-
-Lemma GC_Ext_Classical_collapse_aux {cpGamma: ClassicalPropositionalLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} {ExtsGamma: ExtSeparationLogic L Gamma}: forall (x: expr),
-  |-- x --> x * x.
+(* TODO: move this to TheoryOfSeparationAxioms. *)
+Lemma GC_Ext_Classical_collapse_aux
+      {sepcon_orp_AX: SepconOrAxiomatization L Gamma}
+      {cpGamma: ClassicalPropositionalLogic L Gamma}
+      {gcsGamma: GarbageCollectSeparationLogic L Gamma}
+      {ExtsGamma: ExtSeparationLogic L Gamma}:
+  forall (x: expr), |-- x --> x * x.
 Proof.
   intros.
   rewrite (sepcon_ext x) at 1.
   assert (|-- TT --> x || ~~ x) by (apply solve_impp_elim_left, excluded_middle).
   rewrite H; clear H.
-  rewrite sepcon_orp_distr_r.
+  rewrite sepcon_orp_distr_l.
   apply solve_orp_impp; [apply provable_impp_refl |].
   rewrite <- (andp_dup (x * ~~ x)).
   rewrite sepcon_elim1 at 1.
@@ -94,8 +90,13 @@ Proof.
     solve_assum.
 Qed.
 
-Theorem GC_Ext_Classical_collapse {cpGamma: ClassicalPropositionalLogic L Gamma} {gcsGamma: GarbageCollectSeparationLogic L Gamma} {ExtsGamma: ExtSeparationLogic L Gamma}: forall (x y: expr),
-  |-- x * y <--> x && y.
+(* TODO: move this to TheoryOfSeparationAxioms. *)
+Theorem GC_Ext_Classical_collapse
+        {sepcon_orp_AX: SepconOrAxiomatization L Gamma}
+        {cpGamma: ClassicalPropositionalLogic L Gamma}
+        {gcsGamma: GarbageCollectSeparationLogic L Gamma}
+        {ExtsGamma: ExtSeparationLogic L Gamma}:
+  forall (x y: expr), |-- x * y <--> x && y.
 Proof.
   intros.
   apply solve_andp_intros.
@@ -106,6 +107,18 @@ Proof.
     apply sepcon_mono.
     - apply andp_elim1.
     - apply andp_elim2.
+Qed.
+
+Context {empL: EmpLanguage L}
+        {empAX: EmpAxiomatization L Gamma}.
+
+Lemma derivable_emp {gcsGamma: GarbageCollectSeparationLogic L Gamma}:
+  forall (x y: expr), |-- emp.
+Proof.
+  intros.
+  rewrite <- (sepcon_elim2 TT emp).
+  rewrite sepcon_emp.
+  apply provable_impp_refl.
 Qed.
 
 End DerivedRules.

@@ -24,7 +24,8 @@ Section Sound_Flat.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {MD: Model}
         {kMD: KripkeModel MD}
         (M: Kmodel)
@@ -53,43 +54,28 @@ Proof.
   apply join_comm; auto.
 Qed.
 
-Lemma sound_sepcon_assoc:
+Lemma sound_sepcon_assoc1:
   forall x y z: expr,
     forall m,
-      KRIPKE: M, m |= x * (y * z) <--> (x * y) * z.
+      KRIPKE: M, m |= x * (y * z) --> (x * y) * z.
 Proof.
   intros.
-  unfold iffp.
-  rewrite sat_andp.
-  split; intros.
-  + rewrite sat_impp; intros.
-    rewrite sat_sepcon in H0.
-    destruct H0 as [mx [myz [? [? ?]]]].
-    rewrite sat_sepcon in H2.
-    destruct H2 as [my [mz [? [? ?]]]].
-    apply join_comm in H0.
-    apply join_comm in H2.
-    destruct (join_assoc mz my mx myz n H2 H0) as [mxy [? ?]].
-    apply join_comm in H5.
-    apply join_comm in H6.
-    rewrite sat_sepcon.
-    exists mxy, mz.
-    split; [| split]; auto.
-    rewrite sat_sepcon.
-    exists mx, my.
-    split; [| split]; auto.
-  + rewrite sat_impp; intros.
-    rewrite sat_sepcon in H0.
-    destruct H0 as [mxy [mz [? [? ?]]]].
-    rewrite sat_sepcon in H1.
-    destruct H1 as [mx [my [? [? ?]]]].
-    destruct (join_assoc mx my mz mxy n H1 H0) as [myz [? ?]].
-    rewrite sat_sepcon.
-    exists mx, myz.
-    split; [| split]; auto.
-    rewrite sat_sepcon.
-    exists my, mz.
-    split; [| split]; auto.
+  rewrite sat_impp; intros.
+  rewrite sat_sepcon in H0.
+  destruct H0 as [mx [myz [? [? ?]]]].
+  rewrite sat_sepcon in H2.
+  destruct H2 as [my [mz [? [? ?]]]].
+  apply join_comm in H0.
+  apply join_comm in H2.
+  destruct (join_assoc mz my mx myz n H2 H0) as [mxy [? ?]].
+  apply join_comm in H5.
+  apply join_comm in H6.
+  rewrite sat_sepcon.
+  exists mxy, mz.
+  split; [| split]; auto.
+  rewrite sat_sepcon.
+  exists mx, my.
+  split; [| split]; auto.
 Qed.
 
 Lemma sound_wand_sepcon_adjoint:
@@ -168,34 +154,38 @@ Proof.
   eapply sat_mono; eauto.
 Qed.
 
-Context {s'L: SeparationEmpLanguage L}
+Context {empL: EmpLanguage L}
         {feSM: EmpSemantics L MD M SM}.
 
-Lemma sound_sepcon_emp {USA: UnitalSeparationAlgebra (Kworlds M)}:
+Lemma sound_sepcon_emp1 {USA: UnitalSeparationAlgebra (Kworlds M)}:
   forall x: expr,
-    forall m, KRIPKE: M, m |= x * emp <--> x.
+    forall m, KRIPKE: M, m |= x * emp --> x.
 Proof.
   intros.
-  unfold iffp.
-  rewrite sat_andp.
-  split.
-  + rewrite sat_impp; intros.
-    rewrite sat_sepcon in H0.
-    destruct H0 as [n' [u [? [? ?]]]].
-    rewrite sat_emp in H2.
-    apply join_comm in H0.
-    unfold increasing in H2.
-    specialize (H2 _ _ H0).
-    eapply sat_mono; eauto.
-  + rewrite sat_impp; intros.
-    rewrite sat_sepcon.
-    destruct (incr_exists n) as [u [? ?]].
-    destruct H1 as [n' [H1 H1']].
-    exists n', u.
-    split; [| split]; auto.
-    - apply join_comm; auto.
-    - eapply sat_mono; eauto.
-    - rewrite sat_emp; auto.
+  rewrite sat_impp; intros.
+  rewrite sat_sepcon in H0.
+  destruct H0 as [n' [u [? [? ?]]]].
+  rewrite sat_emp in H2.
+  apply join_comm in H0.
+  unfold increasing in H2.
+  specialize (H2 _ _ H0).
+  eapply sat_mono; eauto.
+Qed.
+
+Lemma sound_sepcon_emp2 {USA: UnitalSeparationAlgebra (Kworlds M)}:
+  forall x: expr,
+    forall m, KRIPKE: M, m |= x --> x * emp.
+Proof.
+  intros.
+  rewrite sat_impp; intros.
+  rewrite sat_sepcon.
+  destruct (incr_exists n) as [u [? ?]].
+  destruct H1 as [n' [H1 H1']].
+  exists n', u.
+  split; [| split]; auto.
+  + apply join_comm; auto.
+  + eapply sat_mono; eauto.
+  + rewrite sat_emp; auto.
 Qed.
 
 Lemma sound_emp_sepcon_elim1 {ISSSA: IncreasingSplitSmallerSeparationAlgebra (Kworlds M)}:

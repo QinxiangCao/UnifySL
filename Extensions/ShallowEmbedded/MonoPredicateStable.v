@@ -62,14 +62,14 @@ Instance MonoPred_sstable (A: Type) {R1: KI.Relation A} {po_R1: PreOrder KI.Krel
 Proof.
   constructor.
   + intros x y.
-    exact (@Sound_KripkeIntuitionistic.sound_sepcon_stable (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ _ _ (MonoPred_SM A) (MonoPred_fsSM A) (MonoPred_stableSM A) x y).
+    exact (@Sound_KripkeIntuitionistic.sound_sepcon_stable (MonoPred_L A) _ _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ _ _ (MonoPred_SM A) (MonoPred_fsSM A) (MonoPred_stableSM A) x y).
   + intros x y.
-    exact (@Sound_KripkeIntuitionistic.sound_wand_stable (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ _ _ (MonoPred_SM A) (MonoPred_fsSM A) (MonoPred_stableSM A) x y).
+    exact (@Sound_KripkeIntuitionistic.sound_wand_stable (MonoPred_L A) _ _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ _ _ (MonoPred_SM A) (MonoPred_fsSM A) (MonoPred_stableSM A) x y).
 Qed.
 
 Instance MonoPred_SAS (A: Type) {R1: KI.Relation A} {po_R1: PreOrder KI.Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A} {R2: SS.Relation A} {SA_abs_R2: SeparationAlgebraAbsorbStable A}: SeparationAbsorbStable (MonoPred_L A) (MonoPred_Gamma A) (MonoPred_stable A).
 Proof.
   constructor.
   intros x y z.
-  exact (@Sound_KripkeIntuitionistic.sound_stable_andp_sepcon1 (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ _ _ (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_kpSM A) (MonoPred_fsSM A) (MonoPred_stableSM A) x y z).
+  exact (@Sound_KripkeIntuitionistic.sound_stable_andp_sepcon1 (MonoPred_L A) _ _ _ _ (Build_Model A) (unit_kMD _) tt R1 _ _ _ (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_kpSM A) (MonoPred_fsSM A) (MonoPred_stableSM A) x y z).
 Qed.

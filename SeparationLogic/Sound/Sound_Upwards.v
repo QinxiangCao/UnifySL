@@ -24,7 +24,8 @@ Section Sound_Upwards.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {MD: Model}
         {kMD: KripkeModel MD}
         (M: Kmodel)
@@ -170,7 +171,7 @@ Proof.
   eapply sat_mono; eauto.
 Qed.
 
-Context {s'L: SeparationEmpLanguage L}
+Context {empL: EmpLanguage L}
         {ueSM: UpwardsSemantics.EmpSemantics L MD M SM}.
 
 Lemma sound_sepcon_emp {USA': UnitalSeparationAlgebra' (Kworlds M)}:

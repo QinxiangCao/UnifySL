@@ -462,7 +462,7 @@ Definition primitive_rule_classes :=
   [ provability_OF_impp
   ; provability_OF_propositional_connectives
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule
   ; provability_OF_emp_rule
   ].
 
@@ -501,7 +501,8 @@ Definition primitive_rule_classes :=
   [ provability_OF_impp
   ; provability_OF_propositional_connectives
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule
+  ; provability_OF_wand_rule
   ; provability_OF_emp_rule
   ].
 
@@ -542,7 +543,8 @@ Definition primitive_rule_classes :=
   [ provability_OF_impp
   ; provability_OF_propositional_connectives
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule_AS_weak_iffp
+  ; provability_OF_sepcon_rule_AS_mono
   ; provability_OF_emp_rule
   ].
 

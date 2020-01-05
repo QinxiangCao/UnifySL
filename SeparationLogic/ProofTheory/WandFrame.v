@@ -23,12 +23,12 @@ Section WandFrame.
 
 Context {L: Language}
         {minL: MinimumLanguage L}
-        {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {Gamma: Provable L}
         {minAX: MinimumAxiomatization L Gamma}
-        {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma}.
+        {sepconAX: SepconAxiomatization L Gamma}
+        {wandAX: WandAxiomatization L Gamma}.
 
 Lemma wand_frame_intros: forall (x y: expr),
   |-- x --> (y -* x * y).
@@ -50,7 +50,7 @@ Lemma wand_frame_ver: forall (x y z: expr),
 Proof.
   intros.
   rewrite <- wand_sepcon_adjoint.
-  rewrite sepcon_comm, sepcon_assoc.
+  rewrite sepcon_comm_impp, sepcon_assoc1.
   rewrite !wand_frame_elim.
   apply provable_impp_refl.
 Qed.
@@ -60,9 +60,9 @@ Lemma wand_frame_hor: forall (x1 y1 x2 y2: expr),
 Proof.
   intros.
   rewrite <- wand_sepcon_adjoint.
-  rewrite sepcon_assoc, (sepcon_comm _ x1), sepcon_assoc.
+  rewrite sepcon_assoc1, (sepcon_comm_impp _ x1), sepcon_assoc1.
   rewrite wand_frame_elim.
-  rewrite <- sepcon_assoc, (sepcon_comm _ x2).
+  rewrite sepcon_assoc2, (sepcon_comm_impp _ x2).
   rewrite wand_frame_elim.
   apply provable_impp_refl.
 Qed.

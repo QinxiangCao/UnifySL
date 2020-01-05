@@ -27,22 +27,36 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Definition iter_sepcon {L: Language} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (xs: list expr) : expr := fold_left sepcon xs emp.
+Definition iter_sepcon
+           {L: Language}
+           {sepconL: SepconLanguage L}
+           {wandL: WandLanguage L}
+           {empL: EmpLanguage L}
+           (xs: list expr) : expr :=
+  fold_left sepcon xs emp.
 
-Definition iter_wand {L: Language} {sL: SeparationLanguage L} (xs: list expr) (y: expr) : expr := fold_right wand y xs.
+Definition iter_wand
+           {L: Language}
+           {sepconL: SepconLanguage L}
+           {wandL: WandLanguage L}
+           (xs: list expr)
+           (y: expr) : expr :=
+  fold_right wand y xs.
 
 Section IterSepconRules.
 
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
-        {s'L: SeparationEmpLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        {empL: EmpLanguage L}
         {Gamma: Provable L}
         {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma}
-        {EmpsAX: EmpSeparationLogic L Gamma}.
+        {sepconAX: SepconAxiomatization L Gamma}
+        {wandAX: WandAxiomatization L Gamma}
+        {empAX: EmpAxiomatization L Gamma}.
 
 Lemma sepcon_iter_sepcon:
   forall xs ys,
