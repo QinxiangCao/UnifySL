@@ -211,14 +211,17 @@ Definition set_minus (l1 l2: list t): list t :=
 Definition set_minus1 (l: list t) (x: t): list t :=
   filter (fun x0 => negb (eqb x0 x)) l.
 
+Definition test_element (x: t) (l: list t): bool :=
+  existsb (eqb x) l.
+
 Fixpoint test_no_dup (l: list t): bool :=
   match l with
   | nil => true
-  | x :: l0 => negb (existsb (eqb x) l0) && test_no_dup l0
+  | x :: l0 => negb (test_element x l0) && test_no_dup l0
   end.
 
 Definition test_sublist (l1 l2: list t): bool :=
-  forallb (fun x => existsb (eqb x) l2) l1.
+  forallb (fun x => test_element x l2) l1.
 
 Fixpoint inv_with_hint {A: Type} (f: A -> t) (hint: list A) (x: t): option A :=
   match hint with

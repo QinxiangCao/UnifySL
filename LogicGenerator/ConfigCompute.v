@@ -168,13 +168,13 @@ Definition dis_diag: list (list any_class * any_class * option how_instance) :=
     (map Some ConfigDenot.S.D_instance_transitions).
 
 (* depended instances of primary proof rules *)
-Definition DIOpR (pr: primary_rule): list any_class :=
+Definition DIOpR (pr: primary_rule): list rule_class :=
   map snd
     (filter
        (fun p => Nat.eqb pr (fst p))
        (combine
-          (fst ConfigDenot.S.D_primary_rules_dependency_via_ins)
-          (snd ConfigDenot.S.D_primary_rules_dependency_via_ins))).
+          (snd ConfigDenot.S.D_primary_rule_dependency_via_ins)
+          (fst ConfigDenot.S.D_primary_rule_dependency_via_ins))).
 
 (* depended instances of derived proof rules *)
 Definition DIOdR (dr: derived_rule): list any_class :=
@@ -385,7 +385,7 @@ Let all_classes :=
 
 Let primary_rules :=
   filter
-    (fun pr => AllClassList.test_sublist (DIOpR pr) primitive_classes)
+    (fun pr => existsb (fun rc => RuleClassList.test_element rc primitive_classes_r) (DIOpR pr))
     ConfigDenot.S.D_primary_rules.
 
 Let derived_rules :=

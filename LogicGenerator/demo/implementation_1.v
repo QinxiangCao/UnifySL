@@ -67,6 +67,7 @@ Module NaiveRule.
   Axiom sepcon_comm: forall x y, provable (iffp (sepcon x y) (sepcon y x)).
   Axiom sepcon_assoc: forall x y z,
       provable (iffp (sepcon x (sepcon y z)) (sepcon (sepcon x y) z)).
+  Axiom sepcon_mono : (forall x1 x2 y1 y2 : expr, provable (impp x1 x2) -> provable (impp y1 y2) -> provable (impp (sepcon x1 y1) (sepcon x2 y2))) .
   Axiom sepcon_emp : (forall x : expr, provable (iffp (sepcon x emp) x)) .
 End NaiveRule.
 

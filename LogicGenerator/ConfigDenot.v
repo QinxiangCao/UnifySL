@@ -441,13 +441,11 @@ Definition derived_rules :=
   ; falsep_sepcon
   ; provable_wand_sepcon_modus_ponens1
   ; wand_andp
-  ; sepcon_comm
   ; sepcon_orp_distr_r
   ; sepcon_falsep
   ; provable_wand_sepcon_modus_ponens2
   ; wand_mono
   ; orp_wand
-  ; sepcon_mono
   ].
 
 Ltac filter_instance_rec l res :=
@@ -477,6 +475,13 @@ Definition D_derived_rules :=
 Definition D_derived_rules_as_instance :=
   map_with_hint (derived_rules, D_derived_rules) derived_rules_as_instance.
 
+Definition D_primary_rule_dependency_via_ins :=
+  (map_with_hint (rule_instances_build, D.rule_classes)
+                 (map_fst primary_rule_dependency_via_ins),
+   map_with_hint (primary_rules, D_primary_rules)
+                 (map_snd primary_rule_dependency_via_ins)).  
+
+(* TODO: delete it *)
 Definition primary_rules_dependency_via_ins :=
   instance_arg_lists
     (primary_rules, primary_rules).
@@ -485,6 +490,7 @@ Definition derived_rules_dependency_via_ins :=
   instance_arg_lists
     (derived_rules, derived_rules).
 
+(* TODO: delete it *)
 Definition D_primary_rules_dependency_via_ins :=
   (map_with_hint (primary_rules, D_primary_rules)
                  (map_fst primary_rules_dependency_via_ins),
