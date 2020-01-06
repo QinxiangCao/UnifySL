@@ -179,3 +179,25 @@ Notation "'nat_ident_list' l" :=
             end) (length l)) in
              exact l'))
   (only parsing, at level 99).
+
+Ltac nodup_nat_ident_list_rec l l_already res n :=
+  match l with
+  | nil => res
+  | cons (BuildName ?a) ?l0 =>
+    let test_element := in_name_list a l_already in
+    match test_element with
+    | true =>
+        let rank := inj_with_hint_tac (BuildName a) l_already res in
+        nodup_nat_ident_list_rec l0 (cons (BuildName a) l_already) (cons rank res) n
+    | false =>
+        nodup_nat_ident_list_rec l0 (cons (BuildName a) l_already) (cons n res) (S n)
+    end
+  end.
+
+Notation "'nodup_nat_ident_list' l" :=
+  (ltac:(let l' := eval hnf in l in
+         let res := nodup_nat_ident_list_rec l' (@nil Name) (@nil nat) O in
+         let res0 := eval compute in (rev res) in    
+         exact res0))
+  (only parsing, at level 99).
+

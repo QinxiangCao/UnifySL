@@ -466,8 +466,8 @@ Notation "'filter_instance' l" :=
 Definition derived_rules_as_instance :=
   filter_instance derived_rules.
 
-Definition D_primary_rules :=
-  nat_ident_list primary_rules.
+Definition D_primary_rules: list nat :=
+  nodup_nat_ident_list primary_rules.
 
 Definition D_derived_rules :=
   nat_ident_list derived_rules.
