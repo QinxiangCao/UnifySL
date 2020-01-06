@@ -129,17 +129,25 @@ Definition aux_refl_instances_for_derivation: list Name :=
 Definition aux_derived_instances: list Name :=
   map_with_hint
     (ConfigDenot.S.D_instance_transitions, ConfigDenot.S.instance_transitions)
-    (ConfigLang.Output.derived_classes foo).
+    (ConfigLang.Output.how_derive_classes foo).
 
 Definition primary_rules: list Name :=
   map_with_hint
     (ConfigDenot.S.D_primary_rules, ConfigDenot.S.primary_rules)
     (ConfigLang.Output.primary_rules foo).
 
-Definition derived_rules: list Name :=
+Let derived_rules': list Name :=
+  (map_with_hint
+    (ConfigDenot.S.D_primary_rules, ConfigDenot.S.primary_rules)
+    (ConfigLang.Output.derived_primary_rules foo)) ++
   map_with_hint
     (ConfigDenot.S.D_derived_rules, ConfigDenot.S.derived_rules)
-    (ConfigLang.Output.derived_rules foo).
+    (ConfigLang.Output.derived_derived_rules foo).
+
+Definition derived_rules : list Name :=
+  ltac:(let res0 := eval unfold derived_rules' in derived_rules' in
+        let res1 := eval unfold app at 1 in res0 in
+            exact res1).
 
 Definition derived_rules_as_instance :=
   map_with_hint
@@ -268,9 +276,6 @@ Ltac two_stage_print :=
 
   
   idtac.
-
-
-
   
 Goal False.
   two_stage_print.

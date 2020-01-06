@@ -382,7 +382,7 @@ Definition D_instance_dependency_via_transition :=
    map_with_hint (instances, D.classes)
                  (map_snd instance_dependency_via_transition)).
 
-Definition primary_rules: list Name :=
+Definition primary_rules_with_dup: list Name :=
   map_snd primary_rule_dependency_via_ins.
 
 Definition derived_rules :=
@@ -466,8 +466,18 @@ Notation "'filter_instance' l" :=
 Definition derived_rules_as_instance :=
   filter_instance derived_rules.
 
+Definition D_primary_rules_with_dup: list nat :=
+  nodup_nat_ident_list primary_rules_with_dup.
+
 Definition D_primary_rules: list nat :=
-  nodup_nat_ident_list primary_rules.
+  ltac:(
+    let l := eval compute in 
+      (ConfigLang.NatList.shrink D_primary_rules_with_dup)
+    in
+    exact l).
+
+Definition primary_rules :=
+  map_with_hint (D_primary_rules_with_dup, primary_rules_with_dup) D_primary_rules.
 
 Definition D_derived_rules :=
   nat_ident_list derived_rules.

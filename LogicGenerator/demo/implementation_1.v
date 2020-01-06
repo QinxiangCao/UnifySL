@@ -69,6 +69,8 @@ Module NaiveRule.
       provable (iffp (sepcon x (sepcon y z)) (sepcon (sepcon x y) z)).
   Axiom sepcon_mono : (forall x1 x2 y1 y2 : expr, provable (impp x1 x2) -> provable (impp y1 y2) -> provable (impp (sepcon x1 y1) (sepcon x2 y2))) .
   Axiom sepcon_emp : (forall x : expr, provable (iffp (sepcon x emp) x)) .
+  Axiom falsep_sepcon_left : (forall x : expr, provable (impp (sepcon falsep x) falsep)) .
+  Axiom orp_sepcon_left : (forall x y z : expr, provable (impp (sepcon (orp x y) z) (orp (sepcon x z) (sepcon y z)))) .
 End NaiveRule.
 
 Module T := LogicTheorem NaiveLang NaiveRule.

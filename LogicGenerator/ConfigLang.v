@@ -154,9 +154,10 @@ Record output: Type := {
   derived_judgements: list how_judgement;
   primitive_classes: list any_class;
   refl_classes_for_derivation: list any_class;
-  derived_classes: list how_instance;
+  how_derive_classes: list how_instance;
   primary_rules: list primary_rule;
-  derived_rules: list derived_rule;
+  derived_primary_rules: list primary_rule;
+  derived_derived_rules: list derived_rule;
   derived_rules_as_instance: list derived_rule
 }.
 End Output.
