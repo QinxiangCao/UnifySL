@@ -135,10 +135,9 @@ Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sepconL: SepconLanguage L}
-        {wandL: WandLanguage L}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD tt SM}
-        {fsSM: FlatSemantics.SeparatingSemantics L MD tt SM}.
+        {fsepconSM: FlatSemantics.SepconSemantics L MD tt SM}.
 
 Class LegalInvariants (Inv: resource * (model -> Prop) -> Prop): Prop := {
   at_most_one_invariant: forall r I1 I2, Inv (r, I1) -> Inv (r, I2) -> I1 = I2;

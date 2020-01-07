@@ -27,14 +27,17 @@ Instance MonoPred_wandL (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J:
 Instance MonoPred_empL (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: EmpLanguage (MonoPred_L A) := 
   Build_EmpLanguage (MonoPred_L A) WeakSemanticsMono.emp.
 
-Instance MonoPred_fsSM  (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: @FlatSemantics.SeparatingSemantics (MonoPred_L A) (MonoPred_sepconL A) (MonoPred_wandL A) (Build_Model A) (unit_kMD _) tt R J (MonoPred_SM A).
+Instance MonoPred_fsepconSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: @FlatSemantics.SepconSemantics (MonoPred_L A) (MonoPred_sepconL A) (Build_Model A) (unit_kMD _) tt R J (MonoPred_SM A).
 Proof.
-  constructor.
-  + intros; apply Same_set_refl.
-  + intros; apply Same_set_refl.
+  hnf; intros; apply Same_set_refl.
 Qed.
 
-Instance MonoPred_feSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A} {USA: UnitalSeparationAlgebra A}: @FlatSemantics.EmpSemantics (MonoPred_L A) (MonoPred_sepconL A) (MonoPred_wandL A) (MonoPred_empL A) (Build_Model A) (unit_kMD _) tt R J (MonoPred_SM A).
+Instance MonoPred_fwandSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: @FlatSemantics.WandSemantics (MonoPred_L A) (MonoPred_wandL A) (Build_Model A) (unit_kMD _) tt R J (MonoPred_SM A).
+Proof.
+  hnf; intros; apply Same_set_refl.
+Qed.
+
+Instance MonoPred_fempSM (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A} {USA: UnitalSeparationAlgebra A}: @FlatSemantics.EmpSemantics (MonoPred_L A) (MonoPred_empL A) (Build_Model A) (unit_kMD _) tt R J (MonoPred_SM A).
 Proof.
   apply Same_set_refl.
 Qed.
@@ -43,16 +46,16 @@ Instance MonoPred_sepconAX_weak (A: Type) {R: Relation A} {po_R: PreOrder Krelat
 Proof.
   constructor.
   + intros x y.
-    exact (@sound_sepcon_comm (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kminSM A) (MonoPred_fsSM A) x y).
+    exact (@sound_sepcon_comm (MonoPred_L A) _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kminSM A) (MonoPred_fsepconSM A) x y).
   + intros x y.
-    exact (@sound_sepcon_assoc1 (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kminSM A) (MonoPred_fsSM A) x y).
+    exact (@sound_sepcon_assoc1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kminSM A) (MonoPred_fsepconSM A) x y).
 Qed.
 
 Instance MonoPred_wandAX (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: WandAxiomatization (MonoPred_L A) (MonoPred_Gamma A).
 Proof.
   constructor.
   intros x y z.
-  exact (@sound_wand_sepcon_adjoint (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt  R po_R J (MonoPred_SM A) (MonoPred_kminSM A) (MonoPred_fsSM A) x y z).
+  exact (@sound_wand_sepcon_adjoint (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt  R po_R J (MonoPred_SM A) (MonoPred_kminSM A) (MonoPred_fsepconSM A) (MonoPred_fwandSM A) x y z).
 Qed.
 
 Instance MonoPred_sepconAX (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A}: SepconAxiomatization (MonoPred_L A) (MonoPred_Gamma A).
@@ -67,9 +70,9 @@ Instance MonoPred_empAX (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J:
 Proof.
   constructor.
   + intros x.
-    exact (@sound_sepcon_emp1 (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_fsSM A) _ (MonoPred_feSM A) _ x).
+    exact (@sound_sepcon_emp1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_fsepconSM A) _ (MonoPred_fempSM A) _ x).
   + intros x.
-    exact (@sound_sepcon_emp2 (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_fsSM A) _ (MonoPred_feSM A) _ x).
+    exact (@sound_sepcon_emp2 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_fsepconSM A) _ (MonoPred_fempSM A) _ x).
 Qed.
 
 Instance MonoPred_gcsGamma (A: Type) {R: Relation A} {po_R: PreOrder Krelation} {J: Join A} {SA: SeparationAlgebra A} {uSA: UpwardsClosedSeparationAlgebra A} {dSA: DownwardsClosedSeparationAlgebra A} {incrSA: IncreasingSeparationAlgebra A}: GarbageCollectSeparationLogic (MonoPred_L A) (MonoPred_Gamma A).
@@ -77,5 +80,5 @@ Proof.
   intros.
   constructor.
   intros x y.
-  exact (@sound_sepcon_elim1 (MonoPred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_fsSM A) incrSA x y).
+  exact (@sound_sepcon_elim1 (MonoPred_L A) _ _ (Build_Model A) (unit_kMD _) tt R J SA (MonoPred_SM A) (MonoPred_kiSM A) (MonoPred_kminSM A) (MonoPred_fsepconSM A) incrSA x y).
 Qed.

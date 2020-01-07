@@ -121,14 +121,13 @@ Lemma sem_precise_spec
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sepconL: SepconLanguage L}
-        {wandL: WandLanguage L}
         {MD: Model}
         {J: Join model}
         {R: Relation model}
         {po_R: PreOrder Krelation}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}
-        {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}:
+        {fsepconSM: FlatSemantics.SepconSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}:
   forall m n P Q,
     sem_precise P ->
     greatest_cut m (fun m => KRIPKE: m |= P) n ->
@@ -158,10 +157,9 @@ Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
         {sepconL: SepconLanguage L}
-        {wandL: WandLanguage L}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}
-        {fsSM: FlatSemantics.SeparatingSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
+        {fsepconSM: FlatSemantics.SepconSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
 
 Lemma hoare_resource_partial_sound: forall
   (r: resource)

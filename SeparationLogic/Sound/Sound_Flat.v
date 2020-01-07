@@ -38,7 +38,8 @@ Context {L: Language}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
         {kminSM: KripkeMinimumSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}
-        {fsSM: FlatSemantics.SeparatingSemantics L MD M SM}.
+        {fsepconSM: FlatSemantics.SepconSemantics L MD M SM}
+        {fwandSM: FlatSemantics.WandSemantics L MD M SM}.
 
 Lemma sound_sepcon_comm:
   forall x y: expr,

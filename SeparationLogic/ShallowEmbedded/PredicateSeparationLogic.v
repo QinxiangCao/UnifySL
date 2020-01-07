@@ -27,14 +27,17 @@ Instance Pred_wandL (A: Type) {J: Join A}: WandLanguage (Pred_L A) :=
 Instance Pred_empL (A: Type) {J: Join A}: EmpLanguage (Pred_L A) := 
   Build_EmpLanguage (Pred_L A) (@WeakSemantics.emp _ eq J).
 
-Instance Pred_fsSM (A: Type) {J: Join A}: @FlatSemantics.SeparatingSemantics (Pred_L A) (Pred_sepconL A) (Pred_wandL A) (Build_Model A) (unit_kMD _) tt eq J (Pred_SM A).
+Instance Pred_fsepconSM (A: Type) {J: Join A}: @FlatSemantics.SepconSemantics (Pred_L A) (Pred_sepconL A) (Build_Model A) (unit_kMD _) tt eq J (Pred_SM A).
 Proof.
-  constructor.
-  + intros; apply Same_set_refl.
-  + intros; apply Same_set_refl.
+  hnf; intros; apply Same_set_refl.
 Qed.
 
-Instance Pred_feSM (A: Type) {J: Join A}: @FlatSemantics.EmpSemantics (Pred_L A) (Pred_sepconL A) (Pred_wandL A)  (Pred_empL A) (Build_Model A) (unit_kMD _) tt eq J (Pred_SM A).
+Instance Pred_fwandSM (A: Type) {J: Join A}: @FlatSemantics.WandSemantics (Pred_L A) (Pred_wandL A) (Build_Model A) (unit_kMD _) tt eq J (Pred_SM A).
+Proof.
+  hnf; intros; apply Same_set_refl.
+Qed.
+
+Instance Pred_fempSM (A: Type) {J: Join A}: @FlatSemantics.EmpSemantics (Pred_L A) (Pred_empL A) (Build_Model A) (unit_kMD _) tt eq J (Pred_SM A).
 Proof.
   apply Same_set_refl.
 Qed.
@@ -43,16 +46,16 @@ Instance Pred_sepconAX_weak (A: Type) {J: Join A} {SA: SeparationAlgebra A}: Sep
 Proof.
   constructor.
   + intros x y.
-    exact (@sound_sepcon_comm (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kminSM A) (Pred_fsSM A) x y).
+    exact (@sound_sepcon_comm (Pred_L A) _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kminSM A) (Pred_fsepconSM A) x y).
   + intros x y.
-    exact (@sound_sepcon_assoc1 (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kminSM A) (Pred_fsSM A) x y).
+    exact (@sound_sepcon_assoc1 (Pred_L A) _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kminSM A) (Pred_fsepconSM A) x y).
 Qed.
 
 Instance Pred_wandAX (A: Type) {J: Join A} {SA: SeparationAlgebra A}: WandAxiomatization (Pred_L A) (Pred_Gamma A).
 Proof.
   constructor.
   intros x y z.
-  exact (@sound_wand_sepcon_adjoint (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J (Pred_SM A) (Pred_kminSM A) (Pred_fsSM A) x y z).
+  exact (@sound_wand_sepcon_adjoint (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq (eq_preorder _) J (Pred_SM A) (Pred_kminSM A) (Pred_fsepconSM A) (Pred_fwandSM A) x y z).
 Qed.
 
 Instance Pred_sepconAX (A: Type) {J: Join A} {SA: SeparationAlgebra A}: SepconAxiomatization (Pred_L A) (Pred_Gamma A).
@@ -68,15 +71,15 @@ Proof.
   intros.
   constructor.
   intros x y.
-  exact (@sound_sepcon_elim1 (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kiSM A) (Pred_kminSM A) (Pred_fsSM A) incrSA x y).
+  exact (@sound_sepcon_elim1 (Pred_L A) _ _ (Build_Model A) (unit_kMD _) tt eq J SA (Pred_SM A) (Pred_kiSM A) (Pred_kminSM A) (Pred_fsepconSM A) incrSA x y).
 Qed.
 
 Instance Pred_EmpsGamma (A: Type) {J: Join A} {SA: SeparationAlgebra A} {USA: @UnitalSeparationAlgebra A eq J}: EmpAxiomatization (Pred_L A) (Pred_Gamma A).
 Proof.
   constructor.
   + intros x.
-    exact (@sound_sepcon_emp1 (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA(Pred_SM A) (Pred_kiSM A) (Pred_kminSM A) (Pred_fsSM A) _ (Pred_feSM A) USA x).
+    exact (@sound_sepcon_emp1 (Pred_L A) _ _ (Build_Model A) (unit_kMD _) tt eq J SA(Pred_SM A) (Pred_kiSM A) (Pred_kminSM A) (Pred_fsepconSM A) _ (Pred_fempSM A) USA x).
   + intros x.
-    exact (@sound_sepcon_emp2 (Pred_L A) _ _ _ (Build_Model A) (unit_kMD _) tt eq J SA(Pred_SM A) (Pred_kiSM A) (Pred_kminSM A) (Pred_fsSM A) _ (Pred_feSM A) USA x).
+    exact (@sound_sepcon_emp2 (Pred_L A) _ _ (Build_Model A) (unit_kMD _) tt eq J SA(Pred_SM A) (Pred_kiSM A) (Pred_kminSM A) (Pred_fsepconSM A) _ (Pred_fempSM A) USA x).
 Qed.
 

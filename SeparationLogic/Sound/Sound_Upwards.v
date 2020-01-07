@@ -38,7 +38,8 @@ Context {L: Language}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
         {kminSM: KripkeMinimumSemantics L MD M SM}
         {kpSM: KripkePropositionalSemantics L MD M SM}
-        {usSM: UpwardsSemantics.SeparatingSemantics L MD M SM}.
+        {usepconSM: UpwardsSemantics.SepconSemantics L MD M SM}
+        {uwandSM: UpwardsSemantics.WandSemantics L MD M SM}.
 
 Lemma sound_sepcon_comm:
   forall x y: expr,
@@ -172,7 +173,7 @@ Proof.
 Qed.
 
 Context {empL: EmpLanguage L}
-        {ueSM: UpwardsSemantics.EmpSemantics L MD M SM}.
+        {uempSM: UpwardsSemantics.EmpSemantics L MD M SM}.
 
 Lemma sound_sepcon_emp {USA': UnitalSeparationAlgebra' (Kworlds M)}:
   forall x: expr,

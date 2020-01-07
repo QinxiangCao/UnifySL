@@ -64,7 +64,8 @@ Context {L: Language}
         {R: Relation (Kworlds M)}
         {J: Join (Kworlds M)}
         {SM: Semantics L MD}
-        {fsSM: SeparatingSemantics L MD M SM}.
+        {fsepconSM: SepconSemantics L MD M SM}
+        {fwandSM: WandSemantics L MD M SM}.
 
 Context (cP: context -> Prop)
         (rel: bijection (Kworlds M) (sig cP)).
@@ -215,7 +216,7 @@ Qed.
 
 Context {empL: EmpLanguage L}
         {empAX: EmpAxiomatization L GammaP}
-        {feSM: EmpSemantics L MD M SM}.
+        {fempSM: EmpSemantics L MD M SM}.
 
 Instance unitSA
          (AL_DC: at_least derivable_closed cP)
