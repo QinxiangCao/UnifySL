@@ -12,6 +12,8 @@ Require Import PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 Require Import SeparationLogic.ProofTheory.RewriteClass.
+Require Import SeparationLogic.ProofTheory.IterSepcon.
+Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.
 
 Require Logic.LogicGenerator.ConfigLang.
 Require Import Logic.LogicGenerator.Utils. 
@@ -36,6 +38,7 @@ Definition connectives: list connective :=
   ; wand
   ; emp
   ; multi_imp
+  ; iter_sepcon
   ; empty_context
   ].
 
@@ -53,6 +56,7 @@ Definition how_connectives: list how_connective :=
   ; FROM_falsep_impp_TO_negp
   ; FROM_falsep_impp_TO_truep
   ; FROM_impp_TO_multi_imp
+  ; FROM_sepcon_TO_iter_sepcon
   ; FROM_empty_set_TO_empty_context
   ].
 
@@ -68,8 +72,10 @@ Definition type_classes :=
 Definition connective_classes :=
   [ MinimumLanguage
   ; PropositionalLanguage
-  ; SeparationLanguage
-  ; EmpSeparationLanguage
+  ; SepconLanguage
+  ; WandLanguage
+  ; EmpLanguage
+  ; IterSepconLanguage
   ].
 
 Definition judgement_classes :=
@@ -83,8 +89,15 @@ Definition rule_classes :=
   ; provability_OF_de_morgan
   ; provability_OF_godel_dummett
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule
+  ; provability_OF_wand_rule
   ; provability_OF_emp_rule
+  ; provability_OF_sepcon_orp_rule
+  ; provability_OF_sepcon_falsep_rule
+  ; provability_OF_sepcon_rule_AS_weak
+  ; provability_OF_sepcon_rule_AS_weak_iffp
+  ; provability_OF_sepcon_rule_AS_mono
+  ; provability_OF_emp_rule_AS_iffp
   ; provability_OF_garbage_collected_sl
   ; derivitive_OF_basic_setting
   ; derivitive_OF_finite_derivation
@@ -93,6 +106,7 @@ Definition rule_classes :=
 (*  ; derivitive_OF_de_morgan *)
 (*  ; derivitive_OF_godel_dummett *)
   ; derivitive_OF_classical_logic
+  ; GEN_iter_sepcon_FROM_sepcon
   ; GEN_derivable_FROM_provable
   ; GEN_provable_FROM_derivable
   ].
@@ -106,7 +120,8 @@ Definition classes :=
         exact l).
 
 Definition refl_classes :=
-  [ RC GEN_derivable_FROM_provable
+  [ RC GEN_iter_sepcon_FROM_sepcon
+  ; RC GEN_derivable_FROM_provable
   ; RC GEN_provable_FROM_derivable
   ].
 
@@ -115,18 +130,27 @@ End D.
 Definition Build_Language := Build_Language.
 Definition Build_MinimumLanguage := Build_MinimumLanguage.
 Definition Build_PropositionalLanguage := Build_PropositionalLanguage.
-Definition Build_SeparationLanguage := Build_SeparationLanguage.
-Definition Build_SeparationEmpLanguage := Build_SeparationEmpLanguage.
+Definition Build_SepconLanguage := Build_SepconLanguage.
+Definition Build_WandLanguage := Build_WandLanguage.
+Definition Build_EmpLanguage := Build_EmpLanguage.
+Definition Build_IterSepconLanguage := Build_IterSepconLanguage.
 Definition Build_Provable := Build_Provable.
 Definition Build_Derivable := Build_Derivable.
+Definition Build_NormalIterSepcon := Build_NormalIterSepcon.
 Definition Build_NormalAxiomatization := Build_NormalAxiomatization.
 Definition Build_NormalSequentCalculus := Build_NormalSequentCalculus.
 Definition Build_MinimumAxiomatization := Build_MinimumAxiomatization.
 Definition Build_IntuitionisticPropositionalLogic := Build_IntuitionisticPropositionalLogic.
 Definition Build_DeMorganPropositionalLogic := Build_DeMorganPropositionalLogic.
 Definition Build_ClassicalPropositionalLogic := Build_ClassicalPropositionalLogic.
-Definition Build_SeparationLogic := Build_SeparationLogic.
-Definition Build_EmpSeparationLogic := Build_EmpSeparationLogic.
+Definition Build_SepconAxiomatization := Build_SepconAxiomatization.
+Definition Build_WandAxiomatization := Build_WandAxiomatization.
+Definition Build_EmpAxiomatization := Build_EmpAxiomatization.
+Definition Build_SepconOrAxiomatization := Build_SepconOrAxiomatization.
+Definition Build_SepconFalseAxiomatization := Build_SepconFalseAxiomatization.
+Definition Build_SepconAxiomatization_weak := Build_SepconAxiomatization_weak.
+Definition Build_SepconAxiomatization_weak_iffp := Build_SepconAxiomatization_weak_iffp.
+Definition Build_SepconMonoAxiomatization := Build_SepconMonoAxiomatization.
 Definition Build_GarbageCollectSeparationLogic := Build_GarbageCollectSeparationLogic.
 Definition Build_BasicSequentCalculus := Build_BasicSequentCalculus.
 Definition Build_FiniteWitnessedSequentCalculus := Build_FiniteWitnessedSequentCalculus.
@@ -141,10 +165,13 @@ Section S.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL : SeparationLanguage L}
-        {empL: SeparationEmpLanguage L}
+        {sepconL : SepconLanguage L}
+        {wandL : WandLanguage L}
+        {empL: EmpLanguage L}
+        {iter_sepcon_L : IterSepconLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
+        {iter_sepcon_Def: NormalIterSepcon L}
         {AX: NormalAxiomatization L GammaP GammaD}
         {SC : NormalSequentCalculus L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
@@ -152,8 +179,15 @@ Context {L: Language}
         {cpAX: ClassicalPropositionalLogic L GammaP}
         {dmpAX: DeMorganPropositionalLogic L GammaP}
         {gdpAX: GodelDummettPropositionalLogic L GammaP}
-        {sAX: SeparationLogic L GammaP}
-        {empsAX: EmpSeparationLogic L GammaP}
+        {sepconAX: SepconAxiomatization L GammaP}
+        {wandAX: WandAxiomatization L GammaP}
+        {empAX: EmpAxiomatization L GammaP}
+        {sepcon_orp_AX: SepconOrAxiomatization L GammaP}
+        {sepcon_falsep_AX: SepconFalseAxiomatization L GammaP}
+        {sepconAX_weak: SepconAxiomatization_weak L GammaP}
+        {sepconAX_weak_iffp: SepconAxiomatization_weak_iffp L GammaP}
+        {sepcon_mono_AX: SepconMonoAxiomatization L GammaP}
+        {empAX_iffp: EmpAxiomatization_iffp L GammaP}
         {extsAX: ExtSeparationLogic L GammaP}
         {nsesAX: NonsplitEmpSeparationLogic L GammaP}
         {desAX: DupEmpSeparationLogic L GammaP}
@@ -182,6 +216,7 @@ Definition connectives: list Name :=
   ; wand
   ; emp
   ; multi_imp
+  ; iter_sepcon
   ; empty_context
   ].
 
@@ -199,6 +234,7 @@ Definition how_connectives: list Name :=
   ; (negp, fun x => impp x falsep)
   ; (truep, impp falsep falsep)
   ; (multi_imp, fun xs y => fold_right impp y xs)
+  ; (iter_sepcon, fun xs => fold_left sepcon xs emp)
   ; (empty_context, Empty_set expr)
   ].
 
@@ -214,8 +250,10 @@ Definition type_instances_build :=
 Definition connective_instances_build :=
   [ (minL, Build_MinimumLanguage L impp)
   ; (pL, Build_PropositionalLanguage L andp orp falsep)
-  ; (sL, Build_SeparationLanguage L sepcon wand)
-  ; (empL, Build_SeparationEmpLanguage L emp)
+  ; (sepconL, Build_SepconLanguage L sepcon)
+  ; (wandL, Build_WandLanguage L wand)
+  ; (empL, Build_EmpLanguage L emp)
+  ; (iter_sepcon_L, Build_IterSepconLanguage L iter_sepcon)
   ].
 
 Definition judgement_instances_build :=
@@ -229,14 +267,22 @@ Definition rule_instances_build :=
   ; (dmpAX, Build_DeMorganPropositionalLogic L minL pL GammaP minAX ipAX weak_excluded_middle)
   ; (gdpAX, Build_GodelDummettPropositionalLogic L minL pL GammaP minAX ipAX impp_choice)
   ; (cpAX, Build_ClassicalPropositionalLogic L minL pL GammaP minAX ipAX excluded_middle)
-  ; (sAX, Build_SeparationLogic L minL pL sL GammaP minAX ipAX sepcon_comm_impp sepcon_assoc wand_sepcon_adjoint)
-  ; (empsAX, Build_EmpSeparationLogic L minL pL sL empL GammaP minAX ipAX sAX sepcon_emp)
-  ; (gcsAX, Build_GarbageCollectSeparationLogic L minL pL sL GammaP minAX ipAX sAX sepcon_elim1)
+  ; (sepconAX, Build_SepconAxiomatization L minL sepconL GammaP sepcon_comm_impp sepcon_assoc1 sepcon_mono)
+  ; (wandAX, Build_WandAxiomatization L minL sepconL wandL GammaP wand_sepcon_adjoint)
+  ; (empAX, Build_EmpAxiomatization L minL sepconL empL GammaP sepcon_emp1 sepcon_emp2)
+  ; (sepcon_orp_AX, Build_SepconOrAxiomatization L minL pL sepconL GammaP orp_sepcon_left)
+  ; (sepcon_falsep_AX, Build_SepconFalseAxiomatization L minL pL sepconL GammaP falsep_sepcon_left)
+  ; (sepconAX_weak, Build_SepconAxiomatization_weak L minL sepconL GammaP sepcon_comm_impp sepcon_assoc1)
+  ; (sepconAX_weak_iffp, Build_SepconAxiomatization_weak_iffp L minL pL sepconL GammaP sepcon_comm sepcon_assoc)
+  ; (sepcon_mono_AX, Build_SepconMonoAxiomatization L minL sepconL GammaP sepcon_mono)
+  ; (empAX_iffp, Build_EmpAxiomatization_iffp L minL pL sepconL empL GammaP sepcon_emp)
+  ; (gcsAX, Build_GarbageCollectSeparationLogic L minL pL sepconL GammaP sepcon_elim1)
   ; (bSC, Build_BasicSequentCalculus L GammaD deduction_weaken derivable_assum deduction_subst)
   ; (fwSC, Build_FiniteWitnessedSequentCalculus L GammaD derivable_finite_witnessed)
   ; (minSC, Build_MinimumSequentCalculus L minL GammaD deduction_modus_ponens deduction_impp_intros) 
   ; (ipSC, Build_IntuitionisticPropositionalSequentCalculus L pL GammaD deduction_andp_intros deduction_andp_elim1 deduction_andp_elim2 deduction_orp_intros1 deduction_orp_intros2 deduction_orp_elim deduction_falsep_elim)
   ; (cpSC, Build_ClassicalPropositionalSequentCalculus L minL pL GammaD bSC minSC ipSC derivable_excluded_middle)
+  ; (iter_sepcon_Def, Build_NormalIterSepcon L sepconL empL iter_sepcon_L iter_sepcon_def)
   ; (AX, Build_NormalAxiomatization L minL GammaP GammaD derivable_provable)
   ; (SC, Build_NormalSequentCalculus L GammaP GammaD provable_derivable)
   ].
@@ -255,7 +301,8 @@ Definition instances_build :=
         exact instances_build).
 
 Definition refl_instances :=
-  [ (AX, Provable2Derivable_Normal)
+  [ (iter_sepcon_Def, Sepcon2IterSepcon_Normal)
+  ; (AX, Provable2Derivable_Normal)
   ; (SC, Derivable2Provable_Normal)
   ].
 
@@ -267,7 +314,13 @@ Definition instance_transitions :=
   ; (ipSC, Axiomatization2SequentCalculus_ipSC)
   ; (AX, SequentCalculus2Axiomatization_AX)
   ; (minAX, SequentCalculus2Axiomatization_minAX)
-  ; (ipAX, SequentCalculus2Axiomatization_ipAX)  
+  ; (ipAX, SequentCalculus2Axiomatization_ipAX)
+  ; (sepconAX, SepconAxiomatizationWeak2SepconAxiomatization)
+  ; (sepconAX_weak, SepconAxiomatizationWeakIff2SepconAxiomatizationWeak)
+  ; (sepcon_mono_AX, Adj2SepconMono)
+  ; (sepcon_orp_AX, Adj2SepconOr)
+  ; (sepcon_falsep_AX, Adj2SepconFalse)
+  ; (empAX, EmpAxiomatizationIff2EmpAxiomatization)
   ].
 
 Definition type_instances: list Name :=
@@ -345,7 +398,7 @@ Definition D_instance_dependency_via_transition :=
    map_with_hint (instances, D.classes)
                  (map_snd instance_dependency_via_transition)).
 
-Definition primary_rules: list Name :=
+Definition primary_rules_with_dup: list Name :=
   map_snd primary_rule_dependency_via_ins.
 
 Definition derived_rules :=
@@ -404,13 +457,14 @@ Definition derived_rules :=
   ; falsep_sepcon
   ; provable_wand_sepcon_modus_ponens1
   ; wand_andp
-  ; sepcon_comm
   ; sepcon_orp_distr_r
   ; sepcon_falsep
   ; provable_wand_sepcon_modus_ponens2
   ; wand_mono
   ; orp_wand
-  ; sepcon_mono
+  ; sepcon_iter_sepcon
+  ; sepcon_iter_unfold_right_assoc
+  ; sepcon_iter_unfold_left_assoc
   ].
 
 Ltac filter_instance_rec l res :=
@@ -431,8 +485,18 @@ Notation "'filter_instance' l" :=
 Definition derived_rules_as_instance :=
   filter_instance derived_rules.
 
-Definition D_primary_rules :=
-  nat_ident_list primary_rules.
+Definition D_primary_rules_with_dup: list nat :=
+  nodup_nat_ident_list primary_rules_with_dup.
+
+Definition D_primary_rules: list nat :=
+  ltac:(
+    let l := eval compute in 
+      (ConfigLang.NatList.shrink D_primary_rules_with_dup)
+    in
+    exact l).
+
+Definition primary_rules :=
+  map_with_hint (D_primary_rules_with_dup, primary_rules_with_dup) D_primary_rules.
 
 Definition D_derived_rules :=
   nat_ident_list derived_rules.
@@ -440,6 +504,13 @@ Definition D_derived_rules :=
 Definition D_derived_rules_as_instance :=
   map_with_hint (derived_rules, D_derived_rules) derived_rules_as_instance.
 
+Definition D_primary_rule_dependency_via_ins :=
+  (map_with_hint (rule_instances_build, D.rule_classes)
+                 (map_fst primary_rule_dependency_via_ins),
+   map_with_hint (primary_rules, D_primary_rules)
+                 (map_snd primary_rule_dependency_via_ins)).  
+
+(* TODO: delete it *)
 Definition primary_rules_dependency_via_ins :=
   instance_arg_lists
     (primary_rules, primary_rules).
@@ -448,6 +519,7 @@ Definition derived_rules_dependency_via_ins :=
   instance_arg_lists
     (derived_rules, derived_rules).
 
+(* TODO: delete it *)
 Definition D_primary_rules_dependency_via_ins :=
   (map_with_hint (primary_rules, D_primary_rules)
                  (map_fst primary_rules_dependency_via_ins),

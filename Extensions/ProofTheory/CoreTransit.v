@@ -29,11 +29,11 @@ Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 Import CoreTransitNotation.
 
-Class CoreTransitSeparationLogic (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {CtsL: CoreTransitSeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipAX: IntuitionisticPropositionalLogic L Gamma} {sAX: SeparationLogic L Gamma} {CosAX: Corable L Gamma}:= {
+Class CoreTransitSeparationLogic (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sepconL: SepconLanguage L} {wandL: WandLanguage L} {CtsL: CoreTransitSeparationLanguage L} (Gamma: Provable L) {minAX: MinimumAxiomatization L Gamma} {ipAX: IntuitionisticPropositionalLogic L Gamma} {sepconAX: SepconAxiomatization L Gamma} {CosAX: Corable L Gamma}:= {
   core_tr_SystemK: @SystemK L minL pL (ct_mL L) Gamma minAX ipAX;
   core_tr_PTransparent: @PropositionalTransparentModality L minL pL (ct_mL L) Gamma minAX ipAX core_tr_SystemK;
-  core_tr_STransparent1: @SeparationTransparentModality1 L minL pL (ct_mL L) sL Gamma minAX ipAX core_tr_SystemK sAX;
-  core_tr_STransparent2: @SeparationTransparentModality2 L minL pL (ct_mL L) sL Gamma minAX ipAX core_tr_SystemK sAX;
+  core_tr_STransparent1: @SeparationTransparentModality1 L minL (ct_mL L) sepconL Gamma;
+  core_tr_STransparent2: @SeparationTransparentModality2 L minL (ct_mL L) sepconL Gamma;
   core_tr_andp_sepcon: forall x y, |-- core_tr (x && y) --> core_tr (x * y);
   coreAbsorb: @ModalAbsorbStable L minL (ct_mL L) Gamma corable
 }.
@@ -43,12 +43,13 @@ Section CoreTransit.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {CtsL: CoreTransitSeparationLanguage L}
         {Gamma: Provable L}
         {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma}
+        {sepconAX: SepconAxiomatization L Gamma}
         {CosAX: Corable L Gamma}
         {CtsGamma: CoreTransitSeparationLogic L Gamma}.
 
@@ -62,8 +63,8 @@ Lemma core_tr_sepcon: forall x y, |-- core_tr x * core_tr y <--> core_tr (x * y)
 Proof.
   intros.
   apply solve_andp_intros.
-  + apply (@sepcon_boxp L _ _ (ct_mL L) sL Gamma _ _ _ _ core_tr_STransparent1).
-  + apply (@boxp_sepcon L _ _ (ct_mL L) sL Gamma _ _ _ _ core_tr_STransparent2).
+  + apply (@sepcon_boxp L _ _ sepconL Gamma core_tr_STransparent1).
+  + apply (@boxp_sepcon L _ _ sepconL Gamma core_tr_STransparent2).
 Qed.
 
 Instance core_tr_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) core_tr.

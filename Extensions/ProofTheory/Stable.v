@@ -28,12 +28,12 @@ Class ModalAbsorbStable (L: Language) {minL: MinimumLanguage L} {mL: ModalLangua
   boxp_absorb_stable: forall x, stable x -> |-- x --> boxp x
 }.
 
-Class SeparationStable (L: Language) {minL: MinimumLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) (stable: expr -> Prop) := {
+Class SeparationStable (L: Language) {minL: MinimumLanguage L} {sepconL: SepconLanguage L} {wandL: WandLanguage L} (Gamma: Provable L) (stable: expr -> Prop) := {
   sepcon_stable: forall x y, stable x -> stable y -> stable (x * y);
   wand_stable: forall x y, stable x -> stable y -> stable (x -* y)
 }.
 
-Class SeparationAbsorbStable (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} (Gamma: Provable L) (stable: expr -> Prop) := {
+Class SeparationAbsorbStable (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sepconL: SepconLanguage L} {wandL: WandLanguage L} (Gamma: Provable L) (stable: expr -> Prop) := {
   stable_andp_sepcon1: forall x y z, stable x -> |-- (x && y) * z <--> x && (y * z)
 }.
 

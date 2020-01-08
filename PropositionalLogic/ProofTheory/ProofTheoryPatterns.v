@@ -15,6 +15,31 @@ Local Open Scope logic_base.
 Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 
+Section PatternInstances0.
+
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {pL: PropositionalLanguage L}
+        {Gamma: Provable L}
+        {minAX: MinimumAxiomatization L Gamma}
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}.
+
+Lemma or_Comm: Commutativity L Gamma orp.
+Proof.
+  constructor.
+  intros.
+  rewrite orp_comm.
+  apply provable_impp_refl.
+Qed.
+
+Lemma orp_Mono: Monotonicity L Gamma orp.
+Proof.
+  constructor; intros.
+  apply orp_proper_impp; auto.
+Qed.
+
+End PatternInstances0.
+
 Section DerivableRulesFromPatterns.
 
 Context {L: Language}
@@ -32,16 +57,60 @@ Proof.
   apply solve_andp_intros; apply prodp_comm_impp.
 Qed.
 
+Section UnitTheorems.
+
+Context {e: expr}.
+
+Lemma left_unit {LU: LeftUnit L Gamma e prodp} : forall x, |-- prodp e x <--> x.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply left_unit1.
+  + apply left_unit2.
+Qed.
+
+Lemma right_unit {RU: RightUnit L Gamma e prodp} : forall x, |-- prodp x e <--> x.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply right_unit1.
+  + apply right_unit2.
+Qed.
+
+End UnitTheorems.
+
+Section DistrTheorems.
+
+Context {sump: expr -> expr -> expr}.
+
+Lemma prodp_sump_distr_l {LDistr: LeftDistr L Gamma prodp sump}: forall x y z,
+  |-- prodp x (sump y z) <--> sump (prodp x y) (prodp x z).
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply left_distr1.
+  + apply left_distr2.
+Qed.
+
+Lemma prodp_sump_distr_r {RDistr: RightDistr L Gamma prodp sump}: forall x y z,
+  |-- prodp (sump y z) x <--> sump (prodp y x) (prodp z x).
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply right_distr1.
+  + apply right_distr2.
+Qed.
+
+End DistrTheorems.
+
 Section AdjointTheorems.
 
 Context {funcp: expr -> expr -> expr}
         {Adj: Adjointness L Gamma prodp funcp}.
 
-Lemma prodp_orp_distr_l: forall x y z: expr,
-  |-- prodp (x || y) z <--> (prodp x z || prodp y z).
+Lemma Adjoint2RDistr: RightDistr L Gamma prodp orp.
 Proof.
-  intros.
-  apply solve_andp_intros.
+  constructor; intros.
   + apply adjoint.
     apply solve_orp_impp; apply adjoint.
     - apply orp_intros1.
@@ -53,19 +122,34 @@ Proof.
       apply orp_intros2.
 Qed.
 
+Lemma Adjoint2LDistr {Comm: Commutativity L Gamma prodp}:
+  LeftDistr L Gamma prodp orp.
+Proof.
+  apply @RightDistr2LeftDistr; auto.
+  + apply orp_Mono.
+  + apply Adjoint2RDistr.
+Qed.
+
+(* TODO: l/r wrong *)
+Lemma prodp_orp_distr_l: forall x y z: expr,
+  |-- prodp (x || y) z <--> (prodp x z || prodp y z).
+Proof.
+  intros.
+  apply (@prodp_sump_distr_r _ Adjoint2RDistr).
+Qed.
+
+(* TODO: l/r wrong *)
 Lemma prodp_orp_distr_r {Comm: Commutativity L Gamma prodp}: forall x y z: expr,
   |-- prodp x (y || z) <--> (prodp x y || prodp x z).
 Proof.
   intros.
-  rewrite prodp_comm.
-  rewrite prodp_orp_distr_l.
-  rewrite !(prodp_comm _ x).
-  apply provable_iffp_refl.
+  apply (@prodp_sump_distr_l _ Adjoint2LDistr).
 Qed.
 
 Lemma orp_funcp {Comm: Commutativity L Gamma prodp}: forall x y z: expr,
   |-- funcp (x || y) z <--> (funcp x z && funcp y z).
 Proof.
+  pose proof Adjoint2Mono as Mono.
   intros.
   apply solve_andp_intros.
   + apply solve_impp_andp.
@@ -82,6 +166,7 @@ Proof.
     - apply andp_elim2.
 Qed.
 
+(* TODO: l/r wrong *)
 Lemma funcp_andp_distr_r: forall x y z: expr,
   |-- funcp x (y && z)  <--> (funcp x y && funcp x z).
 Proof.
@@ -156,6 +241,57 @@ Proof.
       intros.
       eapply solve_andp_elim2; exact H.
     - eapply solve_andp_elim2; exact H0.
+Qed.
+
+Context {e: expr}.
+
+Lemma fold_left_prodp_unfold {LU: LeftUnit L Gamma e prodp}: forall xs,
+  |-- fold_left prodp xs e <-->
+      match xs with
+      | nil => e
+      | x :: xs0 => fold_left prodp xs0 x
+      end.
+Proof.
+  intros.
+  destruct xs.
+  + simpl.
+    apply provable_iffp_refl.
+  + simpl.
+    apply fold_left_iffp.
+    - induction xs.
+      * constructor.
+      * constructor; auto.
+        apply provable_iffp_refl.
+    - apply left_unit.
+Qed.
+
+Lemma fold_right_prodp_unfold {RU: RightUnit L Gamma e prodp}: forall xs,
+  |-- fold_right prodp e xs <-->
+      (fix f xs :=
+         match xs with
+         | nil => e
+         | x :: nil => x
+         | x :: xs0 => prodp x (f xs0)
+         end) xs.
+Proof.
+  intros.
+  set (f := (fix f xs :=
+             match xs with
+             | nil => e
+             | x :: nil => x
+             | x :: xs0 => prodp x (f xs0)
+             end)).
+  destruct xs.
+  + apply provable_iffp_refl.
+  + simpl fold_right.
+    revert e0; induction xs; intros.
+    - simpl.
+      rewrite right_unit.
+      apply provable_iffp_refl.
+    - change (f (e0 :: a :: xs)) with (prodp e0 (f (a :: xs))).
+      apply prodp_iffp.
+      * apply provable_iffp_refl.
+      * apply IHxs.
 Qed.
 
 End MonoTheorems.
@@ -393,6 +529,38 @@ Proof.
   auto.
 Qed.
 
+Lemma multi_and_unfold_right_assoc:  forall (xs: list expr),
+  |-- multi_and xs <-->
+      (fix f xs :=
+         match xs with
+         | nil => TT
+         | x :: nil => x
+         | x :: xs0 => x && (f xs0)
+         end) xs.
+Proof.
+  intros.
+  rewrite multi_and_spec.
+  pose proof @fold_right_prodp_unfold _ _ _ _ _ _ andp andp_Mono TT andp_RU.
+  auto.
+Qed.
+
+Lemma multi_and_unfold_left_assoc:  forall (xs: list expr),
+  |-- multi_and xs <-->
+      match xs with
+      | nil => TT
+      | x :: xs0 =>
+        (fix f xs x :=
+           match xs with
+           | nil => x
+           | x0 :: xs0 => f xs0 (x && x0)
+           end) xs0 x
+      end.
+Proof.
+  intros.
+  pose proof @fold_left_prodp_unfold _ _ _ _ _ _ andp andp_Mono TT andp_LU.
+  apply H.
+Qed.
+
 Lemma multi_and_multi_imp: forall (xs: list expr) (y: expr),
   |-- (multi_and xs --> y) <--> (multi_imp xs y).
 Proof.
@@ -409,3 +577,4 @@ Proof.
 Qed.
 
 End DerivableRules.
+

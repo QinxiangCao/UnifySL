@@ -31,8 +31,7 @@ Section ContextProperties.
 
 Context {L: Language}
         {minL: MinimumLanguage L}
-        {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}.
 
@@ -45,7 +44,9 @@ Definition context_sepcon_included_l (Phi2 Psi: context): context -> Prop :=
 Definition context_sepcon_included_r (Phi1 Psi: context): context -> Prop :=
   fun Phi2 => Included _ (context_sepcon Phi1 Phi2) Psi.
 
-Context {SC: NormalSequentCalculus L GammaP GammaD}
+Context {pL: PropositionalLanguage L}
+        {wandL: WandLanguage L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
         {fwSC: FiniteWitnessedSequentCalculus L GammaD}
         {minSC: MinimumSequentCalculus L GammaD}
@@ -53,7 +54,10 @@ Context {SC: NormalSequentCalculus L GammaP GammaD}
         {AX: NormalAxiomatization L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
-        {sAX: SeparationLogic L GammaP}.
+        {sepconAX: SepconAxiomatization L GammaP}
+        {wandAX: WandAxiomatization L GammaP}
+        {sepcon_orp_AX: SepconOrAxiomatization L GammaP}
+        {sepcon_falsep_AX: SepconFalseAxiomatization L GammaP}.
 
 Lemma context_sepcon_derivable:
   forall (Phi Psi: context) z,
@@ -178,7 +182,7 @@ Proof.
     - apply deduction_andp_intros; auto.
   + apply H in H2.
     apply derivable_assum in H2.
-    rewrite sepcon_orp_distr_l in H2.
+    rewrite sepcon_orp_distr_r in H2.
     rewrite (andp_elim1 y1 y2) in H2 at 1.
     rewrite (andp_elim2 y1 y2) in H2 at 1.
     auto.
@@ -218,7 +222,7 @@ Proof.
     destruct H1 as [y [z [? [? ?]]]].
     subst x.
     apply H.
-    rewrite <- sepcon_comm.
+    rewrite <- sepcon_comm_impp.
     apply derivable_assum.
     apply H0.
     exists z, y; split; [| split]; auto.
@@ -226,7 +230,7 @@ Proof.
     destruct H1 as [y [z [? [? ?]]]].
     subst x.
     apply H.
-    rewrite <- sepcon_comm.
+    rewrite <- sepcon_comm_impp.
     apply derivable_assum.
     apply H0.
     exists z, y; split; [| split]; auto.

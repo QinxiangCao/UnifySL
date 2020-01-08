@@ -16,6 +16,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => []
 | FROM_falsep_impp_TO_truep => []
 | FROM_impp_TO_multi_imp => []
+| FROM_sepcon_TO_iter_sepcon => []
 | FROM_empty_set_TO_empty_context => [FROM_ensemble_expr_TO_context]
 end.
 
@@ -48,6 +49,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => negp
 | FROM_falsep_impp_TO_truep => truep
 | FROM_impp_TO_multi_imp => multi_imp
+| FROM_sepcon_TO_iter_sepcon => iter_sepcon
 | FROM_empty_set_TO_empty_context => empty_context
 end.
 
@@ -83,7 +85,8 @@ match c with
 | sepcon
 | wand
 | emp
-| multi_imp => [expr]
+| multi_imp
+| iter_sepcon => [expr]
 | empty_context => [context]
 end.
 
@@ -104,6 +107,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => [falsep; impp]
 | FROM_falsep_impp_TO_truep => [falsep; impp]
 | FROM_impp_TO_multi_imp => [impp]
+| FROM_sepcon_TO_iter_sepcon => [sepcon; emp]
 | FROM_empty_set_TO_empty_context => []
 end.
 
@@ -135,6 +139,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => None
 | FROM_falsep_impp_TO_truep => None
 | FROM_impp_TO_multi_imp => None
+| FROM_sepcon_TO_iter_sepcon => Some (GEN_iter_sepcon_FROM_sepcon)
 | FROM_empty_set_TO_empty_context => None
 end.
 
@@ -168,13 +173,13 @@ Definition dis_diag: list (list any_class * any_class * option how_instance) :=
     (map Some ConfigDenot.S.D_instance_transitions).
 
 (* depended instances of primary proof rules *)
-Definition DIOpR (pr: primary_rule): list any_class :=
+Definition DIOpR (pr: primary_rule): list rule_class :=
   map snd
     (filter
        (fun p => Nat.eqb pr (fst p))
        (combine
-          (fst ConfigDenot.S.D_primary_rules_dependency_via_ins)
-          (snd ConfigDenot.S.D_primary_rules_dependency_via_ins))).
+          (snd ConfigDenot.S.D_primary_rule_dependency_via_ins)
+          (fst ConfigDenot.S.D_primary_rule_dependency_via_ins))).
 
 (* depended instances of derived proof rules *)
 Definition DIOdR (dr: derived_rule): list any_class :=
@@ -369,36 +374,46 @@ Let primitive_classes :=
 Let refl_classes :=
   map RC (refl_classes_c ++ refl_classes_j).
 
-Let derived_classes :=
+Let how_derive_classes :=
   valid_sublist
     (AllClassList.topo_sort
        (map (fun ac => (nil, ac, None)) (primitive_classes ++ refl_classes) ++
         dis_diag)).
 
-Let all_classes :=
-  primitive_classes ++
-  refl_classes ++
+Let derived_classes :=
   NatList.map_with_hint
     S.D_instance_transitions
     S.D_instance_transition_results
-    derived_classes.
+    how_derive_classes.
+  
+Let all_classes :=
+  primitive_classes ++
+  refl_classes ++
+  derived_classes.
 
 Let primary_rules :=
   filter
-    (fun pr => AllClassList.test_sublist (DIOpR pr) primitive_classes)
+    (fun pr => existsb (fun rc => RuleClassList.test_element rc primitive_classes_r) (DIOpR pr))
     ConfigDenot.S.D_primary_rules.
 
-Let derived_rules :=
+Let derived_derived_rules :=
   filter
     (fun dr => AllClassList.test_sublist (DIOdR dr) all_classes)
     ConfigDenot.S.D_derived_rules.
+
+Let derived_primary_rules :=
+  ConfigLang.NatList.set_minus
+    (filter
+      (fun pr => existsb (fun rc => AllClassList.test_element rc derived_classes) (map RC (DIOpR pr)))
+      ConfigDenot.S.D_primary_rules)
+    primary_rules.
 
 Let derived_rules_as_instance :=
   filter
     (fun dr => existsb
                  (fun dr0 => Nat.eqb dr dr0)
                  ConfigDenot.S.D_derived_rules_as_instance)
-    derived_rules.
+    derived_derived_rules.
 (* TODO resume this checking
 Let needed_connective :=
   ConnectiveList.shrink (concat (map DCOP optional_rules)).
@@ -427,9 +442,10 @@ Definition result: Output.output :=
     derived_js
     primitive_classes
     refl_classes
-    derived_classes
+    how_derive_classes
     primary_rules
-    derived_rules
+    derived_primary_rules
+    derived_derived_rules
     derived_rules_as_instance
     .
 
@@ -462,7 +478,7 @@ Definition primitive_rule_classes :=
   [ provability_OF_impp
   ; provability_OF_propositional_connectives
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule
   ; provability_OF_emp_rule
   ].
 
@@ -501,7 +517,8 @@ Definition primitive_rule_classes :=
   [ provability_OF_impp
   ; provability_OF_propositional_connectives
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule
+  ; provability_OF_wand_rule
   ; provability_OF_emp_rule
   ].
 
@@ -527,6 +544,7 @@ Definition how_connectives :=
   ;FROM_falsep_impp_TO_negp
   ;FROM_falsep_impp_TO_truep
   ;FROM_impp_TO_multi_imp
+  ;FROM_sepcon_TO_iter_sepcon
   ;FROM_empty_set_TO_empty_context
   ].
 
@@ -542,7 +560,8 @@ Definition primitive_rule_classes :=
   [ provability_OF_impp
   ; provability_OF_propositional_connectives
   ; provability_OF_classical_logic
-  ; provability_OF_separation_logic
+  ; provability_OF_sepcon_rule_AS_weak_iffp
+  ; provability_OF_sepcon_rule_AS_mono
   ; provability_OF_emp_rule
   ].
 

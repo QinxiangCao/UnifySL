@@ -13,6 +13,8 @@ Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 Require Import SeparationLogic.ProofTheory.RewriteClass.
+Require Import SeparationLogic.ProofTheory.IterSepcon.
+Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.
 
 Require Import Logic.LogicGenerator.Utils.
 Require Import Logic.LogicGenerator.ConfigDenot.
@@ -25,10 +27,13 @@ Section Generate.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL : SeparationLanguage L}
-        {empL: SeparationEmpLanguage L}
+        {sepconL : SepconLanguage L}
+        {wandL : WandLanguage L}
+        {empL: EmpLanguage L}
+        {iter_sepcon_L: IterSepconLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
+        {iter_sepcon_Def: NormalIterSepcon L}
         {AX: NormalAxiomatization L GammaP GammaD}
         {SC : NormalSequentCalculus L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
@@ -36,8 +41,15 @@ Context {L: Language}
         {cpAX: ClassicalPropositionalLogic L GammaP}
         {dmpAX: DeMorganPropositionalLogic L GammaP}
         {gdpAX: GodelDummettPropositionalLogic L GammaP}
-        {sAX: SeparationLogic L GammaP}
-        {empAX: EmpSeparationLogic L GammaP}
+        {sepconAX: SepconAxiomatization L GammaP}
+        {wandAX: WandAxiomatization L GammaP}
+        {empAX: EmpAxiomatization L GammaP}
+        {sepcon_orp_AX: SepconOrAxiomatization L GammaP}
+        {sepcon_falsep_AX: SepconFalseAxiomatization L GammaP}
+        {sepconAX_weak: SepconAxiomatization_weak L GammaP}
+        {sepconAX_weak_iffp: SepconAxiomatization_weak_iffp L GammaP}
+        {sepcon_mono_AX: SepconMonoAxiomatization L GammaP}
+        {empAX_iffp: EmpAxiomatization_iffp L GammaP}
         {extAX: ExtSeparationLogic L GammaP}
         {nseAX: NonsplitEmpSeparationLogic L GammaP}
         {deAX: DupEmpSeparationLogic L GammaP}
@@ -120,17 +132,25 @@ Definition aux_refl_instances_for_derivation: list Name :=
 Definition aux_derived_instances: list Name :=
   map_with_hint
     (ConfigDenot.S.D_instance_transitions, ConfigDenot.S.instance_transitions)
-    (ConfigLang.Output.derived_classes foo).
+    (ConfigLang.Output.how_derive_classes foo).
 
 Definition primary_rules: list Name :=
   map_with_hint
     (ConfigDenot.S.D_primary_rules, ConfigDenot.S.primary_rules)
     (ConfigLang.Output.primary_rules foo).
 
-Definition derived_rules: list Name :=
+Let derived_rules': list Name :=
+  (map_with_hint
+    (ConfigDenot.S.D_primary_rules, ConfigDenot.S.primary_rules)
+    (ConfigLang.Output.derived_primary_rules foo)) ++
   map_with_hint
     (ConfigDenot.S.D_derived_rules, ConfigDenot.S.derived_rules)
-    (ConfigLang.Output.derived_rules foo).
+    (ConfigLang.Output.derived_derived_rules foo).
+
+Definition derived_rules : list Name :=
+  ltac:(let res0 := eval unfold derived_rules' in derived_rules' in
+        let res1 := eval unfold app at 1 in res0 in
+            exact res1).
 
 Definition derived_rules_as_instance :=
   map_with_hint
@@ -177,6 +197,7 @@ Set Printing Width 1000.
 Ltac two_stage_print :=
   idtac "Require Import Coq.Lists.List.";
   idtac "Require Import Coq.Sets.Ensembles.";
+  idtac "Import ListNotations.";
 
   newline;
 
@@ -228,6 +249,8 @@ Ltac two_stage_print :=
   idtac "Require Import Logic.SeparationLogic.Syntax.";
   idtac "Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.";
   idtac "Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.";
+  idtac "Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.";
+  idtac "Require Import SeparationLogic.ProofTheory.IterSepcon.";
 
   newline;
 
@@ -258,9 +281,6 @@ Ltac two_stage_print :=
 
   
   idtac.
-
-
-
   
 Goal False.
   two_stage_print.

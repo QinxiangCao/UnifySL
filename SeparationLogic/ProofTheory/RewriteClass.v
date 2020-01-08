@@ -24,12 +24,12 @@ Section RewriteClass.
 
 Context {L: Language}
         {minL: MinimumLanguage L}
-        {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {Gamma: Provable L}
         {minAX: MinimumAxiomatization L Gamma}
-        {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma}.
+        {sepconAX: SepconAxiomatization L Gamma}
+        {wandAX: WandAxiomatization L Gamma}.
 
 Instance sepcon_proper_impp: Proper ((fun x y => |-- impp x y) ==> (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) sepcon.
 Proof.
@@ -45,6 +45,9 @@ Proof.
   unfold Basics.flip in H.
   apply wand_mono; auto.
 Qed.
+
+Context {pL: PropositionalLanguage L}
+        {ipAX: IntuitionisticPropositionalLogic L Gamma}.
 
 Instance sepcon_proper_iffp: Proper ((fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y)) sepcon.
 Proof.

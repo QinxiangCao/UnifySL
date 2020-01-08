@@ -16,6 +16,7 @@ Inductive connective :=
 | wand
 | emp
 | multi_imp
+| iter_sepcon
 | empty_context.
 
 Inductive judgement :=
@@ -44,6 +45,7 @@ Inductive how_connective :=
 | FROM_falsep_impp_TO_negp
 | FROM_falsep_impp_TO_truep
 | FROM_impp_TO_multi_imp
+| FROM_sepcon_TO_iter_sepcon
 | FROM_empty_set_TO_empty_context.
 
 Definition primitive_connectives := map primitive_connective.
@@ -76,8 +78,15 @@ Inductive rule_class :=
 | provability_OF_de_morgan
 | provability_OF_godel_dummett
 | provability_OF_classical_logic
-| provability_OF_separation_logic
+| provability_OF_sepcon_rule
+| provability_OF_wand_rule
 | provability_OF_emp_rule
+| provability_OF_sepcon_orp_rule
+| provability_OF_sepcon_falsep_rule
+| provability_OF_sepcon_rule_AS_weak
+| provability_OF_sepcon_rule_AS_weak_iffp
+| provability_OF_sepcon_rule_AS_mono
+| provability_OF_emp_rule_AS_iffp
 | provability_OF_garbage_collected_sl
 | derivitive_OF_basic_setting
 | derivitive_OF_finite_derivation
@@ -86,6 +95,7 @@ Inductive rule_class :=
 | derivitive_OF_de_morgan
 | derivitive_OF_godel_dummett
 | derivitive_OF_classical_logic
+| GEN_iter_sepcon_FROM_sepcon
 | GEN_derivable_FROM_provable
 | GEN_provable_FROM_derivable
 .
@@ -109,8 +119,10 @@ Inductive type_class :=
 Inductive connective_class :=
 | MinimumLanguage
 | PropositionalLanguage
-| SeparationLanguage
-| EmpSeparationLanguage
+| SepconLanguage
+| WandLanguage
+| EmpLanguage
+| IterSepconLanguage
 .
 
 Inductive judgement_class :=
@@ -146,9 +158,10 @@ Record output: Type := {
   derived_judgements: list how_judgement;
   primitive_classes: list any_class;
   refl_classes_for_derivation: list any_class;
-  derived_classes: list how_instance;
+  how_derive_classes: list how_instance;
   primary_rules: list primary_rule;
-  derived_rules: list derived_rule;
+  derived_primary_rules: list primary_rule;
+  derived_derived_rules: list derived_rule;
   derived_rules_as_instance: list derived_rule
 }.
 End Output.
@@ -203,14 +216,17 @@ Definition set_minus (l1 l2: list t): list t :=
 Definition set_minus1 (l: list t) (x: t): list t :=
   filter (fun x0 => negb (eqb x0 x)) l.
 
+Definition test_element (x: t) (l: list t): bool :=
+  existsb (eqb x) l.
+
 Fixpoint test_no_dup (l: list t): bool :=
   match l with
   | nil => true
-  | x :: l0 => negb (existsb (eqb x) l0) && test_no_dup l0
+  | x :: l0 => negb (test_element x l0) && test_no_dup l0
   end.
 
 Definition test_sublist (l1 l2: list t): bool :=
-  forallb (fun x => existsb (eqb x) l2) l1.
+  forallb (fun x => test_element x l2) l1.
 
 Fixpoint inv_with_hint {A: Type} (f: A -> t) (hint: list A) (x: t): option A :=
   match hint with
@@ -337,6 +353,7 @@ match c1, c2 with
 | wand, wand
 | emp, emp
 | multi_imp, multi_imp
+| iter_sepcon, iter_sepcon
 | empty_context, empty_context => true
 | _, _ => false
 end.
@@ -403,8 +420,10 @@ Definition eqb (cc1 cc2: connective_class) :=
 match cc1, cc2 with
 | MinimumLanguage, MinimumLanguage => true
 | PropositionalLanguage, PropositionalLanguage => true
-| SeparationLanguage, SeparationLanguage => true
-| EmpSeparationLanguage, EmpSeparationLanguage => true
+| SepconLanguage, SepconLanguage => true
+| WandLanguage, WandLanguage => true
+| EmpLanguage, EmpLanguage => true
+| IterSepconLanguage, IterSepconLanguage => true
 | _, _ => false
 end.
 
@@ -452,8 +471,15 @@ match rc1, rc2 with
 | provability_OF_de_morgan, provability_OF_de_morgan => true
 | provability_OF_godel_dummett, provability_OF_godel_dummett => true
 | provability_OF_classical_logic, provability_OF_classical_logic => true
-| provability_OF_separation_logic, provability_OF_separation_logic => true
+| provability_OF_sepcon_rule, provability_OF_sepcon_rule => true
+| provability_OF_wand_rule, provability_OF_wand_rule => true
 | provability_OF_emp_rule, provability_OF_emp_rule => true
+| provability_OF_sepcon_orp_rule, provability_OF_sepcon_orp_rule => true
+| provability_OF_sepcon_falsep_rule, provability_OF_sepcon_falsep_rule => true
+| provability_OF_sepcon_rule_AS_weak, provability_OF_sepcon_rule_AS_weak => true
+| provability_OF_sepcon_rule_AS_weak_iffp, provability_OF_sepcon_rule_AS_weak_iffp => true
+| provability_OF_sepcon_rule_AS_mono, provability_OF_sepcon_rule_AS_mono => true
+| provability_OF_emp_rule_AS_iffp, provability_OF_emp_rule_AS_iffp => true
 | provability_OF_garbage_collected_sl, provability_OF_garbage_collected_sl => true
 | derivitive_OF_basic_setting, derivitive_OF_basic_setting => true
 | derivitive_OF_finite_derivation, derivitive_OF_finite_derivation => true
@@ -462,6 +488,7 @@ match rc1, rc2 with
 | derivitive_OF_de_morgan, derivitive_OF_de_morgan => true
 | derivitive_OF_godel_dummett, derivitive_OF_godel_dummett => true
 | derivitive_OF_classical_logic, derivitive_OF_classical_logic => true
+| GEN_iter_sepcon_FROM_sepcon, GEN_iter_sepcon_FROM_sepcon => true
 | GEN_derivable_FROM_provable, GEN_derivable_FROM_provable => true
 | GEN_provable_FROM_derivable, GEN_provable_FROM_derivable => true
 | _, _ => false

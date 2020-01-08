@@ -34,7 +34,15 @@ Context {P: ProgrammingLanguage}
         {BSS: BigStepSemantics P model}
         {iBSS: ImpBigStepSemantics P model BSS}.
 
-Context {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {kminSM: KripkeMinimumSemantics L MD tt SM} {kpSM: KripkePropositionalSemantics L MD tt SM}.
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {pL: PropositionalLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        {SM: Semantics L MD}
+        {kiSM: KripkeIntuitionisticSemantics L MD tt SM}
+        {kminSM: KripkeMinimumSemantics L MD tt SM}
+        {kpSM: KripkePropositionalSemantics L MD tt SM}.
 
 Lemma hoare_seq_partial_sound: forall c1 c2 P1 P2 P3,
   triple_partial_valid P1 c1 P2 ->
@@ -153,8 +161,15 @@ Context {P: ProgrammingLanguage}
         {BSS: BigStepSemantics P model}
         {iBSS: ImpBigStepSemantics P model BSS}.
 
-Context {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {SL: SeparationLanguage L} {SM: Semantics L MD} {kiSM: KripkeIntuitionisticSemantics L MD tt SM} {kminSM: KripkeMinimumSemantics L MD tt SM} {kpSM: KripkePropositionalSemantics L MD tt SM}.
-
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {pL: PropositionalLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        {SM: Semantics L MD}
+        {kiSM: KripkeIntuitionisticSemantics L MD tt SM}
+        {kminSM: KripkeMinimumSemantics L MD tt SM}
+        {kpSM: KripkePropositionalSemantics L MD tt SM}.
 
 Lemma hoare_seq_total_sound: forall c1 c2 P1 P2 P3,
   triple_total_valid P1 c1 P2 ->

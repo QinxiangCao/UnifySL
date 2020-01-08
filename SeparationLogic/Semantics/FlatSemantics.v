@@ -17,24 +17,31 @@ Import SeparationLogicNotation.
 Import KripkeModelFamilyNotation.
 Import KripkeModelNotation_Intuitionistic.
 
-Class SeparatingSemantics
+Class SepconSemantics
       (L: Language)
-      {sL: SeparationLanguage L}
+      {sepconL: SepconLanguage L}
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       (SM: Semantics L MD): Type :=
-{
-  denote_sepcon: forall x y, Same_set _ (Kdenotation M (x * y)) (WeakSemantics.sepcon (Kdenotation M x) (Kdenotation M y));
-  denote_wand: forall x y, Same_set _ (Kdenotation M (x -* y)) (WeakSemantics.wand (Kdenotation M x) (Kdenotation M y))
-}.
+  denote_sepcon: forall x y, Same_set _ (Kdenotation M (x * y)) (WeakSemantics.sepcon (Kdenotation M x) (Kdenotation M y)).
+
+Class WandSemantics
+      (L: Language)
+      {wandL: WandLanguage L}
+      (MD: Model)
+      {kMD: KripkeModel MD}
+      (M: Kmodel)
+      {R: Relation (Kworlds M)}
+      {J: Join (Kworlds M)}
+      (SM: Semantics L MD): Type :=
+  denote_wand: forall x y, Same_set _ (Kdenotation M (x -* y)) (WeakSemantics.wand (Kdenotation M x) (Kdenotation M y)).
 
 Class EmpSemantics
       (L: Language)
-      {sL: SeparationLanguage L}
-      {s'L: SeparationEmpLanguage L}
+      {empL: EmpLanguage L}
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
@@ -45,14 +52,14 @@ Class EmpSemantics
 
 Lemma sat_sepcon
       {L: Language}
-      {sL: SeparationLanguage L}
+      {sepconL: SepconLanguage L}
       {MD: Model}
       {kMD: KripkeModel MD}
       {M: Kmodel}
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       {SM: Semantics L MD}
-      {fsSM: SeparatingSemantics L MD M SM}:
+      {fsepconSM: SepconSemantics L MD M SM}:
   forall m x y,
     KRIPKE: M , m |= x * y <->
     exists m1 m2, join m1 m2 m /\
@@ -67,14 +74,14 @@ Qed.
 
 Lemma sat_wand
       {L: Language}
-      {sL: SeparationLanguage L}
+      {wandL: WandLanguage L}
       {MD: Model}
       {kMD: KripkeModel MD}
       {M: Kmodel}
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       {SM: Semantics L MD}
-      {fsSM: SeparatingSemantics L MD M SM}:
+      {fwandSM: WandSemantics L MD M SM}:
   forall m x y,
     KRIPKE: M , m |= x -* y <->
     forall m1 m2, join m m1 m2 ->
@@ -89,15 +96,14 @@ Qed.
 
 Lemma sat_emp
       {L: Language}
-      {sL: SeparationLanguage L}
-      {s'L: SeparationEmpLanguage L}
+      {empL: EmpLanguage L}
       {MD: Model}
       {kMD: KripkeModel MD}
       {M: Kmodel}
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
       {SM: Semantics L MD}
-      {feSM: EmpSemantics L MD M SM}:
+      {fempSM: EmpSemantics L MD M SM}:
   forall (m: Kworlds M), KRIPKE: M, m |= emp <-> increasing m.
 Proof.
   intros; simpl.

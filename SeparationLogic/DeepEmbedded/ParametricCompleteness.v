@@ -60,13 +60,13 @@ Context {Sigma: SeparationEmpLanguage.PropositionalVariables}
         {CV: Countable SeparationEmpLanguage.Var}
         (SLP: SL_Parameter).
 
-Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sL SeparationEmpLanguage.s'L.
+Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sepconL SeparationEmpLanguage.wandL SeparationEmpLanguage.empL.
 
-Existing Instances ParametricSeparationLogic.GP ParametricSeparationLogic.GD ParametricSeparationLogic.AX ParametricSeparationLogic.minAX  ParametricSeparationLogic.ipAX ParametricSeparationLogic.sAX ParametricSeparationLogic.EmpsAX ParametricSeparationLogic.ParAX.
+Existing Instances ParametricSeparationLogic.GP ParametricSeparationLogic.GD ParametricSeparationLogic.AX ParametricSeparationLogic.minAX  ParametricSeparationLogic.ipAX ParametricSeparationLogic.sepconAX ParametricSeparationLogic.wandAX ParametricSeparationLogic.empAX ParametricSeparationLogic.sepcon_orp_AX ParametricSeparationLogic.sepcon_falsep_AX ParametricSeparationLogic.ParAX.
 
 Existing Instances Axiomatization2SequentCalculus_SC Axiomatization2SequentCalculus_bSC Axiomatization2SequentCalculus_fwSC Axiomatization2SequentCalculus_minSC Axiomatization2SequentCalculus_ipSC Axiomatization2SequentCalculus_cpSC.
 
-Existing Instances FlatSemantics.MD FlatSemantics.kMD FlatSemantics.R FlatSemantics.J FlatSemantics.SM FlatSemantics.kminSM FlatSemantics.kpSM FlatSemantics.fsSM FlatSemantics.feSM.
+Existing Instances FlatSemantics.MD FlatSemantics.kMD FlatSemantics.R FlatSemantics.J FlatSemantics.SM FlatSemantics.kminSM FlatSemantics.kpSM FlatSemantics.fsepconSM FlatSemantics.fwandSM FlatSemantics.fempSM.
 
 Definition cP : context -> Prop := Intersection _ (Intersection _ derivable_closed orp_witnessed) consistent.
 

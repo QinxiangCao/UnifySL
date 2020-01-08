@@ -96,14 +96,17 @@ Proof.
   + intros; apply Same_set_refl.
 Qed.
 
-Instance fsSM (M: Kmodel): FlatSemantics.SeparatingSemantics L MD M SM.
+Instance fsepconSM (M: Kmodel): FlatSemantics.SepconSemantics L MD M SM.
 Proof.
-  apply FlatSemantics.Build_SeparatingSemantics.
-  + intros; apply Same_set_refl.
-  + intros; apply Same_set_refl.
+  hnf; intros; apply Same_set_refl.
 Qed.
 
-Instance feSM (M: Kmodel): FlatSemantics.EmpSemantics L MD M SM.
+Instance fwandSM (M: Kmodel): FlatSemantics.WandSemantics L MD M SM.
+Proof.
+  hnf; intros; apply Same_set_refl.
+Qed.
+
+Instance fempSM (M: Kmodel): FlatSemantics.EmpSemantics L MD M SM.
 Proof.
   unfold FlatSemantics.EmpSemantics.
   apply Same_set_refl.

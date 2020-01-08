@@ -27,29 +27,68 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Definition iter_sepcon {L: Language} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (xs: list expr) : expr := fold_left sepcon xs emp.
-
-Definition iter_wand {L: Language} {sL: SeparationLanguage L} (xs: list expr) (y: expr) : expr := fold_right wand y xs.
-
 Section IterSepconRules.
 
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
-        {s'L: SeparationEmpLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        {empL: EmpLanguage L}
+        {iter_sepcon_L: IterSepconLanguage L}
+        {iter_wand_L: IterWandLanguage L}
+        {iter_sepcon_Def: NormalIterSepcon L}
+        {iter_wand_Def: NormalIterWand L}
         {Gamma: Provable L}
         {minAX: MinimumAxiomatization L Gamma}
         {ipAX: IntuitionisticPropositionalLogic L Gamma}
-        {sAX: SeparationLogic L Gamma}
-        {EmpsAX: EmpSeparationLogic L Gamma}.
+        {sepconAX: SepconAxiomatization L Gamma}
+        {wandAX: WandAxiomatization L Gamma}
+        {empAX: EmpAxiomatization L Gamma}.
 
 Lemma sepcon_iter_sepcon:
   forall xs ys,
     |-- iter_sepcon xs * iter_sepcon ys <--> iter_sepcon (xs ++ ys).
 Proof.
   intros.
+  rewrite !iter_sepcon_def.
   apply (@assoc_prodp_fold_left_equiv _ _ _ _ _ _ _ _ sepcon_Mono sepcon_Assoc sepcon_LU sepcon_RU).
+Qed.
+
+Lemma sepcon_iter_unfold_right_assoc:
+  forall xs,
+    |-- iter_sepcon xs <-->
+        (fix f xs :=
+           match xs with
+           | nil => emp
+           | cons x nil => x
+           | cons x xs0 => x * f xs0
+           end) xs.
+Proof.
+  intros.
+  rewrite iter_sepcon_def.
+  pose proof @assoc_fold_left_fold_right_equiv _ _ _ _ _ _ sepcon emp sepcon_Mono sepcon_Assoc sepcon_LU sepcon_RU.
+  rewrite H.
+  pose proof @fold_right_prodp_unfold _ _ _ _ _ _ sepcon sepcon_Mono emp sepcon_RU.
+  apply H0.
+Qed.
+
+Lemma sepcon_iter_unfold_left_assoc:
+  forall xs,
+    |-- iter_sepcon xs <-->
+        match xs with
+        | nil => emp
+        | x :: xs0 => (fix f xs x :=
+                         match xs with
+                         | nil => x
+                         | x0 :: xs0 => f xs0 (x * x0)
+                         end) xs0 x
+        end.
+Proof.
+  intros.
+  rewrite iter_sepcon_def.
+  pose proof @fold_left_prodp_unfold _ _ _ _ _ _ sepcon sepcon_Mono emp sepcon_LU.
+  apply H.
 Qed.
 
 (* TODO: Should this really be an instance? *)
@@ -57,8 +96,8 @@ Instance proper_iter_sepcon_impp:
   Proper (Forall2 (fun x y => |-- impp x y) ==> (fun x y => |-- impp x y)) iter_sepcon.
 Proof.
   intros.
-  unfold iter_sepcon.
   hnf; intros.
+  rewrite !iter_sepcon_def.
   exact (proper_fold_left' sepcon _ _ H emp emp (provable_impp_refl _)).
 Qed.
 
@@ -67,8 +106,8 @@ Instance proper_iter_sepcon_iffp:
   Proper (Forall2 (fun x y => |-- iffp x y) ==> (fun x y => |-- iffp x y)) iter_sepcon.
 Proof.
   intros.
-  unfold iter_sepcon.
   hnf; intros.
+  rewrite !iter_sepcon_def.
   exact (proper_fold_left' sepcon _ _ H emp emp (provable_iffp_refl _)).
 Qed.
 
@@ -77,6 +116,7 @@ Instance proper_iter_sepcon_Permutation: Proper (@Permutation expr ==> (fun x y 
 Proof.
   intros.
   hnf; intros.
+  rewrite !iter_sepcon_def.
   apply (@assoc_fold_left_Permutation _ _ _ _ _ _ _ sepcon_Mono sepcon_Comm sepcon_Assoc); auto.
 Qed.
 

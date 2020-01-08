@@ -31,7 +31,8 @@ Section Lindenbaum_Flat.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
         {SC: NormalSequentCalculus L GammaP GammaD}
@@ -42,7 +43,10 @@ Context {L: Language}
         {AX: NormalAxiomatization L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
         {ipAX: IntuitionisticPropositionalLogic L GammaP}
-        {sAX: SeparationLogic L GammaP}.
+        {sepconAX: SepconAxiomatization L GammaP}
+        {wandAX: WandAxiomatization L GammaP}
+        {sepcon_orp_AX: SepconOrAxiomatization L GammaP}
+        {sepcon_falsep_AX: SepconFalseAxiomatization L GammaP}.
 
 Lemma Lindenbaum_preserves_context_sepcon_included_l: forall Phi2 Psi,
   Lindenbaum_preserves (context_sepcon_included_l Phi2 Psi).

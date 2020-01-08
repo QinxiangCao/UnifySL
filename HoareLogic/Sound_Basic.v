@@ -29,7 +29,17 @@ Context {P: ProgrammingLanguage}
         {MD: Model}
         {BSS: BigStepSemantics P model}.
 
-Context {L: Language} {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {SM: Semantics L MD} {R: Relation model} {po_R: PreOrder Krelation} {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {kminSM: KripkeMinimumSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM} {kpSM: KripkePropositionalSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
+Context {L: Language}
+        {minL: MinimumLanguage L}
+        {pL: PropositionalLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
+        {SM: Semantics L MD}
+        {R: Relation model}
+        {po_R: PreOrder Krelation}
+        {kiSM: KripkeIntuitionisticSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}
+        {kminSM: KripkeMinimumSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}
+        {kpSM: KripkePropositionalSemantics L MD (tt: @Kmodel MD (unit_kMD _)) SM}.
 
 Lemma hoare_consequence_partial_sound: forall c P1 P2 Q1 Q2,
   valid (AllModel _) (P2 --> P1) ->

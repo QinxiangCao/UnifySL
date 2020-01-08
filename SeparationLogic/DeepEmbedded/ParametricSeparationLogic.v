@@ -11,6 +11,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.GodelDummett.
 Require Import Logic.PropositionalLogic.ProofTheory.Classical.
 Require Import Logic.SeparationLogic.Syntax.
 Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.
+Require Import Logic.SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.
 Require Import Logic.SeparationLogic.DeepEmbedded.Parameter.
 Require Logic.SeparationLogic.DeepEmbedded.SeparationEmpLanguage.
 
@@ -19,7 +20,7 @@ Local Open Scope syntax.
 Import PropositionalLanguageNotation.
 Import SeparationLogicNotation.
 
-Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sL: SeparationLanguage L} {s'L: SeparationEmpLanguage L} (GammaP: Provable L) {minAX: MinimumAxiomatization L GammaP} {ipAX: IntuitionisticPropositionalLogic L GammaP} {sAX: SeparationLogic L GammaP} {EmpsAX: EmpSeparationLogic L GammaP} := {
+Class Parametric_SeparationLogic (PAR: SL_Parameter) (L: Language) {minL: MinimumLanguage L} {pL: PropositionalLanguage L} {sepconL: SepconLanguage L} {wandL: WandLanguage L} {empL: EmpLanguage L} (GammaP: Provable L) {minAX: MinimumAxiomatization L GammaP} {ipAX: IntuitionisticPropositionalLogic L GammaP} {sepconAX: SepconAxiomatization L GammaP} {wandAX: WandAxiomatization L GammaP} {empAX: EmpAxiomatization L GammaP} := {
   Parametric_DM: WEM = true -> DeMorganPropositionalLogic L GammaP;
   Parametric_GD: IC = true -> GodelDummettPropositionalLogic L GammaP;
   Parametric_C: EM = true -> ClassicalPropositionalLogic L GammaP;
@@ -32,7 +33,7 @@ Section SeparationLogic.
 
 Context {Sigma: SeparationEmpLanguage.PropositionalVariables}.
 
-Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sL SeparationEmpLanguage.s'L.
+Existing Instances SeparationEmpLanguage.L SeparationEmpLanguage.minL SeparationEmpLanguage.pL SeparationEmpLanguage.sepconL SeparationEmpLanguage.wandL SeparationEmpLanguage.empL.
 
 Context (PAR: SL_Parameter).
 
@@ -50,8 +51,8 @@ Inductive provable: expr -> Prop :=
 | weak_excluded_middle: WEM = true -> forall x, provable (~~ x || ~~ ~~ x)
 | impp_choice: IC = true -> forall x y, provable ((x --> y) || (y --> x))
 | excluded_middle: EM = true -> forall x, provable (x || ~~ x)
-| sepcon_comm: forall x y, provable (x * y --> y * x)
-| sepcon_assoc: forall x y z, provable (x * (y * z) <--> (x * y) * z)
+| sepcon_comm_impp: forall x y, provable (x * y --> y * x)
+| sepcon_assoc1: forall x y z, provable (x * (y * z) --> (x * y) * z)
 | wand_sepcon_adjoint1: forall x y z, provable (x * y --> z) -> provable (x --> (y -* z))
 | wand_sepcon_adjoint2: forall x y z, provable (x --> (y -* z)) -> provable (x * y --> z)
 | sepcon_emp: forall x, provable (x * emp <--> x)
@@ -86,21 +87,46 @@ Proof.
   + apply falsep_elim.
 Qed.
 
-Instance sAX: SeparationLogic SeparationEmpLanguage.L GP.
+Instance wandAX: WandAxiomatization SeparationEmpLanguage.L GP.
 Proof.
   constructor.
-  + apply sepcon_comm.
-  + apply sepcon_assoc.
-  + intros; split.
-    - apply wand_sepcon_adjoint1.
-    - apply wand_sepcon_adjoint2.
+  intros; split.
+  + apply wand_sepcon_adjoint1.
+  + apply wand_sepcon_adjoint2.
 Qed.
 
-Instance EmpsAX: EmpSeparationLogic SeparationEmpLanguage.L GP.
+Instance sepconAX: SepconAxiomatization SeparationEmpLanguage.L GP.
 Proof.
+  assert (SepconAxiomatization_weak SeparationEmpLanguage.L GP).
+  {
+    constructor.
+    + apply sepcon_comm_impp.
+    + apply sepcon_assoc1.
+  }
+  eapply @SepconAxiomatizationWeak2SepconAxiomatization;
+  try typeclasses eauto.
+  eapply @Adj2SepconMono;
+  try typeclasses eauto.
+Qed.
+
+Instance empAX: EmpAxiomatization SeparationEmpLanguage.L GP.
+Proof.
+  eapply @EmpAxiomatizationIff2EmpAxiomatization;
+  try typeclasses eauto.
   constructor.
-  intros.
   apply sepcon_emp.
+Qed.
+
+Instance sepcon_orp_AX: SepconOrAxiomatization SeparationEmpLanguage.L GP.
+Proof.
+  eapply @Adj2SepconOr;
+  try typeclasses eauto.
+Qed.
+
+Instance sepcon_falsep_AX: SepconFalseAxiomatization SeparationEmpLanguage.L GP.
+Proof.
+  eapply @Adj2SepconFalse;
+  try typeclasses eauto.
 Qed.
 
 Instance ParAX: Parametric_SeparationLogic PAR SeparationEmpLanguage.L GP.

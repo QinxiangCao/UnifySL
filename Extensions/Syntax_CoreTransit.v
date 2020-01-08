@@ -4,11 +4,11 @@ Require Import Logic.PropositionalLogic.Syntax.
 Require Import Logic.ModalLogic.Syntax.
 Require Import Logic.SeparationLogic.Syntax.
 
-Class CoreTransitSeparationLanguage (L: Language) {SL: SeparationLanguage L}: Type := {
+Class CoreTransitSeparationLanguage (L: Language): Type := {
   core_tr: expr -> expr
 }.
 
-Definition ct_mL (L: Language) {SL: SeparationLanguage L} {CtsGamma: CoreTransitSeparationLanguage L} : ModalLanguage L := @Build_ModalLanguage L core_tr.
+Definition ct_mL (L: Language) {CtsGamma: CoreTransitSeparationLanguage L} : ModalLanguage L := @Build_ModalLanguage L core_tr.
 
 Module CoreTransitNotation.
 

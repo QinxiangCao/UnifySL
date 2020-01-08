@@ -31,7 +31,8 @@ Section Up2Flat.
 Context {L: Language}
         {minL: MinimumLanguage L}
         {pL: PropositionalLanguage L}
-        {sL: SeparationLanguage L}
+        {sepconL: SepconLanguage L}
+        {wandL: WandLanguage L}
         {MD: Model}
         {kMD: KripkeModel MD}
         {M: Kmodel}
@@ -42,43 +43,45 @@ Context {L: Language}
         {uSA: UpwardsClosedSeparationAlgebra (Kworlds M)}
         {SM: Semantics L MD}
         {kiSM: KripkeIntuitionisticSemantics L MD M SM}
-        {usSM: UpwardsSemantics.SeparatingSemantics L MD M SM}.
+        {usepconSM: UpwardsSemantics.SepconSemantics L MD M SM}
+        {uwandSM: UpwardsSemantics.WandSemantics L MD M SM}.
 
-Definition fsSM: @FlatSemantics.SeparatingSemantics L sL MD kMD M _ (DownwardsClosure_J) SM.
+Definition fwandSM: @FlatSemantics.WandSemantics L wandL MD kMD M _ (DownwardsClosure_J) SM.
 Proof.
-  constructor.
-  + (* sat_sepcon *)
+  hnf; intros.
+  unfold WeakSemantics.wand.
+  split; unfold Included, Ensembles.In; intros m ?.
+  + rewrite (app_same_set (UpwardsSemantics.denote_wand _ _) m) in H.
     intros.
-    unfold WeakSemantics.sepcon.
-    split; unfold Included, Ensembles.In; intros m ?.
-    - rewrite (app_same_set (UpwardsSemantics.denote_sepcon _ _) m) in H.
-      destruct H as [m1 [m2 [? [? ?]]]].
-      exists m1, m2.
-      split; [| split]; auto.
-      exists m1, m2.
-      split; [| split]; auto; reflexivity.
-    - rewrite (app_same_set (UpwardsSemantics.denote_sepcon _ _) m).
-      destruct H as [m1 [m2 [[n1 [n2 [? [? ?]]]] [? ?]]]].
-      exists n1, n2.
-      split; [| split]; auto; eapply sat_mono; eauto.
-  + (* sat_wand *)
-    intros.
-    unfold WeakSemantics.wand.
-    split; unfold Included, Ensembles.In; intros m ?.
-    - rewrite (app_same_set (UpwardsSemantics.denote_wand _ _) m) in H.
-      intros.
-      destruct H0 as [m' [m1' [? [? ?]]]].
-      apply (H  _ _ _ H0 H3).
-      eapply sat_mono; eauto.
-    - rewrite (app_same_set (UpwardsSemantics.denote_wand _ _) m).
-      hnf; intros.
-      apply (H m1 m2); auto.
-      exists m0, m1.
-      split; [| split]; auto.
-      reflexivity.
+    destruct H0 as [m' [m1' [? [? ?]]]].
+    apply (H  _ _ _ H0 H3).
+    eapply sat_mono; eauto.
+  + rewrite (app_same_set (UpwardsSemantics.denote_wand _ _) m).
+    hnf; intros.
+    apply (H m1 m2); auto.
+    exists m0, m1.
+    split; [| split]; auto.
+    reflexivity.
 Qed.
 
-Definition feSM {s'L: SeparationEmpLanguage L} {USA': UnitalSeparationAlgebra' (Kworlds M)} {ueSM: UpwardsSemantics.EmpSemantics L MD M SM}: @FlatSemantics.EmpSemantics L _ _ MD _ M _ (DownwardsClosure_J) SM.
+Definition fsepconSM: @FlatSemantics.SepconSemantics L sepconL MD kMD M _ (DownwardsClosure_J) SM.
+Proof.
+  hnf; intros.
+  unfold WeakSemantics.sepcon.
+  split; unfold Included, Ensembles.In; intros m ?.
+  + rewrite (app_same_set (UpwardsSemantics.denote_sepcon _ _) m) in H.
+    destruct H as [m1 [m2 [? [? ?]]]].
+    exists m1, m2.
+    split; [| split]; auto.
+    exists m1, m2.
+    split; [| split]; auto; reflexivity.
+  + rewrite (app_same_set (UpwardsSemantics.denote_sepcon _ _) m).
+    destruct H as [m1 [m2 [[n1 [n2 [? [? ?]]]] [? ?]]]].
+    exists n1, n2.
+    split; [| split]; auto; eapply sat_mono; eauto.
+Qed.
+
+Definition feSM {empL: EmpLanguage L} {USA': UnitalSeparationAlgebra' (Kworlds M)} {uempSM: UpwardsSemantics.EmpSemantics L MD M SM}: @FlatSemantics.EmpSemantics L _ MD _ M _ (DownwardsClosure_J) SM.
 Proof.
   constructor;
   intros m; simpl; unfold Ensembles.In; unfold WeakSemantics.emp;
