@@ -12,6 +12,7 @@ Require Import PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 Require Import SeparationLogic.ProofTheory.RewriteClass.
+Require Import SeparationLogic.ProofTheory.IterSepcon.
 Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.
 
 Require Logic.LogicGenerator.ConfigLang.
@@ -37,6 +38,7 @@ Definition connectives: list connective :=
   ; wand
   ; emp
   ; multi_imp
+  ; iter_sepcon
   ; empty_context
   ].
 
@@ -54,6 +56,7 @@ Definition how_connectives: list how_connective :=
   ; FROM_falsep_impp_TO_negp
   ; FROM_falsep_impp_TO_truep
   ; FROM_impp_TO_multi_imp
+  ; FROM_sepcon_TO_iter_sepcon
   ; FROM_empty_set_TO_empty_context
   ].
 
@@ -72,6 +75,7 @@ Definition connective_classes :=
   ; SepconLanguage
   ; WandLanguage
   ; EmpLanguage
+  ; IterSepconLanguage
   ].
 
 Definition judgement_classes :=
@@ -102,6 +106,7 @@ Definition rule_classes :=
 (*  ; derivitive_OF_de_morgan *)
 (*  ; derivitive_OF_godel_dummett *)
   ; derivitive_OF_classical_logic
+  ; GEN_iter_sepcon_FROM_sepcon
   ; GEN_derivable_FROM_provable
   ; GEN_provable_FROM_derivable
   ].
@@ -115,7 +120,8 @@ Definition classes :=
         exact l).
 
 Definition refl_classes :=
-  [ RC GEN_derivable_FROM_provable
+  [ RC GEN_iter_sepcon_FROM_sepcon
+  ; RC GEN_derivable_FROM_provable
   ; RC GEN_provable_FROM_derivable
   ].
 
@@ -127,8 +133,10 @@ Definition Build_PropositionalLanguage := Build_PropositionalLanguage.
 Definition Build_SepconLanguage := Build_SepconLanguage.
 Definition Build_WandLanguage := Build_WandLanguage.
 Definition Build_EmpLanguage := Build_EmpLanguage.
+Definition Build_IterSepconLanguage := Build_IterSepconLanguage.
 Definition Build_Provable := Build_Provable.
 Definition Build_Derivable := Build_Derivable.
+Definition Build_NormalIterSepcon := Build_NormalIterSepcon.
 Definition Build_NormalAxiomatization := Build_NormalAxiomatization.
 Definition Build_NormalSequentCalculus := Build_NormalSequentCalculus.
 Definition Build_MinimumAxiomatization := Build_MinimumAxiomatization.
@@ -160,8 +168,10 @@ Context {L: Language}
         {sepconL : SepconLanguage L}
         {wandL : WandLanguage L}
         {empL: EmpLanguage L}
+        {iter_sepcon_L : IterSepconLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
+        {iter_sepcon_Def: NormalIterSepcon L}
         {AX: NormalAxiomatization L GammaP GammaD}
         {SC : NormalSequentCalculus L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
@@ -206,6 +216,7 @@ Definition connectives: list Name :=
   ; wand
   ; emp
   ; multi_imp
+  ; iter_sepcon
   ; empty_context
   ].
 
@@ -223,6 +234,7 @@ Definition how_connectives: list Name :=
   ; (negp, fun x => impp x falsep)
   ; (truep, impp falsep falsep)
   ; (multi_imp, fun xs y => fold_right impp y xs)
+  ; (iter_sepcon, fun xs => fold_left sepcon xs emp)
   ; (empty_context, Empty_set expr)
   ].
 
@@ -241,6 +253,7 @@ Definition connective_instances_build :=
   ; (sepconL, Build_SepconLanguage L sepcon)
   ; (wandL, Build_WandLanguage L wand)
   ; (empL, Build_EmpLanguage L emp)
+  ; (iter_sepcon_L, Build_IterSepconLanguage L iter_sepcon)
   ].
 
 Definition judgement_instances_build :=
@@ -269,6 +282,7 @@ Definition rule_instances_build :=
   ; (minSC, Build_MinimumSequentCalculus L minL GammaD deduction_modus_ponens deduction_impp_intros) 
   ; (ipSC, Build_IntuitionisticPropositionalSequentCalculus L pL GammaD deduction_andp_intros deduction_andp_elim1 deduction_andp_elim2 deduction_orp_intros1 deduction_orp_intros2 deduction_orp_elim deduction_falsep_elim)
   ; (cpSC, Build_ClassicalPropositionalSequentCalculus L minL pL GammaD bSC minSC ipSC derivable_excluded_middle)
+  ; (iter_sepcon_Def, Build_NormalIterSepcon L sepconL empL iter_sepcon_L iter_sepcon_def)
   ; (AX, Build_NormalAxiomatization L minL GammaP GammaD derivable_provable)
   ; (SC, Build_NormalSequentCalculus L GammaP GammaD provable_derivable)
   ].
@@ -287,7 +301,8 @@ Definition instances_build :=
         exact instances_build).
 
 Definition refl_instances :=
-  [ (AX, Provable2Derivable_Normal)
+  [ (iter_sepcon_Def, Sepcon2IterSepcon_Normal)
+  ; (AX, Provable2Derivable_Normal)
   ; (SC, Derivable2Provable_Normal)
   ].
 
@@ -305,6 +320,7 @@ Definition instance_transitions :=
   ; (sepcon_mono_AX, Adj2SepconMono)
   ; (sepcon_orp_AX, Adj2SepconOr)
   ; (sepcon_falsep_AX, Adj2SepconFalse)
+  ; (empAX, EmpAxiomatizationIff2EmpAxiomatization)
   ].
 
 Definition type_instances: list Name :=
@@ -446,6 +462,9 @@ Definition derived_rules :=
   ; provable_wand_sepcon_modus_ponens2
   ; wand_mono
   ; orp_wand
+  ; sepcon_iter_sepcon
+  ; sepcon_iter_unfold_right_assoc
+  ; sepcon_iter_unfold_left_assoc
   ].
 
 Ltac filter_instance_rec l res :=

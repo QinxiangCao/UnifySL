@@ -16,6 +16,7 @@ Definition how_connectives :=
   ;FROM_falsep_impp_TO_truep
   ;FROM_impp_TO_multi_imp
   ;FROM_empty_set_TO_empty_context
+  ;FROM_sepcon_TO_iter_sepcon
   ].
 
 Definition how_judgements :=

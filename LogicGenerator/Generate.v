@@ -13,6 +13,7 @@ Require Import Logic.PropositionalLogic.ProofTheory.RewriteClass.
 Require Import SeparationLogic.Syntax.
 Require Import SeparationLogic.ProofTheory.SeparationLogic.
 Require Import SeparationLogic.ProofTheory.RewriteClass.
+Require Import SeparationLogic.ProofTheory.IterSepcon.
 Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.
 
 Require Import Logic.LogicGenerator.Utils.
@@ -29,8 +30,10 @@ Context {L: Language}
         {sepconL : SepconLanguage L}
         {wandL : WandLanguage L}
         {empL: EmpLanguage L}
+        {iter_sepcon_L: IterSepconLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}
+        {iter_sepcon_Def: NormalIterSepcon L}
         {AX: NormalAxiomatization L GammaP GammaD}
         {SC : NormalSequentCalculus L GammaP GammaD}
         {minAX: MinimumAxiomatization L GammaP}
@@ -194,6 +197,7 @@ Set Printing Width 1000.
 Ltac two_stage_print :=
   idtac "Require Import Coq.Lists.List.";
   idtac "Require Import Coq.Sets.Ensembles.";
+  idtac "Import ListNotations.";
 
   newline;
 
@@ -246,6 +250,7 @@ Ltac two_stage_print :=
   idtac "Require Import Logic.SeparationLogic.ProofTheory.SeparationLogic.";
   idtac "Require Import Logic.SeparationLogic.ProofTheory.RewriteClass.";
   idtac "Require Import SeparationLogic.ProofTheory.TheoryOfSeparationAxioms.";
+  idtac "Require Import SeparationLogic.ProofTheory.IterSepcon.";
 
   newline;
 

@@ -16,6 +16,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => []
 | FROM_falsep_impp_TO_truep => []
 | FROM_impp_TO_multi_imp => []
+| FROM_sepcon_TO_iter_sepcon => []
 | FROM_empty_set_TO_empty_context => [FROM_ensemble_expr_TO_context]
 end.
 
@@ -48,6 +49,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => negp
 | FROM_falsep_impp_TO_truep => truep
 | FROM_impp_TO_multi_imp => multi_imp
+| FROM_sepcon_TO_iter_sepcon => iter_sepcon
 | FROM_empty_set_TO_empty_context => empty_context
 end.
 
@@ -83,7 +85,8 @@ match c with
 | sepcon
 | wand
 | emp
-| multi_imp => [expr]
+| multi_imp
+| iter_sepcon => [expr]
 | empty_context => [context]
 end.
 
@@ -104,6 +107,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => [falsep; impp]
 | FROM_falsep_impp_TO_truep => [falsep; impp]
 | FROM_impp_TO_multi_imp => [impp]
+| FROM_sepcon_TO_iter_sepcon => [sepcon; emp]
 | FROM_empty_set_TO_empty_context => []
 end.
 
@@ -135,6 +139,7 @@ match hc with
 | FROM_falsep_impp_TO_negp => None
 | FROM_falsep_impp_TO_truep => None
 | FROM_impp_TO_multi_imp => None
+| FROM_sepcon_TO_iter_sepcon => Some (GEN_iter_sepcon_FROM_sepcon)
 | FROM_empty_set_TO_empty_context => None
 end.
 
@@ -539,6 +544,7 @@ Definition how_connectives :=
   ;FROM_falsep_impp_TO_negp
   ;FROM_falsep_impp_TO_truep
   ;FROM_impp_TO_multi_imp
+  ;FROM_sepcon_TO_iter_sepcon
   ;FROM_empty_set_TO_empty_context
   ].
 

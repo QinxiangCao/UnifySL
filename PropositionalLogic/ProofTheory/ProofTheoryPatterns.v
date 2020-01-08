@@ -57,6 +57,28 @@ Proof.
   apply solve_andp_intros; apply prodp_comm_impp.
 Qed.
 
+Section UnitTheorems.
+
+Context {e: expr}.
+
+Lemma left_unit {LU: LeftUnit L Gamma e prodp} : forall x, |-- prodp e x <--> x.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply left_unit1.
+  + apply left_unit2.
+Qed.
+
+Lemma right_unit {RU: RightUnit L Gamma e prodp} : forall x, |-- prodp x e <--> x.
+Proof.
+  intros.
+  apply solve_andp_intros.
+  + apply right_unit1.
+  + apply right_unit2.
+Qed.
+
+End UnitTheorems.
+
 Section DistrTheorems.
 
 Context {sump: expr -> expr -> expr}.
@@ -219,6 +241,57 @@ Proof.
       intros.
       eapply solve_andp_elim2; exact H.
     - eapply solve_andp_elim2; exact H0.
+Qed.
+
+Context {e: expr}.
+
+Lemma fold_left_prodp_unfold {LU: LeftUnit L Gamma e prodp}: forall xs,
+  |-- fold_left prodp xs e <-->
+      match xs with
+      | nil => e
+      | x :: xs0 => fold_left prodp xs0 x
+      end.
+Proof.
+  intros.
+  destruct xs.
+  + simpl.
+    apply provable_iffp_refl.
+  + simpl.
+    apply fold_left_iffp.
+    - induction xs.
+      * constructor.
+      * constructor; auto.
+        apply provable_iffp_refl.
+    - apply left_unit.
+Qed.
+
+Lemma fold_right_prodp_unfold {RU: RightUnit L Gamma e prodp}: forall xs,
+  |-- fold_right prodp e xs <-->
+      (fix f xs :=
+         match xs with
+         | nil => e
+         | x :: nil => x
+         | x :: xs0 => prodp x (f xs0)
+         end) xs.
+Proof.
+  intros.
+  set (f := (fix f xs :=
+             match xs with
+             | nil => e
+             | x :: nil => x
+             | x :: xs0 => prodp x (f xs0)
+             end)).
+  destruct xs.
+  + apply provable_iffp_refl.
+  + simpl fold_right.
+    revert e0; induction xs; intros.
+    - simpl.
+      rewrite right_unit.
+      apply provable_iffp_refl.
+    - change (f (e0 :: a :: xs)) with (prodp e0 (f (a :: xs))).
+      apply prodp_iffp.
+      * apply provable_iffp_refl.
+      * apply IHxs.
 Qed.
 
 End MonoTheorems.
@@ -454,6 +527,38 @@ Proof.
   unfold multi_and.
   pose proof @assoc_fold_left_fold_right_equiv _ _ _ _ _ _ andp TT andp_Mono andp_Assoc andp_LU andp_RU.
   auto.
+Qed.
+
+Lemma multi_and_unfold_right_assoc:  forall (xs: list expr),
+  |-- multi_and xs <-->
+      (fix f xs :=
+         match xs with
+         | nil => TT
+         | x :: nil => x
+         | x :: xs0 => x && (f xs0)
+         end) xs.
+Proof.
+  intros.
+  rewrite multi_and_spec.
+  pose proof @fold_right_prodp_unfold _ _ _ _ _ _ andp andp_Mono TT andp_RU.
+  auto.
+Qed.
+
+Lemma multi_and_unfold_left_assoc:  forall (xs: list expr),
+  |-- multi_and xs <-->
+      match xs with
+      | nil => TT
+      | x :: xs0 =>
+        (fix f xs x :=
+           match xs with
+           | nil => x
+           | x0 :: xs0 => f xs0 (x && x0)
+           end) xs0 x
+      end.
+Proof.
+  intros.
+  pose proof @fold_left_prodp_unfold _ _ _ _ _ _ andp andp_Mono TT andp_LU.
+  apply H.
 Qed.
 
 Lemma multi_and_multi_imp: forall (xs: list expr) (y: expr),

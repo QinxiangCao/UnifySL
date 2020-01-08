@@ -16,6 +16,7 @@ Inductive connective :=
 | wand
 | emp
 | multi_imp
+| iter_sepcon
 | empty_context.
 
 Inductive judgement :=
@@ -44,6 +45,7 @@ Inductive how_connective :=
 | FROM_falsep_impp_TO_negp
 | FROM_falsep_impp_TO_truep
 | FROM_impp_TO_multi_imp
+| FROM_sepcon_TO_iter_sepcon
 | FROM_empty_set_TO_empty_context.
 
 Definition primitive_connectives := map primitive_connective.
@@ -93,6 +95,7 @@ Inductive rule_class :=
 | derivitive_OF_de_morgan
 | derivitive_OF_godel_dummett
 | derivitive_OF_classical_logic
+| GEN_iter_sepcon_FROM_sepcon
 | GEN_derivable_FROM_provable
 | GEN_provable_FROM_derivable
 .
@@ -119,6 +122,7 @@ Inductive connective_class :=
 | SepconLanguage
 | WandLanguage
 | EmpLanguage
+| IterSepconLanguage
 .
 
 Inductive judgement_class :=
@@ -349,6 +353,7 @@ match c1, c2 with
 | wand, wand
 | emp, emp
 | multi_imp, multi_imp
+| iter_sepcon, iter_sepcon
 | empty_context, empty_context => true
 | _, _ => false
 end.
@@ -418,6 +423,7 @@ match cc1, cc2 with
 | SepconLanguage, SepconLanguage => true
 | WandLanguage, WandLanguage => true
 | EmpLanguage, EmpLanguage => true
+| IterSepconLanguage, IterSepconLanguage => true
 | _, _ => false
 end.
 
@@ -482,6 +488,7 @@ match rc1, rc2 with
 | derivitive_OF_de_morgan, derivitive_OF_de_morgan => true
 | derivitive_OF_godel_dummett, derivitive_OF_godel_dummett => true
 | derivitive_OF_classical_logic, derivitive_OF_classical_logic => true
+| GEN_iter_sepcon_FROM_sepcon, GEN_iter_sepcon_FROM_sepcon => true
 | GEN_derivable_FROM_provable, GEN_derivable_FROM_provable => true
 | GEN_provable_FROM_derivable, GEN_provable_FROM_derivable => true
 | _, _ => false
