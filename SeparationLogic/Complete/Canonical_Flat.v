@@ -89,7 +89,7 @@ Proof.
     destruct H3 as [y [z [? [? ?]]]].
     subst.
     rewrite derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
-    rewrite sepcon_comm.
+    rewrite <- sepcon_comm_impp.
     rewrite <- derivable_closed_element_derivable by (apply AL_DC, (proj2_sig Phi)).
     apply H.
     exists z, y; split; [| split]; auto.
@@ -297,3 +297,5 @@ Proof.
 Qed.
 
 End Canonical.
+
+

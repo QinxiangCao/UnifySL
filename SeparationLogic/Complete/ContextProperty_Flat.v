@@ -31,9 +31,7 @@ Section ContextProperties.
 
 Context {L: Language}
         {minL: MinimumLanguage L}
-        {pL: PropositionalLanguage L}
         {sepconL: SepconLanguage L}
-        {wandL: WandLanguage L}
         {GammaP: Provable L}
         {GammaD: Derivable L}.
 
@@ -46,7 +44,9 @@ Definition context_sepcon_included_l (Phi2 Psi: context): context -> Prop :=
 Definition context_sepcon_included_r (Phi1 Psi: context): context -> Prop :=
   fun Phi2 => Included _ (context_sepcon Phi1 Phi2) Psi.
 
-Context {SC: NormalSequentCalculus L GammaP GammaD}
+Context {pL: PropositionalLanguage L}
+        {wandL: WandLanguage L}
+        {SC: NormalSequentCalculus L GammaP GammaD}
         {bSC: BasicSequentCalculus L GammaD}
         {fwSC: FiniteWitnessedSequentCalculus L GammaD}
         {minSC: MinimumSequentCalculus L GammaD}
@@ -222,7 +222,7 @@ Proof.
     destruct H1 as [y [z [? [? ?]]]].
     subst x.
     apply H.
-    rewrite <- sepcon_comm.
+    rewrite <- sepcon_comm_impp.
     apply derivable_assum.
     apply H0.
     exists z, y; split; [| split]; auto.
@@ -230,7 +230,7 @@ Proof.
     destruct H1 as [y [z [? [? ?]]]].
     subst x.
     apply H.
-    rewrite <- sepcon_comm.
+    rewrite <- sepcon_comm_impp.
     apply derivable_assum.
     apply H0.
     exists z, y; split; [| split]; auto.
