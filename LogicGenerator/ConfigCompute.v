@@ -451,6 +451,7 @@ Definition result: Output.output :=
 
 End ComputeHT.
 
+(*
 Module test1.
 
 Definition how_connectives :=
@@ -573,3 +574,4 @@ Eval compute in (result how_connectives how_judgements transparent_names primiti
 
 End test3.
 
+*)

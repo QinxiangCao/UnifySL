@@ -1,5 +1,7 @@
+COQBIN=
+-include ../CONFIGURE
 unifysl_dir := ..
-coq_exe		:= coqc
+coq_exe		:= $(COQBIN)coqc
 coq_flags	:= -R $(unifysl_dir) Logic
 src         := Generate.v
 dst         := Generated.v

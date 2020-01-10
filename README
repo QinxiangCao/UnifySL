@@ -1,21 +1,55 @@
-Update 2018/01/10:
-
-From previous version, I made the following updates:
-
-1) Support both Axiomatization and Sequent Calculus approach of defining ProofTheory.
-1.1) Basic settings for these two proof theories are in GeneralLogic/ProofTheory/BasicSequentCalculus.v and MinimunLogic/ProofTheory/Minimun.v.
-1.2) Now, axiomatic proof theories does not depend on any assumption about "derivable". Especially, they does not depend on "NormalProofTheory" any more; in other words, we do not require "derivable" to be "provable from a finite subset of assumptions".
-1.3) Besides, a tactic called "AddSequentCalculus Gamma" can be used such that we can prove properties about an axiomatization as if we defined "derivable" as "provable from a finite subset of assumptions".
-
-2) Proofs of Lindenbaum lemmas in completeness proofs are significantly improved.
-
-3) Add some tactics for object language theorem derivation, especially for axiomatic proof theories.
-
-4) "-->" are split from "&&" and "||" from semantic definitions. In the future, these typeclasses may get future split.
-
-5) I add a file "DESIGN" recording design choices and the reason behind.
-
+This library contains three parts: logics, a logic generator and Hoare logics.
 
 ============================================
 
-The last version with syntactic reduction explicitly defined is 88df9a5724c5968a6e598c9484c502e0c5acf867.
+Logics.
+
+You can find basic logic settings, propositional logics and separation logics
+in the following folders:
+    GeneralLogic
+    MinimumLogic
+    PropositionalLogic
+    SeparationLogic
+You can find formalized proof theories, semantic definitions, soundness
+proofs and completeness proofs. The library is built-up in an extensible
+style, using Coq's typeclasses and higher-order features. But at the same
+time, we also provide several concrete examples, containing both shallow
+embeddings and deep embeddings.
+
+============================================
+
+Logic Generator.
+
+The folder "LogicGenerator" contains our development about this
+generator. It requires users to provide a configuration file. Then a command
+line can be used to generate an interface file:
+    ./logic_gen CONFIGURATION_FILE INTERFACE_FILE
+The configuration file should specify involved connectives and primary proof
+rules. The interface file will contain a Module Type (where these connectives
+and proof rules are specified) and a Module functor which generate many many
+derived rules from primary ones. See LogicGenerator/demo for more information.
+
+============================================
+
+Hoare Logics.
+
+This part is not quite complete. It contains some elementary results about Hoare
+logic soundness, especially those about concurrent separation logic.
+
+============================================
+
+Dependency: Coq 8.10
+
+============================================
+
+How to install.
+
+Run "make" or "make -j7" for parallel in your command line. A CONFIGURE file
+may be needed for setting up COQBIN.
+
+============================================
+
+Open Source.
+
+This library is NOT open sourced for now.
+
